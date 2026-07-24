@@ -522,8 +522,9 @@ exports.getSuggestions = async (req, res) => {
     try {
         await connectDB();
         const currentUser = await User.findById(req.user._id);
+        const followedIds = (currentUser && currentUser.following) ? currentUser.following : [];
         const query = {
-            _id: { $ne: req.user._id },
+            _id: { $ne: req.user._id, $nin: followedIds },
             is_approved: true,
         };
 
@@ -541,7 +542,7 @@ exports.getSuggestions = async (req, res) => {
             .limit(100);
 
         if (suggestions.length === 0) {
-            suggestions = await User.find({ _id: { $ne: req.user._id }, is_approved: true })
+            suggestions = await User.find({ _id: { $ne: req.user._id, $nin: followedIds }, is_approved: true })
                 .select('name email institution department degree batchYear company designation avatar_url role')
                 .limit(100);
         }

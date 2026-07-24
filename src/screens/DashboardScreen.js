@@ -496,23 +496,30 @@ const DashboardScreen = ({ navigation }) => {
                     <Text style={{ fontSize: 13, color: theme.primary, fontWeight: '600' }}>See all</Text>
                   </TouchableOpacity>
                 </View>
-                {suggestions.map(s => (
-                  <View key={s.id} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-                    <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: theme.border, justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
-                      <Text style={{ fontWeight: '700', color: theme.textSecondary }}>{s.avatar}</Text>
+                {suggestions.filter(s => !followingMap[s.id]).length > 0 ? (
+                  suggestions.filter(s => !followingMap[s.id]).map(s => (
+                    <View key={s.id} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+                      <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: theme.border, justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
+                        <Text style={{ fontWeight: '700', color: theme.textSecondary }}>{s.avatar}</Text>
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text }}>{s.name}</Text>
+                        <Text style={{ fontSize: 12, color: theme.textSecondary }}>{s.subtitle}</Text>
+                      </View>
+                      <TouchableOpacity 
+                        style={[styles.suggestionFollowBtn, followingMap[s.id] && styles.suggestionFollowBtnActive, { paddingHorizontal: 12, paddingVertical: 6 }]}
+                        onPress={() => toggleSuggestionFollow(s.id)}
+                      >
+                        <Text style={[styles.suggestionFollowText, followingMap[s.id] && styles.suggestionFollowTextActive]}>{followingMap[s.id] ? 'Following' : 'Follow'}</Text>
+                      </TouchableOpacity>
                     </View>
-                    <View style={{ flex: 1 }}>
-                      <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text }}>{s.name}</Text>
-                      <Text style={{ fontSize: 12, color: theme.textSecondary }}>{s.subtitle}</Text>
-                    </View>
-                    <TouchableOpacity 
-                      style={[styles.suggestionFollowBtn, followingMap[s.id] && styles.suggestionFollowBtnActive, { paddingHorizontal: 12, paddingVertical: 6 }]}
-                      onPress={() => toggleSuggestionFollow(s.id)}
-                    >
-                      <Text style={[styles.suggestionFollowText, followingMap[s.id] && styles.suggestionFollowTextActive]}>{followingMap[s.id] ? 'Following' : 'Follow'}</Text>
-                    </TouchableOpacity>
+                  ))
+                ) : (
+                  <View style={{ paddingVertical: 12, alignItems: 'center' }}>
+                    <Ionicons name="checkmark-circle-outline" size={28} color={theme.primary} style={{ marginBottom: 4 }} />
+                    <Text style={{ fontSize: 13, color: theme.textMuted, textAlign: 'center' }}>You are following all suggested alumni! View your connections in your Profile.</Text>
                   </View>
-                ))}
+                )}
               </View>
 
               {/* Events & Jobs Widget */}
@@ -547,25 +554,29 @@ const DashboardScreen = ({ navigation }) => {
             <View style={styles.sectionContainer}>
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionTitle}>Suggestions for you</Text>
-                <TouchableOpacity><Text style={styles.seeAllText}>See all</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('Directory', { tab: 'directory' })}><Text style={styles.seeAllText}>See all</Text></TouchableOpacity>
               </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.suggestionsScroll}>
-                {suggestions.map((s) => (
-                  <View key={s.id} style={styles.suggestionCard}>
-                    <TouchableOpacity style={styles.suggestionRemove}><Ionicons name="close" size={14} color="#94A3B8" /></TouchableOpacity>
-                    <View style={styles.suggestionAvatar}><Text style={styles.avatarText}>{s.avatar}</Text></View>
-                    <Text style={styles.suggestionName} numberOfLines={1}>{s.name}</Text>
-                    <Text style={styles.suggestSubText}>{s.subtitle}</Text>
-                    <TouchableOpacity
-                      style={[styles.suggestionFollowBtn, followingMap[s.id] && styles.suggestionFollowBtnActive]}
-                      onPress={() => toggleSuggestionFollow(s.id)}
-                    >
-                      <Text style={[styles.suggestionFollowText, followingMap[s.id] && styles.suggestionFollowTextActive]}>
-                        {followingMap[s.id] ? 'Following' : 'Follow'}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                ))}
+                {suggestions.filter(s => !followingMap[s.id]).length > 0 ? (
+                  suggestions.filter(s => !followingMap[s.id]).map((s) => (
+                    <View key={s.id} style={styles.suggestionCard}>
+                      <TouchableOpacity style={styles.suggestionRemove}><Ionicons name="close" size={14} color="#94A3B8" /></TouchableOpacity>
+                      <View style={styles.suggestionAvatar}><Text style={styles.avatarText}>{s.avatar}</Text></View>
+                      <Text style={styles.suggestionName} numberOfLines={1}>{s.name}</Text>
+                      <Text style={styles.suggestSubText}>{s.subtitle}</Text>
+                      <TouchableOpacity
+                        style={[styles.suggestionFollowBtn, followingMap[s.id] && styles.suggestionFollowBtnActive]}
+                        onPress={() => toggleSuggestionFollow(s.id)}
+                      >
+                        <Text style={[styles.suggestionFollowText, followingMap[s.id] && styles.suggestionFollowTextActive]}>
+                          {followingMap[s.id] ? 'Following' : 'Follow'}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  ))
+                ) : (
+                  <Text style={{ fontSize: 13, color: theme.textMuted, padding: 12 }}>You are following all suggested alumni!</Text>
+                )}
               </ScrollView>
             </View>
             {posts.length > 1 && posts.slice(1).map(post => renderPostCard(post))}
