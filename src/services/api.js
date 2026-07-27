@@ -73,8 +73,7 @@ api.interceptors.response.use(
           }
         }
       } catch (refreshErr) {
-        // Refresh failed — clear stored user session so app redirects to login cleanly
-        await AsyncStorage.removeItem('userInfo');
+        console.warn('Token refresh error:', refreshErr?.message);
       }
     }
     return Promise.reject(error);
