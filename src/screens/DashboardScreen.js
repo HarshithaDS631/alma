@@ -176,7 +176,26 @@ const DashboardScreen = ({ navigation }) => {
     return date.toLocaleDateString();
   };
 
-  // ─── Handlers ──────────────────────────────────────────
+  // ─── Instagram HiFi Handlers ──────────────────────────────
+  const [doubleTapHeart, setDoubleTapHeart] = useState({});
+  const lastTapRef = useRef({});
+
+  const handleImageDoubleTap = (postId) => {
+    const now = Date.now();
+    const DOUBLE_PRESS_DELAY = 300;
+    if (lastTapRef.current[postId] && (now - lastTapRef.current[postId]) < DOUBLE_PRESS_DELAY) {
+      if (!likedPosts[postId]) {
+        toggleLike(postId);
+      }
+      setDoubleTapHeart(prev => ({ ...prev, [postId]: true }));
+      setTimeout(() => {
+        setDoubleTapHeart(prev => ({ ...prev, [postId]: false }));
+      }, 900);
+    } else {
+      lastTapRef.current[postId] = now;
+    }
+  };
+
   const toggleLike = async (postId) => {
     try {
       setLikedPosts((prev) => ({ ...prev, [postId]: !prev[postId] }));
@@ -279,19 +298,43 @@ const DashboardScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Post image */}
+      {/* Post image with Instagram Double-Tap to Like */}
       {post.image ? (
-        <Image source={{ uri: post.image }} style={[styles.postImage, { width: '100%', height: contentWidth * 0.65 }]} />
+        <TouchableOpacity 
+          activeOpacity={0.95} 
+          onPress={() => handleImageDoubleTap(post.id)}
+          style={{ position: 'relative', overflow: 'hidden' }}
+        >
+          <Image source={{ uri: post.image }} style={[styles.postImage, { width: '100%', height: contentWidth * 0.65 }]} />
+          {doubleTapHeart[post.id] && (
+            <View style={{
+              position: 'absolute',
+              top: 0, left: 0, right: 0, bottom: 0,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0,0,0,0.2)',
+              zIndex: 10
+            }}>
+              <Ionicons name="heart" size={96} color="#FF3040" style={{
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.6,
+                shadowRadius: 12,
+                elevation: 12
+              }} />
+            </View>
+          )}
+        </TouchableOpacity>
       ) : null}
 
-      {/* Action row */}
+      {/* Action row - Instagram HiFi Styling */}
       <View style={styles.postActions}>
         <View style={styles.leftActions}>
           <TouchableOpacity onPress={() => toggleLike(post.id)} activeOpacity={0.6}>
             <Ionicons
               name={likedPosts[post.id] ? 'heart' : 'heart-outline'}
               size={26}
-              color={likedPosts[post.id] ? theme.danger : theme.text}
+              color={likedPosts[post.id] ? '#FF3040' : theme.text}
             />
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionBtn} activeOpacity={0.6} onPress={() => openModal('comments', post)}>
@@ -312,7 +355,7 @@ const DashboardScreen = ({ navigation }) => {
           <Ionicons
             name={bookmarkedPosts[post.id] ? 'bookmark' : 'bookmark-outline'}
             size={24}
-            color={bookmarkedPosts[post.id] ? theme.primary : theme.text}
+            color={bookmarkedPosts[post.id] ? '#0F172A' : theme.text}
           />
         </TouchableOpacity>
       </View>
