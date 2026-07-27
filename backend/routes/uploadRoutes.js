@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const connectDB = require('../config/db');
 const { protect } = require('../middleware/authMiddleware');
 const upload = require('../middleware/uploadMiddleware');
 const crypto = require('crypto');
@@ -9,7 +10,7 @@ const router = express.Router();
 let gfsBucket;
 
 const getGfs = () => {
-    if (!gfsBucket && mongoose.connection.readyState === 1) {
+    if (mongoose.connection.readyState === 1) {
         gfsBucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
             bucketName: 'uploads'
         });
@@ -19,8 +20,9 @@ const getGfs = () => {
 
 // @desc    Upload file to GridFS
 // @route   POST /api/upload
-router.post('/', protect, upload.single('image'), (req, res) => {
+router.post('/', protect, upload.single('image'), async (req, res) => {
     try {
+        await connectDB();
         if (!req.file) {
             return res.status(400).json({ message: 'Please upload a file' });
         }
@@ -59,6 +61,7 @@ router.post('/', protect, upload.single('image'), (req, res) => {
 // @route   GET /api/upload/:filename
 router.get('/:filename', async (req, res) => {
     try {
+        await connectDB();
         const gfs = getGfs();
         if (!gfs) {
             return res.status(500).json({ message: 'GridFS not initialized' });
