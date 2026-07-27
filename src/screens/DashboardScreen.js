@@ -94,10 +94,11 @@ const DashboardScreen = ({ navigation }) => {
       const fetchData = async () => {
       try {
         setLoading(true);
-        const [postsData, suggestionsData, eventsData] = await Promise.allSettled([
+        const [postsData, suggestionsData, eventsData, jobsData] = await Promise.allSettled([
           getPosts(),
           getSuggestions(),
           getEvents(),
+          fetchJobs(),
         ]);
 
         // Process posts
@@ -129,17 +130,53 @@ const DashboardScreen = ({ navigation }) => {
           setSuggestions(formatted);
         }
 
-        // Process events
-        if (eventsData.status === 'fulfilled' && eventsData.value.length > 0) {
-          const formatted = eventsData.value.map(e => ({
-            id: e._id,
+        // Process combined Opportunities (Jobs & Events)
+        let combinedOpportunities = [];
+
+        if (jobsData.status === 'fulfilled' && Array.isArray(jobsData.value) && jobsData.value.length > 0) {
+          const formattedJobs = jobsData.value.map(j => ({
+            id: j._id || j.id,
+            title: j.title || j.role || 'Career Opportunity',
+            subtitle: `${j.company || 'Alumni Partner'} • ${j.location || 'Remote'}`,
+            btnText: 'View Job',
+            image: j.logo || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=200&h=200&q=80',
+          }));
+          combinedOpportunities.push(...formattedJobs);
+        }
+
+        if (eventsData.status === 'fulfilled' && Array.isArray(eventsData.value) && eventsData.value.length > 0) {
+          const formattedEvents = eventsData.value.map(e => ({
+            id: e._id || e.id,
             title: e.title,
             subtitle: e.date ? `${new Date(e.date).toLocaleDateString()} • ${e.location || 'Online'}` : e.location || 'Online',
             btnText: 'View Details',
             image: e.image || 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&w=400&h=260&q=80',
           }));
-          setEventsAndJobs(formatted);
+          combinedOpportunities.push(...formattedEvents);
         }
+
+        // Fallback curated opportunities if empty
+        if (combinedOpportunities.length === 0) {
+          combinedOpportunities = [
+            {
+              id: 'mock_job_1',
+              title: 'Senior Software Engineer',
+              subtitle: 'Google • Bengaluru, KA',
+              btnText: 'View Job',
+              image: 'https://images.unsplash.com/photo-1572021335469-31706a17aaef?auto=format&fit=crop&w=200&h=200&q=80',
+            },
+            {
+              id: 'mock_job_2',
+              title: 'Product Designer',
+              subtitle: 'Microsoft • Remote / Hyderabad',
+              btnText: 'View Job',
+              image: 'https://images.unsplash.com/photo-1542744094-3a3172720189?auto=format&fit=crop&w=200&h=200&q=80',
+            }
+          ];
+        }
+
+        setEventsAndJobs(combinedOpportunities);
+        
         // Fetch following to initialize followedSuggestions
         const followingData = await getFollowing();
         if (followingData) {
@@ -561,16 +598,22 @@ const DashboardScreen = ({ navigation }) => {
               <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 16, elevation: 2, borderWidth: 1, borderColor: theme.border }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                   <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>Opportunities</Text>
-                  <Text style={{ fontSize: 13, color: theme.primary, fontWeight: '600' }}>See all</Text>
+                  <TouchableOpacity onPress={() => navigation.navigate('Jobs')} activeOpacity={0.7}>
+                    <Text style={{ fontSize: 13, color: theme.primary, fontWeight: '600', cursor: 'pointer' }}>See all</Text>
+                  </TouchableOpacity>
                 </View>
                 {eventsAndJobs.map(ev => (
                   <View key={ev.id} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: theme.border }}>
-                    <Image source={{ uri: ev.image }} style={{ width: 60, height: 60, borderRadius: 8, marginRight: 12 }} />
+                    <Image source={{ uri: ev.image }} style={{ width: 52, height: 52, borderRadius: 8, marginRight: 12 }} />
                     <View style={{ flex: 1 }}>
                       <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text, marginBottom: 2 }}>{ev.title}</Text>
                       <Text style={{ fontSize: 12, color: theme.textSecondary, marginBottom: 6 }}>{ev.subtitle}</Text>
-                      <TouchableOpacity style={{ backgroundColor: theme.background, alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 }}>
-                        <Text style={{ fontSize: 11, fontWeight: '600', color: theme.primary }}>{ev.btnText}</Text>
+                      <TouchableOpacity 
+                        style={{ backgroundColor: theme.background, alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6, borderWidth: 1, borderColor: theme.border }}
+                        onPress={() => navigation.navigate('Jobs')}
+                        activeOpacity={0.7}
+                      >
+                        <Text style={{ fontSize: 11, fontWeight: '600', color: theme.primary }}>{ev.btnText || 'View Job'}</Text>
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -617,8 +660,8 @@ const DashboardScreen = ({ navigation }) => {
             {posts.length > 1 && posts.slice(1).map(post => renderPostCard(post))}
             <View style={styles.sectionContainer}>
               <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Events & Job Suggestions</Text>
-                <TouchableOpacity><Text style={styles.seeAllText}>See all</Text></TouchableOpacity>
+                <Text style={styles.sectionTitle}>Opportunities & Recent Jobs</Text>
+                <TouchableOpacity onPress={() => navigation.navigate('Jobs')} activeOpacity={0.7}><Text style={styles.seeAllText}>See all</Text></TouchableOpacity>
               </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.eventsScroll}>
                 {eventsAndJobs.map((ev) => (
@@ -627,7 +670,7 @@ const DashboardScreen = ({ navigation }) => {
                     <View style={styles.eventRowContent}>
                       <Text style={styles.eventRowTitle} numberOfLines={1}>{ev.title}</Text>
                       <Text style={styles.eventRowSub} numberOfLines={1}>{ev.subtitle}</Text>
-                      <TouchableOpacity style={styles.eventRowBtn}><Text style={styles.eventRowBtnText}>{ev.btnText}</Text></TouchableOpacity>
+                      <TouchableOpacity style={styles.eventRowBtn} onPress={() => navigation.navigate('Jobs')} activeOpacity={0.7}><Text style={styles.eventRowBtnText}>{ev.btnText || 'View Job'}</Text></TouchableOpacity>
                     </View>
                     <TouchableOpacity style={styles.eventRowClose}><Ionicons name="close" size={14} color="#94A3B8" /></TouchableOpacity>
                   </View>
