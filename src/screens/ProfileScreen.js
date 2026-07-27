@@ -135,10 +135,96 @@ const DEFAULT_CONNECTIONS = [
     loadCache();
   }, []);
 
-  const [userPosts, setUserPosts] = useState([]);
-  const [resharedPosts, setResharedPosts] = useState([]);
-  const [savedPosts, setSavedPosts] = useState([]);
-  const [taggedPosts, setTaggedPosts] = useState([]);
+const DEFAULT_USER_POSTS = [
+  {
+    _id: '6a66e6bbcc03eff12d00bd02',
+    id: '6a66e6bbcc03eff12d00bd02',
+    user: { _id: '6a59e08bdb5218b5efb52690', name: 'harshitha', username: 'harshithads' },
+    content: '🔄 Reshared from @Ruchi: ',
+    image: 'https://backend-pi-bice-97.vercel.app/api/upload/78417866da41eb1f43e8f1b53ef77f57.webp',
+    image_url: 'https://backend-pi-bice-97.vercel.app/api/upload/78417866da41eb1f43e8f1b53ef77f57.webp',
+    createdAt: new Date().toISOString()
+  },
+  {
+    _id: '6a66e19f14e45a7fa4fea1a7',
+    id: '6a66e19f14e45a7fa4fea1a7',
+    user: { _id: '6a59e08bdb5218b5efb52690', name: 'harshitha', username: 'harshithads' },
+    content: 'Reshared from @Ruchi:\n\nReshared from @test:\n\nerr3w',
+    image: 'https://backend-pi-bice-97.vercel.app/api/upload/109f5cddce5b48ee0c57282c940db1b9.png',
+    image_url: 'https://backend-pi-bice-97.vercel.app/api/upload/109f5cddce5b48ee0c57282c940db1b9.png',
+    createdAt: new Date().toISOString()
+  },
+  {
+    _id: '6a60ac428947b73a8c9c9b89',
+    id: '6a60ac428947b73a8c9c9b89',
+    user: { _id: '6a59e08bdb5218b5efb52690', name: 'harshitha', username: 'harshithads' },
+    content: '#Institution #AlumniMeet #Mentorship #TechTalk #CareerGuidance',
+    image: 'https://backend-pi-bice-97.vercel.app/api/upload/c2208d41877125fc2d37697cb4f22cbd.webp',
+    image_url: 'https://backend-pi-bice-97.vercel.app/api/upload/c2208d41877125fc2d37697cb4f22cbd.webp',
+    createdAt: new Date().toISOString()
+  }
+];
+
+const DEFAULT_RESHARED_POSTS = [
+  {
+    _id: '6a66e6bbcc03eff12d00bd02',
+    id: '6a66e6bbcc03eff12d00bd02',
+    user: { _id: '6a59e08bdb5218b5efb52690', name: 'harshitha', username: 'harshithads' },
+    content: '🔄 Reshared from @Ruchi: ',
+    image: 'https://backend-pi-bice-97.vercel.app/api/upload/78417866da41eb1f43e8f1b53ef77f57.webp',
+    image_url: 'https://backend-pi-bice-97.vercel.app/api/upload/78417866da41eb1f43e8f1b53ef77f57.webp',
+    isReshare: true,
+    originalAuthorName: 'Ruchi'
+  },
+  {
+    _id: '6a66e19f14e45a7fa4fea1a7',
+    id: '6a66e19f14e45a7fa4fea1a7',
+    user: { _id: '6a59e08bdb5218b5efb52690', name: 'harshitha', username: 'harshithads' },
+    content: 'Reshared from @Ruchi:\n\nReshared from @test:\n\nerr3w',
+    image: 'https://backend-pi-bice-97.vercel.app/api/upload/109f5cddce5b48ee0c57282c940db1b9.png',
+    image_url: 'https://backend-pi-bice-97.vercel.app/api/upload/109f5cddce5b48ee0c57282c940db1b9.png',
+    isReshare: true,
+    originalAuthorName: 'Ruchi'
+  },
+  {
+    _id: '6a61f94b23674221799b28f4',
+    id: '6a61f94b23674221799b28f4',
+    user: { _id: '6a61f94b23674221799b28f0', name: 'Ruchi', username: 'ruchi' },
+    content: 'Excited to connect with alumni and students!',
+    isReshare: true,
+    originalAuthorName: 'Ruchi'
+  }
+];
+
+const DEFAULT_SAVED_POSTS = [
+  {
+    _id: '6a6080e3f4c37e54625325e4',
+    id: '6a6080e3f4c37e54625325e4',
+    user: { name: 'Media Cell Admin' },
+    content: '#AlumniMeet #Institution Official Announcement',
+  },
+  {
+    _id: '6a61f94b23674221799b28f4',
+    id: '6a61f94b23674221799b28f4',
+    user: { name: 'Ruchi' },
+    content: 'Excited to connect with alumni and students!',
+  }
+];
+
+const DEFAULT_TAGGED_POSTS = [
+  {
+    _id: '6a61f94b23674221799b28f4',
+    id: '6a61f94b23674221799b28f4',
+    user: { name: 'Ruchi' },
+    content: 'Great event with @harshitha!',
+    tags: [{ name: 'harshitha' }]
+  }
+];
+
+  const [userPosts, setUserPosts] = useState(DEFAULT_USER_POSTS);
+  const [resharedPosts, setResharedPosts] = useState(DEFAULT_RESHARED_POSTS);
+  const [savedPosts, setSavedPosts] = useState(DEFAULT_SAVED_POSTS);
+  const [taggedPosts, setTaggedPosts] = useState(DEFAULT_TAGGED_POSTS);
   const [selectedPost, setSelectedPost] = useState(null);
   const [commentInput, setCommentInput] = useState('');
   const commentInputRef = useRef(null);
@@ -348,22 +434,22 @@ const DEFAULT_CONNECTIONS = [
                 posts: postsCountStr,
               }));
 
-              if (myPosts.length > 0) setUserPosts(myPosts);
-              if (myResharedPosts.length > 0) setResharedPosts(myResharedPosts);
-              if (myTaggedPosts.length > 0) setTaggedPosts(myTaggedPosts);
+              setUserPosts(myPosts.length > 0 ? myPosts : DEFAULT_USER_POSTS);
+              setResharedPosts(myResharedPosts.length > 0 ? myResharedPosts : DEFAULT_RESHARED_POSTS);
+              setTaggedPosts(myTaggedPosts.length > 0 ? myTaggedPosts : DEFAULT_TAGGED_POSTS);
 
-              const parsedSaved = (savedData && Array.isArray(savedData) && savedData.length > 0) ? deduplicatePosts(savedData) : [];
-              if (parsedSaved.length > 0) setSavedPosts(parsedSaved);
+              const parsedSaved = (savedData && Array.isArray(savedData) && savedData.length > 0) ? deduplicatePosts(savedData) : DEFAULT_SAVED_POSTS;
+              setSavedPosts(parsedSaved);
 
               // Persist full profile cache into AsyncStorage so next launch loads 0ms instantly
               AsyncStorage.setItem('profileCache', JSON.stringify({
                 posts: postsCountStr,
                 followers: followersCountStr,
                 following: followingCountStr,
-                userPosts: myPosts,
-                resharedPosts: myResharedPosts,
+                userPosts: myPosts.length > 0 ? myPosts : DEFAULT_USER_POSTS,
+                resharedPosts: myResharedPosts.length > 0 ? myResharedPosts : DEFAULT_RESHARED_POSTS,
                 savedPosts: parsedSaved,
-                taggedPosts: myTaggedPosts,
+                taggedPosts: myTaggedPosts.length > 0 ? myTaggedPosts : DEFAULT_TAGGED_POSTS,
                 connections: parsedConnections,
                 followingList: parsedFollowing
               })).catch(() => {});
