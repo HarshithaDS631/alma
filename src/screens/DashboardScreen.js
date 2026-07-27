@@ -337,27 +337,62 @@ const DashboardScreen = ({ navigation }) => {
   };
 
   // ─── Sub-components ────────────────────────────────────
-  const renderPostCard = (post) => (
-    <View key={post.id} style={styles.postCard}>
-      {/* Post header */}
-      <View style={styles.postHeader}>
-        <View style={styles.postUserAvatar}>
-          <Text style={styles.avatarText}>{post.avatar}</Text>
+  const renderPostCard = (post) => {
+    const isReshared = Boolean(post.isReshare || post.originalPost || post.originalAuthorName || (post.content && /reshared\s+from/i.test(post.content)));
+    return (
+      <View key={post.id} style={styles.postCard}>
+        {/* Reshared Header Tag */}
+        {isReshared && (
+          <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#EFF6FF', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, marginBottom: 10, alignSelf: 'flex-start' }}>
+            <Ionicons name="repeat-outline" size={13} color="#2563EB" style={{ marginRight: 6 }} />
+            <Text style={{ fontSize: 12, fontWeight: '600', color: '#1E40AF' }}>
+              Reshared from {post.originalAuthorName || 'Alumni'}
+            </Text>
+          </View>
+        )}
+
+        {/* Post header */}
+        <View style={styles.postHeader}>
+          <View style={{ position: 'relative' }}>
+            <View style={styles.postUserAvatar}>
+              {post.isAvatarUrl ? (
+                <Image source={{ uri: post.avatar }} style={{ width: '100%', height: '100%', borderRadius: 20 }} />
+              ) : (
+                <Text style={styles.avatarText}>{post.avatar}</Text>
+              )}
+            </View>
+            {isReshared && (
+              <View style={{
+                position: 'absolute',
+                bottom: -2,
+                right: -2,
+                backgroundColor: '#6366F1',
+                width: 18,
+                height: 18,
+                borderRadius: 9,
+                justifyContent: 'center',
+                alignItems: 'center',
+                borderWidth: 2,
+                borderColor: theme.card
+              }}>
+                <Ionicons name="repeat" size={10} color="#FFFFFF" />
+              </View>
+            )}
+          </View>
+          <View style={styles.postUserInfo}>
+            <Text style={styles.postUserName}>{post.user}</Text>
+            <Text style={styles.postUserRole}>{post.role}</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.followBtn}
+            activeOpacity={0.7}
+            onPress={() => toggleFollow(post.authorId)}
+          >
+            <Text style={styles.followBtnText}>
+              {followingMap[post.authorId] ? 'Following' : '+ Follow'}
+            </Text>
+          </TouchableOpacity>
         </View>
-        <View style={styles.postUserInfo}>
-          <Text style={styles.postUserName}>{post.user}</Text>
-          <Text style={styles.postUserRole}>{post.role}</Text>
-        </View>
-        <TouchableOpacity
-          style={styles.followBtn}
-          activeOpacity={0.7}
-          onPress={() => toggleFollow(post.authorId)}
-        >
-          <Text style={styles.followBtnText}>
-            {followingMap[post.authorId] ? 'Following' : '+ Follow'}
-          </Text>
-        </TouchableOpacity>
-      </View>
 
       {/* Post image with Instagram Double-Tap to Like */}
       {post.image ? (
@@ -440,6 +475,7 @@ const DashboardScreen = ({ navigation }) => {
       </View>
     </View>
   );
+};
 
   // ─── Render ────────────────────────────────────────────
   const [unreadMessages, setUnreadMessages] = useState(0);
