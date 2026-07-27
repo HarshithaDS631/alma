@@ -155,28 +155,30 @@ const ProfileScreen = ({ navigation }) => {
               getFollowing().catch(() => [])
             ]);
             
-            if (followersData) {
+            if (Array.isArray(followersData)) {
               setConnections(followersData.map(s => ({
-                id: s._id,
-                name: s.name,
-                title: s.company ? `${s.designation || ''} @ ${s.company}`.trim() : `Batch of ${s.batchYear || ''} • ${s.department || ''}`.trim(),
-                avatar: s.name ? s.name.substring(0, 2).toUpperCase() : '??',
+                id: s._id || s.id,
+                name: s.name || 'Alumni Member',
+                title: s.company ? `${s.designation || ''} @ ${s.company}`.trim() : `Batch of ${s.batchYear || ''} • ${s.department || s.branch || ''}`.trim(),
+                avatar: s.name ? s.name.substring(0, 2).toUpperCase() : 'AL',
+                avatar_url: s.avatar_url || s.profilePicture ? getImageUrl(s.avatar_url || s.profilePicture) : ''
               })));
             }
             
-            if (followingData) {
+            if (Array.isArray(followingData)) {
               setFollowing(followingData.map(s => ({
-                id: s._id,
-                name: s.name,
-                title: s.company ? `${s.designation || ''} @ ${s.company}`.trim() : `Batch of ${s.batchYear || ''} • ${s.department || ''}`.trim(),
-                avatar: s.name ? s.name.substring(0, 2).toUpperCase() : '??',
+                id: s._id || s.id,
+                name: s.name || 'Alumni Member',
+                title: s.company ? `${s.designation || ''} @ ${s.company}`.trim() : `Batch of ${s.batchYear || ''} • ${s.department || s.branch || ''}`.trim(),
+                avatar: s.name ? s.name.substring(0, 2).toUpperCase() : 'AL',
+                avatar_url: s.avatar_url || s.profilePicture ? getImageUrl(s.avatar_url || s.profilePicture) : ''
               })));
             }
 
             setProfileData(prev => ({
               ...prev,
-              followers: followersData ? followersData.length.toString() : '0',
-              following: followingData ? followingData.length.toString() : '0',
+              followers: Array.isArray(followersData) ? followersData.length.toString() : '0',
+              following: Array.isArray(followingData) ? followingData.length.toString() : '0',
             }));
 
             // 3. Fetch and filter posts
@@ -191,8 +193,8 @@ const ProfileScreen = ({ navigation }) => {
                 : []
             );
 
-            if (postsData && Array.isArray(postsData)) {
-              const currentUserIdStr = (userData._id || userData.id).toString();
+            if (postsData && Array.isArray(postsData) && activeUser) {
+              const currentUserIdStr = (activeUser._id || activeUser.id || '').toString();
 
               // ORIGINAL POSTS: Created directly by user, NOT reshares and NOT saved
               let myOriginalPosts = postsData.filter(p => {
