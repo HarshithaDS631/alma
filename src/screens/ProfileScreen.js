@@ -42,10 +42,26 @@ const ProfileScreen = ({ navigation }) => {
   const [activeTab, setActiveTab] = useState('post'); // 'post' | 'messages' | 'reshare' | 'saved' | 'tags'
   const [listModalType, setListModalType] = useState(null); // 'connections' | 'following'
   
+const DEFAULT_FOLLOWING = [
+  { id: '6a61f94b23674221799b28f4', name: 'Ruchi', title: 'Alumni • Media Cell', avatar: 'RU', avatar_url: '' },
+  { id: '6a59e08bdb5218b5efb52691', name: 'Vidya Aradhya', title: 'Professor • Computer Science', avatar: 'VA', avatar_url: '' },
+  { id: '6a59e08bdb5218b5efb52692', name: 'Raghu', title: 'Alumni Lead • Media Cell', avatar: 'RA', avatar_url: '' },
+  { id: '6a59e08bdb5218b5efb52693', name: 'Media Cell Admin', title: 'Official Admin • Media Cell Institution', avatar: 'MC', avatar_url: '' },
+  { id: '6a59e08bdb5218b5efb52694', name: 'test', title: 'Alumni Member • Social Media', avatar: 'TE', avatar_url: '' },
+  { id: '6a59e08bdb5218b5efb52695', name: 'vidya', title: 'Alumni Member • Computer Science', avatar: 'VI', avatar_url: '' },
+  { id: '6a59e08bdb5218b5efb52696', name: 'Harshitha', title: 'Student • Social Media', avatar: 'HA', avatar_url: '' },
+];
+
+const DEFAULT_CONNECTIONS = [
+  { id: '6a61f94b23674221799b28f4', name: 'Ruchi', title: 'Alumni • Media Cell', avatar: 'RU', avatar_url: '' },
+  { id: '6a59e08bdb5218b5efb52696', name: 'Harshitha', title: 'Student • Social Media', avatar: 'HA', avatar_url: '' },
+];
+
   // Real data states for connections, following, and messages
-  const [connections, setConnections] = useState([]);
-  const [following, setFollowing] = useState([]);
+  const [connections, setConnections] = useState(DEFAULT_CONNECTIONS);
+  const [following, setFollowing] = useState(DEFAULT_FOLLOWING);
   const [profileChats, setProfileChats] = useState([]);
+  const [modalSearchQuery, setModalSearchQuery] = useState('');
 
   const [profileData, setProfileData] = useState({
     username: 'harshitha',
@@ -980,12 +996,32 @@ const ProfileScreen = ({ navigation }) => {
                       } catch (err) {
                         console.error('Error saving profile:', err);
                       }
+
+                      try {
+                        const cachedStr = await AsyncStorage.getItem('userInfo');
+                        if (cachedStr) {
+                          const cached = JSON.parse(cachedStr);
+                          cached.name = editName;
+                          cached.department = editBranch;
+                          cached.branch = editBranch;
+                          cached.batchYear = editBatch;
+                          cached.batch_year = editBatch;
+                          cached.bio = editBio;
+                          cached.linkedin = editLinkedin;
+                          if (editAvatarUrl) cached.avatar_url = editAvatarUrl;
+                          await AsyncStorage.setItem('userInfo', JSON.stringify(cached));
+                        }
+                      } catch (e) {}
                     };
                     submitProfileUpdate();
 
                     setSettingsVisible(false);
                     setSettingsSubView('menu');
-                    Alert.alert('Success', 'Profile updated successfully!');
+                    if (Platform.OS === 'web') {
+                      alert('Profile updated successfully!');
+                    } else {
+                      Alert.alert('Success', 'Profile updated successfully!');
+                    }
                   }}
                 >
                   <Text style={styles.saveSettingsBtnText}>Save Profile</Text>
@@ -1212,12 +1248,16 @@ const ProfileScreen = ({ navigation }) => {
                   style={styles.modalSearchInput} 
                   placeholder="Search" 
                   placeholderTextColor="#94A3B8"
+                  value={modalSearchQuery}
+                  onChangeText={setModalSearchQuery}
                 />
               </View>
             </View>
             
             <ScrollView style={{ padding: 16 }}>
-              {(listModalType === 'following' ? following : connections).map(user => (
+              {((listModalType === 'following' ? (following.length > 0 ? following : DEFAULT_FOLLOWING) : (connections.length > 0 ? connections : DEFAULT_CONNECTIONS))
+                .filter(u => !modalSearchQuery.trim() || (u.name && u.name.toLowerCase().includes(modalSearchQuery.toLowerCase())) || (u.title && u.title.toLowerCase().includes(modalSearchQuery.toLowerCase())))
+              ).map(user => (
                 <View key={user.id} style={styles.connectionItem}>
                   <View style={[styles.connectionAvatar, { overflow: 'hidden', backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center' }]}>
                     {user.avatar_url ? (
