@@ -134,37 +134,7 @@ const DashboardScreen = ({ navigation }) => {
             AsyncStorage.setItem('userInfo', JSON.stringify(freshUser)).catch(() => {});
           }
 
-          // 2. Process posts (Permanent + DB Posts)
-          const permanentPosts = [
-            {
-              id: 'perm_post_1',
-              user: 'Media Cell Official',
-              role: 'Institution Lead • Batch 2024',
-              avatar: 'ME',
-              isAvatarUrl: false,
-              content: 'Welcome to the Official Media Cell Institution Alumni Platform! Connect with fellow members, explore career opportunities, and stay updated with community events. 🌟',
-              image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1000&q=80',
-              likes: 24,
-              comments: [],
-              commentsCount: 5,
-              time: 'Official Announcement'
-            },
-            {
-              id: 'perm_post_2',
-              user: 'Harshitha',
-              role: 'Alumni Lead • Batch 2011',
-              avatar: 'HA',
-              isAvatarUrl: false,
-              content: 'Media Cell Annual Alumni Reunion 2026 schedule is now available! Check the Opportunities section to register and participate.',
-              image: 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1000&q=80',
-              likes: 38,
-              comments: [],
-              commentsCount: 12,
-              time: 'Featured Post'
-            }
-          ];
-
-          let formattedPosts = [...permanentPosts];
+          // 2. Process posts (Real DB posts only)
           if (postsRes.status === 'fulfilled' && Array.isArray(postsRes.value) && postsRes.value.length > 0) {
             const dbFormatted = postsRes.value.map(p => ({
               id: p._id,
@@ -180,9 +150,10 @@ const DashboardScreen = ({ navigation }) => {
               commentsCount: p.comments?.length || 0,
               time: getTimeAgo(p.createdAt),
             }));
-            formattedPosts = [...dbFormatted, ...permanentPosts];
+            setPosts(dbFormatted);
+          } else {
+            setPosts([]);
           }
-          setPosts(formattedPosts);
 
           // 3. Process suggestions
           if (suggestionsRes.status === 'fulfilled' && Array.isArray(suggestionsRes.value) && suggestionsRes.value.length > 0) {
@@ -196,25 +167,8 @@ const DashboardScreen = ({ navigation }) => {
             setSuggestions(formatted);
           }
 
-          // 4. Process combined Opportunities (Jobs & Events)
-          const permanentOpportunities = [
-            {
-              id: 'perm_job_1',
-              title: 'Senior Software & Tech Lead',
-              subtitle: 'Media Cell Network • Remote / Hybrid',
-              btnText: 'View Job',
-              image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=200&h=200&q=80',
-            },
-            {
-              id: 'perm_job_2',
-              title: 'Media Cell Alumni Meet 2026',
-              subtitle: 'Annual Event • Main Auditorium & Online',
-              btnText: 'View Event',
-              image: 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&w=400&h=260&q=80',
-            }
-          ];
-
-          let combinedOpportunities = [...permanentOpportunities];
+          // 4. Process combined Opportunities (Real Jobs & Events only)
+          let combinedOpportunities = [];
           if (jobsRes.status === 'fulfilled' && Array.isArray(jobsRes.value) && jobsRes.value.length > 0) {
             const formattedJobs = jobsRes.value.map(j => ({
               id: j._id || j.id,
@@ -223,7 +177,7 @@ const DashboardScreen = ({ navigation }) => {
               btnText: 'View Job',
               image: j.logo || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=200&h=200&q=80',
             }));
-            combinedOpportunities.unshift(...formattedJobs);
+            combinedOpportunities.push(...formattedJobs);
           }
 
           if (eventsRes.status === 'fulfilled' && Array.isArray(eventsRes.value) && eventsRes.value.length > 0) {
@@ -234,7 +188,7 @@ const DashboardScreen = ({ navigation }) => {
               btnText: 'View Details',
               image: e.image || 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&w=400&h=260&q=80',
             }));
-            combinedOpportunities.unshift(...formattedEvents);
+            combinedOpportunities.push(...formattedEvents);
           }
           setEventsAndJobs(combinedOpportunities);
 

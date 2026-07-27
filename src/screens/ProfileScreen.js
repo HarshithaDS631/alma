@@ -100,16 +100,18 @@ const ProfileScreen = ({ navigation }) => {
           // 1. Fetch profile first to get the user ID
           const userData = await getProfile();
           if (userData) {
+            const rawAvatar = userData.avatar_url || userData.profilePicture;
+            const fullAvatarUrl = rawAvatar ? getImageUrl(rawAvatar) : '';
             setProfileData(prev => ({
               ...prev,
-              name: userData.name || userData.email.split('@')[0],
-              username: userData.email.split('@')[0],
-              branch: userData.department || 'Not specified',
-              batch: userData.batch_year || 'Not specified',
-              bio: userData.bio || `Institution Class of ${userData.batch_year || ''}`,
+              name: userData.name || (userData.email ? userData.email.split('@')[0] : 'Alumni Member'),
+              username: userData.email ? userData.email.split('@')[0] : 'user',
+              branch: userData.department || userData.branch || 'Not specified',
+              batch: userData.batchYear || userData.batch_year || 'Not specified',
+              bio: userData.bio || `Institution Class of ${userData.batchYear || userData.batch_year || ''}`,
               linkedin: userData.linkedin || '',
-              avatar: userData.name ? userData.name.substring(0, 2).toUpperCase() : 'UU',
-              avatar_url: userData.avatar_url || userData.profilePicture || ''
+              avatar: userData.name ? userData.name.substring(0, 2).toUpperCase() : 'HA',
+              avatar_url: fullAvatarUrl
             }));
 
             // 2. Fetch connections
