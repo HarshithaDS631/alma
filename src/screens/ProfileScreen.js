@@ -7,7 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getProfile, updateProfile, changePassword, deleteAccount, getPosts, getFollowers, getFollowing, toggleFollowUser, logout, setup2FA, verify2FA, disable2FA, getActiveSessions, revokeSession, getLoginHistory, toggleLikePost } from '../services/authService';
 import { getChatHistory, sendMessage } from '../services/messageService';
 import { uploadFile, getImageUrl } from '../services/uploadService';
-import { addComment, deletePost, toggleSavePost, updatePostSettings, editPost } from '../services/postService';
+import { addComment, deletePost, toggleSavePost, updatePostSettings, editPost, getSavedPosts } from '../services/postService';
 import * as ImagePicker from 'expo-image-picker';
 
 const validatePasswordStrength = (password) => {
@@ -61,6 +61,8 @@ const ProfileScreen = ({ navigation }) => {
   });
 
   const [userPosts, setUserPosts] = useState([]);
+  const [resharedPosts, setResharedPosts] = useState([]);
+  const [savedPosts, setSavedPosts] = useState([]);
   const [taggedPosts, setTaggedPosts] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
   const [commentInput, setCommentInput] = useState('');
@@ -140,28 +142,53 @@ const ProfileScreen = ({ navigation }) => {
               following: followingData ? followingData.length.toString() : '0',
             }));
 
-            // 3. Fetch and filter posts using the fetched userData._id
-            const postsData = await getPosts().catch(() => []);
-            if (postsData) {
-              let myPosts = postsData.filter(p => 
-                p.user && 
-                (p.user._id === userData._id || p.user.id === userData._id)
-                && !p.isArchived
-              );
+            // 3. Fetch and filter posts
+            const [postsData, savedData] = await Promise.all([
+              getPosts().catch(() => []),
+              getSavedPosts().catch(() => [])
+            ]);
+
+            if (postsData && Array.isArray(postsData)) {
+              const currentUserIdStr = (userData._id || userData.id).toString();
+
+              // ORIGINAL POSTS (created directly by user, NOT reshares)
+              let myOriginalPosts = postsData.filter(p => {
+                const authorId = p.user ? (p.user._id || p.user.id || p.user).toString() : null;
+                const isMyPost = authorId === currentUserIdStr;
+                const isReshare = Boolean(p.originalPost || (p.content && p.content.includes('🔄 Reshared from')));
+                return isMyPost && !isReshare && !p.isArchived;
+              });
+
+              // RESHARED POSTS (reshared by user)
+              let myResharedPosts = postsData.filter(p => {
+                const authorId = p.user ? (p.user._id || p.user.id || p.user).toString() : null;
+                const isMyPost = authorId === currentUserIdStr;
+                const isReshare = Boolean(p.originalPost || (p.content && p.content.includes('🔄 Reshared from')));
+                const isExplicitReshare = p.reshares && Array.isArray(p.reshares) && p.reshares.some(id => (id._id || id.id || id).toString() === currentUserIdStr);
+                return (isMyPost && isReshare) || isExplicitReshare;
+              });
+
+              // TAGGED POSTS
               let myTaggedPosts = postsData.filter(p =>
                 p.user &&
-                (p.tags && p.tags.some(t => (t._id || t.id || t) === userData._id))
+                (p.tags && p.tags.some(t => (t._id || t.id || t).toString() === currentUserIdStr))
                 && !p.isArchived
               );
-              myPosts.sort((a, b) => (b.isPinned === a.isPinned) ? 0 : (b.isPinned ? 1 : -1));
-              myTaggedPosts.sort((a, b) => (b.isPinned === a.isPinned) ? 0 : (b.isPinned ? 1 : -1));
-              
+
+              myOriginalPosts.sort((a, b) => (b.isPinned === a.isPinned) ? 0 : (b.isPinned ? 1 : -1));
+
               setProfileData(prev => ({
                 ...prev,
-                posts: myPosts.length.toString(),
+                posts: myOriginalPosts.length.toString(),
               }));
-              setUserPosts(myPosts);
+
+              setUserPosts(myOriginalPosts);
+              setResharedPosts(myResharedPosts);
               setTaggedPosts(myTaggedPosts);
+            }
+
+            if (savedData && Array.isArray(savedData)) {
+              setSavedPosts(savedData);
             }
           }
         } catch (e) {
@@ -523,26 +550,68 @@ const ProfileScreen = ({ navigation }) => {
 
         {activeTab === 'saved' && (
           <View style={styles.postsGrid}>
-            {mockSaved.map((item) => (
-              <TouchableOpacity key={item.id} style={[styles.gridItem, { width: gridItemSize, height: gridItemSize }]} activeOpacity={0.9}>
-                <Image source={{ uri: item.uri }} style={styles.gridImage} />
-              </TouchableOpacity>
-            ))}
+            {savedPosts.length === 0 ? (
+              <View style={{ width: '100%', padding: 40, alignItems: 'center', justifyContent: 'center' }}>
+                <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: '#F1F5F9', justifyContent: 'center', alignItems: 'center', marginBottom: 16 }}>
+                  <Ionicons name="bookmark-outline" size={32} color="#94A3B8" />
+                </View>
+                <Text style={{ fontSize: 16, fontWeight: '600', color: theme.text, marginBottom: 8 }}>No saved posts</Text>
+                <Text style={{ fontSize: 14, color: theme.textMuted, textAlign: 'center' }}>Posts you save will appear here in your private bookmarks.</Text>
+              </View>
+            ) : (
+              savedPosts.map((post) => (
+                <TouchableOpacity 
+                  key={post._id || post.id} 
+                  style={[styles.gridItem, { width: gridItemSize, height: gridItemSize }]} 
+                  activeOpacity={0.85}
+                  onPress={() => setSelectedPost(post)}
+                >
+                  {(post.image || post.image_url) ? (
+                    <Image source={{ uri: getImageUrl(post.image || post.image_url) }} style={styles.gridImage} />
+                  ) : (
+                    <View style={[styles.gridImage, { backgroundColor: '#F8FAFC', justifyContent: 'center', alignItems: 'center', padding: 10, borderWidth: 0.5, borderColor: '#E2E8F0' }]}>
+                      <Ionicons name="bookmark" size={24} color={theme.primary} style={{ marginBottom: 6 }} />
+                      <Text style={{fontSize: 11, color: '#334155', fontWeight: '500', textAlign: 'center'}} numberOfLines={3}>{post.content}</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              ))
+            )}
           </View>
         )}
 
         {activeTab === 'reshare' && (
-          <View style={styles.tabContentList}>
-            {mockReshares.map(res => (
-              <View key={res.id} style={styles.listCard}>
-                <View style={styles.cardHeader}>
-                  <Ionicons name="repeat" size={18} color="#003366" style={{ marginRight: 8 }} />
-                  <Text style={styles.cardTitle}>Reshared from {res.user}</Text>
+          <View style={styles.postsGrid}>
+            {resharedPosts.length === 0 ? (
+              <View style={{ width: '100%', padding: 40, alignItems: 'center', justifyContent: 'center' }}>
+                <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: '#F1F5F9', justifyContent: 'center', alignItems: 'center', marginBottom: 16 }}>
+                  <Ionicons name="repeat-outline" size={32} color="#94A3B8" />
                 </View>
-                <Text style={styles.cardBodyText}>&quot;{res.content}&quot;</Text>
-                <Text style={styles.cardFooterText}>{res.date}</Text>
+                <Text style={{ fontSize: 16, fontWeight: '600', color: theme.text, marginBottom: 8 }}>No reshared posts</Text>
+                <Text style={{ fontSize: 14, color: theme.textMuted, textAlign: 'center' }}>Posts you reshare to your network will appear here.</Text>
               </View>
-            ))}
+            ) : (
+              resharedPosts.map((post) => (
+                <TouchableOpacity 
+                  key={post._id || post.id} 
+                  style={[styles.gridItem, { width: gridItemSize, height: gridItemSize }]} 
+                  activeOpacity={0.85}
+                  onPress={() => setSelectedPost(post)}
+                >
+                  {(post.image || post.image_url) ? (
+                    <Image source={{ uri: getImageUrl(post.image || post.image_url) }} style={styles.gridImage} />
+                  ) : (
+                    <View style={[styles.gridImage, { backgroundColor: '#F8FAFC', justifyContent: 'center', alignItems: 'center', padding: 10, borderWidth: 0.5, borderColor: '#E2E8F0' }]}>
+                      <Ionicons name="repeat" size={24} color={theme.primary} style={{ marginBottom: 6 }} />
+                      <Text style={{fontSize: 11, color: '#334155', fontWeight: '500', textAlign: 'center'}} numberOfLines={3}>{post.content}</Text>
+                    </View>
+                  )}
+                  <View style={{ position: 'absolute', top: 6, right: 6, backgroundColor: '#003366', borderRadius: 12, padding: 4 }}>
+                    <Ionicons name="repeat" size={12} color="#FFFFFF" />
+                  </View>
+                </TouchableOpacity>
+              ))
+            )}
           </View>
         )}
       </ScrollView>
