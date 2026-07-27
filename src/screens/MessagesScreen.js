@@ -136,13 +136,22 @@ const MessagesScreen = ({ navigation }) => {
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <TouchableOpacity 
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            activeOpacity={0.6}
             onPress={() => {
-              if (navigation && typeof navigation.canGoBack === 'function' && navigation.canGoBack()) {
-                navigation.goBack();
-              } else if (navigation && typeof navigation.navigate === 'function') {
-                navigation.navigate('Main', { screen: 'Home' });
-              } else if (typeof window !== 'undefined' && window.history) {
-                window.history.back();
+              try {
+                const state = navigation?.getState ? navigation.getState() : null;
+                if (state && state.index > 0 && typeof navigation.goBack === 'function') {
+                  navigation.goBack();
+                } else if (navigation && typeof navigation.navigate === 'function') {
+                  navigation.navigate('Main', { screen: 'Home' });
+                } else if (typeof window !== 'undefined' && window.history) {
+                  window.history.back();
+                }
+              } catch (e) {
+                if (navigation && typeof navigation.navigate === 'function') {
+                  navigation.navigate('Main', { screen: 'Home' });
+                }
               }
             }} 
             style={styles.backButton}
