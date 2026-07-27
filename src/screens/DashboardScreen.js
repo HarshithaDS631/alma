@@ -118,12 +118,12 @@ const DashboardScreen = ({ navigation }) => {
         ]);
 
         // Process posts
-        if (postsData.status === 'fulfilled' && postsData.value.length > 0) {
+        if (postsData.status === 'fulfilled' && Array.isArray(postsData.value) && postsData.value.length > 0) {
           const formatted = postsData.value.map(p => ({
             id: p._id,
             user: p.user?.name || 'Alumni',
             authorId: p.user?._id || null,
-            role: p.user?.department ? `${p.user.department} • Batch ${p.user.batchYear || ''}` : 'Alumni Member',
+            role: p.user?.department ? `${p.user.department} • Batch ${p.user.batchYear || ''}` : 'Alumni Member @ Media Cell Institution',
             avatar: p.user?.profilePicture ? getImageUrl(p.user.profilePicture) : (p.user?.name ? p.user.name.substring(0, 2).toUpperCase() : 'AL'),
             isAvatarUrl: !!p.user?.profilePicture,
             content: p.content,
@@ -134,6 +134,35 @@ const DashboardScreen = ({ navigation }) => {
             time: getTimeAgo(p.createdAt),
           }));
           setPosts(formatted);
+        } else {
+          setPosts([
+            {
+              id: 'init_post_1',
+              user: 'Harshitha',
+              role: 'Social Media • Batch 2011',
+              avatar: 'HA',
+              isAvatarUrl: false,
+              content: 'Welcome to the Media Cell Institution Alumni Network! Stay updated with community events, job opportunities, and alumni spotlights. 🌟',
+              image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1000&q=80',
+              likes: 18,
+              comments: [],
+              commentsCount: 4,
+              time: '1h ago'
+            },
+            {
+              id: 'init_post_2',
+              user: 'Media Cell Admin',
+              role: 'Institution Admin • Batch 2024',
+              avatar: 'ME',
+              isAvatarUrl: false,
+              content: 'Media Cell Annual Alumni Reunion 2026 registration is officially live! Visit the Opportunities tab for schedule details.',
+              image: 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1000&q=80',
+              likes: 29,
+              comments: [],
+              commentsCount: 9,
+              time: '4h ago'
+            }
+          ]);
         }
 
         // Process suggestions
