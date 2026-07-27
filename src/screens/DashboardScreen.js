@@ -22,7 +22,7 @@ import {
 } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
-import { getSuggestions, getPosts, getEvents, toggleFollowUser, getFollowing, toggleLikePost, getProfile } from '../services/authService';
+import { getSuggestions, getPosts, getEvents, toggleFollowUser, getFollowing, getFollowers, toggleLikePost, getProfile } from '../services/authService';
 import { getImageUrl } from '../services/uploadService';
 import { addComment, toggleSavePost, resharePost } from '../services/postService';
 import { sendMessage } from '../services/messageService';
@@ -43,6 +43,7 @@ const DashboardScreen = ({ navigation }) => {
   const [likedPosts, setLikedPosts] = useState({});
   const [bookmarkedPosts, setBookmarkedPosts] = useState({});
   const [followingMap, setFollowingMap] = useState({});
+  const [connectionsCount, setConnectionsCount] = useState(0);
   const [searchText, setSearchText] = useState('');
   const [userInstitution, setUserInstitution] = useState('Our Network');
   const [userName, setUserName] = useState('');
@@ -183,14 +184,30 @@ const DashboardScreen = ({ navigation }) => {
 
         setEventsAndJobs(combinedOpportunities);
         
-        // Fetch following to initialize followedSuggestions
-        const followingData = await getFollowing();
-        if (followingData) {
+        // Fetch following and followers to set followingMap and connections count
+        try {
+          const [followingData, followersData] = await Promise.all([
+            getFollowing().catch(() => []),
+            getFollowers().catch(() => [])
+          ]);
+          
           const initialFollowed = {};
-          followingData.forEach(user => {
-            initialFollowed[user._id] = true;
-          });
+          let totalConn = 0;
+          
+          if (Array.isArray(followingData)) {
+            followingData.forEach(user => {
+              initialFollowed[user._id || user.id] = true;
+            });
+            totalConn += followingData.length;
+          }
+          if (Array.isArray(followersData)) {
+            totalConn += followersData.length;
+          }
+          
           setFollowingMap(initialFollowed);
+          setConnectionsCount(totalConn);
+        } catch (e) {
+          // ignore
         }
 
       } catch (err) {
@@ -436,14 +453,14 @@ const DashboardScreen = ({ navigation }) => {
         <View style={styles.header}>
           {/* Left – User avatar */}
           <TouchableOpacity
-            style={[styles.headerAvatar, { overflow: 'hidden' }]}
+            style={[styles.headerAvatar, { overflow: 'hidden', backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center' }]}
             activeOpacity={0.8}
             onPress={() => navigation.navigate('Profile')}
           >
             {userAvatarUrl ? (
               <Image source={{ uri: userAvatarUrl }} style={{ width: '100%', height: '100%', borderRadius: 16 }} />
             ) : (
-              <Text style={styles.headerAvatarText}>{userName ? userName.substring(0, 2).toUpperCase() : 'ME'}</Text>
+              <Text style={{ fontSize: 13, fontWeight: '700', color: '#FFFFFF' }}>{userName ? userName.substring(0, 2).toUpperCase() : 'HA'}</Text>
             )}
           </TouchableOpacity>
 
@@ -505,14 +522,14 @@ const DashboardScreen = ({ navigation }) => {
             <View style={{ flex: 3 }}>
               <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 20, elevation: 2, borderWidth: 1, borderColor: theme.border, marginBottom: 24, alignItems: 'center' }}>
                 <TouchableOpacity 
-                  style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center', marginBottom: 12, overflow: 'hidden', shadowColor: theme.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8 }}
+                  style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', marginBottom: 12, overflow: 'hidden', shadowColor: theme.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8 }}
                   onPress={() => navigation.navigate('Profile')}
                   activeOpacity={0.8}
                 >
                   {userAvatarUrl ? (
                     <Image source={{ uri: userAvatarUrl }} style={{ width: 72, height: 72, borderRadius: 36 }} />
                   ) : (
-                    <Text style={{ fontSize: 24, fontWeight: '700', color: theme.card }}>{userName ? userName.substring(0, 2).toUpperCase() : 'ME'}</Text>
+                    <Text style={{ fontSize: 24, fontWeight: '700', color: '#FFFFFF' }}>{userName ? userName.substring(0, 2).toUpperCase() : 'HA'}</Text>
                   )}
                 </TouchableOpacity>
                 <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>{userName || 'Alumni Member'}</Text>
@@ -526,7 +543,7 @@ const DashboardScreen = ({ navigation }) => {
                 <View style={{ width: '100%', gap: 12 }}>
                   <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }} onPress={() => navigation.navigate('Profile')}>
                     <Text style={{ color: theme.textSecondary, fontWeight: '600', fontSize: 13 }}>Connections</Text>
-                        <Text style={{ color: theme.primary, fontWeight: '700', fontSize: 13 }}>{Object.keys(followingMap).filter(k => followingMap[k]).length}</Text>
+                    <Text style={{ color: theme.primary, fontWeight: '700', fontSize: 13 }}>{connectionsCount}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                     <Text style={{ color: theme.textSecondary, fontWeight: '600', fontSize: 13 }}>My Events</Text>
@@ -541,14 +558,14 @@ const DashboardScreen = ({ navigation }) => {
               {/* Create Post Widget */}
               <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 16, elevation: 2, borderWidth: 1, borderColor: theme.border, marginBottom: 24, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                 <TouchableOpacity 
-                  style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}
+                  style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}
                   onPress={() => navigation.navigate('Profile')}
                   activeOpacity={0.8}
                 >
                   {userAvatarUrl ? (
                     <Image source={{ uri: userAvatarUrl }} style={{ width: 44, height: 44, borderRadius: 22 }} />
                   ) : (
-                    <Text style={{ fontSize: 14, fontWeight: '700', color: theme.card }}>{userName ? userName.substring(0, 2).toUpperCase() : 'ME'}</Text>
+                    <Text style={{ fontSize: 14, fontWeight: '700', color: '#FFFFFF' }}>{userName ? userName.substring(0, 2).toUpperCase() : 'HA'}</Text>
                   )}
                 </TouchableOpacity>
                 <TouchableOpacity 

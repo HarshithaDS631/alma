@@ -8,17 +8,18 @@ import { Platform } from 'react-native';
  * @returns {string|null} Full image URL
  */
 export const getImageUrl = (url) => {
-  if (!url) return null;
-  if (typeof url !== 'string') return null;
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
-    return url;
+  if (!url || typeof url !== 'string') return null;
+  const cleanUrl = url.trim();
+  if (cleanUrl === '' || cleanUrl === 'undefined' || cleanUrl === 'null' || cleanUrl.includes('/undefined') || cleanUrl.includes('/null')) return null;
+  if (cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://') || cleanUrl.startsWith('data:')) {
+    return cleanUrl;
   }
   // Server origin (e.g., https://backend-pi-bice-97.vercel.app)
   const serverOrigin = API_URL.replace(/\/api\/?$/, '');
-  if (url.startsWith('/')) {
-    return `${serverOrigin}${url}`;
+  if (cleanUrl.startsWith('/')) {
+    return `${serverOrigin}${cleanUrl}`;
   }
-  return `${serverOrigin}/${url}`;
+  return `${serverOrigin}/${cleanUrl}`;
 };
 
 /**
