@@ -94,7 +94,7 @@ const DirectoryScreen = ({ navigation, route }) => {
     name: u.name,
     branch: u.department || u.branch || (u.batchYear ? `Batch ${u.batchYear}` : 'Media Cell'),
     title: u.designation || u.degree || u.role || 'Alumni Member',
-    institution: u.institution || 'Media Cell Institution',
+    institution: u.institution && (u.institution.toLowerCase().includes('media') || u.institution.toLowerCase().includes('mci')) ? u.institution : 'Media Cell Institution',
     initials: u.name ? u.name.charAt(0).toUpperCase() : '?',
     color: '#003366'
   })) : defaultMediaCellAlumni;
