@@ -128,9 +128,22 @@ const ProfileScreen = ({ navigation }) => {
           // 1. Fetch profile first to get the user ID
           const userData = await getProfile().catch(() => null);
           const cachedStr = await AsyncStorage.getItem('userInfo');
-          const activeUser = userData || (cachedStr ? JSON.parse(cachedStr) : null);
+          const cachedObj = cachedStr ? JSON.parse(cachedStr) : null;
 
-          if (activeUser) {
+          const activeUser = {
+            ...cachedObj,
+            ...userData,
+            _id: (userData && (userData._id || userData.id)) || (cachedObj && (cachedObj._id || cachedObj.id))
+          };
+
+          if (activeUser && (activeUser._id || activeUser.email)) {
+            try {
+              await AsyncStorage.setItem('userInfo', JSON.stringify({
+                ...cachedObj,
+                ...activeUser
+              }));
+            } catch (e) {}
+
             const rawAvatar = activeUser.avatar_url || activeUser.profilePicture;
             const fullAvatarUrl = rawAvatar ? getImageUrl(rawAvatar) : '';
             const safeEmail = (activeUser.email && typeof activeUser.email === 'string') ? activeUser.email : '';

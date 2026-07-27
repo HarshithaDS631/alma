@@ -93,11 +93,18 @@ const LoginScreen = ({ navigation }) => {
 
       // Successful login
       await AsyncStorage.setItem('userInfo', JSON.stringify({
+        _id: userData._id || userData.id,
+        id: userData._id || userData.id,
         token: userData.token,
         refreshToken: userData.refreshToken,
         name: userData.name || 'Alumni User', 
         email: userData.email,
         institution: userData.institution || 'Institution',
+        department: userData.department,
+        branch: userData.branch,
+        batchYear: userData.batchYear,
+        avatar_url: userData.avatar_url,
+        bio: userData.bio,
         role: userData.role
       }));
       
