@@ -148,24 +148,34 @@ const ProfileScreen = ({ navigation }) => {
               getSavedPosts().catch(() => [])
             ]);
 
+            const savedPostIds = new Set(
+              (savedData && Array.isArray(savedData)) 
+                ? savedData.map(s => (s._id || s.id).toString()) 
+                : []
+            );
+
             if (postsData && Array.isArray(postsData)) {
               const currentUserIdStr = (userData._id || userData.id).toString();
 
-              // ORIGINAL POSTS (created directly by user, NOT reshares)
+              // ORIGINAL POSTS: Created directly by user, NOT reshares and NOT saved
               let myOriginalPosts = postsData.filter(p => {
+                const pId = (p._id || p.id).toString();
                 const authorId = p.user ? (p.user._id || p.user.id || p.user).toString() : null;
                 const isMyPost = authorId === currentUserIdStr;
                 const isReshare = Boolean(p.originalPost || (p.content && p.content.includes('🔄 Reshared from')));
-                return isMyPost && !isReshare && !p.isArchived;
+                const isSaved = savedPostIds.has(pId);
+                return isMyPost && !isReshare && !isSaved && !p.isArchived;
               });
 
-              // RESHARED POSTS (reshared by user)
+              // RESHARED POSTS: Reshared by user and NOT saved
               let myResharedPosts = postsData.filter(p => {
+                const pId = (p._id || p.id).toString();
                 const authorId = p.user ? (p.user._id || p.user.id || p.user).toString() : null;
                 const isMyPost = authorId === currentUserIdStr;
                 const isReshare = Boolean(p.originalPost || (p.content && p.content.includes('🔄 Reshared from')));
                 const isExplicitReshare = p.reshares && Array.isArray(p.reshares) && p.reshares.some(id => (id._id || id.id || id).toString() === currentUserIdStr);
-                return (isMyPost && isReshare) || isExplicitReshare;
+                const isSaved = savedPostIds.has(pId);
+                return ((isMyPost && isReshare) || isExplicitReshare) && !isSaved;
               });
 
               // TAGGED POSTS
