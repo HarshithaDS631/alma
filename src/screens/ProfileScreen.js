@@ -195,32 +195,49 @@ const ProfileScreen = ({ navigation }) => {
 
             if (postsData && Array.isArray(postsData) && activeUser) {
               const currentUserIdStr = (activeUser._id || activeUser.id || '').toString();
+              const activeNameClean = (activeUser.name || '').toLowerCase();
+
+              const isAuthorMe = (p) => {
+                if (!p || !p.user) return false;
+                const authorId = (p.user._id || p.user.id || p.user).toString();
+                if (currentUserIdStr && authorId === currentUserIdStr) return true;
+                const authorName = (p.user.name || p.user.username || '').toLowerCase();
+                if (activeNameClean && authorName === activeNameClean) return true;
+                return false;
+              };
 
               // ORIGINAL POSTS: Created directly by user, NOT reshares and NOT saved
               let myOriginalPosts = postsData.filter(p => {
                 const pId = (p._id || p.id).toString();
-                const authorId = p.user ? (p.user._id || p.user.id || p.user).toString() : null;
-                const isMyPost = authorId === currentUserIdStr;
+                const isMyPost = isAuthorMe(p);
                 const isReshare = Boolean(p.originalPost || p.isReshare || p.originalAuthorName || (p.content && /reshared\s+from/i.test(p.content)));
                 const isSaved = savedPostIds.has(pId);
                 return isMyPost && !isReshare && !isSaved && !p.isArchived;
               });
 
-              // RESHARED POSTS: Reshared by user and NOT saved
+              // RESHARED POSTS: Reshared by user
               let myResharedPosts = postsData.filter(p => {
                 const pId = (p._id || p.id).toString();
-                const authorId = p.user ? (p.user._id || p.user.id || p.user).toString() : null;
-                const isMyPost = authorId === currentUserIdStr;
+                const isMyPost = isAuthorMe(p);
                 const isReshare = Boolean(p.originalPost || p.isReshare || p.originalAuthorName || (p.content && /reshared\s+from/i.test(p.content)));
-                const isExplicitReshare = p.reshares && Array.isArray(p.reshares) && p.reshares.some(id => (id._id || id.id || id).toString() === currentUserIdStr);
-                const isSaved = savedPostIds.has(pId);
-                return ((isMyPost && isReshare) || isExplicitReshare) && !isSaved;
+                const isExplicitReshare = p.reshares && Array.isArray(p.reshares) && p.reshares.some(id => {
+                  const rId = (id._id || id.id || id).toString();
+                  return currentUserIdStr && rId === currentUserIdStr;
+                });
+                return ((isMyPost && isReshare) || isExplicitReshare);
               });
 
               // TAGGED POSTS
               let myTaggedPosts = postsData.filter(p =>
                 p.user &&
-                (p.tags && p.tags.some(t => (t._id || t.id || t).toString() === currentUserIdStr))
+                (
+                  (p.tags && Array.isArray(p.tags) && p.tags.some(t => {
+                    const tId = (t._id || t.id || t).toString();
+                    const tName = (t.name || '').toLowerCase();
+                    return (currentUserIdStr && tId === currentUserIdStr) || (activeNameClean && tName === activeNameClean);
+                  })) ||
+                  (p.content && activeNameClean && p.content.toLowerCase().includes(`@${activeNameClean}`))
+                )
                 && !p.isArchived
               );
 

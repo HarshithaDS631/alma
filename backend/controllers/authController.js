@@ -702,8 +702,8 @@ exports.toggleFollow = async (req, res) => {
 // @route   GET /api/auth/followers
 exports.getFollowers = async (req, res) => {
     try {
-        const user = await User.findById(req.user._id).populate('followers', 'name institution batchYear branch department avatar_url role');
-        res.json(user.followers);
+        const user = await User.findById(req.user._id).populate('followers', 'name institution batchYear branch department avatar_url role company designation email username');
+        res.json(user && Array.isArray(user.followers) ? user.followers : []);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -713,8 +713,8 @@ exports.getFollowers = async (req, res) => {
 // @route   GET /api/auth/following
 exports.getFollowing = async (req, res) => {
     try {
-        const user = await User.findById(req.user._id).populate('following', 'name institution batchYear branch department avatar_url role');
-        res.json(user.following);
+        const user = await User.findById(req.user._id).populate('following', 'name institution batchYear branch department avatar_url role company designation email username');
+        res.json(user && Array.isArray(user.following) ? user.following : []);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
