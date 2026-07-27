@@ -205,6 +205,12 @@ const RegisterScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [emailState, setEmailState] = useState('idle'); // 'idle' | 'sending' | 'sent' | 'verified'
+  const [inlineOtp, setInlineOtp] = useState(['', '', '', '', '', '']);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [otpError, setOtpError] = useState('');
+  const [sendingOtpLoading, setSendingOtpLoading] = useState(false);
+  const [verifyingOtpLoading, setVerifyingOtpLoading] = useState(false);
   // Security Captcha Challenge (Bot Protection)
   const [captcha, setCaptcha] = useState({ num1: Math.floor(Math.random() * 9) + 1, num2: Math.floor(Math.random() * 9) + 1, userAnswer: '' });
   const [captchaVerified, setCaptchaVerified] = useState(false);
