@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   View,
   Text,
@@ -20,7 +21,8 @@ import {
   getConnectionRequests, 
   acceptConnectionRequest, 
   declineConnectionRequest,
-  toggleFollowUser 
+  toggleFollowUser,
+  getFollowing 
 } from '../services/authService';
 import useUserRole from '../hooks/useUserRole';
 
@@ -80,11 +82,33 @@ const DirectoryScreen = ({ navigation, route }) => {
     };
     fetchUsers();
     fetchConnectionRequests();
+    fetchFollowingData();
   }, []);
 
+  const [currentUserId, setCurrentUserId] = useState(null);
   const [followingMap, setFollowingMap] = useState({});
 
-  const directoryAlumni = dbAlumni.map((u, i) => ({
+  const fetchFollowingData = async () => {
+    try {
+      const userInfoStr = await AsyncStorage.getItem('userInfo');
+      if (userInfoStr) {
+        const userInfo = JSON.parse(userInfoStr);
+        setCurrentUserId(userInfo._id || userInfo.id);
+      }
+      const followingData = await getFollowing();
+      if (Array.isArray(followingData)) {
+        const map = {};
+        followingData.forEach(u => {
+          map[u._id || u.id] = true;
+        });
+        setFollowingMap(map);
+      }
+    } catch (err) {
+      console.log('Error fetching following data:', err);
+    }
+  };
+
+  const allAlumni = dbAlumni.map((u, i) => ({
     _id: u._id || u.id,
     id: u._id || u.id || i.toString(),
     name: u.name,
@@ -94,6 +118,14 @@ const DirectoryScreen = ({ navigation, route }) => {
     initials: u.name ? u.name.charAt(0).toUpperCase() : '?',
     color: '#003366'
   }));
+
+  // Filter out self and already-followed users — Directory shows only people you can follow
+  const directoryAlumni = allAlumni.filter(a => {
+    const id = a._id || a.id;
+    if (currentUserId && id === currentUserId) return false;
+    if (followingMap[id]) return false;
+    return true;
+  });
 
   const handleToggleFollow = async (userId) => {
     try {

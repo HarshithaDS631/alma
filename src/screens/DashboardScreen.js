@@ -524,7 +524,7 @@ const DashboardScreen = ({ navigation }) => {
                 <View style={{ width: '100%', height: 1, backgroundColor: theme.border, marginVertical: 16 }} />
                 
                 <View style={{ width: '100%', gap: 12 }}>
-                  <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }} onPress={() => navigation.navigate('Profile')}>
                     <Text style={{ color: theme.textSecondary, fontWeight: '600', fontSize: 13 }}>Connections</Text>
                         <Text style={{ color: theme.primary, fontWeight: '700', fontSize: 13 }}>{Object.keys(followingMap).filter(k => followingMap[k]).length}</Text>
                   </TouchableOpacity>
