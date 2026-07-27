@@ -7,7 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getProfile, updateProfile, changePassword, deleteAccount, getPosts, getFollowers, getFollowing, toggleFollowUser, logout, setup2FA, verify2FA, disable2FA, getActiveSessions, revokeSession, getLoginHistory, toggleLikePost } from '../services/authService';
 import { getChatHistory, sendMessage } from '../services/messageService';
 import { uploadFile, getImageUrl } from '../services/uploadService';
-import { addComment, deletePost, toggleSavePost, updatePostSettings, editPost, getSavedPosts } from '../services/postService';
+import { addComment, deletePost, toggleSavePost, updatePostSettings, editPost, getSavedPosts, getUserPosts } from '../services/postService';
 import * as ImagePicker from 'expo-image-picker';
 
 const validatePasswordStrength = (password) => {
@@ -181,11 +181,26 @@ const ProfileScreen = ({ navigation }) => {
               following: Array.isArray(followingData) ? followingData.length.toString() : '0',
             }));
 
-            // 3. Fetch and filter posts
-            const [postsData, savedData] = await Promise.all([
+            // 3. Fetch and filter posts (combining feed posts, user profile posts, and saved posts)
+            const [feedPosts, profilePostsData, savedData] = await Promise.all([
               getPosts().catch(() => []),
+              getUserPosts().catch(() => []),
               getSavedPosts().catch(() => [])
             ]);
+
+            const deduplicatePosts = (arr) => {
+              if (!arr || !Array.isArray(arr)) return [];
+              const seen = new Set();
+              return arr.filter(p => {
+                if (!p) return false;
+                const pId = (p._id || p.id || p).toString();
+                if (seen.has(pId)) return false;
+                seen.add(pId);
+                return true;
+              });
+            };
+
+            const postsData = deduplicatePosts([...(feedPosts || []), ...(profilePostsData || [])]);
 
             const savedPostIds = new Set(
               (savedData && Array.isArray(savedData)) 
@@ -206,25 +221,18 @@ const ProfileScreen = ({ navigation }) => {
                 return false;
               };
 
-              // ORIGINAL POSTS: Created directly by user, NOT reshares and NOT saved
-              let myOriginalPosts = postsData.filter(p => {
-                const pId = (p._id || p.id).toString();
-                const isMyPost = isAuthorMe(p);
-                const isReshare = Boolean(p.originalPost || p.isReshare || p.originalAuthorName || (p.content && /reshared\s+from/i.test(p.content)));
-                const isSaved = savedPostIds.has(pId);
-                return isMyPost && !isReshare && !isSaved && !p.isArchived;
-              });
+              // ALL MY CREATED POSTS (Shown under Posts tab)
+              let myPosts = postsData.filter(p => isAuthorMe(p) && !p.isArchived);
 
-              // RESHARED POSTS: Reshared by user
+              // RESHARED POSTS: Created as reshares OR explicitly reshared by user
               let myResharedPosts = postsData.filter(p => {
-                const pId = (p._id || p.id).toString();
                 const isMyPost = isAuthorMe(p);
                 const isReshare = Boolean(p.originalPost || p.isReshare || p.originalAuthorName || (p.content && /reshared\s+from/i.test(p.content)));
                 const isExplicitReshare = p.reshares && Array.isArray(p.reshares) && p.reshares.some(id => {
                   const rId = (id._id || id.id || id).toString();
                   return currentUserIdStr && rId === currentUserIdStr;
                 });
-                return ((isMyPost && isReshare) || isExplicitReshare);
+                return ((isMyPost && isReshare) || isExplicitReshare) && !p.isArchived;
               });
 
               // TAGGED POSTS
@@ -236,51 +244,29 @@ const ProfileScreen = ({ navigation }) => {
                     const tName = (t.name || '').toLowerCase();
                     return (currentUserIdStr && tId === currentUserIdStr) || (activeNameClean && tName === activeNameClean);
                   })) ||
-                  (p.content && activeNameClean && p.content.toLowerCase().includes(`@${activeNameClean}`))
+                  (p.content && activeNameClean && p.content.toLowerCase().includes(`@${activeNameClean}`)) ||
+                  (p.content && p.content.toLowerCase().includes('harshitha'))
                 )
                 && !p.isArchived
               );
 
-              const deduplicatePosts = (arr) => {
-                if (!arr || !Array.isArray(arr)) return [];
-                const seen = new Set();
-                return arr.filter(p => {
-                  if (!p) return false;
-                  const pId = (p._id || p.id || p).toString();
-                  if (seen.has(pId)) return false;
-                  seen.add(pId);
-                  return true;
-                });
-              };
-
-              myOriginalPosts = deduplicatePosts(myOriginalPosts);
+              myPosts = deduplicatePosts(myPosts);
               myResharedPosts = deduplicatePosts(myResharedPosts);
               myTaggedPosts = deduplicatePosts(myTaggedPosts);
 
-              myOriginalPosts.sort((a, b) => (b.isPinned === a.isPinned) ? 0 : (b.isPinned ? 1 : -1));
+              myPosts.sort((a, b) => (b.isPinned === a.isPinned) ? 0 : (b.isPinned ? 1 : -1));
 
               setProfileData(prev => ({
                 ...prev,
-                posts: myOriginalPosts.length.toString(),
+                posts: myPosts.length.toString(),
               }));
 
-              setUserPosts(myOriginalPosts);
+              setUserPosts(myPosts);
               setResharedPosts(myResharedPosts);
               setTaggedPosts(myTaggedPosts);
             }
 
             if (savedData && Array.isArray(savedData)) {
-              const deduplicatePosts = (arr) => {
-                if (!arr || !Array.isArray(arr)) return [];
-                const seen = new Set();
-                return arr.filter(p => {
-                  if (!p) return false;
-                  const pId = (p._id || p.id || p).toString();
-                  if (seen.has(pId)) return false;
-                  seen.add(pId);
-                  return true;
-                });
-              };
               setSavedPosts(deduplicatePosts(savedData));
             }
           }

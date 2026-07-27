@@ -1,6 +1,7 @@
 const express = require('express');
 const { 
     getPosts, 
+    getUserPosts,
     createPost, 
     likePost, 
     deletePost, 
@@ -15,8 +16,9 @@ const { protect } = require('../middleware/authMiddleware');
 const router = express.Router();
 
 router.get('/', protect, getPosts);
-router.post('/', protect, createPost);
+router.get('/user/profile', protect, getUserPosts);
 router.get('/saved', protect, getSavedPosts);
+router.post('/', protect, createPost);
 router.put('/:id/like', protect, likePost);
 router.post('/:id/comment', protect, addComment);
 router.post('/:id/reshare', protect, resharePost);

@@ -345,3 +345,30 @@ exports.editPost = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// @desc    Get current user's profile posts (authored, reshared, tagged)
+// @route   GET /api/posts/user/profile
+exports.getUserPosts = async (req, res) => {
+    try {
+        await connectDB();
+        const userId = req.user._id;
+
+        const posts = await Post.find({
+            $or: [
+                { user: userId },
+                { reshares: userId },
+                { tags: userId },
+                { originalPost: { $exists: true } }
+            ]
+        })
+        .populate('user', 'name branch department batchYear avatar_url username role institution')
+        .populate('tags', 'name username avatar_url')
+        .populate('comments.user', 'name avatar_url username')
+        .sort({ createdAt: -1 })
+        .lean();
+
+        res.json(posts);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

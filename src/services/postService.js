@@ -5,6 +5,11 @@ export const getPosts = async () => {
     return data;
 };
 
+export const getUserPosts = async () => {
+    const { data } = await api.get('/posts/user/profile');
+    return data;
+};
+
 export const createPost = async (postData) => {
     const { data } = await api.post('/posts', postData);
     return data;
