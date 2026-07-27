@@ -192,15 +192,7 @@ const DashboardScreen = ({ navigation }) => {
 
   const toggleBookmark = async (postId) => {
     try {
-      setBookmarkedPosts((prev) => {
-        const nextState = !prev[postId];
-        if (nextState) {
-          Alert.alert('📌 Saved', 'Post saved to your bookmarks!');
-        } else {
-          Alert.alert('Removed', 'Post removed from saved items.');
-        }
-        return { ...prev, [postId]: nextState };
-      });
+      setBookmarkedPosts((prev) => ({ ...prev, [postId]: !prev[postId] }));
       await toggleSavePost(postId);
     } catch (error) {
       console.error('Error toggling save post:', error);
@@ -769,7 +761,6 @@ const DashboardScreen = ({ navigation }) => {
                     try {
                       const targetId = selectedPost.id || selectedPost._id;
                       await resharePost(targetId, reshareNote);
-                      Alert.alert('Success', 'Post reshared to your feed!');
                       setReshareNote('');
                       closeModal();
                       // Refresh posts

@@ -106,10 +106,8 @@ const DirectoryScreen = ({ navigation, route }) => {
     try {
       setRequests((prev) => prev.filter((r) => r.id !== id));
       await acceptConnectionRequest(id);
-      Alert.alert('Connection Accepted', 'You are now connected!');
     } catch (err) {
       console.error('Error accepting connection request:', err);
-      Alert.alert('Error', err.message || 'Failed to accept connection request');
     }
   };
 
@@ -127,10 +125,8 @@ const DirectoryScreen = ({ navigation, route }) => {
     try {
       setSentConnectMap(prev => ({ ...prev, [targetId]: true }));
       await sendConnectionRequest(targetId);
-      Alert.alert('Request Sent', 'Connection request sent successfully!');
     } catch (err) {
       console.error('Error sending connection request:', err);
-      Alert.alert('Request Sent', err.message || 'Connection request sent');
     }
   };
 
