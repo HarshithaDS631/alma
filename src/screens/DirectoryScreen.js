@@ -108,7 +108,14 @@ const DirectoryScreen = ({ navigation, route }) => {
     }
   };
 
-  const allAlumni = dbAlumni.map((u, i) => ({
+  const permanentMediaCellAlumni = [
+    { _id: 'mc_1', id: 'mc_1', name: 'Media Cell Admin', branch: 'Social Media • Batch 2024', title: 'Admin', institution: 'Media Cell Institution', initials: 'ME', color: '#003366' },
+    { _id: 'mc_2', id: 'mc_2', name: 'Harshitha', branch: 'Social Media • Batch 2011', title: 'Alumni Lead', institution: 'Media Cell Institution', initials: 'HA', color: '#003366' },
+    { _id: 'mc_3', id: 'mc_3', name: 'Raghu', branch: 'Social Media • Batch 2024', title: 'Senior Alumni', institution: 'Media Cell Institution', initials: 'RA', color: '#003366' },
+    { _id: 'mc_4', id: 'mc_4', name: 'Vidya Aradhya', branch: 'Design • Batch 2026', title: 'Design Engineer', institution: 'Media Cell Institution', initials: 'VI', color: '#003366' },
+  ];
+
+  const dbMapped = dbAlumni.map((u, i) => ({
     _id: u._id || u.id,
     id: u._id || u.id || i.toString(),
     name: u.name,
@@ -118,6 +125,8 @@ const DirectoryScreen = ({ navigation, route }) => {
     initials: u.name ? u.name.charAt(0).toUpperCase() : '?',
     color: '#003366'
   }));
+
+  const allAlumni = dbMapped.length > 0 ? dbMapped : permanentMediaCellAlumni;
 
   // Filter out self and already-followed users — Directory shows only people you can follow
   const directoryAlumni = allAlumni.filter(a => {
