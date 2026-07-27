@@ -88,12 +88,28 @@ const DashboardScreen = ({ navigation }) => {
     fetchUserInfo();
   }, []);
 
+  const userAvatarPath = currentUser?.profilePicture || currentUser?.avatar_url || currentUser?.avatar;
+  const userAvatarUrl = userAvatarPath ? getImageUrl(userAvatarPath) : null;
+
   // Fetch real data from API
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
       try {
         setLoading(true);
+        // Fetch fresh profile info to display uploaded profile photo immediately
+        try {
+          const freshUser = await getProfile();
+          if (freshUser) {
+            setCurrentUser(freshUser);
+            if (freshUser.name) setUserName(freshUser.name);
+            if (freshUser.institution) setUserInstitution(freshUser.institution);
+            await AsyncStorage.setItem('userInfo', JSON.stringify(freshUser));
+          }
+        } catch (e) {
+          // ignore fallback
+        }
+
         const [postsData, suggestionsData, eventsData, jobsData] = await Promise.allSettled([
           getPosts(),
           getSuggestions(),
@@ -108,7 +124,8 @@ const DashboardScreen = ({ navigation }) => {
             user: p.user?.name || 'Alumni',
             authorId: p.user?._id || null,
             role: p.user?.department ? `${p.user.department} • Batch ${p.user.batchYear || ''}` : 'Alumni Member',
-            avatar: p.user?.name ? p.user.name.substring(0, 2).toUpperCase() : 'AL',
+            avatar: p.user?.profilePicture ? getImageUrl(p.user.profilePicture) : (p.user?.name ? p.user.name.substring(0, 2).toUpperCase() : 'AL'),
+            isAvatarUrl: !!p.user?.profilePicture,
             content: p.content,
             image: getImageUrl(p.image),
             likes: p.likes?.length || 0,
@@ -124,7 +141,8 @@ const DashboardScreen = ({ navigation }) => {
           const formatted = suggestionsData.value.map(s => ({
             id: s._id,
             name: s.name,
-            avatar: s.name ? s.name.substring(0, 2).toUpperCase() : '??',
+            avatar: s.profilePicture ? getImageUrl(s.profilePicture) : (s.name ? s.name.substring(0, 2).toUpperCase() : '??'),
+            isAvatarUrl: !!s.profilePicture,
             subtitle: s.company ? `${s.designation || ''} @ ${s.company}`.trim() : `Batch of ${s.batchYear || ''} • ${s.department || s.institution || ''}`.trim(),
           }));
           setSuggestions(formatted);
@@ -430,11 +448,15 @@ const DashboardScreen = ({ navigation }) => {
         <View style={styles.header}>
           {/* Left – User avatar */}
           <TouchableOpacity
-            style={styles.headerAvatar}
+            style={[styles.headerAvatar, { overflow: 'hidden' }]}
             activeOpacity={0.8}
             onPress={() => navigation.navigate('Profile')}
           >
-            <Text style={styles.headerAvatarText}>{userName ? userName.substring(0, 2).toUpperCase() : 'ME'}</Text>
+            {userAvatarUrl ? (
+              <Image source={{ uri: userAvatarUrl }} style={{ width: '100%', height: '100%', borderRadius: 16 }} />
+            ) : (
+              <Text style={styles.headerAvatarText}>{userName ? userName.substring(0, 2).toUpperCase() : 'ME'}</Text>
+            )}
           </TouchableOpacity>
 
           {/* Center – Search bar */}
@@ -494,9 +516,17 @@ const DashboardScreen = ({ navigation }) => {
             {/* 1. Left Column: Profile Context */}
             <View style={{ flex: 3 }}>
               <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 20, elevation: 2, borderWidth: 1, borderColor: theme.border, marginBottom: 24, alignItems: 'center' }}>
-                <View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center', marginBottom: 12, shadowColor: theme.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8 }}>
-                  <Text style={{ fontSize: 24, fontWeight: '700', color: theme.card }}>{userName ? userName.substring(0, 2).toUpperCase() : 'ME'}</Text>
-                </View>
+                <TouchableOpacity 
+                  style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center', marginBottom: 12, overflow: 'hidden', shadowColor: theme.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8 }}
+                  onPress={() => navigation.navigate('Profile')}
+                  activeOpacity={0.8}
+                >
+                  {userAvatarUrl ? (
+                    <Image source={{ uri: userAvatarUrl }} style={{ width: 72, height: 72, borderRadius: 36 }} />
+                  ) : (
+                    <Text style={{ fontSize: 24, fontWeight: '700', color: theme.card }}>{userName ? userName.substring(0, 2).toUpperCase() : 'ME'}</Text>
+                  )}
+                </TouchableOpacity>
                 <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>{userName || 'Alumni Member'}</Text>
                 <Text style={{ fontSize: 13, color: theme.textSecondary, textAlign: 'center', marginTop: 6, lineHeight: 18 }}>
                   {currentUser?.designation || 'Alumni Member'}
@@ -522,9 +552,17 @@ const DashboardScreen = ({ navigation }) => {
             <View style={{ flex: 6 }}>
               {/* Create Post Widget */}
               <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 16, elevation: 2, borderWidth: 1, borderColor: theme.border, marginBottom: 24, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center' }}>
-                  <Text style={{ fontSize: 14, fontWeight: '700', color: theme.card }}>{userName ? userName.substring(0, 2).toUpperCase() : 'ME'}</Text>
-                </View>
+                <TouchableOpacity 
+                  style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}
+                  onPress={() => navigation.navigate('Profile')}
+                  activeOpacity={0.8}
+                >
+                  {userAvatarUrl ? (
+                    <Image source={{ uri: userAvatarUrl }} style={{ width: 44, height: 44, borderRadius: 22 }} />
+                  ) : (
+                    <Text style={{ fontSize: 14, fontWeight: '700', color: theme.card }}>{userName ? userName.substring(0, 2).toUpperCase() : 'ME'}</Text>
+                  )}
+                </TouchableOpacity>
                 <TouchableOpacity 
                   style={{ flex: 1, backgroundColor: theme.inputBackground, borderRadius: 24, paddingHorizontal: 16, paddingVertical: 12, borderWidth: 1, borderColor: theme.border }}
                   onPress={() => navigation.navigate('PostCreation')}

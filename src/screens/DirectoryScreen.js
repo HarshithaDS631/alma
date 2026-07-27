@@ -85,9 +85,9 @@ const DirectoryScreen = ({ navigation, route }) => {
     _id: u._id || u.id,
     id: u._id || u.id || i.toString(),
     name: u.name,
-    branch: u.department || u.branch || u.batchYear ? `Batch ${u.batchYear}` : '',
-    title: u.designation || u.degree || u.role || 'Alumni',
-    institution: u.institution || 'Alumni Network',
+    branch: u.department || u.branch || (u.batchYear ? `Batch ${u.batchYear}` : ''),
+    title: u.designation || u.degree || u.role || 'Alumni Member',
+    institution: u.institution || 'Media Cell Institution',
     initials: u.name ? u.name.charAt(0).toUpperCase() : '?',
     color: '#003366'
   }));
@@ -171,14 +171,6 @@ const DirectoryScreen = ({ navigation, route }) => {
 
   const renderRequestTab = () => (
     <View style={styles.tabContent}>
-      {/* Section Header */}
-      <TouchableOpacity style={styles.sectionHeader} activeOpacity={0.7}>
-        <Text style={styles.sectionTitle}>
-          Invitations ({filteredRequests.length})
-        </Text>
-        <Ionicons name="chevron-forward" size={20} color="#64748B" />
-      </TouchableOpacity>
-
       {/* Request List */}
       <FlatList
         data={filteredRequests}
@@ -191,7 +183,7 @@ const DirectoryScreen = ({ navigation, route }) => {
             <Ionicons name="mail-open-outline" size={56} color="#CBD5E1" />
             <Text style={styles.emptyRequestTitle}>No Pending Requests</Text>
             <Text style={styles.emptyRequestSubtitle}>
-              You&apos;re all caught up! New connection requests will appear here.
+              You&apos;re all caught up! Connection requests sent to you will appear here.
             </Text>
           </View>
         }
