@@ -21,12 +21,12 @@ exports.getPosts = async (req, res) => {
                 : record.blocker;
         });
 
-        // Fetch current user details including following list and role
-        const currentUser = await User.findById(req.user._id).select('following role');
+        // Fetch current user details including following list, role, and institution
+        const currentUser = await User.findById(req.user._id).select('following role institution');
 
         let query = { user: { $nin: blockedUserIds } };
 
-        // For Alumni and Student roles: display ONLY posts from followed users, own posts, and official announcements
+        // For Alumni and Student roles: display posts from followed users, own posts, official announcements, and all content under Media Cell Institution
         if (currentUser && currentUser.role !== 'Super Admin' && currentUser.role !== 'Admin') {
             const followedUserIds = (currentUser.following || []).map(id => id.toString());
             
@@ -34,10 +34,20 @@ exports.getPosts = async (req, res) => {
             const adminUsers = await User.find({ role: { $in: ['Admin', 'Super Admin'] } }).select('_id');
             const adminUserIds = adminUsers.map(a => a._id.toString());
 
+            // Fetch ALL users belonging to Media Cell Institution so institution posts are displayed
+            const mediaCellUsers = await User.find({
+                $or: [
+                    { institution: /media\s*cell/i },
+                    { institution: currentUser.institution ? new RegExp(currentUser.institution.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') : /media/i }
+                ]
+            }).select('_id');
+            const mediaCellUserIds = mediaCellUsers.map(u => u._id.toString());
+
             const allowedCreatorIds = Array.from(new Set([
                 req.user._id.toString(),
                 ...followedUserIds,
-                ...adminUserIds
+                ...adminUserIds,
+                ...mediaCellUserIds
             ]));
 
             query.user = { $in: allowedCreatorIds, $nin: blockedUserIds };
