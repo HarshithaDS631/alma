@@ -81,16 +81,23 @@ const DirectoryScreen = ({ navigation, route }) => {
     fetchConnectionRequests();
   }, []);
 
-  const directoryAlumni = dbAlumni.map((u, i) => ({
+  const defaultMediaCellAlumni = [
+    { _id: 'mc_1', id: 'mc_1', name: 'Media Cell Admin', branch: 'Social Media • Batch 2024', title: 'Admin', institution: 'Media Cell Institution', initials: 'ME', color: '#003366' },
+    { _id: 'mc_2', id: 'mc_2', name: 'Harshitha', branch: 'Social Media • Batch 2011', title: 'Alumni Lead', institution: 'Media Cell Institution', initials: 'HA', color: '#003366' },
+    { _id: 'mc_3', id: 'mc_3', name: 'Raghu', branch: 'Social Media • Batch 2024', title: 'Senior Alumni', institution: 'Media Cell Institution', initials: 'RA', color: '#003366' },
+    { _id: 'mc_4', id: 'mc_4', name: 'Vidya Aradhya', branch: 'Design • Batch 2026', title: 'Design Engineer', institution: 'Media Cell Institution', initials: 'VI', color: '#003366' },
+  ];
+
+  const directoryAlumni = dbAlumni.length > 0 ? dbAlumni.map((u, i) => ({
     _id: u._id || u.id,
     id: u._id || u.id || i.toString(),
     name: u.name,
-    branch: u.department || u.branch || (u.batchYear ? `Batch ${u.batchYear}` : ''),
+    branch: u.department || u.branch || (u.batchYear ? `Batch ${u.batchYear}` : 'Media Cell'),
     title: u.designation || u.degree || u.role || 'Alumni Member',
     institution: u.institution || 'Media Cell Institution',
     initials: u.name ? u.name.charAt(0).toUpperCase() : '?',
     color: '#003366'
-  }));
+  })) : defaultMediaCellAlumni;
 
   // Community States
   const [communityModalVisible, setCommunityModalVisible] = useState(false);
@@ -566,7 +573,9 @@ const DirectoryScreen = ({ navigation, route }) => {
       </View>
 
       {/* ───── Tab Content ───── */}
-      {activeTab === 'request' || activeTab === 'directory' ? (
+      {activeTab === 'directory' ? (
+        isDesktop ? renderWebDirectoryTab() : renderDirectoryTab()
+      ) : activeTab === 'request' ? (
         renderRequestTab()
       ) : (
         renderCommunityTab()
