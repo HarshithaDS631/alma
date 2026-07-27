@@ -47,7 +47,8 @@ exports.getPosts = async (req, res) => {
             .populate('user', 'name branch department batchYear avatar_url username role institution')
             .populate('tags', 'name username avatar_url')
             .populate('comments.user', 'name avatar_url username')
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .lean();
 
         res.json(posts);
     } catch (error) {

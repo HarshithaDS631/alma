@@ -93,131 +93,132 @@ const DashboardScreen = ({ navigation }) => {
   const userAvatarPath = currentUser?.profilePicture || currentUser?.avatar_url || currentUser?.avatar;
   const userAvatarUrl = userAvatarPath ? getImageUrl(userAvatarPath) : null;
 
-  // Fetch real data from API
+  // Fetch real data from API instantly in parallel
   useFocusEffect(
     useCallback(() => {
+      let isMounted = true;
       const fetchData = async () => {
-      try {
-        setLoading(true);
-        // Fetch fresh profile info to display uploaded profile photo immediately
         try {
-          const freshUser = await getProfile();
-          if (freshUser) {
+          // Only show full loading spinner on initial cold launch
+          if (posts.length === 0) {
+            setLoading(true);
+          }
+
+          // Execute ALL network requests simultaneously in parallel (1 single roundtrip)
+          const [
+            profileRes,
+            postsRes,
+            suggestionsRes,
+            eventsRes,
+            jobsRes,
+            followingRes,
+            followersRes
+          ] = await Promise.allSettled([
+            getProfile().catch(() => null),
+            getPosts().catch(() => []),
+            getSuggestions().catch(() => []),
+            getEvents().catch(() => []),
+            fetchJobs().catch(() => []),
+            getFollowing().catch(() => []),
+            getFollowers().catch(() => []),
+          ]);
+
+          if (!isMounted) return;
+
+          // 1. Process profile
+          if (profileRes.status === 'fulfilled' && profileRes.value) {
+            const freshUser = profileRes.value;
             setCurrentUser(freshUser);
             if (freshUser.name) setUserName(freshUser.name);
             if (freshUser.institution) setUserInstitution(freshUser.institution);
-            await AsyncStorage.setItem('userInfo', JSON.stringify(freshUser));
+            AsyncStorage.setItem('userInfo', JSON.stringify(freshUser)).catch(() => {});
           }
-        } catch (e) {
-          // ignore fallback
-        }
 
-        const [postsData, suggestionsData, eventsData, jobsData] = await Promise.allSettled([
-          getPosts(),
-          getSuggestions(),
-          getEvents(),
-          fetchJobs(),
-        ]);
+          // 2. Process posts
+          if (postsRes.status === 'fulfilled' && Array.isArray(postsRes.value) && postsRes.value.length > 0) {
+            const formatted = postsRes.value.map(p => ({
+              id: p._id,
+              user: p.user?.name || 'Alumni',
+              authorId: p.user?._id || null,
+              role: p.user?.department ? `${p.user.department} • Batch ${p.user.batchYear || ''}` : 'Alumni Member @ Media Cell Institution',
+              avatar: p.user?.profilePicture || p.user?.avatar_url ? getImageUrl(p.user?.profilePicture || p.user?.avatar_url) : (p.user?.name ? p.user.name.substring(0, 2).toUpperCase() : 'AL'),
+              isAvatarUrl: !!(p.user?.profilePicture || p.user?.avatar_url),
+              content: p.content,
+              image: getImageUrl(p.image),
+              likes: p.likes?.length || 0,
+              comments: p.comments || [],
+              commentsCount: p.comments?.length || 0,
+              time: getTimeAgo(p.createdAt),
+            }));
+            setPosts(formatted);
+          } else {
+            setPosts([]);
+          }
 
-        // Process posts
-        if (postsData.status === 'fulfilled' && Array.isArray(postsData.value) && postsData.value.length > 0) {
-          const formatted = postsData.value.map(p => ({
-            id: p._id,
-            user: p.user?.name || 'Alumni',
-            authorId: p.user?._id || null,
-            role: p.user?.department ? `${p.user.department} • Batch ${p.user.batchYear || ''}` : 'Alumni Member @ Media Cell Institution',
-            avatar: p.user?.profilePicture ? getImageUrl(p.user.profilePicture) : (p.user?.name ? p.user.name.substring(0, 2).toUpperCase() : 'AL'),
-            isAvatarUrl: !!p.user?.profilePicture,
-            content: p.content,
-            image: getImageUrl(p.image),
-            likes: p.likes?.length || 0,
-            comments: p.comments || [],
-            commentsCount: p.comments?.length || 0,
-            time: getTimeAgo(p.createdAt),
-          }));
-          setPosts(formatted);
-        } else {
-          setPosts([]);
-        }
+          // 3. Process suggestions
+          if (suggestionsRes.status === 'fulfilled' && Array.isArray(suggestionsRes.value) && suggestionsRes.value.length > 0) {
+            const formatted = suggestionsRes.value.map(s => ({
+              id: s._id,
+              name: s.name,
+              avatar: s.profilePicture || s.avatar_url ? getImageUrl(s.profilePicture || s.avatar_url) : (s.name ? s.name.substring(0, 2).toUpperCase() : '??'),
+              isAvatarUrl: !!(s.profilePicture || s.avatar_url),
+              subtitle: s.company ? `${s.designation || ''} @ ${s.company}`.trim() : `Batch of ${s.batchYear || ''} • ${s.department || s.institution || ''}`.trim(),
+            }));
+            setSuggestions(formatted);
+          }
 
-        // Process suggestions
-        if (suggestionsData.status === 'fulfilled' && suggestionsData.value.length > 0) {
-          const formatted = suggestionsData.value.map(s => ({
-            id: s._id,
-            name: s.name,
-            avatar: s.profilePicture ? getImageUrl(s.profilePicture) : (s.name ? s.name.substring(0, 2).toUpperCase() : '??'),
-            isAvatarUrl: !!s.profilePicture,
-            subtitle: s.company ? `${s.designation || ''} @ ${s.company}`.trim() : `Batch of ${s.batchYear || ''} • ${s.department || s.institution || ''}`.trim(),
-          }));
-          setSuggestions(formatted);
-        }
+          // 4. Process combined Opportunities (Jobs & Events)
+          let combinedOpportunities = [];
+          if (jobsRes.status === 'fulfilled' && Array.isArray(jobsRes.value) && jobsRes.value.length > 0) {
+            const formattedJobs = jobsRes.value.map(j => ({
+              id: j._id || j.id,
+              title: j.title || j.role || 'Career Opportunity',
+              subtitle: `${j.company || 'Alumni Partner'} • ${j.location || 'Remote'}`,
+              btnText: 'View Job',
+              image: j.logo || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=200&h=200&q=80',
+            }));
+            combinedOpportunities.push(...formattedJobs);
+          }
 
-        // Process combined Opportunities (Jobs & Events)
-        let combinedOpportunities = [];
+          if (eventsRes.status === 'fulfilled' && Array.isArray(eventsRes.value) && eventsRes.value.length > 0) {
+            const formattedEvents = eventsRes.value.map(e => ({
+              id: e._id || e.id,
+              title: e.title,
+              subtitle: e.date ? `${new Date(e.date).toLocaleDateString()} • ${e.location || 'Online'}` : e.location || 'Online',
+              btnText: 'View Details',
+              image: e.image || 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&w=400&h=260&q=80',
+            }));
+            combinedOpportunities.push(...formattedEvents);
+          }
+          setEventsAndJobs(combinedOpportunities);
 
-        if (jobsData.status === 'fulfilled' && Array.isArray(jobsData.value) && jobsData.value.length > 0) {
-          const formattedJobs = jobsData.value.map(j => ({
-            id: j._id || j.id,
-            title: j.title || j.role || 'Career Opportunity',
-            subtitle: `${j.company || 'Alumni Partner'} • ${j.location || 'Remote'}`,
-            btnText: 'View Job',
-            image: j.logo || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=200&h=200&q=80',
-          }));
-          combinedOpportunities.push(...formattedJobs);
-        }
-
-        if (eventsData.status === 'fulfilled' && Array.isArray(eventsData.value) && eventsData.value.length > 0) {
-          const formattedEvents = eventsData.value.map(e => ({
-            id: e._id || e.id,
-            title: e.title,
-            subtitle: e.date ? `${new Date(e.date).toLocaleDateString()} • ${e.location || 'Online'}` : e.location || 'Online',
-            btnText: 'View Details',
-            image: e.image || 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&w=400&h=260&q=80',
-          }));
-          combinedOpportunities.push(...formattedEvents);
-        }
-
-        // No fallback — show empty if no real opportunities
-        if (combinedOpportunities.length === 0) {
-          combinedOpportunities = [];
-        }
-
-        setEventsAndJobs(combinedOpportunities);
-        
-        // Fetch following and followers to set followingMap and connections count
-        try {
-          const [followingData, followersData] = await Promise.all([
-            getFollowing().catch(() => []),
-            getFollowers().catch(() => [])
-          ]);
-          
+          // 5. Process Following & Followers connections
           const initialFollowed = {};
           let totalConn = 0;
-          
-          if (Array.isArray(followingData)) {
-            followingData.forEach(user => {
+
+          if (followingRes.status === 'fulfilled' && Array.isArray(followingRes.value)) {
+            followingRes.value.forEach(user => {
               initialFollowed[user._id || user.id] = true;
             });
-            totalConn += followingData.length;
+            totalConn += followingRes.value.length;
           }
-          if (Array.isArray(followersData)) {
-            totalConn += followersData.length;
+          if (followersRes.status === 'fulfilled' && Array.isArray(followersRes.value)) {
+            totalConn += followersRes.value.length;
           }
-          
+
           setFollowingMap(initialFollowed);
           setConnectionsCount(totalConn);
-        } catch (e) {
-          // ignore
-        }
 
-      } catch (err) {
-        console.error('Error fetching dashboard data:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [])
+        } catch (err) {
+          console.error('Error fetching dashboard data:', err);
+        } finally {
+          if (isMounted) setLoading(false);
+        }
+      };
+
+      fetchData();
+      return () => { isMounted = false; };
+    }, [])
   );
 
   // Helper to format timestamps
