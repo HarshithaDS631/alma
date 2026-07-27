@@ -162,7 +162,7 @@ const ProfileScreen = ({ navigation }) => {
                 const pId = (p._id || p.id).toString();
                 const authorId = p.user ? (p.user._id || p.user.id || p.user).toString() : null;
                 const isMyPost = authorId === currentUserIdStr;
-                const isReshare = Boolean(p.originalPost || (p.content && p.content.includes('🔄 Reshared from')));
+                const isReshare = Boolean(p.originalPost || p.isReshare || p.originalAuthorName || (p.content && /reshared\s+from/i.test(p.content)));
                 const isSaved = savedPostIds.has(pId);
                 return isMyPost && !isReshare && !isSaved && !p.isArchived;
               });
@@ -172,7 +172,7 @@ const ProfileScreen = ({ navigation }) => {
                 const pId = (p._id || p.id).toString();
                 const authorId = p.user ? (p.user._id || p.user.id || p.user).toString() : null;
                 const isMyPost = authorId === currentUserIdStr;
-                const isReshare = Boolean(p.originalPost || (p.content && p.content.includes('🔄 Reshared from')));
+                const isReshare = Boolean(p.originalPost || p.isReshare || p.originalAuthorName || (p.content && /reshared\s+from/i.test(p.content)));
                 const isExplicitReshare = p.reshares && Array.isArray(p.reshares) && p.reshares.some(id => (id._id || id.id || id).toString() === currentUserIdStr);
                 const isSaved = savedPostIds.has(pId);
                 return ((isMyPost && isReshare) || isExplicitReshare) && !isSaved;
