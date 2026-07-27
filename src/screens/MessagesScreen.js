@@ -136,12 +136,14 @@ const MessagesScreen = ({ navigation }) => {
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <TouchableOpacity 
-            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            style={{ padding: 6, zIndex: 999 }}
+            hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
             activeOpacity={0.6}
             onPress={() => {
               try {
                 const state = navigation?.getState ? navigation.getState() : null;
-                if (state && state.index > 0 && typeof navigation.goBack === 'function') {
+                const routes = state?.routes || [];
+                if (routes.length > 1 && typeof navigation.goBack === 'function') {
                   navigation.goBack();
                 } else if (navigation && typeof navigation.navigate === 'function') {
                   navigation.navigate('Main', { screen: 'Home' });

@@ -361,13 +361,14 @@ const ProfileScreen = ({ navigation }) => {
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <TouchableOpacity 
-            style={{ marginRight: 8, padding: 6, borderRadius: 20 }} 
-            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            style={{ marginRight: 8, padding: 8, borderRadius: 20, zIndex: 999 }} 
+            hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
             activeOpacity={0.6}
             onPress={() => {
               try {
                 const state = navigation?.getState ? navigation.getState() : null;
-                if (state && state.index > 0 && typeof navigation.goBack === 'function') {
+                const routes = state?.routes || [];
+                if (routes.length > 1 && typeof navigation.goBack === 'function') {
                   navigation.goBack();
                 } else if (navigation && typeof navigation.navigate === 'function') {
                   navigation.navigate('Main', { screen: 'Home' });
@@ -381,7 +382,7 @@ const ProfileScreen = ({ navigation }) => {
               }
             }}
           >
-            <Ionicons name="arrow-back" size={24} color={theme.text} />
+            <Ionicons name="arrow-back" size={26} color={theme.text} />
           </TouchableOpacity>
           <Ionicons name="shield-checkmark" size={18} color="#003366" />
           <Text style={styles.headerUsername}>{profileData.username}</Text>
