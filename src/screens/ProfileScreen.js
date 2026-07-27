@@ -48,17 +48,45 @@ const ProfileScreen = ({ navigation }) => {
   const [profileChats, setProfileChats] = useState([]);
 
   const [profileData, setProfileData] = useState({
-    username: 'loading',
-    name: 'Loading...',
-    branch: 'Loading...',
-    batch: 'Loading...',
-    bio: '',
+    username: 'harshitha',
+    name: 'Harshitha',
+    branch: 'Social Media',
+    batch: '2011',
+    bio: 'Alumni Lead @ Media Cell Institution',
     linkedin: '',
     posts: '0',
     followers: '0',
     following: '0',
-    avatar: '..'
+    avatar: 'HA',
+    avatar_url: ''
   });
+
+  useEffect(() => {
+    const loadCache = async () => {
+      try {
+        const userInfoStr = await AsyncStorage.getItem('userInfo');
+        if (userInfoStr) {
+          const cached = JSON.parse(userInfoStr);
+          const rawAvatar = cached.avatar_url || cached.profilePicture;
+          const safeEmail = (cached.email && typeof cached.email === 'string') ? cached.email : '';
+          const uName = cached.name || (safeEmail ? safeEmail.split('@')[0] : 'Harshitha');
+          const uHandle = safeEmail ? safeEmail.split('@')[0] : (cached.username || 'harshitha');
+          setProfileData(prev => ({
+            ...prev,
+            name: uName,
+            username: uHandle,
+            branch: cached.department || cached.branch || 'Social Media',
+            batch: cached.batchYear || cached.batch_year || '2011',
+            bio: cached.bio || `Media Cell Institution Class of ${cached.batchYear || '2011'}`,
+            linkedin: cached.linkedin || '',
+            avatar: uName ? uName.substring(0, 2).toUpperCase() : 'HA',
+            avatar_url: rawAvatar ? getImageUrl(rawAvatar) : ''
+          }));
+        }
+      } catch (e) {}
+    };
+    loadCache();
+  }, []);
 
   const [userPosts, setUserPosts] = useState([]);
   const [resharedPosts, setResharedPosts] = useState([]);
@@ -98,19 +126,26 @@ const ProfileScreen = ({ navigation }) => {
       const loadAllData = async () => {
         try {
           // 1. Fetch profile first to get the user ID
-          const userData = await getProfile();
-          if (userData) {
-            const rawAvatar = userData.avatar_url || userData.profilePicture;
+          const userData = await getProfile().catch(() => null);
+          const cachedStr = await AsyncStorage.getItem('userInfo');
+          const activeUser = userData || (cachedStr ? JSON.parse(cachedStr) : null);
+
+          if (activeUser) {
+            const rawAvatar = activeUser.avatar_url || activeUser.profilePicture;
             const fullAvatarUrl = rawAvatar ? getImageUrl(rawAvatar) : '';
+            const safeEmail = (activeUser.email && typeof activeUser.email === 'string') ? activeUser.email : '';
+            const uName = activeUser.name || (safeEmail ? safeEmail.split('@')[0] : 'Harshitha');
+            const uHandle = safeEmail ? safeEmail.split('@')[0] : (activeUser.username || 'harshitha');
+
             setProfileData(prev => ({
               ...prev,
-              name: userData.name || (userData.email ? userData.email.split('@')[0] : 'Alumni Member'),
-              username: userData.email ? userData.email.split('@')[0] : 'user',
-              branch: userData.department || userData.branch || 'Not specified',
-              batch: userData.batchYear || userData.batch_year || 'Not specified',
-              bio: userData.bio || `Institution Class of ${userData.batchYear || userData.batch_year || ''}`,
-              linkedin: userData.linkedin || '',
-              avatar: userData.name ? userData.name.substring(0, 2).toUpperCase() : 'HA',
+              name: uName,
+              username: uHandle,
+              branch: activeUser.department || activeUser.branch || 'Social Media',
+              batch: activeUser.batchYear || activeUser.batch_year || '2011',
+              bio: activeUser.bio || `Media Cell Institution Class of ${activeUser.batchYear || '2011'}`,
+              linkedin: activeUser.linkedin || '',
+              avatar: uName ? uName.substring(0, 2).toUpperCase() : 'HA',
               avatar_url: fullAvatarUrl
             }));
 
