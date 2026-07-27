@@ -164,20 +164,10 @@ const NotificationsScreen = ({ navigation }) => {
             hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
             activeOpacity={0.6}
             onPress={() => {
-              try {
-                const state = navigation?.getState ? navigation.getState() : null;
-                const routes = state?.routes || [];
-                if (routes.length > 1 && typeof navigation.goBack === 'function') {
-                  navigation.goBack();
-                } else if (navigation && typeof navigation.navigate === 'function') {
-                  navigation.navigate('Main', { screen: 'Home' });
-                } else if (typeof window !== 'undefined' && window.history) {
-                  window.history.back();
-                }
-              } catch (e) {
-                if (navigation && typeof navigation.navigate === 'function') {
-                  navigation.navigate('Main', { screen: 'Home' });
-                }
+              if (navigation && typeof navigation.canGoBack === 'function' && navigation.canGoBack()) {
+                navigation.goBack();
+              } else if (navigation && typeof navigation.navigate === 'function') {
+                navigation.navigate('Main');
               }
             }} 
             style={styles.backButton}
