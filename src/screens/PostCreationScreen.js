@@ -206,7 +206,15 @@ const PostCreationScreen = ({ navigation }) => {
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
             {/* Header */}
             <View style={styles.header}>
-              <TouchableOpacity onPress={() => { if (navigation.canGoBack()) { navigation.goBack(); } else { navigation.navigate('Main'); } }} style={styles.cancelBtn}>
+              <TouchableOpacity onPress={() => {
+                if (navigation && typeof navigation.canGoBack === 'function' && navigation.canGoBack()) {
+                  navigation.goBack();
+                } else if (navigation && typeof navigation.navigate === 'function') {
+                  navigation.navigate('Main', { screen: 'Home' });
+                } else if (typeof window !== 'undefined' && window.history) {
+                  window.history.back();
+                }
+              }} style={styles.cancelBtn}>
                 <Ionicons name="close" size={24} color="#64748B" />
               </TouchableOpacity>
               <Text style={styles.headerTitle}>Create Post</Text>

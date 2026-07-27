@@ -363,12 +363,12 @@ const AdminProfileScreen = ({ navigation }) => {
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <TouchableOpacity onPress={() => {
-            if (navigation) {
-              if (navigation.canGoBack()) {
-                navigation.goBack();
-              } else {
-                navigation.navigate('AdminMain');
-              }
+            if (navigation && typeof navigation.canGoBack === 'function' && navigation.canGoBack()) {
+              navigation.goBack();
+            } else if (navigation && typeof navigation.navigate === 'function') {
+              navigation.navigate('AdminMain', { screen: 'AdminHome' });
+            } else if (typeof window !== 'undefined' && window.history) {
+              window.history.back();
             }
           }}>
             <Ionicons name="arrow-back" size={22} color="#0F172A" />

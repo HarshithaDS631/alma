@@ -161,10 +161,12 @@ const NotificationsScreen = ({ navigation }) => {
         <View style={styles.headerLeft}>
           <TouchableOpacity 
             onPress={() => {
-              if (navigation.canGoBack()) {
+              if (navigation && typeof navigation.canGoBack === 'function' && navigation.canGoBack()) {
                 navigation.goBack();
-              } else {
-                navigation.navigate('Main');
+              } else if (navigation && typeof navigation.navigate === 'function') {
+                navigation.navigate('Main', { screen: 'Home' });
+              } else if (typeof window !== 'undefined' && window.history) {
+                window.history.back();
               }
             }} 
             style={styles.backButton}

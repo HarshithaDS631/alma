@@ -600,10 +600,12 @@ const ChatScreen = ({ route, navigation }) => {
       <View style={styles.header}>
         <TouchableOpacity 
           onPress={() => {
-            if (navigation.canGoBack()) {
+            if (navigation && typeof navigation.canGoBack === 'function' && navigation.canGoBack()) {
               navigation.goBack();
-            } else {
+            } else if (navigation && typeof navigation.navigate === 'function') {
               navigation.navigate('Messages');
+            } else if (typeof window !== 'undefined' && window.history) {
+              window.history.back();
             }
           }} 
           style={styles.backButton}
