@@ -212,6 +212,7 @@ const RegisterScreen = ({ navigation }) => {
   const [otpError, setOtpError] = useState('');
   const [sendingOtpLoading, setSendingOtpLoading] = useState(false);
   const [verifyingOtpLoading, setVerifyingOtpLoading] = useState(false);
+  const otpRefs = useRef([]);
   // Security Captcha Challenge (Bot Protection)
   const [captcha, setCaptcha] = useState({ num1: Math.floor(Math.random() * 9) + 1, num2: Math.floor(Math.random() * 9) + 1, userAnswer: '' });
   const [captchaVerified, setCaptchaVerified] = useState(false);
