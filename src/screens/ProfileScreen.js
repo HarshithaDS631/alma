@@ -169,23 +169,47 @@ const ProfileScreen = ({ navigation }) => {
             ]);
             
             if (Array.isArray(followersData)) {
-              setConnections(followersData.map(s => ({
-                id: s._id || s.id,
-                name: s.name || 'Alumni Member',
-                title: s.company ? `${s.designation || ''} @ ${s.company}`.trim() : `Batch of ${s.batchYear || ''} • ${s.department || s.branch || ''}`.trim(),
-                avatar: s.name ? s.name.substring(0, 2).toUpperCase() : 'AL',
-                avatar_url: s.avatar_url || s.profilePicture ? getImageUrl(s.avatar_url || s.profilePicture) : ''
-              })));
+              setConnections(followersData.filter(Boolean).map((s, idx) => {
+                const isObj = typeof s === 'object' && s !== null;
+                const sName = isObj ? (s.name || s.username || (s.email ? s.email.split('@')[0] : 'Alumni Member')) : 'Alumni Member';
+                const sId = isObj ? (s._id || s.id || `f-${idx}`) : (s || `f-${idx}`);
+                const sCompany = isObj ? s.company : '';
+                const sDesig = isObj ? s.designation : '';
+                const sDept = isObj ? (s.department || s.branch || '') : '';
+                const sBatch = isObj ? (s.batchYear || s.batch_year || '') : '';
+                const sTitle = sCompany ? `${sDesig ? sDesig + ' @ ' : ''}${sCompany}`.trim() : [sDept, sBatch ? `Batch ${sBatch}` : ''].filter(Boolean).join(' • ') || 'Alumni Member';
+                const sAvatarUrl = isObj ? (s.avatar_url || s.profilePicture || '') : '';
+
+                return {
+                  id: sId,
+                  name: sName,
+                  title: sTitle,
+                  avatar: sName ? sName.substring(0, 2).toUpperCase() : 'AL',
+                  avatar_url: sAvatarUrl ? getImageUrl(sAvatarUrl) : ''
+                };
+              }));
             }
             
             if (Array.isArray(followingData)) {
-              setFollowing(followingData.map(s => ({
-                id: s._id || s.id,
-                name: s.name || 'Alumni Member',
-                title: s.company ? `${s.designation || ''} @ ${s.company}`.trim() : `Batch of ${s.batchYear || ''} • ${s.department || s.branch || ''}`.trim(),
-                avatar: s.name ? s.name.substring(0, 2).toUpperCase() : 'AL',
-                avatar_url: s.avatar_url || s.profilePicture ? getImageUrl(s.avatar_url || s.profilePicture) : ''
-              })));
+              setFollowing(followingData.filter(Boolean).map((s, idx) => {
+                const isObj = typeof s === 'object' && s !== null;
+                const sName = isObj ? (s.name || s.username || (s.email ? s.email.split('@')[0] : 'Alumni Member')) : 'Alumni Member';
+                const sId = isObj ? (s._id || s.id || `fl-${idx}`) : (s || `fl-${idx}`);
+                const sCompany = isObj ? s.company : '';
+                const sDesig = isObj ? s.designation : '';
+                const sDept = isObj ? (s.department || s.branch || '') : '';
+                const sBatch = isObj ? (s.batchYear || s.batch_year || '') : '';
+                const sTitle = sCompany ? `${sDesig ? sDesig + ' @ ' : ''}${sCompany}`.trim() : [sDept, sBatch ? `Batch ${sBatch}` : ''].filter(Boolean).join(' • ') || 'Alumni Member';
+                const sAvatarUrl = isObj ? (s.avatar_url || s.profilePicture || '') : '';
+
+                return {
+                  id: sId,
+                  name: sName,
+                  title: sTitle,
+                  avatar: sName ? sName.substring(0, 2).toUpperCase() : 'AL',
+                  avatar_url: sAvatarUrl ? getImageUrl(sAvatarUrl) : ''
+                };
+              }));
             }
 
             setProfileData(prev => ({
