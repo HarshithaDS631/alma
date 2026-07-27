@@ -205,6 +205,7 @@ const RegisterScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalType, setModalType] = useState(null); // 'institution' | 'branch' | 'joining' | 'batch'
   const [emailState, setEmailState] = useState('idle'); // 'idle' | 'sending' | 'sent' | 'verified'
   const [inlineOtp, setInlineOtp] = useState(['', '', '', '', '', '']);
   const [otpVerified, setOtpVerified] = useState(false);
