@@ -764,140 +764,116 @@ const DEFAULT_TAGGED_POSTS = [
         </View>
 
         {/* Tab Content Section */}
-        {activeTab === 'post' && (
-          <View style={styles.postsGrid}>
-            {userPosts.length === 0 ? (
-              <View style={{ padding: 40, alignItems: 'center', width: '100%' }}>
-                <Ionicons name="grid-outline" size={48} color="#CBD5E1" />
-                <Text style={{ marginTop: 12, fontSize: 14, color: '#64748B' }}>No posts yet</Text>
-                <TouchableOpacity style={{ marginTop: 16, backgroundColor: theme.primary, paddingHorizontal: 18, paddingVertical: 10, borderRadius: 20 }} onPress={() => navigation.navigate('PostCreation')}>
-                  <Text style={{ color: '#FFF', fontWeight: '600', fontSize: 13 }}>Share your first post</Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              userPosts.map((post) => (
-                <TouchableOpacity 
-                  key={post._id || post.id} 
-                  style={[styles.gridItem, { width: gridItemSize, height: gridItemSize }]} 
-                  activeOpacity={0.85}
-                  onPress={() => setSelectedPost(post)}
-                >
-                  {(post.image || post.image_url) ? (
-                    <Image source={{ uri: getImageUrl(post.image || post.image_url) }} style={styles.gridImage} />
-                  ) : (
-                    <View style={[styles.gridImage, { backgroundColor: '#F8FAFC', justifyContent: 'center', alignItems: 'center', padding: 10, borderWidth: 0.5, borderColor: '#E2E8F0' }]}>
-                      <Ionicons name="document-text-outline" size={24} color={theme.primary} style={{ marginBottom: 6 }} />
-                      <Text style={{fontSize: 11, color: '#334155', fontWeight: '500', textAlign: 'center'}} numberOfLines={3}>{post.content}</Text>
-                    </View>
-                  )}
-                </TouchableOpacity>
-              ))
-            )}
-          </View>
-        )}
+        {(() => {
+          const displayUserPosts = (userPosts && Array.isArray(userPosts) && userPosts.length > 0) ? userPosts : DEFAULT_USER_POSTS;
+          const displayResharedPosts = (resharedPosts && Array.isArray(resharedPosts) && resharedPosts.length > 0) ? resharedPosts : DEFAULT_RESHARED_POSTS;
+          const displaySavedPosts = (savedPosts && Array.isArray(savedPosts) && savedPosts.length > 0) ? savedPosts : DEFAULT_SAVED_POSTS;
+          const displayTaggedPosts = (taggedPosts && Array.isArray(taggedPosts) && taggedPosts.length > 0) ? taggedPosts : DEFAULT_TAGGED_POSTS;
 
-
-        {activeTab === 'tags' && (
-          <View style={styles.postsGrid}>
-            {taggedPosts.length === 0 ? (
-              <View style={{ width: '100%', padding: 40, alignItems: 'center', justifyContent: 'center' }}>
-                <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: '#F1F5F9', justifyContent: 'center', alignItems: 'center', marginBottom: 16 }}>
-                  <Ionicons name="pricetag-outline" size={32} color="#94A3B8" />
-                </View>
-                <Text style={{ fontSize: 16, fontWeight: '600', color: theme.text, marginBottom: 8 }}>No tagged posts</Text>
-                <Text style={{ fontSize: 14, color: theme.textMuted, textAlign: 'center' }}>When people tag you in photos or posts, they'll appear here.</Text>
+          if (activeTab === 'post') {
+            return (
+              <View style={styles.postsGrid}>
+                {displayUserPosts.map((post) => (
+                  <TouchableOpacity 
+                    key={post._id || post.id} 
+                    style={[styles.gridItem, { width: gridItemSize, height: gridItemSize }]} 
+                    activeOpacity={0.85}
+                    onPress={() => setSelectedPost(post)}
+                  >
+                    {(post.image || post.image_url) ? (
+                      <Image source={{ uri: getImageUrl(post.image || post.image_url) }} style={styles.gridImage} />
+                    ) : (
+                      <View style={[styles.gridImage, { backgroundColor: '#F8FAFC', justifyContent: 'center', alignItems: 'center', padding: 10, borderWidth: 0.5, borderColor: '#E2E8F0' }]}>
+                        <Ionicons name="document-text-outline" size={24} color={theme.primary} style={{ marginBottom: 6 }} />
+                        <Text style={{fontSize: 11, color: '#334155', fontWeight: '500', textAlign: 'center'}} numberOfLines={3}>{post.content}</Text>
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                ))}
               </View>
-            ) : (
-              taggedPosts.map((post) => (
-                <TouchableOpacity 
-                  key={post._id || post.id} 
-                  style={[styles.gridItem, { width: gridItemSize, height: gridItemSize }]} 
-                  activeOpacity={0.85}
-                  onPress={() => setSelectedPost(post)}
-                >
-                  {(post.image || post.image_url) ? (
-                    <Image source={{ uri: getImageUrl(post.image || post.image_url) }} style={styles.gridImage} />
-                  ) : (
-                    <View style={[styles.gridImage, { backgroundColor: '#F8FAFC', justifyContent: 'center', alignItems: 'center', padding: 10, borderWidth: 0.5, borderColor: '#E2E8F0' }]}>
-                      <Ionicons name="document-text-outline" size={24} color={theme.primary} style={{ marginBottom: 6 }} />
-                      <Text style={{fontSize: 11, color: '#334155', fontWeight: '500', textAlign: 'center'}} numberOfLines={3}>{post.content}</Text>
-                    </View>
-                  )}
-                  <View style={styles.tagOverlay}>
-                    <Ionicons name="person" size={16} color="#FFFFFF" />
-                  </View>
-                </TouchableOpacity>
-              ))
-            )}
-          </View>
-        )}
+            );
+          }
 
-        {activeTab === 'saved' && (
-          <View style={styles.postsGrid}>
-            {savedPosts.length === 0 ? (
-              <View style={{ width: '100%', padding: 40, alignItems: 'center', justifyContent: 'center' }}>
-                <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: '#F1F5F9', justifyContent: 'center', alignItems: 'center', marginBottom: 16 }}>
-                  <Ionicons name="bookmark-outline" size={32} color="#94A3B8" />
-                </View>
-                <Text style={{ fontSize: 16, fontWeight: '600', color: theme.text, marginBottom: 8 }}>No saved posts</Text>
-                <Text style={{ fontSize: 14, color: theme.textMuted, textAlign: 'center' }}>Posts you save will appear here in your private bookmarks.</Text>
-              </View>
-            ) : (
-              savedPosts.map((post) => (
-                <TouchableOpacity 
-                  key={post._id || post.id} 
-                  style={[styles.gridItem, { width: gridItemSize, height: gridItemSize }]} 
-                  activeOpacity={0.85}
-                  onPress={() => setSelectedPost(post)}
-                >
-                  {(post.image || post.image_url) ? (
-                    <Image source={{ uri: getImageUrl(post.image || post.image_url) }} style={styles.gridImage} />
-                  ) : (
-                    <View style={[styles.gridImage, { backgroundColor: '#F8FAFC', justifyContent: 'center', alignItems: 'center', padding: 10, borderWidth: 0.5, borderColor: '#E2E8F0' }]}>
-                      <Ionicons name="bookmark" size={24} color={theme.primary} style={{ marginBottom: 6 }} />
-                      <Text style={{fontSize: 11, color: '#334155', fontWeight: '500', textAlign: 'center'}} numberOfLines={3}>{post.content}</Text>
+          if (activeTab === 'tags') {
+            return (
+              <View style={styles.postsGrid}>
+                {displayTaggedPosts.map((post) => (
+                  <TouchableOpacity 
+                    key={post._id || post.id} 
+                    style={[styles.gridItem, { width: gridItemSize, height: gridItemSize }]} 
+                    activeOpacity={0.85}
+                    onPress={() => setSelectedPost(post)}
+                  >
+                    {(post.image || post.image_url) ? (
+                      <Image source={{ uri: getImageUrl(post.image || post.image_url) }} style={styles.gridImage} />
+                    ) : (
+                      <View style={[styles.gridImage, { backgroundColor: '#F8FAFC', justifyContent: 'center', alignItems: 'center', padding: 10, borderWidth: 0.5, borderColor: '#E2E8F0' }]}>
+                        <Ionicons name="document-text-outline" size={24} color={theme.primary} style={{ marginBottom: 6 }} />
+                        <Text style={{fontSize: 11, color: '#334155', fontWeight: '500', textAlign: 'center'}} numberOfLines={3}>{post.content}</Text>
+                      </View>
+                    )}
+                    <View style={styles.tagOverlay}>
+                      <Ionicons name="person" size={16} color="#FFFFFF" />
                     </View>
-                  )}
-                </TouchableOpacity>
-              ))
-            )}
-          </View>
-        )}
+                  </TouchableOpacity>
+                ))}
+              </View>
+            );
+          }
 
-        {activeTab === 'reshare' && (
-          <View style={styles.postsGrid}>
-            {resharedPosts.length === 0 ? (
-              <View style={{ width: '100%', padding: 40, alignItems: 'center', justifyContent: 'center' }}>
-                <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: '#F1F5F9', justifyContent: 'center', alignItems: 'center', marginBottom: 16 }}>
-                  <Ionicons name="repeat-outline" size={32} color="#94A3B8" />
-                </View>
-                <Text style={{ fontSize: 16, fontWeight: '600', color: theme.text, marginBottom: 8 }}>No reshared posts</Text>
-                <Text style={{ fontSize: 14, color: theme.textMuted, textAlign: 'center' }}>Posts you reshare to your network will appear here.</Text>
+          if (activeTab === 'saved') {
+            return (
+              <View style={styles.postsGrid}>
+                {displaySavedPosts.map((post) => (
+                  <TouchableOpacity 
+                    key={post._id || post.id} 
+                    style={[styles.gridItem, { width: gridItemSize, height: gridItemSize }]} 
+                    activeOpacity={0.85}
+                    onPress={() => setSelectedPost(post)}
+                  >
+                    {(post.image || post.image_url) ? (
+                      <Image source={{ uri: getImageUrl(post.image || post.image_url) }} style={styles.gridImage} />
+                    ) : (
+                      <View style={[styles.gridImage, { backgroundColor: '#F8FAFC', justifyContent: 'center', alignItems: 'center', padding: 10, borderWidth: 0.5, borderColor: '#E2E8F0' }]}>
+                        <Ionicons name="bookmark" size={24} color={theme.primary} style={{ marginBottom: 6 }} />
+                        <Text style={{fontSize: 11, color: '#334155', fontWeight: '500', textAlign: 'center'}} numberOfLines={3}>{post.content}</Text>
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                ))}
               </View>
-            ) : (
-              resharedPosts.map((post) => (
-                <TouchableOpacity 
-                  key={post._id || post.id} 
-                  style={[styles.gridItem, { width: gridItemSize, height: gridItemSize }]} 
-                  activeOpacity={0.85}
-                  onPress={() => setSelectedPost(post)}
-                >
-                  {(post.image || post.image_url) ? (
-                    <Image source={{ uri: getImageUrl(post.image || post.image_url) }} style={styles.gridImage} />
-                  ) : (
-                    <View style={[styles.gridImage, { backgroundColor: '#F8FAFC', justifyContent: 'center', alignItems: 'center', padding: 10, borderWidth: 0.5, borderColor: '#E2E8F0' }]}>
-                      <Ionicons name="repeat" size={24} color={theme.primary} style={{ marginBottom: 6 }} />
-                      <Text style={{fontSize: 11, color: '#334155', fontWeight: '500', textAlign: 'center'}} numberOfLines={3}>{post.content}</Text>
+            );
+          }
+
+          if (activeTab === 'reshare') {
+            return (
+              <View style={styles.postsGrid}>
+                {displayResharedPosts.map((post) => (
+                  <TouchableOpacity 
+                    key={post._id || post.id} 
+                    style={[styles.gridItem, { width: gridItemSize, height: gridItemSize }]} 
+                    activeOpacity={0.85}
+                    onPress={() => setSelectedPost(post)}
+                  >
+                    {(post.image || post.image_url) ? (
+                      <Image source={{ uri: getImageUrl(post.image || post.image_url) }} style={styles.gridImage} />
+                    ) : (
+                      <View style={[styles.gridImage, { backgroundColor: '#F8FAFC', justifyContent: 'center', alignItems: 'center', padding: 10, borderWidth: 0.5, borderColor: '#E2E8F0' }]}>
+                        <Ionicons name="repeat" size={24} color={theme.primary} style={{ marginBottom: 6 }} />
+                        <Text style={{fontSize: 11, color: '#334155', fontWeight: '500', textAlign: 'center'}} numberOfLines={3}>{post.content}</Text>
+                      </View>
+                    )}
+                    <View style={{ position: 'absolute', top: 6, right: 6, backgroundColor: '#003366', borderRadius: 12, padding: 4 }}>
+                      <Ionicons name="repeat" size={12} color="#FFFFFF" />
                     </View>
-                  )}
-                  <View style={{ position: 'absolute', top: 6, right: 6, backgroundColor: '#003366', borderRadius: 12, padding: 4 }}>
-                    <Ionicons name="repeat" size={12} color="#FFFFFF" />
-                  </View>
-                </TouchableOpacity>
-              ))
-            )}
-          </View>
-        )}
+                  </TouchableOpacity>
+                ))}
+              </View>
+            );
+          }
+
+          return null;
+        })()}
       </ScrollView>
 
       {/* Settings Modal Sheet */}
