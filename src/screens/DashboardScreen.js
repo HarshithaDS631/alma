@@ -22,10 +22,11 @@ import {
 } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
-import { getSuggestions, getPosts, getEvents, toggleFollowUser, getFollowing, toggleLikePost } from '../services/authService';
+import { getSuggestions, getPosts, getEvents, toggleFollowUser, getFollowing, toggleLikePost, getProfile } from '../services/authService';
 import { getImageUrl } from '../services/uploadService';
 import { addComment, toggleSavePost, resharePost } from '../services/postService';
 import { sendMessage } from '../services/messageService';
+import { fetchJobs } from '../services/jobService';
 import useUserRole from '../hooks/useUserRole';
 
 const DashboardScreen = ({ navigation }) => {
@@ -616,7 +617,7 @@ const DashboardScreen = ({ navigation }) => {
                     <Text style={{ fontSize: 13, color: theme.textMuted, textAlign: 'center', lineHeight: 18, marginBottom: 16 }}>Follow alumni members from "People you may know" or the Directory to view their posts in your feed!</Text>
                     <TouchableOpacity 
                       style={{ backgroundColor: theme.primary, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20 }}
-                      onPress={() => navigation.navigate('Directory', { tab: 'directory' })}
+                      onPress={() => navigation.navigate('Engage', { tab: 'directory' })}
                     >
                       <Text style={{ color: '#FFF', fontWeight: '600', fontSize: 13 }}>Explore Alumni Directory</Text>
                     </TouchableOpacity>
@@ -631,7 +632,7 @@ const DashboardScreen = ({ navigation }) => {
               <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 16, marginBottom: 24, elevation: 2, borderWidth: 1, borderColor: theme.border }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                   <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>People you may know</Text>
-                  <TouchableOpacity onPress={() => navigation.navigate('Directory', { tab: 'directory' })} activeOpacity={0.7}>
+                  <TouchableOpacity onPress={() => navigation.navigate('Engage', { tab: 'directory' })} activeOpacity={0.7}>
                     <Text style={{ fontSize: 13, color: theme.primary, fontWeight: '600' }}>See all</Text>
                   </TouchableOpacity>
                 </View>
@@ -699,7 +700,7 @@ const DashboardScreen = ({ navigation }) => {
             <View style={styles.sectionContainer}>
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionTitle}>Suggestions for you</Text>
-                <TouchableOpacity onPress={() => navigation.navigate('Directory', { tab: 'directory' })}><Text style={styles.seeAllText}>See all</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('Engage', { tab: 'directory' })}><Text style={styles.seeAllText}>See all</Text></TouchableOpacity>
               </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.suggestionsScroll}>
                 {suggestions.filter(s => !followingMap[s.id]).length > 0 ? (

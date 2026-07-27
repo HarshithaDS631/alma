@@ -291,7 +291,7 @@ const AdminHomeScreen = ({ navigation }) => {
               <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 16, marginBottom: 24, elevation: 2, borderWidth: 1, borderColor: theme.border }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                   <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>People you may know</Text>
-                  <TouchableOpacity onPress={() => navigation.navigate('Directory', { tab: 'directory' })} activeOpacity={0.7}>
+                  <TouchableOpacity onPress={() => navigation.navigate('Engage', { tab: 'directory' })} activeOpacity={0.7}>
                     <Text style={{ fontSize: 13, color: theme.primary, fontWeight: '600' }}>See all</Text>
                   </TouchableOpacity>
                 </View>
