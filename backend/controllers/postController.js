@@ -180,15 +180,19 @@ exports.toggleSavePost = async (req, res) => {
             return res.status(404).json({ message: 'Post not found' });
         }
 
-        const isSavedUser = user.savedPosts && user.savedPosts.includes(postId);
+        const isSavedUser = user.savedPosts && user.savedPosts.some(id => id.toString() === postId.toString());
         if (isSavedUser) {
-            user.savedPosts = user.savedPosts.filter(id => id.toString() !== postId.toString());
+            user.savedPosts = (user.savedPosts || []).filter(id => id.toString() !== postId.toString());
             post.savedBy = (post.savedBy || []).filter(id => id.toString() !== user._id.toString());
         } else {
             if (!user.savedPosts) user.savedPosts = [];
-            user.savedPosts.push(postId);
+            if (!user.savedPosts.some(id => id.toString() === postId.toString())) {
+                user.savedPosts.push(postId);
+            }
             if (!post.savedBy) post.savedBy = [];
-            post.savedBy.push(user._id);
+            if (!post.savedBy.some(id => id.toString() === user._id.toString())) {
+                post.savedBy.push(user._id);
+            }
         }
         
         await Promise.all([user.save(), post.save()]);
@@ -209,7 +213,21 @@ exports.getSavedPosts = async (req, res) => {
                 select: 'name branch department batchYear avatar_url'
             }
         });
-        res.json(user.savedPosts || []);
+
+        const rawSaved = user.savedPosts || [];
+        const seen = new Set();
+        const uniqueSaved = [];
+        for (const item of rawSaved) {
+            if (item && item._id) {
+                const idStr = item._id.toString();
+                if (!seen.has(idStr)) {
+                    seen.add(idStr);
+                    uniqueSaved.push(item);
+                }
+            }
+        }
+
+        res.json(uniqueSaved);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

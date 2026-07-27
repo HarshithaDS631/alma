@@ -185,6 +185,22 @@ const ProfileScreen = ({ navigation }) => {
                 && !p.isArchived
               );
 
+              const deduplicatePosts = (arr) => {
+                if (!arr || !Array.isArray(arr)) return [];
+                const seen = new Set();
+                return arr.filter(p => {
+                  if (!p) return false;
+                  const pId = (p._id || p.id || p).toString();
+                  if (seen.has(pId)) return false;
+                  seen.add(pId);
+                  return true;
+                });
+              };
+
+              myOriginalPosts = deduplicatePosts(myOriginalPosts);
+              myResharedPosts = deduplicatePosts(myResharedPosts);
+              myTaggedPosts = deduplicatePosts(myTaggedPosts);
+
               myOriginalPosts.sort((a, b) => (b.isPinned === a.isPinned) ? 0 : (b.isPinned ? 1 : -1));
 
               setProfileData(prev => ({
@@ -198,7 +214,18 @@ const ProfileScreen = ({ navigation }) => {
             }
 
             if (savedData && Array.isArray(savedData)) {
-              setSavedPosts(savedData);
+              const deduplicatePosts = (arr) => {
+                if (!arr || !Array.isArray(arr)) return [];
+                const seen = new Set();
+                return arr.filter(p => {
+                  if (!p) return false;
+                  const pId = (p._id || p.id || p).toString();
+                  if (seen.has(pId)) return false;
+                  seen.add(pId);
+                  return true;
+                });
+              };
+              setSavedPosts(deduplicatePosts(savedData));
             }
           }
         } catch (e) {
