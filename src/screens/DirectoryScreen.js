@@ -19,7 +19,8 @@ import {
   sendConnectionRequest, 
   getConnectionRequests, 
   acceptConnectionRequest, 
-  declineConnectionRequest 
+  declineConnectionRequest,
+  toggleFollowUser 
 } from '../services/authService';
 import useUserRole from '../hooks/useUserRole';
 
@@ -81,23 +82,27 @@ const DirectoryScreen = ({ navigation, route }) => {
     fetchConnectionRequests();
   }, []);
 
-  const defaultMediaCellAlumni = [
-    { _id: 'mc_1', id: 'mc_1', name: 'Media Cell Admin', branch: 'Social Media • Batch 2024', title: 'Admin', institution: 'Media Cell Institution', initials: 'ME', color: '#003366' },
-    { _id: 'mc_2', id: 'mc_2', name: 'Harshitha', branch: 'Social Media • Batch 2011', title: 'Alumni Lead', institution: 'Media Cell Institution', initials: 'HA', color: '#003366' },
-    { _id: 'mc_3', id: 'mc_3', name: 'Raghu', branch: 'Social Media • Batch 2024', title: 'Senior Alumni', institution: 'Media Cell Institution', initials: 'RA', color: '#003366' },
-    { _id: 'mc_4', id: 'mc_4', name: 'Vidya Aradhya', branch: 'Design • Batch 2026', title: 'Design Engineer', institution: 'Media Cell Institution', initials: 'VI', color: '#003366' },
-  ];
+  const [followingMap, setFollowingMap] = useState({});
 
-  const directoryAlumni = dbAlumni.length > 0 ? dbAlumni.map((u, i) => ({
+  const directoryAlumni = dbAlumni.map((u, i) => ({
     _id: u._id || u.id,
     id: u._id || u.id || i.toString(),
     name: u.name,
     branch: u.department || u.branch || (u.batchYear ? `Batch ${u.batchYear}` : 'Media Cell'),
     title: u.designation || u.degree || u.role || 'Alumni Member',
-    institution: u.institution && (u.institution.toLowerCase().includes('media') || u.institution.toLowerCase().includes('mci')) ? u.institution : 'Media Cell Institution',
+    institution: 'Media Cell Institution',
     initials: u.name ? u.name.charAt(0).toUpperCase() : '?',
     color: '#003366'
-  })) : defaultMediaCellAlumni;
+  }));
+
+  const handleToggleFollow = async (userId) => {
+    try {
+      await toggleFollowUser(userId);
+      setFollowingMap(prev => ({ ...prev, [userId]: !prev[userId] }));
+    } catch (err) {
+      console.log('Follow error:', err);
+    }
+  };
 
   // Community States
   const [communityModalVisible, setCommunityModalVisible] = useState(false);
@@ -378,10 +383,13 @@ const DirectoryScreen = ({ navigation, route }) => {
                 </View>
                 <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8 }}>
                   <TouchableOpacity
-                    style={{ padding: 6, backgroundColor: '#EFF6FF', borderRadius: 6 }}
-                    onPress={() => navigation.navigate('Chat', { user: { id: item._id || item.id, name: item.name, role: item.institution || (item.branch ? `${item.branch} • ${item.title}` : item.title) || '', initials: item.initials } })}
+                    style={{ paddingHorizontal: 12, paddingVertical: 6, backgroundColor: followingMap[item._id || item.id] ? '#DEF7EC' : '#003366', borderRadius: 6 }}
+                    onPress={() => handleToggleFollow(item._id || item.id)}
+                    activeOpacity={0.7}
                   >
-                    <Ionicons name="chatbubble-ellipses-outline" size={16} color="#003366" />
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: followingMap[item._id || item.id] ? '#03543F' : '#FFFFFF' }}>
+                      {followingMap[item._id || item.id] ? 'Following' : 'Follow'}
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>

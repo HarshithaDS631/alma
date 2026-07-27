@@ -136,34 +136,7 @@ const DashboardScreen = ({ navigation }) => {
           }));
           setPosts(formatted);
         } else {
-          setPosts([
-            {
-              id: 'init_post_1',
-              user: 'Harshitha',
-              role: 'Social Media • Batch 2011',
-              avatar: 'HA',
-              isAvatarUrl: false,
-              content: 'Welcome to the Media Cell Institution Alumni Network! Stay updated with community events, job opportunities, and alumni spotlights. 🌟',
-              image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1000&q=80',
-              likes: 18,
-              comments: [],
-              commentsCount: 4,
-              time: '1h ago'
-            },
-            {
-              id: 'init_post_2',
-              user: 'Media Cell Admin',
-              role: 'Institution Admin • Batch 2024',
-              avatar: 'ME',
-              isAvatarUrl: false,
-              content: 'Media Cell Annual Alumni Reunion 2026 registration is officially live! Visit the Opportunities tab for schedule details.',
-              image: 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1000&q=80',
-              likes: 29,
-              comments: [],
-              commentsCount: 9,
-              time: '4h ago'
-            }
-          ]);
+          setPosts([]);
         }
 
         // Process suggestions
@@ -203,24 +176,9 @@ const DashboardScreen = ({ navigation }) => {
           combinedOpportunities.push(...formattedEvents);
         }
 
-        // Fallback curated opportunities if empty
+        // No fallback — show empty if no real opportunities
         if (combinedOpportunities.length === 0) {
-          combinedOpportunities = [
-            {
-              id: 'mock_job_1',
-              title: 'Senior Software Engineer',
-              subtitle: 'Google • Bengaluru, KA',
-              btnText: 'View Job',
-              image: 'https://images.unsplash.com/photo-1572021335469-31706a17aaef?auto=format&fit=crop&w=200&h=200&q=80',
-            },
-            {
-              id: 'mock_job_2',
-              title: 'Product Designer',
-              subtitle: 'Microsoft • Remote / Hyderabad',
-              btnText: 'View Job',
-              image: 'https://images.unsplash.com/photo-1542744094-3a3172720189?auto=format&fit=crop&w=200&h=200&q=80',
-            }
-          ];
+          combinedOpportunities = [];
         }
 
         setEventsAndJobs(combinedOpportunities);
