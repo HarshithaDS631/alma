@@ -1136,8 +1136,12 @@ const ProfileScreen = ({ navigation }) => {
             <ScrollView style={{ padding: 16 }}>
               {(listModalType === 'following' ? following : connections).map(user => (
                 <View key={user.id} style={styles.connectionItem}>
-                  <View style={styles.connectionAvatar}>
-                    <Text style={styles.connectionAvatarText}>{user.avatar}</Text>
+                  <View style={[styles.connectionAvatar, { overflow: 'hidden', backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center' }]}>
+                    {user.avatar_url ? (
+                      <Image source={{ uri: user.avatar_url }} style={{ width: '100%', height: '100%', borderRadius: 20 }} />
+                    ) : (
+                      <Text style={styles.connectionAvatarText}>{user.avatar}</Text>
+                    )}
                   </View>
                   <View style={styles.connectionInfo}>
                     <Text style={styles.connectionName}>{user.name}</Text>
