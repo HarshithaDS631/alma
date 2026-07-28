@@ -394,8 +394,12 @@ const DEFAULT_TAGGED_POSTS = [
                 return false;
               };
 
-              // ALL MY CREATED POSTS (Shown under Posts tab)
-              let myPosts = postsData.filter(p => isAuthorMe(p) && !p.isArchived);
+              // ALL MY ORIGINAL POSTS only (no reshares) — shown under Posts tab
+              const isResharePost = (p) => Boolean(
+                p.originalPost || p.isReshare || p.originalAuthorName ||
+                (p.content && /reshared\s+from/i.test(p.content))
+              );
+              let myPosts = postsData.filter(p => isAuthorMe(p) && !p.isArchived && !isResharePost(p));
 
               // RESHARED POSTS: Created as reshares OR explicitly reshared by user
               let myResharedPosts = postsData.filter(p => {

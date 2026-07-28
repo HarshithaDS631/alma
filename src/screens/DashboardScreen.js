@@ -45,17 +45,6 @@ const ALL_KNOWN_POSTS = [
     likes: 4, comments: [], commentsCount: 0, time: '5 days ago',
   },
   {
-    id: '6a66e6bbcc03eff12d00bd02',
-    user: 'Harshitha',
-    authorId: '6a59e08bdb5218b5efb52690',
-    role: 'Social Media • Batch 2011',
-    avatar: 'HA',
-    isAvatarUrl: false,
-    content: '🔄 Reshared from @Ruchi: Excited to connect with alumni and students!',
-    image: 'https://backend-pi-bice-97.vercel.app/api/upload/78417866da41eb1f43e8f1b53ef77f57.webp',
-    likes: 2, comments: [], commentsCount: 0, time: '2 days ago',
-  },
-  {
     id: '6a60ac428947b73a8c9c9b91',
     user: 'Harshitha',
     authorId: '6a59e08bdb5218b5efb52690',
@@ -129,10 +118,8 @@ const ALL_KNOWN_POSTS = [
 ];
 
 /**
- * Returns posts relevant to the logged-in user based on their connections.
- * - Always includes own posts + admin posts
- * - Includes posts from followed/connected users
- * - If no following list, shows all posts (open feed for new users)
+ * Returns ONLY posts from followed users + own posts.
+ * Instagram-style: you only see posts from people you follow.
  */
 const getDefaultPostsForUser = (currentUserId, currentUserName, followingIds = []) => {
   const userIdStr = (currentUserId || '').toString().toLowerCase();
@@ -140,19 +127,28 @@ const getDefaultPostsForUser = (currentUserId, currentUserName, followingIds = [
   const followingSet = new Set(followingIds.map(id => id.toString().toLowerCase()));
 
   return ALL_KNOWN_POSTS.filter(post => {
-    // Always show admin/official posts
-    if (post.isAdmin) return true;
+    // Skip reshared posts from feed — reshares go in Profile Reshares tab
+    if (post.content && /reshared\s+from/i.test(post.content)) return false;
+
     // Always show own posts
     const isOwnPost = (post.authorId || '').toString().toLowerCase() === userIdStr ||
-      (post.user || '').toLowerCase().includes(userNameStr) ||
-      (userNameStr && (post.user || '').toLowerCase().startsWith(userNameStr.substring(0, 4)));
+      (userNameStr && (post.user || '').toLowerCase().includes(userNameStr));
     if (isOwnPost) return true;
-    // Show posts from followed users (if any)
+
+    // Show posts from followed users only (Instagram style)
     if (followingSet.size > 0) {
-      return followingSet.has((post.authorId || '').toString().toLowerCase());
+      // Match by authorId
+      if (followingSet.has((post.authorId || '').toString().toLowerCase())) return true;
+      // Match by author name (for fallback/default users)
+      const postUserName = (post.user || '').toLowerCase();
+      for (const id of followingSet) {
+        if (id === postUserName) return true;
+      }
+      return false;
     }
-    // No following list — show all posts (open feed)
-    return true;
+
+    // No following list yet (fresh account) — show only admin posts
+    return Boolean(post.isAdmin);
   });
 };
 
@@ -298,23 +294,83 @@ const DashboardScreen = ({ navigation }) => {
             AsyncStorage.setItem('userInfo', JSON.stringify(freshUser)).catch(() => {});
           }
 
-          // 2. Process posts (Real DB posts only)
+          // 2. Process posts — filter to only show posts from people the user follows (Instagram style)
           if (postsRes.status === 'fulfilled' && Array.isArray(postsRes.value) && postsRes.value.length > 0) {
-            const dbFormatted = postsRes.value.map(p => ({
-              id: p._id,
-              user: p.user?.name || 'Alumni',
-              authorId: p.user?._id || null,
-              role: p.user?.department ? `${p.user.department} • Batch ${p.user.batchYear || ''}` : 'Alumni Member @ Media Cell Institution',
-              avatar: p.user?.profilePicture || p.user?.avatar_url ? getImageUrl(p.user?.profilePicture || p.user?.avatar_url) : (p.user?.name ? p.user.name.substring(0, 2).toUpperCase() : 'AL'),
-              isAvatarUrl: !!(p.user?.profilePicture || p.user?.avatar_url),
-              content: p.content,
-              image: getImageUrl(p.image),
-              likes: p.likes?.length || 0,
-              comments: p.comments || [],
-              commentsCount: p.comments?.length || 0,
-              time: getTimeAgo(p.createdAt),
-            }));
-            setPosts(dbFormatted);
+            const allDbPosts = postsRes.value;
+
+            // Build the set of followed user IDs from API response
+            const followedUserIds = new Set();
+            const followedUserNames = new Set();
+            if (followingRes.status === 'fulfilled' && Array.isArray(followingRes.value)) {
+              followingRes.value.forEach(u => {
+                if (u._id || u.id) followedUserIds.add((u._id || u.id).toString());
+                if (u.name) followedUserNames.add((u.name || '').toLowerCase().trim());
+              });
+            }
+            // Also seed from profileCache for instant offline-first sync
+            try {
+              const pCache = await AsyncStorage.getItem('profileCache');
+              if (pCache) {
+                const cacheData = JSON.parse(pCache);
+                if (Array.isArray(cacheData.followingList)) {
+                  cacheData.followingList.forEach(u => {
+                    if (u.id || u._id) followedUserIds.add((u.id || u._id).toString());
+                    if (u.name) followedUserNames.add((u.name || '').toLowerCase().trim());
+                  });
+                }
+              }
+            } catch (e) {}
+
+            const currentUserInfo = profileRes.status === 'fulfilled' ? profileRes.value : null;
+            const myUserId = (currentUserInfo?._id || currentUserInfo?.id || '').toString();
+            const myUserName = (currentUserInfo?.name || '').toLowerCase();
+
+            const dbFormatted = allDbPosts
+              .filter(p => {
+                // Never show reshares in the main feed (they have originalPost set)
+                if (p.originalPost || p.isReshare) return false;
+
+                const authorId = (p.user?._id || p.user?.id || '').toString();
+                const authorName = (p.user?.name || '').toLowerCase().trim();
+
+                // Always show own posts
+                if (myUserId && authorId === myUserId) return true;
+                if (myUserName && authorName === myUserName) return true;
+
+                // Show posts from followed users
+                if (followedUserIds.size > 0 || followedUserNames.size > 0) {
+                  if (followedUserIds.has(authorId)) return true;
+                  if (followedUserNames.has(authorName)) return true;
+                  return false;
+                }
+
+                // No following list yet — show only own posts (very new account)
+                return false;
+              })
+              .map(p => ({
+                id: p._id,
+                user: p.user?.name || 'Alumni',
+                authorId: p.user?._id || null,
+                role: p.user?.department ? `${p.user.department} • Batch ${p.user.batchYear || ''}` : 'Alumni Member @ Media Cell Institution',
+                avatar: p.user?.profilePicture || p.user?.avatar_url ? getImageUrl(p.user?.profilePicture || p.user?.avatar_url) : (p.user?.name ? p.user.name.substring(0, 2).toUpperCase() : 'AL'),
+                isAvatarUrl: !!(p.user?.profilePicture || p.user?.avatar_url),
+                content: p.content,
+                image: getImageUrl(p.image),
+                likes: p.likes?.length || 0,
+                comments: p.comments || [],
+                commentsCount: p.comments?.length || 0,
+                time: getTimeAgo(p.createdAt),
+              }));
+
+            // Use filtered posts; fall back to defaults if nothing matches
+            if (dbFormatted.length > 0) {
+              setPosts(dbFormatted);
+            } else {
+              const freshUser = currentUserInfo;
+              const freshFollowingIds = [...followedUserIds];
+              const fallback = getDefaultPostsForUser(freshUser?._id || freshUser?.id, freshUser?.name, freshFollowingIds);
+              setPosts(fallback.length > 0 ? fallback : []);
+            }
           } else {
             // API returned no posts — use connection-aware fallback posts
             const freshUser = profileRes.status === 'fulfilled' ? profileRes.value : null;
@@ -325,7 +381,7 @@ const DashboardScreen = ({ navigation }) => {
               freshUser?.name,
               followingIds
             );
-            setPosts(fallbackPosts.length > 0 ? fallbackPosts : ALL_KNOWN_POSTS);
+            setPosts(fallbackPosts.length > 0 ? fallbackPosts : []);
           }
 
           // 3. Process suggestions
