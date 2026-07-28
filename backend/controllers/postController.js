@@ -77,6 +77,10 @@ exports.getPosts = async (req, res) => {
             .populate('user', 'name branch department batchYear avatar_url username role institution')
             .populate('tags', 'name username avatar_url')
             .populate('comments.user', 'name avatar_url username')
+            .populate({
+                path: 'originalPost',
+                populate: { path: 'user', select: 'name department branch batchYear avatar_url' }
+            })
             .sort({ createdAt: -1 })
             .lean();
 
@@ -268,7 +272,8 @@ exports.getSavedPosts = async (req, res) => {
 // @route   POST /api/posts/:id/reshare
 exports.resharePost = async (req, res) => {
     try {
-        const originalPost = await Post.findById(req.params.id).populate('user', 'name');
+        const originalPost = await Post.findById(req.params.id)
+            .populate('user', 'name department branch batchYear avatar_url');
         if (!originalPost) {
             return res.status(404).json({ message: 'Original post not found' });
         }
@@ -280,22 +285,25 @@ exports.resharePost = async (req, res) => {
             await originalPost.save();
         }
 
-        // Create new reshared post entry in feed
+        // Create new reshared post entry — store only the note as content (not duplicate original)
         const { note } = req.body;
         const resharedPost = await Post.create({
             user: req.user._id,
-            content: note ? `${note}\n\n🔄 Reshared from @${originalPost.user?.name || 'Alumni'}: ${originalPost.content || ''}` : `🔄 Reshared from @${originalPost.user?.name || 'Alumni'}: ${originalPost.content || ''}`,
-            image: originalPost.image,
-            fileType: originalPost.fileType,
-            fileName: originalPost.fileName,
+            content: note ? note.trim() : '',
+            image: null, // reshare has no image of its own
             originalPost: originalPost._id,
-            originalAuthorName: originalPost.user?.name || 'Alumni Member'
+            originalAuthorName: originalPost.user?.name || 'Alumni Member',
+            isReshare: true
         });
 
         const populatedReshare = await Post.findById(resharedPost._id)
-            .populate('user', 'name branch department batchYear avatar_url');
+            .populate('user', 'name branch department batchYear avatar_url')
+            .populate({
+                path: 'originalPost',
+                populate: { path: 'user', select: 'name department branch batchYear avatar_url' }
+            });
 
-        res.status(201).json({ message: 'Post reshared to your feed successfully!', post: populatedReshare, resharesCount: originalPost.reshares.length });
+        res.status(201).json({ message: 'Reposted successfully!', post: populatedReshare, resharesCount: originalPost.reshares.length });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

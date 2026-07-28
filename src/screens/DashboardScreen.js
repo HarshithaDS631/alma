@@ -605,6 +605,40 @@ const DashboardScreen = ({ navigation }) => {
         </TouchableOpacity>
       ) : null}
 
+      {/* Instagram-style embedded original post for reshares */}
+      {isReshared && post.originalPost && (
+        <View style={{
+          marginHorizontal: 12,
+          marginBottom: 8,
+          borderRadius: 12,
+          borderWidth: 1,
+          borderColor: theme.border,
+          overflow: 'hidden',
+          backgroundColor: theme.background
+        }}>
+          {/* Original author header */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10, borderBottomWidth: 1, borderBottomColor: theme.border }}>
+            <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', marginRight: 8 }}>
+              <Text style={{ fontSize: 11, fontWeight: '700', color: '#FFF' }}>
+                {(post.originalPost.user || post.originalAuthorName || 'AL').substring(0, 2).toUpperCase()}
+              </Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }}>{post.originalPost.user || post.originalAuthorName || 'Alumni'}</Text>
+              <Text style={{ fontSize: 11, color: theme.textSecondary }}>{post.originalPost.role || 'Alumni Member'}</Text>
+            </View>
+          </View>
+          {/* Original post image */}
+          {post.originalPost.image ? (
+            <Image source={{ uri: getImageUrl(post.originalPost.image) }} style={{ width: '100%', height: 180 }} resizeMode="cover" />
+          ) : null}
+          {/* Original post caption */}
+          {post.originalPost.content ? (
+            <Text style={{ fontSize: 13, color: theme.text, padding: 10 }} numberOfLines={3}>{post.originalPost.content}</Text>
+          ) : null}
+        </View>
+      )}
+
       {/* Action row - Instagram HiFi Styling */}
       <View style={styles.postActions}>
         <View style={styles.leftActions}>
@@ -619,7 +653,10 @@ const DashboardScreen = ({ navigation }) => {
             <Ionicons name="chatbubble-outline" size={24} color={theme.text} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionBtn} activeOpacity={0.6} onPress={() => openModal('reshare', post)}>
-            <Ionicons name="repeat-outline" size={26} color={theme.text} />
+            <Ionicons name="repeat-outline" size={26} color={isReshared ? '#6366F1' : theme.text} />
+            {post.resharesCount > 0 && (
+              <Text style={{ fontSize: 11, color: theme.textSecondary, marginLeft: 2 }}>{post.resharesCount}</Text>
+            )}
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.actionBtn}
@@ -1059,47 +1096,103 @@ const DashboardScreen = ({ navigation }) => {
       <Modal visible={activeModal === 'reshare'} animationType="slide" transparent={true}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={isWeb ? styles.webModalOverlay : styles.modalOverlay}>
           <View style={isWeb ? styles.webModalContainer : styles.bottomSheet}>
+            {/* Instagram-style Reshare Header */}
             <View style={styles.sheetHeader}>
-              <Text style={styles.sheetTitle}>Reshare Post to Feed</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <Ionicons name="repeat" size={20} color="#6366F1" />
+                <Text style={styles.sheetTitle}>Repost</Text>
+              </View>
               <TouchableOpacity onPress={closeModal}><Ionicons name="close" size={24} color={theme.text} /></TouchableOpacity>
             </View>
 
             {selectedPost ? (
               <View style={{ padding: 16 }}>
-                <View style={{ backgroundColor: 'rgba(0, 33, 68, 0.04)', borderRadius: 12, padding: 12, marginBottom: 16, borderLeftWidth: 3, borderLeftColor: theme.primary }}>
-                  <Text style={{ fontWeight: '700', fontSize: 13, color: theme.text }}>
-                    @{selectedPost.user?.name || selectedPost.user || 'Alumni Member'}
-                  </Text>
-                  <Text style={{ fontSize: 13, color: theme.textMuted, marginTop: 4 }} numberOfLines={3}>
-                    {selectedPost.content}
-                  </Text>
+
+                {/* ── Your caption input (top, like Instagram) ── */}
+                <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 14 }}>
+                  <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', marginRight: 10, marginTop: 2 }}>
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: '#FFF' }}>{userName ? userName.substring(0, 2).toUpperCase() : 'HA'}</Text>
+                  </View>
+                  <TextInput
+                    style={{
+                      flex: 1,
+                      fontSize: 14,
+                      color: theme.text,
+                      minHeight: 60,
+                      textAlignVertical: 'top',
+                    }}
+                    placeholder="Add a note..."
+                    placeholderTextColor={theme.textMuted}
+                    multiline
+                    value={reshareNote}
+                    onChangeText={setReshareNote}
+                  />
                 </View>
 
-                <TextInput
-                  style={{
-                    backgroundColor: theme.card,
-                    borderWidth: 1,
-                    borderColor: theme.border,
-                    borderRadius: 10,
-                    padding: 12,
-                    fontSize: 14,
-                    color: theme.text,
-                    minHeight: 70,
-                    marginBottom: 16
-                  }}
-                  placeholder="Add your thoughts or note (optional)..."
-                  placeholderTextColor={theme.textMuted}
-                  multiline
-                  value={reshareNote}
-                  onChangeText={setReshareNote}
-                />
+                {/* ── Embedded Original Post Card (Instagram style) ── */}
+                <View style={{
+                  borderRadius: 14,
+                  borderWidth: 1,
+                  borderColor: theme.border,
+                  overflow: 'hidden',
+                  backgroundColor: theme.background,
+                  marginBottom: 20,
+                }}>
+                  {/* Original author row */}
+                  <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10 }}>
+                    <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', marginRight: 8 }}>
+                      <Text style={{ fontSize: 11, fontWeight: '700', color: '#FFF' }}>
+                        {(selectedPost.user?.name || selectedPost.user || 'AL').substring(0, 2).toUpperCase()}
+                      </Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }}>
+                        {selectedPost.user?.name || selectedPost.user || 'Alumni'}
+                      </Text>
+                      <Text style={{ fontSize: 11, color: theme.textSecondary }}>{selectedPost.role || 'Alumni Member'}</Text>
+                    </View>
+                  </View>
 
+                  {/* Original post image */}
+                  {selectedPost.image ? (
+                    <Image
+                      source={{ uri: selectedPost.image }}
+                      style={{ width: '100%', height: 200 }}
+                      resizeMode="cover"
+                    />
+                  ) : null}
+
+                  {/* Original post caption */}
+                  {selectedPost.content ? (
+                    <Text style={{ fontSize: 13, color: theme.text, paddingHorizontal: 12, paddingVertical: 8 }} numberOfLines={3}>
+                      {selectedPost.content}
+                    </Text>
+                  ) : null}
+
+                  {/* Original post likes count (small row) */}
+                  <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingBottom: 10, borderTopWidth: 1, borderTopColor: theme.border, paddingTop: 8, gap: 12 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                      <Ionicons name="heart" size={14} color="#FF3040" />
+                      <Text style={{ fontSize: 12, color: theme.textSecondary }}>{selectedPost.likes || 0}</Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                      <Ionicons name="chatbubble-outline" size={13} color={theme.textSecondary} />
+                      <Text style={{ fontSize: 12, color: theme.textSecondary }}>{selectedPost.commentsCount || 0}</Text>
+                    </View>
+                    <Text style={{ fontSize: 12, color: theme.textMuted, marginLeft: 'auto' }}>{selectedPost.time}</Text>
+                  </View>
+                </View>
+
+                {/* ── Repost Button ── */}
                 <TouchableOpacity
                   style={{
-                    backgroundColor: theme.primary,
+                    backgroundColor: '#6366F1',
                     paddingVertical: 14,
-                    borderRadius: 10,
+                    borderRadius: 12,
                     alignItems: 'center',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    gap: 8,
                     opacity: resharingLoading ? 0.7 : 1
                   }}
                   disabled={resharingLoading}
@@ -1111,36 +1204,80 @@ const DashboardScreen = ({ navigation }) => {
                       await resharePost(targetId, reshareNote);
                       setReshareNote('');
                       closeModal();
-                      // Refresh posts
+                      // Optimistically add reshared post to feed
+                      const resharedItem = {
+                        id: `reshare-${targetId}-${Date.now()}`,
+                        user: userName || 'You',
+                        authorId: currentUser?._id || currentUser?.id,
+                        role: (currentUser?.department || currentUser?.branch || 'Alumni') + (currentUser?.batchYear ? ` • Batch ${currentUser.batchYear}` : ''),
+                        avatar: userName ? userName.substring(0, 2).toUpperCase() : 'HA',
+                        isAvatarUrl: false,
+                        content: reshareNote || '',
+                        image: null,
+                        likes: 0,
+                        comments: [],
+                        commentsCount: 0,
+                        resharesCount: 0,
+                        time: 'Just now',
+                        isReshare: true,
+                        originalAuthorName: selectedPost.user?.name || selectedPost.user || 'Alumni',
+                        originalPost: {
+                          user: selectedPost.user?.name || selectedPost.user || 'Alumni',
+                          role: selectedPost.role || 'Alumni Member',
+                          content: selectedPost.content,
+                          image: selectedPost.image,
+                          likes: selectedPost.likes,
+                          commentsCount: selectedPost.commentsCount,
+                          time: selectedPost.time,
+                        }
+                      };
+                      setPosts(prev => [resharedItem, ...prev]);
+                      // Also refresh from API
                       const freshPosts = await getPosts();
-                      if (freshPosts && Array.isArray(freshPosts)) {
+                      if (freshPosts && Array.isArray(freshPosts) && freshPosts.length > 0) {
                         setPosts(freshPosts.map(p => ({
                           id: p._id,
                           _id: p._id,
                           user: p.user?.name || 'Alumni',
                           avatar: p.user?.name ? p.user.name.substring(0, 2).toUpperCase() : 'AL',
-                          role: `${p.user?.branch || 'Alumni'} ${p.user?.batchYear ? '• Batch of ' + p.user.batchYear : ''}`,
+                          role: `${p.user?.branch || p.user?.department || 'Alumni'} ${p.user?.batchYear ? '• Batch ' + p.user.batchYear : ''}`,
                           time: getTimeAgo(p.createdAt),
                           content: p.content,
-                          image: p.image,
+                          image: getImageUrl(p.image),
                           likes: p.likes ? p.likes.length : 0,
                           commentsCount: p.comments ? p.comments.length : 0,
                           comments: p.comments || [],
                           resharesCount: p.reshares ? p.reshares.length : 0,
-                          isSaved: p.savedBy ? p.savedBy.includes(currentUser?._id) : false,
-                          authorId: p.user?._id
+                          authorId: p.user?._id,
+                          isReshare: Boolean(p.originalPost || p.isReshare),
+                          originalAuthorName: p.originalPost?.user?.name || p.originalAuthorName || '',
+                          originalPost: p.originalPost ? {
+                            user: p.originalPost?.user?.name || '',
+                            role: p.originalPost?.user?.department || '',
+                            content: p.originalPost?.content || '',
+                            image: p.originalPost?.image || '',
+                          } : null,
                         })));
                       }
                     } catch (err) {
-                      Alert.alert('Error', err?.response?.data?.message || err?.message || 'Failed to reshare post');
+                      Alert.alert('Error', err?.response?.data?.message || err?.message || 'Failed to repost');
                     } finally {
                       setResharingLoading(false);
                     }
                   }}
                 >
-                  <Text style={{ color: '#FFFFFF', fontWeight: 'bold', fontSize: 14 }}>
-                    {resharingLoading ? 'Resharing...' : '🔄 Reshare Post'}
+                  <Ionicons name="repeat" size={18} color="#FFFFFF" />
+                  <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 15 }}>
+                    {resharingLoading ? 'Reposting...' : 'Repost'}
                   </Text>
+                </TouchableOpacity>
+
+                {/* Remove repost option if already reshared */}
+                <TouchableOpacity
+                  style={{ alignItems: 'center', marginTop: 12, paddingVertical: 8 }}
+                  onPress={closeModal}
+                >
+                  <Text style={{ color: theme.textMuted, fontSize: 13 }}>Cancel</Text>
                 </TouchableOpacity>
               </View>
             ) : null}
