@@ -45,11 +45,8 @@ const ProfileScreen = ({ navigation }) => {
 const DEFAULT_FOLLOWING = [
   { id: '6a61f94b23674221799b28f4', name: 'Ruchi', title: 'Alumni • Media Cell', avatar: 'RU', avatar_url: '' },
   { id: '6a59e08bdb5218b5efb52691', name: 'Vidya Aradhya', title: 'Professor • Computer Science', avatar: 'VA', avatar_url: '' },
-  { id: '6a59e08bdb5218b5efb52692', name: 'Raghu', title: 'Alumni Lead • Media Cell', avatar: 'RA', avatar_url: '' },
-  { id: '6a59e08bdb5218b5efb52693', name: 'Media Cell Admin', title: 'Official Admin • Media Cell Institution', avatar: 'MC', avatar_url: '' },
   { id: '6a59e08bdb5218b5efb52694', name: 'test', title: 'Alumni Member • Social Media', avatar: 'TE', avatar_url: '' },
   { id: '6a59e08bdb5218b5efb52695', name: 'vidya', title: 'Alumni Member • Computer Science', avatar: 'VI', avatar_url: '' },
-  { id: '6a59e08bdb5218b5efb52696', name: 'Harshitha', title: 'Student • Social Media', avatar: 'HA', avatar_url: '' },
 ];
 
 const DEFAULT_CONNECTIONS = [
@@ -73,7 +70,7 @@ const DEFAULT_CONNECTIONS = [
     linkedin: '',
     posts: '3',
     followers: '2',
-    following: '7',
+    following: '4',
     avatar: 'HA',
     avatar_url: ''
   });
@@ -349,8 +346,8 @@ const DEFAULT_TAGGED_POSTS = [
               setFollowing(parsedFollowing);
             }
 
-            const followersCountStr = parsedConnections.length > 0 ? parsedConnections.length.toString() : '2';
-            const followingCountStr = parsedFollowing.length > 0 ? parsedFollowing.length.toString() : '7';
+            const followersCountStr = (parsedConnections.length > 0 ? parsedConnections.length : DEFAULT_CONNECTIONS.length).toString();
+            const followingCountStr = (parsedFollowing.length > 0 ? parsedFollowing.length : DEFAULT_FOLLOWING.length).toString();
 
             setProfileData(prev => ({
               ...prev,
@@ -678,11 +675,11 @@ const DEFAULT_TAGGED_POSTS = [
                 <Text style={styles.statLabel}>Posts</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.statBox} onPress={() => setListModalType('connections')} activeOpacity={0.7}>
-                <Text style={styles.statNumber}>{profileData.followers}</Text>
+                <Text style={styles.statNumber}>{connections.length || profileData.followers}</Text>
                 <Text style={styles.statLabel}>Connections</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.statBox} onPress={() => setListModalType('following')} activeOpacity={0.7}>
-                <Text style={styles.statNumber}>{profileData.following}</Text>
+                <Text style={styles.statNumber}>{following.length || profileData.following}</Text>
                 <Text style={styles.statLabel}>Following</Text>
               </TouchableOpacity>
             </View>
@@ -1294,7 +1291,7 @@ const DEFAULT_TAGGED_POSTS = [
                 onPress={() => setListModalType('connections')}
               >
                 <Text style={[styles.modalTabText, listModalType === 'connections' && styles.activeModalTabText]}>
-                  {profileData.followers} Connections
+                  {connections.length || profileData.followers} Connections
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity 
@@ -1302,7 +1299,7 @@ const DEFAULT_TAGGED_POSTS = [
                 onPress={() => setListModalType('following')}
               >
                 <Text style={[styles.modalTabText, listModalType === 'following' && styles.activeModalTabText]}>
-                  {profileData.following} Following
+                  {following.length || profileData.following} Following
                 </Text>
               </TouchableOpacity>
             </View>
