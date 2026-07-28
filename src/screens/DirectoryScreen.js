@@ -27,17 +27,6 @@ import {
 } from '../services/authService';
 import useUserRole from '../hooks/useUserRole';
 
-const DEFAULT_ALL_DIRECTORY_ALUMNI = [
-  { _id: 'dir-1', id: 'dir-1', name: 'Raghu', department: 'Media Cell', designation: 'Alumni Lead', batchYear: '2019', institution: 'Media Cell Institution' },
-  { _id: 'dir-2', id: 'dir-2', name: 'Rithika', department: 'Computer Science', designation: 'Student', batchYear: '2023', institution: 'Media Cell Institution' },
-  { _id: 'dir-3', id: 'dir-3', name: 'Sahana', department: 'Media Cell', designation: 'Alumni Member', batchYear: '2021', institution: 'Media Cell Institution' },
-  { _id: 'dir-4', id: 'dir-4', name: 'Priya', department: 'Data Science', designation: 'Alumni Member', batchYear: '2022', institution: 'Media Cell Institution' },
-  { _id: 'dir-5', id: 'dir-5', name: 'Ananya', department: 'Information Technology', designation: 'Alumni Member', batchYear: '2020', institution: 'Media Cell Institution' },
-  { _id: '6a61f94b23674221799b28f4', id: '6a61f94b23674221799b28f4', name: 'Ruchi', department: 'Media Cell', designation: 'Alumni', batchYear: '2020', institution: 'Media Cell Institution' },
-  { _id: '6a59e08bdb5218b5efb52691', id: '6a59e08bdb5218b5efb52691', name: 'Vidya Aradhya', department: 'Computer Science', designation: 'Professor', batchYear: '2018', institution: 'Media Cell Institution' },
-  { _id: '6a59e08bdb5218b5efb52694', id: '6a59e08bdb5218b5efb52694', name: 'test', department: 'Social Media', designation: 'Alumni Member', batchYear: '2021', institution: 'Media Cell Institution' },
-  { _id: '6a59e08bdb5218b5efb52695', id: '6a59e08bdb5218b5efb52695', name: 'vidya', department: 'Computer Science', designation: 'Alumni Member', batchYear: '2022', institution: 'Media Cell Institution' },
-];
 
 const DirectoryScreen = ({ navigation, route }) => {
   const { theme, isDarkMode } = useTheme();
@@ -82,16 +71,21 @@ const DirectoryScreen = ({ navigation, route }) => {
   const [currentUserId, setCurrentUserId] = useState(null);
   const [followingMap, setFollowingMap] = useState({});
 
+  const [loadingDirectory, setLoadingDirectory] = useState(false);
+
   const fetchUsers = async () => {
+    setLoadingDirectory(true);
     try {
       let res = await getUsers().catch(() => []);
       if (!Array.isArray(res) || res.length === 0) {
         res = await getSuggestions().catch(() => []);
       }
-      const merged = Array.isArray(res) && res.length > 0 ? res : DEFAULT_ALL_DIRECTORY_ALUMNI;
-      setDbAlumni(merged);
+      // Only use real API data — never inject fake/hardcoded users
+      setDbAlumni(Array.isArray(res) ? res : []);
     } catch (err) {
-      setDbAlumni(DEFAULT_ALL_DIRECTORY_ALUMNI);
+      setDbAlumni([]);
+    } finally {
+      setLoadingDirectory(false);
     }
   };
 
@@ -147,8 +141,8 @@ const DirectoryScreen = ({ navigation, route }) => {
     fetchFollowingData();
   }, []);
 
-  // Filter out Admins and Super Admins — Directory shows Alumni / Student members
-  const nonAdminDbUsers = (dbAlumni.length > 0 ? dbAlumni : DEFAULT_ALL_DIRECTORY_ALUMNI).filter(u => {
+  // Filter out Admins and Super Admins — Directory shows Alumni / Student members only
+  const nonAdminDbUsers = dbAlumni.filter(u => {
     const role = (u.role || u.designation || '').toLowerCase();
     const name = (u.name || '').toLowerCase();
     return !role.includes('admin') && !role.includes('super') && !name.includes('admin');
@@ -471,10 +465,18 @@ const DirectoryScreen = ({ navigation, route }) => {
           <Text style={[styles.webTableColHeader, { flex: 1, textAlign: 'center' }]}>Action</Text>
         </View>
         <ScrollView style={styles.webTableBody}>
-          {filteredDirectory.length === 0 ? (
+          {loadingDirectory ? (
+            <View style={{ padding: 40, alignItems: 'center' }}>
+              <Ionicons name="people-circle-outline" size={48} color="#CBD5E1" />
+              <Text style={{ marginTop: 16, fontSize: 14, color: '#64748B' }}>Loading members...</Text>
+            </View>
+          ) : filteredDirectory.length === 0 ? (
             <View style={{ padding: 40, alignItems: 'center' }}>
               <Ionicons name="people-outline" size={48} color="#CBD5E1" />
-              <Text style={{ marginTop: 16, fontSize: 16, color: '#64748B' }}>No Alumni Found</Text>
+              <Text style={{ marginTop: 16, fontSize: 16, color: '#64748B', fontWeight: '600' }}>No Members Found</Text>
+              <Text style={{ marginTop: 8, fontSize: 13, color: '#94A3B8', textAlign: 'center' }}>
+                {searchQuery ? 'No results match your search.' : 'Everyone in your network is already followed, or no one has signed up yet.'}
+              </Text>
             </View>
           ) : (
             filteredDirectory.map((item, index) => (
@@ -530,6 +532,19 @@ const DirectoryScreen = ({ navigation, route }) => {
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
+          ListEmptyComponent={
+            <View style={{ padding: 40, alignItems: 'center' }}>
+              <Ionicons name="people-outline" size={48} color="#CBD5E1" />
+              <Text style={{ marginTop: 16, fontSize: 16, color: '#64748B', fontWeight: '600' }}>
+                {loadingDirectory ? 'Loading members...' : 'No Members Found'}
+              </Text>
+              {!loadingDirectory && (
+                <Text style={{ marginTop: 8, fontSize: 13, color: '#94A3B8', textAlign: 'center' }}>
+                  {searchQuery ? 'No results match your search.' : 'Everyone is already followed, or no one has signed up yet.'}
+                </Text>
+              )}
+            </View>
+          }
           renderItem={({ item }) => (
             <View style={styles.requestRow}>
               {/* Avatar */}
