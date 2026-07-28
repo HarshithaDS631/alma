@@ -347,20 +347,37 @@ const DashboardScreen = ({ navigation }) => {
                 // No following list yet — show only own posts (very new account)
                 return false;
               })
-              .map(p => ({
-                id: p._id,
-                user: p.user?.name || 'Alumni',
-                authorId: p.user?._id || null,
-                role: p.user?.department ? `${p.user.department} • Batch ${p.user.batchYear || ''}` : 'Alumni Member @ Media Cell Institution',
-                avatar: p.user?.profilePicture || p.user?.avatar_url ? getImageUrl(p.user?.profilePicture || p.user?.avatar_url) : (p.user?.name ? p.user.name.substring(0, 2).toUpperCase() : 'AL'),
-                isAvatarUrl: !!(p.user?.profilePicture || p.user?.avatar_url),
-                content: p.content,
-                image: getImageUrl(p.image),
-                likes: p.likes?.length || 0,
-                comments: p.comments || [],
-                commentsCount: p.comments?.length || 0,
-                time: getTimeAgo(p.createdAt),
-              }));
+              .map(p => {
+                const pid = p._id || p.id;
+                const likesArr = Array.isArray(p.likes) ? p.likes : [];
+                const isLikedByMe = likesArr.some(id => {
+                  const idStr = typeof id === 'object' ? (id._id || id.id || '') : id;
+                  return idStr && myUserId && idStr.toString() === myUserId.toString();
+                });
+                return {
+                  id: pid,
+                  user: p.user?.name || 'Alumni',
+                  authorId: p.user?._id || null,
+                  role: p.user?.department ? `${p.user.department} • Batch ${p.user.batchYear || ''}` : 'Alumni Member @ Media Cell Institution',
+                  avatar: p.user?.profilePicture || p.user?.avatar_url ? getImageUrl(p.user?.profilePicture || p.user?.avatar_url) : (p.user?.name ? p.user.name.substring(0, 2).toUpperCase() : 'AL'),
+                  isAvatarUrl: !!(p.user?.profilePicture || p.user?.avatar_url),
+                  content: p.content,
+                  image: getImageUrl(p.image),
+                  likes: likesArr.length,
+                  likesArray: likesArr,
+                  isLiked: isLikedByMe,
+                  comments: p.comments || [],
+                  commentsCount: p.comments?.length || 0,
+                  time: getTimeAgo(p.createdAt),
+                };
+              });
+
+            // Initialize likedPosts map with current user's liked posts
+            const initLikedMap = {};
+            dbFormatted.forEach(p => {
+              if (p.isLiked) initLikedMap[p.id] = true;
+            });
+            setLikedPosts(prev => ({ ...initLikedMap, ...prev }));
 
             // Use filtered posts; fall back to defaults if nothing matches
             if (dbFormatted.length > 0) {
@@ -507,11 +524,60 @@ const DashboardScreen = ({ navigation }) => {
   };
 
   const toggleLike = async (postId) => {
+    const isCurrentlyLiked = Boolean(likedPosts[postId]);
+    const nextLikedState = !isCurrentlyLiked;
+
+    // Optimistically update UI
+    setLikedPosts((prev) => ({ ...prev, [postId]: nextLikedState }));
+    setPosts((prevPosts) =>
+      prevPosts.map((p) => {
+        if (p.id === postId || p._id === postId) {
+          const currentCount = typeof p.likes === 'number' ? p.likes : 0;
+          return {
+            ...p,
+            likes: nextLikedState ? currentCount + 1 : Math.max(0, currentCount - 1),
+            isLiked: nextLikedState,
+          };
+        }
+        return p;
+      })
+    );
+
     try {
-      setLikedPosts((prev) => ({ ...prev, [postId]: !prev[postId] }));
-      await toggleLikePost(postId);
+      const updated = await toggleLikePost(postId);
+      if (updated && Array.isArray(updated.likes)) {
+        const myIdStr = (currentUser?._id || currentUser?.id || '').toString();
+        const serverLiked = updated.likes.some(l => {
+          const lId = typeof l === 'object' ? (l._id || l.id || '') : l;
+          return lId && myIdStr && lId.toString() === myIdStr;
+        });
+
+        setLikedPosts((prev) => ({ ...prev, [postId]: serverLiked }));
+        setPosts((prevPosts) =>
+          prevPosts.map((p) => {
+            if (p.id === postId || p._id === postId) {
+              return { ...p, likes: updated.likes.length, isLiked: serverLiked };
+            }
+            return p;
+          })
+        );
+      }
     } catch (error) {
-      setLikedPosts((prev) => ({ ...prev, [postId]: !prev[postId] }));
+      // Revert optimistic update on error
+      setLikedPosts((prev) => ({ ...prev, [postId]: isCurrentlyLiked }));
+      setPosts((prevPosts) =>
+        prevPosts.map((p) => {
+          if (p.id === postId || p._id === postId) {
+            const currentCount = typeof p.likes === 'number' ? p.likes : 0;
+            return {
+              ...p,
+              likes: isCurrentlyLiked ? currentCount + 1 : Math.max(0, currentCount - 1),
+              isLiked: isCurrentlyLiked,
+            };
+          }
+          return p;
+        })
+      );
       console.error('Error toggling like:', error);
     }
   };
@@ -788,7 +854,7 @@ const DashboardScreen = ({ navigation }) => {
       {/* Footer */}
       <View style={styles.postFooter}>
         <Text style={styles.likesText}>
-          {likedPosts[post.id] ? post.likes + 1 : post.likes} likes
+          {post.likes} {post.likes === 1 ? 'like' : 'likes'}
         </Text>
         <Text style={styles.postContent} numberOfLines={2}>
           {post.content}

@@ -167,7 +167,7 @@ const AdminHomeScreen = ({ navigation }) => {
       {/* Footer */}
       <View style={styles.postFooter}>
         <Text style={styles.likesText}>
-          {likedPosts[post.id] ? post.likes + 1 : post.likes} likes
+          {post.likes} {post.likes === 1 ? 'like' : 'likes'}
         </Text>
         <Text style={styles.postContent} numberOfLines={2}>
           {post.content}

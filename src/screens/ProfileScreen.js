@@ -1565,11 +1565,20 @@ const DEFAULT_TAGGED_POSTS = [
                     }
                   }}
                 >
-                  <Ionicons 
-                    name={selectedPost?.likes?.length > 0 ? "heart" : "heart-outline"} 
-                    size={24} 
-                    color={selectedPost?.likes?.length > 0 ? "#EF4444" : theme.text} 
-                  />
+                  {(() => {
+                    const myId = profileData?._id || profileData?.id || '';
+                    const isLikedByMe = Array.isArray(selectedPost?.likes) && selectedPost.likes.some(l => {
+                      const lId = typeof l === 'object' ? (l._id || l.id || '') : l;
+                      return lId && myId && lId.toString() === myId.toString();
+                    });
+                    return (
+                      <Ionicons 
+                        name={isLikedByMe ? "heart" : "heart-outline"} 
+                        size={24} 
+                        color={isLikedByMe ? "#EF4444" : theme.text} 
+                      />
+                    );
+                  })()}
                   <Text style={{ marginLeft: 6, fontWeight: '600', color: theme.text, fontSize: 14 }}>
                     {selectedPost?.hideLikeCount ? 'Likes hidden' : `${selectedPost?.likes?.length || 0} ${selectedPost?.likes?.length === 1 ? 'like' : 'likes'}`}
                   </Text>

@@ -129,21 +129,55 @@ exports.createPost = async (req, res) => {
     }
 };
 
-// @desc    Like a post
+// @desc    Like / Unlike a post
 // @route   PUT /api/posts/:id/like
 exports.likePost = async (req, res) => {
     try {
+        await connectDB();
         const post = await Post.findById(req.params.id);
-        
-        if (post.likes.includes(req.user._id)) {
-            post.likes = post.likes.filter(id => id.toString() !== req.user._id.toString());
+        if (!post) {
+            return res.status(404).json({ message: 'Post not found' });
+        }
+
+        const userIdStr = req.user._id.toString();
+        if (!Array.isArray(post.likes)) {
+            post.likes = [];
+        }
+
+        const alreadyLiked = post.likes.some(id => id && id.toString() === userIdStr);
+
+        if (alreadyLiked) {
+            post.likes = post.likes.filter(id => id && id.toString() !== userIdStr);
         } else {
             post.likes.push(req.user._id);
+
+            // Send notification to post owner if it's not a self-like
+            if (post.user && post.user.toString() !== userIdStr) {
+                try {
+                    await Notification.create({
+                        recipient: post.user,
+                        sender: req.user._id,
+                        type: 'like',
+                        message: `${req.user.name || 'Someone'} liked your post`,
+                        post: post._id,
+                        is_read: false
+                    });
+                } catch (e) {
+                    console.log('Notification creation error on like:', e.message);
+                }
+            }
         }
 
         await post.save();
-        res.json(post);
+
+        const updatedPost = await Post.findById(post._id)
+            .populate('user', 'name branch department batchYear avatar_url username role institution')
+            .populate('tags', 'name username avatar_url')
+            .populate('comments.user', 'name avatar_url username');
+
+        res.json(updatedPost);
     } catch (error) {
+        console.error('Error in likePost controller:', error);
         res.status(500).json({ message: error.message });
     }
 };
