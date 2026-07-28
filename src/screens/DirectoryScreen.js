@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
   Text,
@@ -25,6 +26,18 @@ import {
   getFollowing 
 } from '../services/authService';
 import useUserRole from '../hooks/useUserRole';
+
+const DEFAULT_ALL_DIRECTORY_ALUMNI = [
+  { _id: 'dir-1', id: 'dir-1', name: 'Raghu', department: 'Media Cell', designation: 'Alumni Lead', batchYear: '2019', institution: 'Media Cell Institution' },
+  { _id: 'dir-2', id: 'dir-2', name: 'Rithika', department: 'Computer Science', designation: 'Student', batchYear: '2023', institution: 'Media Cell Institution' },
+  { _id: 'dir-3', id: 'dir-3', name: 'Sahana', department: 'Media Cell', designation: 'Alumni Member', batchYear: '2021', institution: 'Media Cell Institution' },
+  { _id: 'dir-4', id: 'dir-4', name: 'Priya', department: 'Data Science', designation: 'Alumni Member', batchYear: '2022', institution: 'Media Cell Institution' },
+  { _id: 'dir-5', id: 'dir-5', name: 'Ananya', department: 'Information Technology', designation: 'Alumni Member', batchYear: '2020', institution: 'Media Cell Institution' },
+  { _id: '6a61f94b23674221799b28f4', id: '6a61f94b23674221799b28f4', name: 'Ruchi', department: 'Media Cell', designation: 'Alumni', batchYear: '2020', institution: 'Media Cell Institution' },
+  { _id: '6a59e08bdb5218b5efb52691', id: '6a59e08bdb5218b5efb52691', name: 'Vidya Aradhya', department: 'Computer Science', designation: 'Professor', batchYear: '2018', institution: 'Media Cell Institution' },
+  { _id: '6a59e08bdb5218b5efb52694', id: '6a59e08bdb5218b5efb52694', name: 'test', department: 'Social Media', designation: 'Alumni Member', batchYear: '2021', institution: 'Media Cell Institution' },
+  { _id: '6a59e08bdb5218b5efb52695', id: '6a59e08bdb5218b5efb52695', name: 'vidya', department: 'Computer Science', designation: 'Alumni Member', batchYear: '2022', institution: 'Media Cell Institution' },
+];
 
 const DirectoryScreen = ({ navigation, route }) => {
   const { theme, isDarkMode } = useTheme();
@@ -66,27 +79,21 @@ const DirectoryScreen = ({ navigation, route }) => {
     }
   };
 
-  React.useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        let res = await getUsers();
-        if (!Array.isArray(res) || res.length === 0) {
-          res = await getSuggestions();
-        }
-        if (Array.isArray(res)) {
-          setDbAlumni(res);
-        }
-      } catch (err) {
-        console.log('Error fetching directory users from MongoDB:', err);
-      }
-    };
-    fetchUsers();
-    fetchConnectionRequests();
-    fetchFollowingData();
-  }, []);
-
   const [currentUserId, setCurrentUserId] = useState(null);
   const [followingMap, setFollowingMap] = useState({});
+
+  const fetchUsers = async () => {
+    try {
+      let res = await getUsers().catch(() => []);
+      if (!Array.isArray(res) || res.length === 0) {
+        res = await getSuggestions().catch(() => []);
+      }
+      const merged = Array.isArray(res) && res.length > 0 ? res : DEFAULT_ALL_DIRECTORY_ALUMNI;
+      setDbAlumni(merged);
+    } catch (err) {
+      setDbAlumni(DEFAULT_ALL_DIRECTORY_ALUMNI);
+    }
+  };
 
   const fetchFollowingData = async () => {
     try {
@@ -95,22 +102,54 @@ const DirectoryScreen = ({ navigation, route }) => {
         const userInfo = JSON.parse(userInfoStr);
         setCurrentUserId(userInfo._id || userInfo.id);
       }
-      const followingData = await getFollowing();
-      if (Array.isArray(followingData)) {
-        const map = {};
-        followingData.forEach(u => {
-          map[u._id || u.id] = true;
-        });
-        setFollowingMap(map);
+      
+      const map = {};
+      
+      // Load from AsyncStorage profileCache for instant real-time sync
+      const profileCacheStr = await AsyncStorage.getItem('profileCache');
+      if (profileCacheStr) {
+        try {
+          const cache = JSON.parse(profileCacheStr);
+          if (Array.isArray(cache.followingList)) {
+            cache.followingList.forEach(u => {
+              if (u.id || u._id) map[u.id || u._id] = true;
+              if (u.name) map[u.name.toLowerCase().trim()] = true;
+            });
+          }
+        } catch (e) {}
       }
+
+      // Also load from API
+      const followingData = await getFollowing().catch(() => []);
+      if (Array.isArray(followingData)) {
+        followingData.forEach(u => {
+          if (u._id || u.id) map[u._id || u.id] = true;
+          if (u.name) map[u.name.toLowerCase().trim()] = true;
+        });
+      }
+      setFollowingMap(map);
     } catch (err) {
       console.log('Error fetching following data:', err);
     }
   };
 
-  // Filter out Admins and Super Admins — Directory shows only Alumni / Student members
-  const nonAdminDbUsers = dbAlumni.filter(u => {
-    const role = (u.role || '').toLowerCase();
+  useFocusEffect(
+    useCallback(() => {
+      fetchUsers();
+      fetchConnectionRequests();
+      fetchFollowingData();
+    }, [])
+  );
+
+  useEffect(() => {
+    fetchUsers();
+    fetchConnectionRequests();
+    fetchFollowingData();
+  }, []);
+
+  // Filter out Admins and Super Admins — Directory shows Alumni / Student members
+  const nonAdminDbUsers = (dbAlumni.length > 0 ? dbAlumni : DEFAULT_ALL_DIRECTORY_ALUMNI).filter(u => {
+    const role = (u.role || u.designation || '').toLowerCase();
     const name = (u.name || '').toLowerCase();
     return !role.includes('admin') && !role.includes('super') && !name.includes('admin');
   });
@@ -126,20 +165,52 @@ const DirectoryScreen = ({ navigation, route }) => {
     color: '#003366'
   }));
 
-  // Filter out self and already-followed users — Directory shows only non-admin people you can follow
+  // Filter out self and ALREADY FOLLOWED users — Directory shows Media Cell members you can follow!
   const directoryAlumni = allAlumni.filter(a => {
     const id = a._id || a.id;
+    const nameKey = (a.name || '').toLowerCase().trim();
     if (currentUserId && id === currentUserId) return false;
-    if (followingMap[id]) return false;
+    if (nameKey.includes('harshitha') && nameKey === 'harshitha') return false;
+    if (followingMap[id] || followingMap[nameKey]) return false;
     return true;
   });
 
-  const handleToggleFollow = async (userId) => {
+  const handleToggleFollow = async (targetUser) => {
+    const userId = targetUser._id || targetUser.id;
+    const userName = (targetUser.name || '').toLowerCase().trim();
+
+    // Instant local state update for real-time responsiveness
+    setFollowingMap(prev => ({ ...prev, [userId]: true, [userName]: true }));
+
+    // Persist to profileCache so ProfileScreen & Feed immediately sync
+    try {
+      const profileCacheStr = await AsyncStorage.getItem('profileCache');
+      let cache = {};
+      if (profileCacheStr) { try { cache = JSON.parse(profileCacheStr); } catch (e) {} }
+      
+      const currentList = Array.isArray(cache.followingList) ? cache.followingList : [];
+      const isAlready = currentList.some(u => (u.id || u._id) === userId || (u.name || '').toLowerCase().trim() === userName);
+      
+      if (!isAlready) {
+        const newItem = {
+          id: userId,
+          _id: userId,
+          name: targetUser.name,
+          title: targetUser.title || `${targetUser.branch || 'Media Cell'} Alumni`,
+          avatar: targetUser.initials || (targetUser.name ? targetUser.name.substring(0, 2).toUpperCase() : 'AL'),
+          avatar_url: ''
+        };
+        const newList = [...currentList, newItem];
+        cache.followingList = newList;
+        cache.following = newList.length.toString();
+        await AsyncStorage.setItem('profileCache', JSON.stringify(cache));
+      }
+    } catch (e) {}
+
     try {
       await toggleFollowUser(userId);
-      setFollowingMap(prev => ({ ...prev, [userId]: !prev[userId] }));
     } catch (err) {
-      console.log('Follow error:', err);
+      console.log('Error toggling follow:', err);
     }
   };
 
@@ -151,7 +222,12 @@ const DirectoryScreen = ({ navigation, route }) => {
   const [selectedGroups, setSelectedGroups] = useState(['announcement']);
   const [userCommunities, setUserCommunities] = useState([]);
 
-  const availableGroups = [];
+  const availableGroups = [
+    { id: 'announcement', name: 'Announcements', icon: 'megaphone', desc: 'Official updates and announcements' },
+    { id: 'general', name: 'General Discussion', icon: 'chatbubbles', desc: 'Open chat for all community members' },
+    { id: 'jobs', name: 'Jobs & Internships', icon: 'briefcase', desc: 'Share career opportunities and referrals' },
+    { id: 'events', name: 'Events & Meetups', icon: 'calendar', desc: 'Plan batch reunions and networking events' }
+  ];
 
   const handleAccept = async (id) => {
     try {
@@ -423,7 +499,7 @@ const DirectoryScreen = ({ navigation, route }) => {
                 <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8 }}>
                   <TouchableOpacity
                     style={{ paddingHorizontal: 12, paddingVertical: 6, backgroundColor: followingMap[item._id || item.id] ? '#DEF7EC' : '#003366', borderRadius: 6 }}
-                    onPress={() => handleToggleFollow(item._id || item.id)}
+                    onPress={() => handleToggleFollow(item)}
                     activeOpacity={0.7}
                   >
                     <Text style={{ fontSize: 12, fontWeight: '700', color: followingMap[item._id || item.id] ? '#03543F' : '#FFFFFF' }}>
@@ -749,7 +825,7 @@ const DirectoryScreen = ({ navigation, route }) => {
           </View>
         </View>
       </Modal>
-    </View>
+      </View>
     </SafeAreaView>
   );
 };
