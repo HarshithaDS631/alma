@@ -141,11 +141,10 @@ const DirectoryScreen = ({ navigation, route }) => {
     fetchFollowingData();
   }, []);
 
-  // Filter out Admins and Super Admins — Directory shows Alumni / Student members only
+  // Filter out Admins and Super Admins — Directory shows Alumni / Student members
   const nonAdminDbUsers = dbAlumni.filter(u => {
-    const role = (u.role || u.designation || '').toLowerCase();
-    const name = (u.name || '').toLowerCase();
-    return !role.includes('admin') && !role.includes('super') && !name.includes('admin');
+    const role = (u.role || u.designation || '').toLowerCase().trim();
+    return role !== 'admin' && role !== 'superadmin' && role !== 'super_admin';
   });
 
   const allAlumni = nonAdminDbUsers.map((u, i) => ({
@@ -159,13 +158,10 @@ const DirectoryScreen = ({ navigation, route }) => {
     color: '#003366'
   }));
 
-  // Filter out self and ALREADY FOLLOWED users — Directory shows Media Cell members you can follow!
+  // Filter out current logged in user from suggested/directory list if desired
   const directoryAlumni = allAlumni.filter(a => {
     const id = a._id || a.id;
-    const nameKey = (a.name || '').toLowerCase().trim();
     if (currentUserId && id === currentUserId) return false;
-    if (nameKey.includes('harshitha') && nameKey === 'harshitha') return false;
-    if (followingMap[id] || followingMap[nameKey]) return false;
     return true;
   });
 
@@ -475,7 +471,7 @@ const DirectoryScreen = ({ navigation, route }) => {
               <Ionicons name="people-outline" size={48} color="#CBD5E1" />
               <Text style={{ marginTop: 16, fontSize: 16, color: '#64748B', fontWeight: '600' }}>No Members Found</Text>
               <Text style={{ marginTop: 8, fontSize: 13, color: '#94A3B8', textAlign: 'center' }}>
-                {searchQuery ? 'No results match your search.' : 'Everyone in your network is already followed, or no one has signed up yet.'}
+                {searchQuery ? 'No results match your search.' : 'No registered alumni members found in directory.'}
               </Text>
             </View>
           ) : (
@@ -540,7 +536,7 @@ const DirectoryScreen = ({ navigation, route }) => {
               </Text>
               {!loadingDirectory && (
                 <Text style={{ marginTop: 8, fontSize: 13, color: '#94A3B8', textAlign: 'center' }}>
-                  {searchQuery ? 'No results match your search.' : 'Everyone is already followed, or no one has signed up yet.'}
+                  {searchQuery ? 'No results match your search.' : 'No registered alumni members found in directory.'}
                 </Text>
               )}
             </View>
