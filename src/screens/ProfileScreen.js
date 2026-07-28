@@ -218,10 +218,11 @@ const DEFAULT_TAGGED_POSTS = [
   }
 ];
 
-  const [userPosts, setUserPosts] = useState(DEFAULT_USER_POSTS);
-  const [resharedPosts, setResharedPosts] = useState(DEFAULT_RESHARED_POSTS);
-  const [savedPosts, setSavedPosts] = useState(DEFAULT_SAVED_POSTS);
-  const [taggedPosts, setTaggedPosts] = useState(DEFAULT_TAGGED_POSTS);
+  // Start with empty arrays — only real API data or real user's own cached posts are shown
+  const [userPosts, setUserPosts] = useState([]);
+  const [resharedPosts, setResharedPosts] = useState([]);
+  const [savedPosts, setSavedPosts] = useState([]);
+  const [taggedPosts, setTaggedPosts] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
   const [commentInput, setCommentInput] = useState('');
   const commentInputRef = useRef(null);
@@ -433,18 +434,19 @@ const DEFAULT_TAGGED_POSTS = [
 
               myPosts.sort((a, b) => (b.isPinned === a.isPinned) ? 0 : (b.isPinned ? 1 : -1));
 
-              const postsCountStr = myPosts.length > 0 ? myPosts.length.toString() : '3';
+              const postsCountStr = myPosts.length > 0 ? myPosts.length.toString() : '0';
 
               setProfileData(prev => ({
                 ...prev,
                 posts: postsCountStr,
               }));
 
-              setUserPosts(myPosts.length > 0 ? myPosts : DEFAULT_USER_POSTS);
-              setResharedPosts(myResharedPosts.length > 0 ? myResharedPosts : DEFAULT_RESHARED_POSTS);
-              setTaggedPosts(myTaggedPosts.length > 0 ? myTaggedPosts : DEFAULT_TAGGED_POSTS);
+              // Only store real user posts — no hardcoded defaults
+              setUserPosts(myPosts);
+              setResharedPosts(myResharedPosts);
+              setTaggedPosts(myTaggedPosts);
 
-              const parsedSaved = (savedData && Array.isArray(savedData) && savedData.length > 0) ? deduplicatePosts(savedData) : DEFAULT_SAVED_POSTS;
+              const parsedSaved = (savedData && Array.isArray(savedData) && savedData.length > 0) ? deduplicatePosts(savedData) : [];
               setSavedPosts(parsedSaved);
 
               // Persist full profile cache into AsyncStorage so next launch loads 0ms instantly
@@ -452,10 +454,10 @@ const DEFAULT_TAGGED_POSTS = [
                 posts: postsCountStr,
                 followers: followersCountStr,
                 following: followingCountStr,
-                userPosts: myPosts.length > 0 ? myPosts : DEFAULT_USER_POSTS,
-                resharedPosts: myResharedPosts.length > 0 ? myResharedPosts : DEFAULT_RESHARED_POSTS,
+                userPosts: myPosts,
+                resharedPosts: myResharedPosts,
                 savedPosts: parsedSaved,
-                taggedPosts: myTaggedPosts.length > 0 ? myTaggedPosts : DEFAULT_TAGGED_POSTS,
+                taggedPosts: myTaggedPosts,
                 connections: parsedConnections,
                 followingList: parsedFollowing
               })).catch(() => {});
@@ -771,12 +773,23 @@ const DEFAULT_TAGGED_POSTS = [
 
         {/* Tab Content Section */}
         {(() => {
-          const displayUserPosts = (userPosts && Array.isArray(userPosts) && userPosts.length > 0) ? userPosts : DEFAULT_USER_POSTS;
-          const displayResharedPosts = (resharedPosts && Array.isArray(resharedPosts) && resharedPosts.length > 0) ? resharedPosts : DEFAULT_RESHARED_POSTS;
-          const displaySavedPosts = (savedPosts && Array.isArray(savedPosts) && savedPosts.length > 0) ? savedPosts : DEFAULT_SAVED_POSTS;
-          const displayTaggedPosts = (taggedPosts && Array.isArray(taggedPosts) && taggedPosts.length > 0) ? taggedPosts : DEFAULT_TAGGED_POSTS;
+          const displayUserPosts = Array.isArray(userPosts) ? userPosts : [];
+          const displayResharedPosts = Array.isArray(resharedPosts) ? resharedPosts : [];
+          const displaySavedPosts = Array.isArray(savedPosts) ? savedPosts : [];
+          const displayTaggedPosts = Array.isArray(taggedPosts) ? taggedPosts : [];
+
+          // Reusable empty state component
+          const EmptyState = ({ icon, message }) => (
+            <View style={{ alignItems: 'center', paddingVertical: 48, paddingHorizontal: 32 }}>
+              <Ionicons name={icon} size={48} color={theme.textMuted} style={{ marginBottom: 12, opacity: 0.5 }} />
+              <Text style={{ color: theme.textMuted, fontSize: 14, textAlign: 'center', lineHeight: 20 }}>{message}</Text>
+            </View>
+          );
 
           if (activeTab === 'post') {
+            if (displayUserPosts.length === 0) {
+              return <EmptyState icon="grid-outline" message="No posts yet. Share something with your network!" />;
+            }
             return (
               <View style={styles.postsGrid}>
                 {displayUserPosts.map((post) => (
@@ -801,6 +814,9 @@ const DEFAULT_TAGGED_POSTS = [
           }
 
           if (activeTab === 'tags') {
+            if (displayTaggedPosts.length === 0) {
+              return <EmptyState icon="pricetag-outline" message="No tagged posts yet." />;
+            }
             return (
               <View style={styles.postsGrid}>
                 {displayTaggedPosts.map((post) => (
@@ -828,6 +844,9 @@ const DEFAULT_TAGGED_POSTS = [
           }
 
           if (activeTab === 'saved') {
+            if (displaySavedPosts.length === 0) {
+              return <EmptyState icon="bookmark-outline" message="No saved posts yet. Bookmark posts to see them here." />;
+            }
             return (
               <View style={styles.postsGrid}>
                 {displaySavedPosts.map((post) => (
@@ -852,6 +871,9 @@ const DEFAULT_TAGGED_POSTS = [
           }
 
           if (activeTab === 'reshare') {
+            if (displayResharedPosts.length === 0) {
+              return <EmptyState icon="repeat-outline" message="No reshares yet. Reshare posts from your feed to see them here." />;
+            }
             return (
               <View style={styles.postsGrid}>
                 {displayResharedPosts.map((post) => (
