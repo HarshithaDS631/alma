@@ -141,29 +141,16 @@ const DirectoryScreen = ({ navigation, route }) => {
     fetchFollowingData();
   }, []);
 
-  // Filter out Admins and Super Admins — Directory shows Alumni / Student members
-  const nonAdminDbUsers = dbAlumni.filter(u => {
-    const role = (u.role || u.designation || '').toLowerCase().trim();
-    return role !== 'admin' && role !== 'superadmin' && role !== 'super_admin';
-  });
-
-  const allAlumni = nonAdminDbUsers.map((u, i) => ({
+  const directoryAlumni = dbAlumni.map((u, i) => ({
     _id: u._id || u.id,
     id: u._id || u.id || i.toString(),
     name: u.name,
     branch: u.department || u.branch || (u.batchYear ? `Batch ${u.batchYear}` : 'Media Cell'),
     title: u.designation || u.degree || u.role || 'Alumni Member',
-    institution: u.institution && (u.institution.toLowerCase().includes('media') || u.institution.toLowerCase().includes('mci')) ? u.institution : 'Media Cell Institution',
+    institution: u.institution || 'Media Cell Institution',
     initials: u.name ? u.name.charAt(0).toUpperCase() : '?',
     color: '#003366'
   }));
-
-  // Filter out current logged in user from suggested/directory list if desired
-  const directoryAlumni = allAlumni.filter(a => {
-    const id = a._id || a.id;
-    if (currentUserId && id === currentUserId) return false;
-    return true;
-  });
 
   const handleToggleFollow = async (targetUser) => {
     const userId = targetUser._id || targetUser.id;
@@ -591,13 +578,6 @@ const DirectoryScreen = ({ navigation, route }) => {
               </View>
             </View>
           )}
-          ListEmptyComponent={
-            <View style={styles.emptyRequestState}>
-              <Ionicons name="people-outline" size={56} color="#CBD5E1" />
-              <Text style={styles.emptyRequestTitle}>No Alumni Found</Text>
-              <Text style={styles.emptyRequestSubtitle}>Try searching for a different name, branch, or college.</Text>
-            </View>
-          }
         />
       </View>
     );
