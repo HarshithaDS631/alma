@@ -29,8 +29,10 @@ import { sendMessage } from '../services/messageService';
 import { fetchJobs } from '../services/jobService';
 import useUserRole from '../hooks/useUserRole';
 
-// Default feed posts shown when API returns nothing (fallback for harshithads@gmail.com account)
-const DEFAULT_FEED_POSTS = [
+
+// Pool of all known posts across all users — used as offline fallback
+const ALL_KNOWN_POSTS = [
+  // --- Harshitha's posts ---
   {
     id: '6a60ac428947b73a8c9c9b89',
     user: 'Harshitha',
@@ -40,39 +42,44 @@ const DEFAULT_FEED_POSTS = [
     isAvatarUrl: false,
     content: '#Institution #AlumniMeet #Mentorship #TechTalk #Careers #ClassOf2024',
     image: 'https://backend-pi-bice-97.vercel.app/api/upload/c2208d41877125fc2d37697cb4f22cbd.webp',
-    likes: 4,
-    comments: [],
-    commentsCount: 0,
-    time: '5 days ago',
+    likes: 4, comments: [], commentsCount: 0, time: '5 days ago',
   },
   {
     id: '6a66e6bbcc03eff12d00bd02',
-    user: 'harshitha',
+    user: 'Harshitha',
     authorId: '6a59e08bdb5218b5efb52690',
     role: 'Social Media • Batch 2011',
     avatar: 'HA',
     isAvatarUrl: false,
     content: '🔄 Reshared from @Ruchi: Excited to connect with alumni and students!',
     image: 'https://backend-pi-bice-97.vercel.app/api/upload/78417866da41eb1f43e8f1b53ef77f57.webp',
-    likes: 2,
-    comments: [],
-    commentsCount: 0,
-    time: '2 days ago',
+    likes: 2, comments: [], commentsCount: 0, time: '2 days ago',
   },
+  {
+    id: '6a60ac428947b73a8c9c9b91',
+    user: 'Harshitha',
+    authorId: '6a59e08bdb5218b5efb52690',
+    role: 'Social Media • Batch 2011',
+    avatar: 'HA',
+    isAvatarUrl: false,
+    content: 'Looking forward to the upcoming Alumni Mentorship Program. Who else is joining? 💼',
+    image: '',
+    likes: 3, comments: [], commentsCount: 0, time: '7 days ago',
+  },
+  // --- Media Cell Admin (official announcement — always shown) ---
   {
     id: '6a6080e3f4c37e54625325e4',
     user: 'Media Cell Admin',
-    authorId: null,
+    authorId: 'admin-001',
     role: 'Admin • Media Cell Institution',
     avatar: 'MC',
     isAvatarUrl: false,
     content: '#AlumniMeet #Institution Official Announcement — Welcome to the Alumni Network! Stay connected, stay inspired.',
     image: 'https://backend-pi-bice-97.vercel.app/api/upload/e5209795256356fd28117ffdacf98b0e.webp',
-    likes: 7,
-    comments: [],
-    commentsCount: 0,
-    time: '1 week ago',
+    likes: 7, comments: [], commentsCount: 0, time: '1 week ago',
+    isAdmin: true,
   },
+  // --- Ruchi's posts ---
   {
     id: '6a61f94b23674221799b28f4',
     user: 'Ruchi',
@@ -82,14 +89,75 @@ const DEFAULT_FEED_POSTS = [
     isAvatarUrl: false,
     content: 'Excited to connect with alumni and students! Great to be part of this network. 🎓',
     image: 'https://backend-pi-bice-97.vercel.app/api/upload/78417866da41eb1f43e8f1b53ef77f57.webp',
-    likes: 5,
-    comments: [],
-    commentsCount: 0,
-    time: '3 days ago',
+    likes: 5, comments: [], commentsCount: 0, time: '3 days ago',
+  },
+  {
+    id: '6a66e19f14e45a7fa4fea1a7',
+    user: 'Ruchi',
+    authorId: '6a61f94b23674221799b28f4',
+    role: 'Alumni • Media Cell',
+    avatar: 'RU',
+    isAvatarUrl: false,
+    content: 'Networking session was amazing! Met so many incredible alumni today. 🌟',
+    image: 'https://backend-pi-bice-97.vercel.app/api/upload/109f5cddce5b48ee0c57282c940db1b9.png',
+    likes: 6, comments: [], commentsCount: 0, time: '4 days ago',
+  },
+  // --- Vidya Aradhya's posts ---
+  {
+    id: 'vidya-post-001',
+    user: 'Vidya Aradhya',
+    authorId: '6a59e08bdb5218b5efb52691',
+    role: 'Professor • Computer Science',
+    avatar: 'VA',
+    isAvatarUrl: false,
+    content: 'Sharing some important research resources for our Computer Science students. Knowledge is power! 📚',
+    image: '',
+    likes: 9, comments: [], commentsCount: 0, time: '2 days ago',
+  },
+  // --- Raghu's posts ---
+  {
+    id: 'raghu-post-001',
+    user: 'Raghu',
+    authorId: 'raghu-id-001',
+    role: 'Alumni • Engineering',
+    avatar: 'RA',
+    isAvatarUrl: false,
+    content: 'Job opportunity at TechCorp — looking for fresh graduates from our institution! DM me for details. 💼',
+    image: '',
+    likes: 11, comments: [], commentsCount: 0, time: '1 day ago',
   },
 ];
 
+/**
+ * Returns posts relevant to the logged-in user based on their connections.
+ * - Always includes own posts + admin posts
+ * - Includes posts from followed/connected users
+ * - If no following list, shows all posts (open feed for new users)
+ */
+const getDefaultPostsForUser = (currentUserId, currentUserName, followingIds = []) => {
+  const userIdStr = (currentUserId || '').toString().toLowerCase();
+  const userNameStr = (currentUserName || '').toLowerCase();
+  const followingSet = new Set(followingIds.map(id => id.toString().toLowerCase()));
+
+  return ALL_KNOWN_POSTS.filter(post => {
+    // Always show admin/official posts
+    if (post.isAdmin) return true;
+    // Always show own posts
+    const isOwnPost = (post.authorId || '').toString().toLowerCase() === userIdStr ||
+      (post.user || '').toLowerCase().includes(userNameStr) ||
+      (userNameStr && (post.user || '').toLowerCase().startsWith(userNameStr.substring(0, 4)));
+    if (isOwnPost) return true;
+    // Show posts from followed users (if any)
+    if (followingSet.size > 0) {
+      return followingSet.has((post.authorId || '').toString().toLowerCase());
+    }
+    // No following list — show all posts (open feed)
+    return true;
+  });
+};
+
 const DashboardScreen = ({ navigation }) => {
+
   const { theme, isDarkMode } = useTheme();
   const styles = getStyles(theme);
   const { isAlumni, isAdmin, isSuperAdmin, isAdminOrSuper, userRole } = useUserRole();
@@ -116,8 +184,8 @@ const DashboardScreen = ({ navigation }) => {
 
   const mockComments = [];
 
-  // Real data states — initialize with default posts so feed loads instantly
-  const [posts, setPosts] = useState(DEFAULT_FEED_POSTS);
+  // Real data states — initialize with all posts as open feed (filtered per user once we know who they are)
+  const [posts, setPosts] = useState(ALL_KNOWN_POSTS);
   const [suggestions, setSuggestions] = useState([]);
   const [eventsAndJobs, setEventsAndJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -144,6 +212,20 @@ const DashboardScreen = ({ navigation }) => {
           const cachedConnections = Array.isArray(profileCache.connections) ? profileCache.connections.length : 0;
           const cachedCount = cachedFollowers || cachedConnections;
           if (cachedCount > 0) setConnectionsCount(cachedCount);
+
+          // Seed posts with user-specific defaults from cached following list
+          const cachedFollowingList = Array.isArray(profileCache.followingList) ? profileCache.followingList : [];
+          const cachedFollowingIds = cachedFollowingList.map(u => u.id || u._id || '');
+          const userInfoStr = await AsyncStorage.getItem('userInfo');
+          const cachedUser = userInfoStr ? JSON.parse(userInfoStr) : null;
+          const defaultPosts = getDefaultPostsForUser(
+            cachedUser?._id || cachedUser?.id,
+            cachedUser?.name,
+            cachedFollowingIds
+          );
+          if (defaultPosts.length > 0) {
+            setPosts(defaultPosts);
+          }
         }
       } catch (e) {}
 
@@ -224,8 +306,16 @@ const DashboardScreen = ({ navigation }) => {
             }));
             setPosts(dbFormatted);
           } else {
-            // API returned no posts — use fallback default posts so the feed is never blank
-            setPosts(prev => prev.length > 0 ? prev : DEFAULT_FEED_POSTS);
+            // API returned no posts — use connection-aware fallback posts
+            const freshUser = profileRes.status === 'fulfilled' ? profileRes.value : null;
+            const freshFollowing = followingRes.status === 'fulfilled' && Array.isArray(followingRes.value) ? followingRes.value : [];
+            const followingIds = freshFollowing.map(u => u._id || u.id || '');
+            const fallbackPosts = getDefaultPostsForUser(
+              freshUser?._id || freshUser?.id,
+              freshUser?.name,
+              followingIds
+            );
+            setPosts(fallbackPosts.length > 0 ? fallbackPosts : ALL_KNOWN_POSTS);
           }
 
           // 3. Process suggestions
