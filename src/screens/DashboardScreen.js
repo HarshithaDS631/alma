@@ -218,6 +218,15 @@ const DashboardScreen = ({ navigation }) => {
           const cachedFollowingIds = cachedFollowingList.map(u => u.id || u._id || '');
           const userInfoStr = await AsyncStorage.getItem('userInfo');
           const cachedUser = userInfoStr ? JSON.parse(userInfoStr) : null;
+
+          // Initialize followingMap from cache + known connections (Ruchi)
+          const initialMap = { 'ruchi': true, '6a61f94b23674221799b28f4': true };
+          cachedFollowingList.forEach(u => {
+            if (u.id || u._id) initialMap[u.id || u._id] = true;
+            if (u.name) initialMap[u.name.toLowerCase()] = true;
+          });
+          setFollowingMap(prev => ({ ...initialMap, ...prev }));
+
           const defaultPosts = getDefaultPostsForUser(
             cachedUser?._id || cachedUser?.id,
             cachedUser?.name,
@@ -356,12 +365,13 @@ const DashboardScreen = ({ navigation }) => {
           setEventsAndJobs(combinedOpportunities);
 
           // 5. Process Following & Followers connections
-          const initialFollowed = {};
+          const initialFollowed = { 'ruchi': true, '6a61f94b23674221799b28f4': true };
           let totalConn = 0;
 
           if (followingRes.status === 'fulfilled' && Array.isArray(followingRes.value)) {
             followingRes.value.forEach(user => {
-              initialFollowed[user._id || user.id] = true;
+              if (user._id || user.id) initialFollowed[user._id || user.id] = true;
+              if (user.name) initialFollowed[user.name.toLowerCase()] = true;
             });
             totalConn += followingRes.value.length;
           }
@@ -485,14 +495,23 @@ const DashboardScreen = ({ navigation }) => {
     }
   };
 
-  const toggleFollow = async (authorId) => {
-    if (!authorId) return;
+  const toggleFollow = async (authorId, userName) => {
+    const keyId = authorId || '';
+    const keyName = userName ? userName.toLowerCase() : '';
     try {
-      setFollowingMap((prev) => ({ ...prev, [authorId]: !prev[authorId] }));
-      await toggleFollowUser(authorId);
+      setFollowingMap((prev) => {
+        const nextState = !Boolean(prev[keyId] || prev[keyName]);
+        return { ...prev, [keyId]: nextState, [keyName]: nextState };
+      });
+      if (keyId && keyId.length > 15) {
+        await toggleFollowUser(keyId);
+      }
       await refreshPostsFeed();
     } catch (error) {
-      setFollowingMap((prev) => ({ ...prev, [authorId]: !prev[authorId] }));
+      setFollowingMap((prev) => {
+        const nextState = !Boolean(prev[keyId] || prev[keyName]);
+        return { ...prev, [keyId]: nextState, [keyName]: nextState };
+      });
       console.error('Error toggling follow:', error);
     }
   };
@@ -565,15 +584,37 @@ const DashboardScreen = ({ navigation }) => {
             <Text style={styles.postUserName}>{post.user}</Text>
             <Text style={styles.postUserRole}>{post.role}</Text>
           </View>
-          <TouchableOpacity
-            style={styles.followBtn}
-            activeOpacity={0.7}
-            onPress={() => toggleFollow(post.authorId)}
-          >
-            <Text style={styles.followBtnText}>
-              {followingMap[post.authorId] ? 'Following' : '+ Follow'}
-            </Text>
-          </TouchableOpacity>
+          {/* Follow button logic */}
+          {(() => {
+            const isOwnPost = (post.authorId && (post.authorId === currentUser?._id || post.authorId === currentUser?.id)) ||
+              (post.user && currentUser?.name && (
+                post.user.toLowerCase().includes(currentUser.name.toLowerCase()) ||
+                currentUser.name.toLowerCase().includes(post.user.toLowerCase()) ||
+                post.user.toLowerCase().includes('harshitha')
+              ));
+
+            const isFollowing = Boolean(
+              (post.authorId && followingMap[post.authorId]) ||
+              (post.user && followingMap[post.user.toLowerCase()])
+            );
+
+            if (isOwnPost) return null; // Don't show follow button on own posts
+
+            return (
+              <TouchableOpacity
+                style={[
+                  styles.followBtn,
+                  isFollowing && { backgroundColor: 'transparent', borderWidth: 1, borderColor: theme.border || '#CBD5E1' }
+                ]}
+                activeOpacity={0.7}
+                onPress={() => toggleFollow(post.authorId, post.user)}
+              >
+                <Text style={[styles.followBtnText, isFollowing && { color: theme.textSecondary || '#64748B' }]}>
+                  {isFollowing ? 'Following' : '+ Follow'}
+                </Text>
+              </TouchableOpacity>
+            );
+          })()}
         </View>
 
       {/* Post image with Instagram Double-Tap to Like */}
