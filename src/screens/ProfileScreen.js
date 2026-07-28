@@ -1366,12 +1366,25 @@ const DEFAULT_TAGGED_POSTS = [
                             actionLabel: 'Unfollow',
                             onConfirm: async () => {
                               try {
-                                await toggleFollowUser(user.id);
-                                setFollowing(prev => prev.filter(u => u.id !== user.id));
-                                setProfileData(prev => ({...prev, following: Math.max(0, parseInt(prev.following || '0') - 1).toString()}));
-                              } catch (err) {
-                                console.error('Error toggling follow', err);
-                              }
+                                toggleFollowUser(user.id).catch(e => console.error(e));
+                              } catch (err) {}
+                              
+                              setFollowing(prev => {
+                                const updated = prev.filter(u => {
+                                  const idMatch = (u.id || u._id || '').toString() === (user.id || user._id || '').toString();
+                                  const nameMatch = (u.name || '').toLowerCase().trim() === (user.name || '').toLowerCase().trim();
+                                  return !idMatch && !nameMatch;
+                                });
+                                setProfileData(p => ({ ...p, following: updated.length.toString() }));
+                                AsyncStorage.getItem('profileCache').then(cStr => {
+                                  let cache = {};
+                                  if (cStr) { try { cache = JSON.parse(cStr); } catch (e) {} }
+                                  cache.following = updated.length.toString();
+                                  cache.followingList = updated;
+                                  AsyncStorage.setItem('profileCache', JSON.stringify(cache)).catch(() => {});
+                                }).catch(() => {});
+                                return updated;
+                              });
                             }
                           });
                         } else {
@@ -1382,12 +1395,18 @@ const DEFAULT_TAGGED_POSTS = [
                             actionLabel: 'Remove',
                             onConfirm: async () => {
                               try {
-                                await toggleFollowUser(user.id);
-                                setConnections(prev => prev.filter(u => u.id !== user.id));
-                                setProfileData(prev => ({...prev, followers: Math.max(0, parseInt(prev.followers || '0') - 1).toString()}));
-                              } catch (err) {
-                                console.error('Error toggling follow', err);
-                              }
+                                toggleFollowUser(user.id).catch(e => console.error(e));
+                              } catch (err) {}
+
+                              setConnections(prev => {
+                                const updated = prev.filter(u => {
+                                  const idMatch = (u.id || u._id || '').toString() === (user.id || user._id || '').toString();
+                                  const nameMatch = (u.name || '').toLowerCase().trim() === (user.name || '').toLowerCase().trim();
+                                  return !idMatch && !nameMatch;
+                                });
+                                setProfileData(p => ({ ...p, followers: updated.length.toString() }));
+                                return updated;
+                              });
                             }
                           });
                         }
