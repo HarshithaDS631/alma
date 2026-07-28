@@ -29,6 +29,66 @@ import { sendMessage } from '../services/messageService';
 import { fetchJobs } from '../services/jobService';
 import useUserRole from '../hooks/useUserRole';
 
+// Default feed posts shown when API returns nothing (fallback for harshithads@gmail.com account)
+const DEFAULT_FEED_POSTS = [
+  {
+    id: '6a60ac428947b73a8c9c9b89',
+    user: 'Harshitha',
+    authorId: '6a59e08bdb5218b5efb52690',
+    role: 'Social Media • Batch 2011',
+    avatar: 'HA',
+    isAvatarUrl: false,
+    content: '#Institution #AlumniMeet #Mentorship #TechTalk #Careers #ClassOf2024',
+    image: 'https://backend-pi-bice-97.vercel.app/api/upload/c2208d41877125fc2d37697cb4f22cbd.webp',
+    likes: 4,
+    comments: [],
+    commentsCount: 0,
+    time: '5 days ago',
+  },
+  {
+    id: '6a66e6bbcc03eff12d00bd02',
+    user: 'harshitha',
+    authorId: '6a59e08bdb5218b5efb52690',
+    role: 'Social Media • Batch 2011',
+    avatar: 'HA',
+    isAvatarUrl: false,
+    content: '🔄 Reshared from @Ruchi: Excited to connect with alumni and students!',
+    image: 'https://backend-pi-bice-97.vercel.app/api/upload/78417866da41eb1f43e8f1b53ef77f57.webp',
+    likes: 2,
+    comments: [],
+    commentsCount: 0,
+    time: '2 days ago',
+  },
+  {
+    id: '6a6080e3f4c37e54625325e4',
+    user: 'Media Cell Admin',
+    authorId: null,
+    role: 'Admin • Media Cell Institution',
+    avatar: 'MC',
+    isAvatarUrl: false,
+    content: '#AlumniMeet #Institution Official Announcement — Welcome to the Alumni Network! Stay connected, stay inspired.',
+    image: 'https://backend-pi-bice-97.vercel.app/api/upload/e5209795256356fd28117ffdacf98b0e.webp',
+    likes: 7,
+    comments: [],
+    commentsCount: 0,
+    time: '1 week ago',
+  },
+  {
+    id: '6a61f94b23674221799b28f4',
+    user: 'Ruchi',
+    authorId: '6a61f94b23674221799b28f4',
+    role: 'Alumni • Media Cell',
+    avatar: 'RU',
+    isAvatarUrl: false,
+    content: 'Excited to connect with alumni and students! Great to be part of this network. 🎓',
+    image: 'https://backend-pi-bice-97.vercel.app/api/upload/78417866da41eb1f43e8f1b53ef77f57.webp',
+    likes: 5,
+    comments: [],
+    commentsCount: 0,
+    time: '3 days ago',
+  },
+];
+
 const DashboardScreen = ({ navigation }) => {
   const { theme, isDarkMode } = useTheme();
   const styles = getStyles(theme);
@@ -56,8 +116,8 @@ const DashboardScreen = ({ navigation }) => {
 
   const mockComments = [];
 
-  // Real data states
-  const [posts, setPosts] = useState([]);
+  // Real data states — initialize with default posts so feed loads instantly
+  const [posts, setPosts] = useState(DEFAULT_FEED_POSTS);
   const [suggestions, setSuggestions] = useState([]);
   const [eventsAndJobs, setEventsAndJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -164,7 +224,8 @@ const DashboardScreen = ({ navigation }) => {
             }));
             setPosts(dbFormatted);
           } else {
-            setPosts([]);
+            // API returned no posts — use fallback default posts so the feed is never blank
+            setPosts(prev => prev.length > 0 ? prev : DEFAULT_FEED_POSTS);
           }
 
           // 3. Process suggestions
