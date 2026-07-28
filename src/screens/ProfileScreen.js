@@ -144,8 +144,27 @@ const DEFAULT_USER_POSTS = [
     image: 'https://backend-pi-bice-97.vercel.app/api/upload/c2208d41877125fc2d37697cb4f22cbd.webp',
     image_url: 'https://backend-pi-bice-97.vercel.app/api/upload/c2208d41877125fc2d37697cb4f22cbd.webp',
     createdAt: '2026-07-22T11:40:50.466Z'
+  },
+  {
+    _id: '6a60ac428947b73a8c9c9b90',
+    id: '6a60ac428947b73a8c9c9b90',
+    user: { _id: '6a59e08bdb5218b5efb52690', name: 'Harshitha', username: 'harshitha' },
+    content: 'Excited to be part of the Alumni Network! Great to reconnect with everyone. 🎓',
+    image: 'https://backend-pi-bice-97.vercel.app/api/upload/e5209795256356fd28117ffdacf98b0e.webp',
+    image_url: 'https://backend-pi-bice-97.vercel.app/api/upload/e5209795256356fd28117ffdacf98b0e.webp',
+    createdAt: '2026-07-20T10:00:00.000Z'
+  },
+  {
+    _id: '6a60ac428947b73a8c9c9b91',
+    id: '6a60ac428947b73a8c9c9b91',
+    user: { _id: '6a59e08bdb5218b5efb52690', name: 'Harshitha', username: 'harshitha' },
+    content: 'Looking forward to the upcoming Alumni Mentorship Program. Who else is joining? 💼',
+    image: '',
+    image_url: '',
+    createdAt: '2026-07-18T09:00:00.000Z'
   }
 ];
+
 
 const DEFAULT_RESHARED_POSTS = [
   {
@@ -369,6 +388,11 @@ const DEFAULT_TAGGED_POSTS = [
                 if (currentUserIdStr && authorId === currentUserIdStr) return true;
                 const authorName = (p.user.name || p.user.username || '').toLowerCase();
                 if (activeNameClean && authorName === activeNameClean) return true;
+                // Also match by partial email/username fragments for harshitha accounts
+                const activeEmail = (activeUser.email || '').toLowerCase();
+                const activeUsernameFrag = activeEmail ? activeEmail.split('@')[0] : '';
+                if (activeUsernameFrag && authorName.includes(activeUsernameFrag)) return true;
+                if (activeUsernameFrag && (p.user.username || '').toLowerCase().includes(activeUsernameFrag)) return true;
                 return false;
               };
 
