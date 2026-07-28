@@ -231,10 +231,6 @@ const PostCreationScreen = ({ navigation }) => {
                 </View>
                 <View>
                   <Text style={styles.userName}>{currentUser?.name || 'User'}</Text>
-                  <TouchableOpacity style={styles.audienceSelector} onPress={handleToggleAudience} activeOpacity={0.6}>
-                    <Text style={styles.audienceText}>{audience}</Text>
-                    <Ionicons name="caret-down" size={12} color="#64748B" />
-                  </TouchableOpacity>
                 </View>
               </View>
 
