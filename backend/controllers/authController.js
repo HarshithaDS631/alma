@@ -553,7 +553,7 @@ exports.getSuggestions = async (req, res) => {
     }
 };
 
-// @desc    Get all users (Directory) — filtered by the requesting user's institution
+// @desc    Get all users (Directory) — filtered by the requesting user's institution, excluding self
 // @route   GET /api/auth/users
 exports.getUsers = async (req, res) => {
     try {
@@ -567,6 +567,11 @@ exports.getUsers = async (req, res) => {
             role: { $nin: ['Admin', 'Super Admin', 'admin', 'superadmin', 'super_admin'] },
             is_approved: true
         };
+
+        // Exclude the logged-in user from their own directory
+        if (req.user?._id) {
+            query._id = { $ne: req.user._id };
+        }
 
         // Always filter by institution if we have one
         if (institution) {

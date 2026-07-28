@@ -157,16 +157,19 @@ const DirectoryScreen = ({ navigation, route }) => {
     fetchFollowingData();
   }, []);
 
-  // Show only alumni from the same institution as the logged-in user, exclude admins
+  // Show only alumni from the same institution as the logged-in user, exclude admins and self
   const directoryAlumni = dbAlumni
     .filter(u => {
       const userInstLower = (userInstitution || '').toLowerCase().trim();
       const uInstLower = (u.institution || '').toLowerCase().trim();
       const role = (u.role || '').toLowerCase().trim();
       const isAdmin = role === 'admin' || role === 'super admin' || role === 'superadmin' || role === 'super_admin';
+      // Exclude the logged-in user from the directory
+      const uid = u._id || u.id;
+      const isSelf = currentUserId && uid && String(uid) === String(currentUserId);
       // If we know the logged-in user's institution, only show matching institution
       const sameInstitution = userInstLower ? uInstLower === userInstLower : uInstLower.length > 0;
-      return sameInstitution && !isAdmin && u.is_approved !== false;
+      return sameInstitution && !isAdmin && !isSelf && u.is_approved !== false;
     })
     .map((u, i) => ({
       _id: u._id || u.id,
