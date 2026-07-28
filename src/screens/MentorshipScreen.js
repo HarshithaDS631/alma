@@ -237,7 +237,7 @@ const getStyles = (theme) => StyleSheet.create({
   },
   expertiseValue: {
     fontSize: 12,
-    color: theme.inputBackground,
+    color: theme.text,
     flex: 1,
   },
   requestBtn: {

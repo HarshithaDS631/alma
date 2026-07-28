@@ -611,7 +611,7 @@ const getStyles = (theme) => StyleSheet.create({
   },
   postContent: {
     fontSize: 13.5,
-    color: theme.inputBackground,
+    color: theme.text,
     lineHeight: 19,
     marginTop: 4,
   },
