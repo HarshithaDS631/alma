@@ -148,16 +148,25 @@ const DirectoryScreen = ({ navigation, route }) => {
     fetchFollowingData();
   }, []);
 
-  const directoryAlumni = dbAlumni.map((u, i) => ({
-    _id: u._id || u.id,
-    id: u._id || u.id || i.toString(),
-    name: u.name,
-    branch: u.department || u.branch || (u.batchYear ? `Batch ${u.batchYear}` : 'Media Cell'),
-    title: u.designation || u.degree || u.role || 'Alumni Member',
-    institution: u.institution || 'Media Cell Institution',
-    initials: u.name ? u.name.charAt(0).toUpperCase() : '?',
-    color: '#003366'
-  }));
+  // Only show approved Media Cell Institution alumni — exclude admins and other institutions
+  const directoryAlumni = dbAlumni
+    .filter(u => {
+      const inst = (u.institution || '').toLowerCase();
+      const role = (u.role || '').toLowerCase().trim();
+      const isMediaCell = inst.includes('media') || inst.includes('mci');
+      const isAdmin = role === 'admin' || role === 'super admin' || role === 'superadmin' || role === 'super_admin';
+      return isMediaCell && !isAdmin && u.is_approved !== false;
+    })
+    .map((u, i) => ({
+      _id: u._id || u.id,
+      id: u._id || u.id || i.toString(),
+      name: u.name,
+      branch: u.department || u.branch || (u.batchYear ? `Batch ${u.batchYear}` : 'Media Cell'),
+      title: u.designation || u.degree || u.role || 'Alumni Member',
+      institution: u.institution || 'Media Cell Institution',
+      initials: u.name ? u.name.charAt(0).toUpperCase() : '?',
+      color: '#003366'
+    }));
 
   const handleToggleFollow = async (targetUser) => {
     const userId = targetUser._id || targetUser.id;

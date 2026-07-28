@@ -553,34 +553,33 @@ exports.getSuggestions = async (req, res) => {
     }
 };
 
-// @desc    Get all users (Directory)
+// @desc    Get all users (Directory) — only Media Cell Institution alumni
 // @route   GET /api/auth/users
 exports.getUsers = async (req, res) => {
     try {
         await connectDB();
-        const { institution, search } = req.query;
-        let query = {};
+        const { search } = req.query;
 
-        if (institution && institution !== 'All') {
-            const instStr = institution.trim();
-            if (instStr.toLowerCase().includes('media') || instStr.toLowerCase().includes('mci')) {
-                query.institution = { $regex: 'media|mci', $options: 'i' };
-            } else {
-                query.institution = { $regex: instStr, $options: 'i' };
-            }
-        }
+        // Always restrict directory to Media Cell Institution members only, excluding admins
+        let query = {
+            institution: { $regex: 'media|mci', $options: 'i' },
+            role: { $nin: ['Admin', 'Super Admin', 'admin', 'superadmin', 'super_admin'] },
+            is_approved: true
+        };
 
         if (search) {
             query.$or = [
                 { name: { $regex: search, $options: 'i' } },
                 { email: { $regex: search, $options: 'i' } },
-                { institution: { $regex: search, $options: 'i' } },
-                { company: { $regex: search, $options: 'i' } },
+                { department: { $regex: search, $options: 'i' } },
+                { branch: { $regex: search, $options: 'i' } },
                 { designation: { $regex: search, $options: 'i' } }
             ];
         }
 
-        const users = await User.find(query).select('-password -passwordResetToken -passwordResetExpires').sort({ createdAt: -1 });
+        const users = await User.find(query)
+            .select('-password -passwordResetToken -passwordResetExpires')
+            .sort({ createdAt: -1 });
         res.json(users);
     } catch (error) {
         res.status(500).json({ message: error.message });
