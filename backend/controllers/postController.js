@@ -43,14 +43,34 @@ exports.getPosts = async (req, res) => {
             }).select('_id');
             const mediaCellUserIds = mediaCellUsers.map(u => u._id.toString());
 
-            const allowedCreatorIds = Array.from(new Set([
-                req.user._id.toString(),
-                ...followedUserIds,
-                ...adminUserIds,
-                ...mediaCellUserIds
-            ]));
+            let allowedCreatorIds;
 
-            query.user = { $in: allowedCreatorIds, $nin: blockedUserIds };
+            if (followedUserIds.length === 0) {
+                // User hasn't followed anyone yet — show ALL posts from institution + admins
+                // so the feed is never empty on first login
+                allowedCreatorIds = Array.from(new Set([
+                    req.user._id.toString(),
+                    ...adminUserIds,
+                    ...mediaCellUserIds
+                ]));
+
+                // If still very few posts would show, fetch all users (open feed for new users)
+                if (allowedCreatorIds.length < 3) {
+                    // Return all posts (no user filter, just block filter)
+                    query.user = { $nin: blockedUserIds };
+                } else {
+                    query.user = { $in: allowedCreatorIds, $nin: blockedUserIds };
+                }
+            } else {
+                // User follows people — show their feed + own posts + admins + institution
+                allowedCreatorIds = Array.from(new Set([
+                    req.user._id.toString(),
+                    ...followedUserIds,
+                    ...adminUserIds,
+                    ...mediaCellUserIds
+                ]));
+                query.user = { $in: allowedCreatorIds, $nin: blockedUserIds };
+            }
         }
 
         const posts = await Post.find(query)
