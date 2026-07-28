@@ -182,7 +182,8 @@ const DashboardScreen = ({ navigation }) => {
   const mockComments = [];
 
   // Real data states — initialize with all posts as open feed (filtered per user once we know who they are)
-  const [posts, setPosts] = useState(ALL_KNOWN_POSTS);
+  // Start with empty feed — populated after we know who the user follows
+  const [posts, setPosts] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [eventsAndJobs, setEventsAndJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -200,7 +201,7 @@ const DashboardScreen = ({ navigation }) => {
 
   useEffect(() => {
     const fetchUserInfo = async () => {
-      // Try to load connections count from profileCache first (set by ProfileScreen)
+      // Try to load connections count and following list from profileCache
       try {
         const profileCacheStr = await AsyncStorage.getItem('profileCache');
         if (profileCacheStr) {
@@ -210,27 +211,26 @@ const DashboardScreen = ({ navigation }) => {
           const cachedCount = cachedFollowers || cachedConnections;
           if (cachedCount > 0) setConnectionsCount(cachedCount);
 
-          // Seed posts with user-specific defaults from cached following list
           const cachedFollowingList = Array.isArray(profileCache.followingList) ? profileCache.followingList : [];
-          const cachedFollowingIds = cachedFollowingList.map(u => u.id || u._id || '');
+          const cachedFollowingIds = cachedFollowingList.map(u => u.id || u._id || '').filter(Boolean);
+          const cachedFollowingNames = cachedFollowingList.map(u => (u.name || '').toLowerCase().trim()).filter(Boolean);
           const userInfoStr = await AsyncStorage.getItem('userInfo');
           const cachedUser = userInfoStr ? JSON.parse(userInfoStr) : null;
 
-          // Initialize followingMap from cache + known connections (Ruchi)
-          const initialMap = { 'ruchi': true, '6a61f94b23674221799b28f4': true };
+          // Build followingMap ONLY from real cached data — no hardcoded seeds
+          const initialMap = {};
           cachedFollowingList.forEach(u => {
             if (u.id || u._id) initialMap[u.id || u._id] = true;
-            if (u.name) initialMap[u.name.toLowerCase()] = true;
+            if (u.name) initialMap[u.name.toLowerCase().trim()] = true;
           });
-          setFollowingMap(prev => ({ ...initialMap, ...prev }));
+          setFollowingMap(prev => ({ ...prev, ...initialMap }));
 
-          const defaultPosts = getDefaultPostsForUser(
-            cachedUser?._id || cachedUser?.id,
-            cachedUser?.name,
-            cachedFollowingIds
-          );
-          if (defaultPosts.length > 0) {
-            setPosts(defaultPosts);
+          // Seed feed using the Instagram filter
+          const myId = (cachedUser?._id || cachedUser?.id || '').toString();
+          const myName = (cachedUser?.name || '').toLowerCase();
+          const cachedPosts = getDefaultPostsForUser(myId, myName, cachedFollowingIds);
+          if (cachedPosts.length > 0) {
+            setPosts(cachedPosts);
           }
         }
       } catch (e) {}
