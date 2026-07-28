@@ -76,13 +76,20 @@ const DirectoryScreen = ({ navigation, route }) => {
   const fetchUsers = async () => {
     setLoadingDirectory(true);
     try {
-      let res = await getUsers().catch(() => []);
+      let res = await getUsers().catch((err) => {
+        console.warn('[Directory] getUsers failed:', err?.response?.status, err?.message);
+        return [];
+      });
       if (!Array.isArray(res) || res.length === 0) {
-        res = await getSuggestions().catch(() => []);
+        res = await getSuggestions().catch((err) => {
+          console.warn('[Directory] getSuggestions failed:', err?.response?.status, err?.message);
+          return [];
+        });
       }
-      // Only use real API data — never inject fake/hardcoded users
+      console.log('[Directory] Loaded users count:', Array.isArray(res) ? res.length : 0);
       setDbAlumni(Array.isArray(res) ? res : []);
     } catch (err) {
+      console.error('[Directory] fetchUsers error:', err);
       setDbAlumni([]);
     } finally {
       setLoadingDirectory(false);

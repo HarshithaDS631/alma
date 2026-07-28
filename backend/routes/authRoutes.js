@@ -35,7 +35,7 @@ const {
     acceptConnectionRequest,
     declineConnectionRequest
 } = require('../controllers/authController');
-const { protect } = require('../middleware/authMiddleware');
+const { protect, optionalProtect } = require('../middleware/authMiddleware');
 const { authLimiter, otpLimiter, passwordResetLimiter } = require('../middleware/rateLimiter');
 const { loginValidation, registerValidation, otpValidation, forgotPasswordValidation, profileUpdateValidation, changePasswordValidation } = require('../middleware/requestValidator');
 const router = express.Router();
@@ -64,7 +64,7 @@ router.get('/profile', protect, getProfile);
 router.put('/profile', protect, profileUpdateValidation, updateUserProfile);
 router.put('/change-password', protect, changePasswordValidation, changePassword);
 router.delete('/account', protect, deleteAccount);
-router.get('/users', protect, getUsers);
+router.get('/users', optionalProtect, getUsers);
 router.get('/suggestions', protect, getSuggestions);
 router.get('/login-history', protect, getLoginHistory);
 router.get('/sessions', protect, getActiveSessions);

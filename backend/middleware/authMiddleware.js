@@ -55,5 +55,29 @@ const superAdminOnly = (req, res, next) => {
     return res.status(403).json({ message: 'Access denied. Super Admin privileges required.' });
 };
 
-module.exports = { protect, adminOnly, superAdminOnly };
+// Optional protect: allows unauthenticated access (req.user will be null) but also supports auth
+const optionalProtect = async (req, res, next) => {
+    const authHeader = req.headers.authorization || req.headers.Authorization;
+    if (authHeader && typeof authHeader === 'string' && authHeader.toLowerCase().startsWith('bearer')) {
+        try {
+            await connectDB();
+            const token = authHeader.split(' ')[1];
+            if (token) {
+                try {
+                    const isBlacklisted = await TokenBlacklist.findOne({ token });
+                    if (isBlacklisted) { return next(); }
+                } catch (e) {}
+                try {
+                    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                    req.user = await User.findById(decoded.id).select('-password');
+                } catch (e) {
+                    // Token invalid/expired — still allow the request through
+                }
+            }
+        } catch (e) {}
+    }
+    return next();
+};
+
+module.exports = { protect, optionalProtect, adminOnly, superAdminOnly };
 
