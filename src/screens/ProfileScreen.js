@@ -62,6 +62,7 @@ const DEFAULT_CONNECTIONS = [
   const [following, setFollowing] = useState(DEFAULT_FOLLOWING);
   const [profileChats, setProfileChats] = useState([]);
   const [modalSearchQuery, setModalSearchQuery] = useState('');
+  const [unfollowTarget, setUnfollowTarget] = useState(null);
 
   const [profileData, setProfileData] = useState({
     username: 'harshitha',
@@ -1356,18 +1357,39 @@ const DEFAULT_TAGGED_POSTS = [
 
                     <TouchableOpacity 
                       style={[styles.connectionBtn, listModalType === 'following' && styles.followingBtn]}
-                      onPress={async () => {
-                        try {
-                          await toggleFollowUser(user.id);
-                          if (listModalType === 'following') {
-                            setFollowing(prev => prev.filter(u => u.id !== user.id));
-                            setProfileData(prev => ({...prev, following: (parseInt(prev.following) - 1).toString()}));
-                          } else {
-                            setConnections(prev => prev.filter(u => u.id !== user.id));
-                            setProfileData(prev => ({...prev, followers: (parseInt(prev.followers) - 1).toString()}));
-                          }
-                        } catch (err) {
-                          console.error('Error toggling follow', err);
+                      onPress={() => {
+                        if (listModalType === 'following') {
+                          setUnfollowTarget({
+                            name: user.name,
+                            avatar: user.avatar,
+                            subtext: 'Their posts will no longer appear in your main feed.',
+                            actionLabel: 'Unfollow',
+                            onConfirm: async () => {
+                              try {
+                                await toggleFollowUser(user.id);
+                                setFollowing(prev => prev.filter(u => u.id !== user.id));
+                                setProfileData(prev => ({...prev, following: Math.max(0, parseInt(prev.following || '0') - 1).toString()}));
+                              } catch (err) {
+                                console.error('Error toggling follow', err);
+                              }
+                            }
+                          });
+                        } else {
+                          setUnfollowTarget({
+                            name: user.name,
+                            avatar: user.avatar,
+                            subtext: 'They will be removed from your connections list.',
+                            actionLabel: 'Remove',
+                            onConfirm: async () => {
+                              try {
+                                await toggleFollowUser(user.id);
+                                setConnections(prev => prev.filter(u => u.id !== user.id));
+                                setProfileData(prev => ({...prev, followers: Math.max(0, parseInt(prev.followers || '0') - 1).toString()}));
+                              } catch (err) {
+                                console.error('Error toggling follow', err);
+                              }
+                            }
+                          });
                         }
                       }}
                     >
@@ -1382,6 +1404,55 @@ const DEFAULT_TAGGED_POSTS = [
             </ScrollView>
           </View>
         </View>
+      </Modal>
+
+      {/* Instagram-Style Unfollow Confirmation Sheet Modal */}
+      <Modal visible={!!unfollowTarget} transparent animationType="fade" onRequestClose={() => setUnfollowTarget(null)}>
+        <TouchableOpacity 
+          activeOpacity={1} 
+          onPress={() => setUnfollowTarget(null)}
+          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.65)', justifyContent: 'center', alignItems: 'center', padding: 20 }}
+        >
+          <TouchableOpacity activeOpacity={1} style={{ backgroundColor: theme.card || '#FFFFFF', width: '100%', maxWidth: 330, borderRadius: 20, overflow: 'hidden', alignItems: 'center', padding: 24, borderWidth: 1, borderColor: theme.border || '#E2E8F0' }}>
+            {/* Target User Avatar */}
+            <View style={{ width: 68, height: 68, borderRadius: 34, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', marginBottom: 16 }}>
+              <Text style={{ fontSize: 24, fontWeight: '700', color: '#FFFFFF' }}>
+                {unfollowTarget?.avatar || (unfollowTarget?.name ? unfollowTarget.name.substring(0, 2).toUpperCase() : 'AL')}
+              </Text>
+            </View>
+
+            <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text || '#0F172A', textAlign: 'center', marginBottom: 6 }}>
+              {unfollowTarget?.actionLabel === 'Remove' ? `Remove @${unfollowTarget?.name}?` : `Unfollow @${unfollowTarget?.name}?`}
+            </Text>
+
+            <Text style={{ fontSize: 13, color: theme.textMuted || '#64748B', textAlign: 'center', marginBottom: 22, lineHeight: 18 }}>
+              {unfollowTarget?.subtext || 'Their posts will no longer appear in your main feed.'}
+            </Text>
+
+            {/* Primary Action Button (Red) */}
+            <TouchableOpacity
+              style={{ width: '100%', backgroundColor: '#EF4444', paddingVertical: 13, borderRadius: 12, alignItems: 'center', marginBottom: 10 }}
+              onPress={async () => {
+                if (unfollowTarget?.onConfirm) {
+                  await unfollowTarget.onConfirm();
+                }
+                setUnfollowTarget(null);
+              }}
+            >
+              <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 15 }}>
+                {unfollowTarget?.actionLabel || 'Unfollow'}
+              </Text>
+            </TouchableOpacity>
+
+            {/* Cancel Button */}
+            <TouchableOpacity
+              style={{ width: '100%', paddingVertical: 10, alignItems: 'center' }}
+              onPress={() => setUnfollowTarget(null)}
+            >
+              <Text style={{ color: theme.textSecondary || '#64748B', fontWeight: '600', fontSize: 14 }}>Cancel</Text>
+            </TouchableOpacity>
+          </TouchableOpacity>
+        </TouchableOpacity>
       </Modal>
 
       {/* Instagram Post Detail Lightbox Modal */}
