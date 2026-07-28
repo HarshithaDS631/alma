@@ -31,7 +31,7 @@ import useUserRole from '../hooks/useUserRole';
 const DirectoryScreen = ({ navigation, route }) => {
   const { theme, isDarkMode } = useTheme();
   const styles = getStyles(theme);
-  const { isAlumni, isAdmin, isSuperAdmin, isAdminOrSuper, userRole } = useUserRole();
+  const { isAlumni, isAdmin, isSuperAdmin, isAdminOrSuper, userRole, userInstitution } = useUserRole();
 
   const [activeTab, setActiveTab] = useState(route?.params?.tab || 'directory');
   const [searchQuery, setSearchQuery] = useState('');
@@ -76,7 +76,16 @@ const DirectoryScreen = ({ navigation, route }) => {
   const fetchUsers = async () => {
     setLoadingDirectory(true);
     try {
-      let res = await getUsers().catch((err) => {
+      // Get the logged-in user's institution to filter the directory
+      let institution = userInstitution;
+      if (!institution) {
+        try {
+          const raw = await AsyncStorage.getItem('userInfo');
+          if (raw) institution = JSON.parse(raw)?.institution || '';
+        } catch (_) {}
+      }
+      const params = institution ? { institution } : {};
+      let res = await getUsers(params).catch((err) => {
         console.warn('[Directory] getUsers failed:', err?.response?.status, err?.message);
         return [];
       });
@@ -86,7 +95,7 @@ const DirectoryScreen = ({ navigation, route }) => {
           return [];
         });
       }
-      console.log('[Directory] Loaded users count:', Array.isArray(res) ? res.length : 0);
+      console.log('[Directory] Loaded users count:', Array.isArray(res) ? res.length : 0, 'institution:', institution);
       setDbAlumni(Array.isArray(res) ? res : []);
     } catch (err) {
       console.error('[Directory] fetchUsers error:', err);
@@ -148,22 +157,24 @@ const DirectoryScreen = ({ navigation, route }) => {
     fetchFollowingData();
   }, []);
 
-  // Only show approved Media Cell Institution alumni — exclude admins and other institutions
+  // Show only alumni from the same institution as the logged-in user, exclude admins
   const directoryAlumni = dbAlumni
     .filter(u => {
-      const inst = (u.institution || '').toLowerCase();
+      const userInstLower = (userInstitution || '').toLowerCase().trim();
+      const uInstLower = (u.institution || '').toLowerCase().trim();
       const role = (u.role || '').toLowerCase().trim();
-      const isMediaCell = inst.includes('media') || inst.includes('mci');
       const isAdmin = role === 'admin' || role === 'super admin' || role === 'superadmin' || role === 'super_admin';
-      return isMediaCell && !isAdmin && u.is_approved !== false;
+      // If we know the logged-in user's institution, only show matching institution
+      const sameInstitution = userInstLower ? uInstLower === userInstLower : uInstLower.length > 0;
+      return sameInstitution && !isAdmin && u.is_approved !== false;
     })
     .map((u, i) => ({
       _id: u._id || u.id,
       id: u._id || u.id || i.toString(),
       name: u.name,
-      branch: u.department || u.branch || (u.batchYear ? `Batch ${u.batchYear}` : 'Media Cell'),
+      branch: u.department || u.branch || (u.batchYear ? `Batch ${u.batchYear}` : ''),
       title: u.designation || u.degree || u.role || 'Alumni Member',
-      institution: u.institution || 'Media Cell Institution',
+      institution: u.institution || '',
       initials: u.name ? u.name.charAt(0).toUpperCase() : '?',
       color: '#003366'
     }));

@@ -553,19 +553,25 @@ exports.getSuggestions = async (req, res) => {
     }
 };
 
-// @desc    Get all users (Directory) — only Media Cell Institution alumni
+// @desc    Get all users (Directory) — filtered by the requesting user's institution
 // @route   GET /api/auth/users
 exports.getUsers = async (req, res) => {
     try {
         await connectDB();
-        const { search } = req.query;
+        const { search, institution: instParam } = req.query;
 
-        // Always restrict directory to Media Cell Institution members only, excluding admins
+        // Determine institution: prefer logged-in user's institution, fall back to query param
+        const institution = (req.user?.institution || instParam || '').trim();
+
         let query = {
-            institution: { $regex: 'media|mci', $options: 'i' },
             role: { $nin: ['Admin', 'Super Admin', 'admin', 'superadmin', 'super_admin'] },
             is_approved: true
         };
+
+        // Always filter by institution if we have one
+        if (institution) {
+            query.institution = { $regex: `^${institution.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' };
+        }
 
         if (search) {
             query.$or = [
