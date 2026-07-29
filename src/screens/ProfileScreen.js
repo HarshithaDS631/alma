@@ -62,16 +62,16 @@ const DEFAULT_CONNECTIONS = [
   const [unfollowTarget, setUnfollowTarget] = useState(null);
 
   const [profileData, setProfileData] = useState({
-    username: 'harshitha',
-    name: 'Harshitha',
-    branch: 'Social Media',
-    batch: '2011',
-    bio: 'Alumni Lead @ Media Cell Institution',
+    username: '',
+    name: '',
+    branch: '',
+    batch: '',
+    bio: '',
     linkedin: '',
-    posts: '3',
-    followers: '2',
-    following: '4',
-    avatar: 'HA',
+    posts: '0',
+    followers: '0',
+    following: '0',
+    avatar: 'AL',
     avatar_url: ''
   });
 
@@ -92,20 +92,20 @@ const DEFAULT_CONNECTIONS = [
           const cached = JSON.parse(userInfoStr);
           const rawAvatar = cached.avatar_url || cached.profilePicture;
           const safeEmail = (cached.email && typeof cached.email === 'string') ? cached.email : '';
-          const uName = cached.name || (safeEmail ? safeEmail.split('@')[0] : 'Harshitha');
-          const uHandle = safeEmail ? safeEmail.split('@')[0] : (cached.username || 'harshitha');
+          const uName = cached.name || (safeEmail ? safeEmail.split('@')[0] : 'Alumni Member');
+          const uHandle = safeEmail ? safeEmail.split('@')[0] : (cached.username || 'alumni');
           setProfileData(prev => ({
             ...prev,
             name: uName,
             username: uHandle,
-            branch: cached.department || cached.branch || 'Social Media',
-            batch: cached.batchYear || cached.batch_year || '2011',
-            bio: cached.bio || `Media Cell Institution Class of ${cached.batchYear || '2011'}`,
+            branch: cached.department || cached.branch || 'Alumni Network',
+            batch: cached.batchYear || cached.batch_year || '',
+            bio: cached.bio || `Media Cell Institution Alumni`,
             linkedin: cached.linkedin || '',
-            posts: cachedProfile.posts || prev.posts || '3',
-            followers: cachedProfile.followers || prev.followers || '2',
-            following: cachedProfile.following || prev.following || '7',
-            avatar: uName ? uName.substring(0, 2).toUpperCase() : 'HA',
+            posts: cachedProfile.posts || prev.posts || '0',
+            followers: cachedProfile.followers || prev.followers || '0',
+            following: cachedProfile.following || prev.following || '0',
+            avatar: uName ? uName.substring(0, 2).toUpperCase() : 'AL',
             avatar_url: rawAvatar ? getImageUrl(rawAvatar) : ''
           }));
 
@@ -278,18 +278,18 @@ const DEFAULT_TAGGED_POSTS = [
             const rawAvatar = activeUser.avatar_url || activeUser.profilePicture;
             const fullAvatarUrl = rawAvatar ? getImageUrl(rawAvatar) : '';
             const safeEmail = (activeUser.email && typeof activeUser.email === 'string') ? activeUser.email : '';
-            const uName = activeUser.name || (safeEmail ? safeEmail.split('@')[0] : 'Harshitha');
-            const uHandle = safeEmail ? safeEmail.split('@')[0] : (activeUser.username || 'harshitha');
+            const uName = activeUser.name || (safeEmail ? safeEmail.split('@')[0] : 'Alumni Member');
+            const uHandle = safeEmail ? safeEmail.split('@')[0] : (activeUser.username || 'alumni');
 
             setProfileData(prev => ({
               ...prev,
               name: uName,
               username: uHandle,
-              branch: activeUser.department || activeUser.branch || 'Social Media',
-              batch: activeUser.batchYear || activeUser.batch_year || '2011',
-              bio: activeUser.bio || `Media Cell Institution Class of ${activeUser.batchYear || '2011'}`,
+              branch: activeUser.department || activeUser.branch || 'Alumni Network',
+              batch: activeUser.batchYear || activeUser.batch_year || '',
+              bio: activeUser.bio || `Media Cell Institution Alumni`,
               linkedin: activeUser.linkedin || '',
-              avatar: uName ? uName.substring(0, 2).toUpperCase() : 'HA',
+              avatar: uName ? uName.substring(0, 2).toUpperCase() : 'AL',
               avatar_url: fullAvatarUrl
             }));
 

@@ -36,10 +36,10 @@ const ALL_KNOWN_POSTS = [
   // --- Harshitha's posts ---
   {
     id: '6a60ac428947b73a8c9c9b89',
-    user: 'Harshitha',
+    user: 'Alumni Member',
     authorId: '6a59e08bdb5218b5efb52690',
-    role: 'Social Media • Batch 2011',
-    avatar: 'HA',
+    role: 'Alumni Member • Class of 2024',
+    avatar: 'AL',
     isAvatarUrl: false,
     content: '#Institution #AlumniMeet #Mentorship #TechTalk #Careers #ClassOf2024',
     image: 'https://backend-pi-bice-97.vercel.app/api/upload/c2208d41877125fc2d37697cb4f22cbd.webp',
@@ -47,10 +47,10 @@ const ALL_KNOWN_POSTS = [
   },
   {
     id: '6a60ac428947b73a8c9c9b91',
-    user: 'Harshitha',
+    user: 'Alumni Member',
     authorId: '6a59e08bdb5218b5efb52690',
-    role: 'Social Media • Batch 2011',
-    avatar: 'HA',
+    role: 'Alumni Member • Class of 2024',
+    avatar: 'AL',
     isAvatarUrl: false,
     content: 'Looking forward to the upcoming Alumni Mentorship Program. Who else is joining? 💼',
     image: '',
@@ -877,8 +877,7 @@ const DashboardScreen = ({ navigation }) => {
             const isOwnPost = (post.authorId && (post.authorId === currentUser?._id || post.authorId === currentUser?.id)) ||
               (post.user && currentUser?.name && (
                 post.user.toLowerCase().includes(currentUser.name.toLowerCase()) ||
-                currentUser.name.toLowerCase().includes(post.user.toLowerCase()) ||
-                post.user.toLowerCase().includes('harshitha')
+                currentUser.name.toLowerCase().includes(post.user.toLowerCase())
               ));
 
             const isFollowing = Boolean(
