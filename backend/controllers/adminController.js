@@ -196,3 +196,49 @@ exports.checkMatch = async (req, res) => {
         res.status(200).json({ success: false, matches: [], message: error.message });
     }
 };
+
+// @desc    Export single user's complete data (JSON format download)
+// @route   GET /api/admin/users/:id/export
+exports.exportUserData = async (req, res) => {
+    try {
+        await connectDB();
+        const userId = req.params.id;
+        const user = await User.findById(userId).lean();
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const Post = require('../models/Post');
+        const Message = require('../models/Message');
+        const Notification = require('../models/Notification');
+        const ActivityLog = require('../models/ActivityLog');
+
+        const [posts, messages, notifications, logs] = await Promise.all([
+            Post.find({ user: userId }).lean(),
+            Message.find({ $or: [{ sender: userId }, { receiver: userId }] }).lean(),
+            Notification.find({ recipient: userId }).lean(),
+            ActivityLog.find({ user: userId }).lean()
+        ]);
+
+        const exportData = {
+            exportTimestamp: new Date().toISOString(),
+            userProfile: user,
+            statistics: {
+                totalPosts: posts.length,
+                totalMessages: messages.length,
+                totalNotifications: notifications.length,
+                totalActivityLogs: logs.length
+            },
+            posts,
+            messages,
+            notifications,
+            activityLogs: logs
+        };
+
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Disposition', `attachment; filename=user_export_${(user.name || 'user').replace(/[^a-zA-Z0-9]/g, '_')}_${userId}.json`);
+        res.json(exportData);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
