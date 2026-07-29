@@ -427,6 +427,10 @@ const AdminHomeScreen = ({ navigation }) => {
             </View>
             <View style={styles.shareGrid}>
               <TouchableOpacity style={styles.shareItem} onPress={() => handleShare(selectedPost)}>
+                <View style={[styles.shareIconWrap, {backgroundColor:'#6366F1'}]}><Ionicons name="people" size={24} color="#FFF"/></View>
+                <Text style={styles.shareText}>Followers</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.shareItem} onPress={() => handleShare(selectedPost)}>
                 <View style={[styles.shareIconWrap, {backgroundColor:'#25D366'}]}><Ionicons name="logo-whatsapp" size={24} color="#FFF"/></View>
                 <Text style={styles.shareText}>WhatsApp</Text>
               </TouchableOpacity>

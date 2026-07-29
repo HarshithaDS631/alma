@@ -178,6 +178,42 @@ const DashboardScreen = ({ navigation }) => {
   const [selectedPost, setSelectedPost] = useState(null);
   const [commentText, setCommentText] = useState('');
   const [unfollowTarget, setUnfollowTarget] = useState(null);
+  const [followersList, setFollowersList] = useState([]);
+  const [sentShareMap, setSentShareMap] = useState({});
+
+  const handleShareToFollower = async (targetUser) => {
+    const targetId = targetUser._id || targetUser.id;
+    if (!targetId || !selectedPost) return;
+
+    const postContent = selectedPost.content ? `"${selectedPost.content.substring(0, 100)}..."` : 'Check out this post!';
+    const messageText = `Shared a post with you on Alumni Network:\n\n${postContent}\n\nhttps://almafrontend-eight.vercel.app`;
+
+    setSentShareMap(prev => ({ ...prev, [targetId]: true }));
+    try {
+      await sendMessage(targetId, messageText);
+    } catch (err) {
+      console.log('Error sharing to follower:', err?.message || err);
+    }
+  };
+
+  const handleShareToAllFollowers = async () => {
+    const targetList = followersList.length > 0 ? followersList : suggestions;
+    if (!selectedPost || targetList.length === 0) return;
+
+    const postContent = selectedPost.content ? `"${selectedPost.content.substring(0, 100)}..."` : 'Check out this post!';
+    const messageText = `Shared a post with you on Alumni Network:\n\n${postContent}\n\nhttps://almafrontend-eight.vercel.app`;
+
+    const newMap = { ...sentShareMap };
+    targetList.forEach(u => {
+      const uid = u._id || u.id;
+      if (uid) {
+        newMap[uid] = true;
+        sendMessage(uid, messageText).catch(() => {});
+      }
+    });
+    setSentShareMap(newMap);
+    Alert.alert('Shared!', 'Post successfully shared with your followers!');
+  };
 
   const mockComments = [];
 
@@ -292,6 +328,10 @@ const DashboardScreen = ({ navigation }) => {
             if (freshUser.name) setUserName(freshUser.name);
             if (freshUser.institution) setUserInstitution(freshUser.institution);
             AsyncStorage.setItem('userInfo', JSON.stringify(freshUser)).catch(() => {});
+          }
+
+          if (followersRes.status === 'fulfilled' && Array.isArray(followersRes.value)) {
+            setFollowersList(followersRes.value);
           }
 
           // 2. Process posts — filter to only show posts from people the user follows (Instagram style)
@@ -1264,6 +1304,10 @@ const DashboardScreen = ({ navigation }) => {
               <TouchableOpacity onPress={closeModal}><Ionicons name="close" size={24} color={theme.text} /></TouchableOpacity>
             </View>
             <View style={styles.shareGrid}>
+              <TouchableOpacity style={styles.shareItem} onPress={handleShareToAllFollowers}>
+                <View style={[styles.shareIconWrap, {backgroundColor:'#6366F1'}]}><Ionicons name="people" size={24} color="#FFF"/></View>
+                <Text style={styles.shareText}>Followers</Text>
+              </TouchableOpacity>
               <TouchableOpacity style={styles.shareItem} onPress={() => handleShare(selectedPost)}>
                 <View style={[styles.shareIconWrap, {backgroundColor:'#25D366'}]}><Ionicons name="logo-whatsapp" size={24} color="#FFF"/></View>
                 <Text style={styles.shareText}>WhatsApp</Text>
@@ -1280,6 +1324,58 @@ const DashboardScreen = ({ navigation }) => {
                 <View style={[styles.shareIconWrap, {backgroundColor: theme.border}]}><Ionicons name="copy-outline" size={24} color={theme.text}/></View>
                 <Text style={styles.shareText}>Copy Link</Text>
               </TouchableOpacity>
+            </View>
+
+            {/* Direct Send to Followers List Section */}
+            <View style={{ marginTop: 16, borderTopWidth: 0.5, borderTopColor: theme.border, paddingTop: 12 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                <Text style={{ fontWeight: '700', fontSize: 14, color: theme.text }}>
+                  Send to Followers & Network
+                </Text>
+                <TouchableOpacity onPress={handleShareToAllFollowers} style={{ backgroundColor: 'rgba(99, 102, 241, 0.1)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 }}>
+                  <Text style={{ fontSize: 12, fontWeight: '600', color: '#6366F1' }}>Send to All</Text>
+                </TouchableOpacity>
+              </View>
+
+              <ScrollView style={{ maxHeight: 220 }} showsVerticalScrollIndicator={false}>
+                {((followersList.length > 0 ? followersList : suggestions)).map((follower, idx) => {
+                  const fid = follower._id || follower.id || idx.toString();
+                  const isSent = Boolean(sentShareMap[fid]);
+                  return (
+                    <View key={fid} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 8 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 10 }}>
+                        <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
+                          <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 12 }}>
+                            {follower.name ? follower.name.substring(0, 2).toUpperCase() : 'AL'}
+                          </Text>
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <Text style={{ fontWeight: '600', fontSize: 13, color: theme.text }} numberOfLines={1}>
+                            {follower.name || 'Alumni Member'}
+                          </Text>
+                          <Text style={{ fontSize: 11, color: theme.textMuted }} numberOfLines={1}>
+                            {follower.institution || follower.department || follower.subtitle || 'Media Cell Alumni Network'}
+                          </Text>
+                        </View>
+                      </View>
+                      <TouchableOpacity
+                        style={{
+                          backgroundColor: isSent ? '#22C55E' : theme.primary,
+                          paddingHorizontal: 14,
+                          paddingVertical: 6,
+                          borderRadius: 16
+                        }}
+                        disabled={isSent}
+                        onPress={() => handleShareToFollower(follower)}
+                      >
+                        <Text style={{ color: '#FFF', fontWeight: '600', fontSize: 12 }}>
+                          {isSent ? 'Sent ✓' : 'Send'}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  );
+                })}
+              </ScrollView>
             </View>
           </View>
         </KeyboardAvoidingView>
