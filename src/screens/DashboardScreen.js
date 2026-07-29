@@ -304,7 +304,32 @@ const DashboardScreen = ({ navigation }) => {
   const openModal = (type, post) => {
     setSelectedPost(post);
     setActiveModal(type);
+    if (type === 'share') {
+      setShareSearchText('');
+      getFollowers().then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setFollowersList(data);
+        }
+      }).catch(() => {});
+    }
   };
+
+  const combinedShareContacts = React.useMemo(() => {
+    const map = new Map();
+    followersList.forEach(u => {
+      const id = (u._id || u.id || u.name || '').toString();
+      if (id && !map.has(id)) map.set(id, u);
+    });
+    suggestions.forEach(u => {
+      const id = (u._id || u.id || u.name || '').toString();
+      if (id && !map.has(id)) map.set(id, u);
+    });
+    DEFAULT_FOLLOWERS_SEED.forEach(u => {
+      const id = (u._id || u.id || u.name || '').toString();
+      if (id && !map.has(id)) map.set(id, u);
+    });
+    return Array.from(map.values());
+  }, [followersList, suggestions]);
 
   const closeModal = () => {
     setActiveModal(null);
@@ -1407,7 +1432,7 @@ const DashboardScreen = ({ navigation }) => {
             {/* 2. Grid of Followers & Network Contacts (3 Columns Instagram Style) */}
             <ScrollView style={{ maxHeight: 300 }} showsVerticalScrollIndicator={false}>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
-                {((followersList.length > 0 ? followersList : (suggestions.length > 0 ? suggestions : DEFAULT_FOLLOWERS_SEED))
+                {(combinedShareContacts
                   .filter(u => !shareSearchText || (u.name || '').toLowerCase().includes(shareSearchText.toLowerCase()))
                 ).map((item, index) => {
                   const itemId = item._id || item.id || index.toString();
