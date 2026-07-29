@@ -322,7 +322,13 @@ const DashboardScreen = ({ navigation }) => {
             } catch (e) {}
 
             const currentUserInfo = profileRes.status === 'fulfilled' ? profileRes.value : null;
-            const myUserId = (currentUserInfo?._id || currentUserInfo?.id || '').toString();
+            let myUserId = (currentUserInfo?._id || currentUserInfo?.id || '').toString();
+            if (!myUserId) {
+              try {
+                const rawUser = await AsyncStorage.getItem('userInfo');
+                if (rawUser) myUserId = (JSON.parse(rawUser)?._id || JSON.parse(rawUser)?.id || '').toString();
+              } catch (_) {}
+            }
             const myUserName = (currentUserInfo?.name || '').toLowerCase();
 
             const dbFormatted = allDbPosts
@@ -546,11 +552,20 @@ const DashboardScreen = ({ navigation }) => {
     try {
       const updated = await toggleLikePost(postId);
       if (updated && Array.isArray(updated.likes)) {
-        const myIdStr = (currentUser?._id || currentUser?.id || '').toString();
-        const serverLiked = updated.likes.some(l => {
-          const lId = typeof l === 'object' ? (l._id || l.id || '') : l;
-          return lId && myIdStr && lId.toString() === myIdStr;
-        });
+        let myIdStr = (currentUser?._id || currentUser?.id || '').toString();
+        if (!myIdStr) {
+          try {
+            const raw = await AsyncStorage.getItem('userInfo');
+            if (raw) myIdStr = (JSON.parse(raw)?._id || JSON.parse(raw)?.id || '').toString();
+          } catch (_) {}
+        }
+
+        const serverLiked = myIdStr
+          ? updated.likes.some(l => {
+              const lId = typeof l === 'object' ? (l._id || l.id || '') : l;
+              return lId && lId.toString() === myIdStr;
+            })
+          : nextLikedState;
 
         setLikedPosts((prev) => ({ ...prev, [postId]: serverLiked }));
         setPosts((prevPosts) =>
