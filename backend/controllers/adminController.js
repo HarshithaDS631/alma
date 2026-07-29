@@ -220,6 +220,8 @@ exports.exportUserData = async (req, res) => {
             ActivityLog.find({ user: userId }).lean()
         ]);
 
+        const UserExport = require('../models/UserExport');
+
         const exportData = {
             exportTimestamp: new Date().toISOString(),
             userProfile: user,
@@ -234,6 +236,25 @@ exports.exportUserData = async (req, res) => {
             notifications,
             activityLogs: logs
         };
+
+        // Persist export snapshot in MongoDB Atlas `userexports` collection
+        try {
+            await UserExport.create({
+                user: userId,
+                userEmail: user.email,
+                userName: user.name || 'User',
+                exportTimestamp: new Date(),
+                statistics: exportData.statistics,
+                userProfile: user,
+                posts,
+                messages,
+                notifications,
+                activityLogs: logs
+            });
+            console.log(`[MongoDB Store]: Successfully saved user export snapshot for ${user.email} in MongoDB Atlas.`);
+        } catch (dbErr) {
+            console.error('[MongoDB Store Warn]: Failed to store export doc in DB:', dbErr.message);
+        }
 
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Content-Disposition', `attachment; filename=user_export_${(user.name || 'user').replace(/[^a-zA-Z0-9]/g, '_')}_${userId}.json`);

@@ -61,7 +61,26 @@ async function exportUserData() {
             activityLogs: userLogs
         };
 
-        // 4. Ensure Exports Directory Exists & Save JSON File
+        // 4. Save Export Snapshot into MongoDB Atlas `userexports` collection
+        const mongoExportDoc = {
+            user: userId,
+            userEmail: user.email,
+            userName: user.name || 'User',
+            exportTimestamp: new Date(),
+            statistics: exportPayload.statistics,
+            userProfile: user,
+            posts: userPosts,
+            messages: userMessages,
+            notifications: userNotifications,
+            activityLogs: userLogs,
+            createdAt: new Date(),
+            updatedAt: new Date()
+        };
+
+        const exportInsertResult = await db.collection('userexports').insertOne(mongoExportDoc);
+        console.log(`\n🗄️ [MongoDB Store]: Document stored in MongoDB Atlas \`userexports\` collection (ID: ObjectId('${exportInsertResult.insertedId}'))`);
+
+        // 5. Ensure Exports Directory Exists & Save JSON File locally as backup
         const exportDir = path.resolve(__dirname, '../exports');
         if (!fs.existsSync(exportDir)) {
             fs.mkdirSync(exportDir, { recursive: true });
@@ -72,9 +91,9 @@ async function exportUserData() {
 
         fs.writeFileSync(outputPath, JSON.stringify(exportPayload, null, 2), 'utf8');
 
-        console.log(`\n🎉 SUCCESS! User data exported successfully.`);
-        console.log(`📁 Saved to: ${outputPath}`);
-        console.log(`📊 Summary: ${userPosts.length} posts, ${userMessages.length} messages exported.\n`);
+        console.log(`🎉 SUCCESS! User data exported & stored in MongoDB Atlas.`);
+        console.log(`📁 Local Copy Saved: ${outputPath}`);
+        console.log(`📊 Summary: ${userPosts.length} posts, ${userMessages.length} messages saved to MongoDB Atlas.\n`);
 
     } catch (err) {
         console.error('[Export Error]:', err);
