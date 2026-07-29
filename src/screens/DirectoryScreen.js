@@ -122,7 +122,8 @@ const DirectoryScreen = ({ navigation, route }) => {
           const cache = JSON.parse(profileCacheStr);
           if (Array.isArray(cache.followingList)) {
             cache.followingList.forEach(u => {
-              if (u.id || u._id) map[u.id || u._id] = true;
+              const idStr = String(u.id || u._id || '');
+              if (idStr) map[idStr] = true;
               if (u.name) map[u.name.toLowerCase().trim()] = true;
             });
           }
@@ -133,7 +134,8 @@ const DirectoryScreen = ({ navigation, route }) => {
       const followingData = await getFollowing().catch(() => []);
       if (Array.isArray(followingData)) {
         followingData.forEach(u => {
-          if (u._id || u.id) map[u._id || u.id] = true;
+          const idStr = String(u._id || u.id || '');
+          if (idStr) map[idStr] = true;
           if (u.name) map[u.name.toLowerCase().trim()] = true;
         });
       }
@@ -491,40 +493,46 @@ const DirectoryScreen = ({ navigation, route }) => {
                 {searchQuery ? 'No results match your search.' : 'No registered alumni members found in directory.'}
               </Text>
             </View>
-          ) : (
-            filteredDirectory.map((item, index) => (
-              <View key={item.id} style={[styles.webTableRow, index % 2 === 0 ? { backgroundColor: '#FFFFFF' } : { backgroundColor: '#F8FAFC' }]}>
-                <View style={{ flex: 3, flexDirection: 'row', alignItems: 'center' }}>
-                  <View style={[styles.avatar, { backgroundColor: item.color, width: 32, height: 32, borderRadius: 16, marginRight: 12 }]}>
-                    <Text style={[styles.avatarText, { fontSize: 12 }]}>{item.initials}</Text>
+          ) : filteredDirectory.map((item, index) => {
+              const isFollowing = !!(
+                followingMap[String(item._id || item.id)] ||
+                followingMap[String(item.id || item._id)] ||
+                followingMap[(item.name || '').toLowerCase().trim()]
+              );
+              return (
+                <View key={item.id} style={[styles.webTableRow, index % 2 === 0 ? { backgroundColor: '#FFFFFF' } : { backgroundColor: '#F8FAFC' }]}>
+                  <View style={{ flex: 3, flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={[styles.avatar, { backgroundColor: item.color, width: 32, height: 32, borderRadius: 16, marginRight: 12 }]}>
+                      <Text style={[styles.avatarText, { fontSize: 12 }]}>{item.initials}</Text>
+                    </View>
+                    <Text style={{ fontSize: 14, fontWeight: '600', color: '#0F172A' }}>{item.name}</Text>
                   </View>
-                  <Text style={{ fontSize: 14, fontWeight: '600', color: '#0F172A' }}>{item.name}</Text>
-                </View>
-                <View style={{ flex: 2, justifyContent: 'center' }}>
-                  <Text style={{ fontSize: 14, color: '#475569' }}>{item.branch}</Text>
-                </View>
-                <View style={{ flex: 3, justifyContent: 'center' }}>
-                  <Text style={{ fontSize: 14, color: '#475569' }}>{item.title}</Text>
-                </View>
-                <View style={{ flex: 2, justifyContent: 'center' }}>
-                  <View style={{ backgroundColor: '#E2E8F0', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4, alignSelf: 'flex-start' }}>
-                    <Text style={{ fontSize: 12, fontWeight: '600', color: '#334155' }}>{item.institution}</Text>
+                  <View style={{ flex: 2, justifyContent: 'center' }}>
+                    <Text style={{ fontSize: 14, color: '#475569' }}>{item.branch}</Text>
+                  </View>
+                  <View style={{ flex: 3, justifyContent: 'center' }}>
+                    <Text style={{ fontSize: 14, color: '#475569' }}>{item.title}</Text>
+                  </View>
+                  <View style={{ flex: 2, justifyContent: 'center' }}>
+                    <View style={{ backgroundColor: '#E2E8F0', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4, alignSelf: 'flex-start' }}>
+                      <Text style={{ fontSize: 12, fontWeight: '600', color: '#334155' }}>{item.institution}</Text>
+                    </View>
+                  </View>
+                  <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8 }}>
+                    <TouchableOpacity
+                      style={{ paddingHorizontal: 12, paddingVertical: 6, backgroundColor: isFollowing ? '#DEF7EC' : '#003366', borderRadius: 6 }}
+                      onPress={() => handleToggleFollow(item)}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={{ fontSize: 12, fontWeight: '700', color: isFollowing ? '#03543F' : '#FFFFFF' }}>
+                        {isFollowing ? 'Following ✓' : 'Follow'}
+                      </Text>
+                    </TouchableOpacity>
                   </View>
                 </View>
-                <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8 }}>
-                  <TouchableOpacity
-                    style={{ paddingHorizontal: 12, paddingVertical: 6, backgroundColor: followingMap[item._id || item.id] ? '#DEF7EC' : '#003366', borderRadius: 6 }}
-                    onPress={() => handleToggleFollow(item)}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={{ fontSize: 12, fontWeight: '700', color: followingMap[item._id || item.id] ? '#03543F' : '#FFFFFF' }}>
-                      {followingMap[item._id || item.id] ? 'Following' : 'Follow'}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            ))
-          )}
+              );
+            })
+          }
         </ScrollView>
       </View>
     );
