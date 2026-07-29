@@ -29,7 +29,9 @@ const postSchema = new mongoose.Schema({
     tags: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 }, { timestamps: true });
 
-// Index for fast timeline feed sorting
+// Indexes for fast timeline feed sorting & user post lookups
+postSchema.index({ user: 1, createdAt: -1 });
 postSchema.index({ createdAt: -1 });
+postSchema.index({ likes: 1 });
 
 module.exports = mongoose.model('Post', postSchema);
