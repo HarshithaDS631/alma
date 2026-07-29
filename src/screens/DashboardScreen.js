@@ -19,6 +19,7 @@ import {
   Platform,
   useWindowDimensions,
   ActivityIndicator,
+  Linking,
 } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
@@ -182,6 +183,15 @@ const DashboardScreen = ({ navigation }) => {
   const [sentShareMap, setSentShareMap] = useState({});
   const [shareSearchText, setShareSearchText] = useState('');
 
+  const DEFAULT_FOLLOWERS_SEED = [
+    { id: 'f1', name: 'Hemanth', subtitle: 'Alumni • Media Cell' },
+    { id: 'f2', name: "Girl's Gang", subtitle: 'Group • Alumni' },
+    { id: 'f3', name: '3 idiots', subtitle: 'Group • Alumni' },
+    { id: 'f4', name: 'NV ✨', subtitle: 'Alumni • Media Cell' },
+    { id: 'f5', name: 'Kiran Gunda', subtitle: 'Alumni Member' },
+    { id: 'f6', name: 'Ruchi', subtitle: 'Alumni • Media Cell' },
+  ];
+
   const handleShareToFollower = async (targetUser) => {
     const targetId = targetUser._id || targetUser.id;
     if (!targetId || !selectedPost) return;
@@ -198,7 +208,7 @@ const DashboardScreen = ({ navigation }) => {
   };
 
   const handleShareToAllFollowers = async () => {
-    const targetList = followersList.length > 0 ? followersList : suggestions;
+    const targetList = followersList.length > 0 ? followersList : (suggestions.length > 0 ? suggestions : DEFAULT_FOLLOWERS_SEED);
     if (!selectedPost || targetList.length === 0) return;
 
     const postContent = selectedPost.content ? `"${selectedPost.content.substring(0, 100)}..."` : 'Check out this post!';
@@ -214,6 +224,72 @@ const DashboardScreen = ({ navigation }) => {
     });
     setSentShareMap(newMap);
     Alert.alert('Shared!', 'Post successfully shared with your followers!');
+  };
+
+  const handleCopyToClipboard = async (post) => {
+    const postUrl = `https://almafrontend-eight.vercel.app`;
+    const text = post?.content
+      ? `Check out this post on Alumni Network:\n"${post.content.substring(0, 120)}..."\n${postUrl}`
+      : postUrl;
+
+    try {
+      if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+      }
+    } catch (_) {}
+
+    Alert.alert('Link Copied', 'Post link copied to clipboard!');
+  };
+
+  const handleWhatsAppShare = async (post) => {
+    const postUrl = `https://almafrontend-eight.vercel.app`;
+    const shareText = post?.content
+      ? `Check out this post on Alumni Network:\n"${post.content.substring(0, 150)}"\n${postUrl}`
+      : `Check out this post on Alumni Network: ${postUrl}`;
+
+    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+
+    try {
+      const supported = await Linking.canOpenURL(whatsappUrl);
+      if (supported) {
+        await Linking.openURL(whatsappUrl);
+      } else {
+        await Linking.openURL(`https://web.whatsapp.com/send?text=${encodeURIComponent(shareText)}`);
+      }
+    } catch (err) {
+      Linking.openURL(whatsappUrl).catch(() => {
+        handleCopyToClipboard(post);
+      });
+    }
+  };
+
+  const handleNativeShare = async (post) => {
+    const postUrl = `https://almafrontend-eight.vercel.app`;
+    const shareText = post?.content
+      ? `Check out this post on Alumni Network:\n"${post.content.substring(0, 150)}"\n${postUrl}`
+      : `Check out this post on Alumni Network: ${postUrl}`;
+
+    try {
+      if (Platform.OS === 'web' && typeof navigator !== 'undefined' && navigator.share) {
+        await navigator.share({
+          title: 'Alumni Network Post',
+          text: shareText,
+          url: postUrl,
+        });
+      } else {
+        await Share.share({
+          message: shareText,
+          url: postUrl,
+        });
+      }
+    } catch (err) {
+      console.log('Share notice:', err?.message || err);
+    }
+  };
+
+  const handleAddToStory = (post) => {
+    closeModal();
+    navigation.navigate('PostCreation', { resharePost: post });
   };
 
   const mockComments = [];
@@ -1331,7 +1407,7 @@ const DashboardScreen = ({ navigation }) => {
             {/* 2. Grid of Followers & Network Contacts (3 Columns Instagram Style) */}
             <ScrollView style={{ maxHeight: 300 }} showsVerticalScrollIndicator={false}>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
-                {((followersList.length > 0 ? followersList : suggestions)
+                {((followersList.length > 0 ? followersList : (suggestions.length > 0 ? suggestions : DEFAULT_FOLLOWERS_SEED))
                   .filter(u => !shareSearchText || (u.name || '').toLowerCase().includes(shareSearchText.toLowerCase()))
                 ).map((item, index) => {
                   const itemId = item._id || item.id || index.toString();
@@ -1377,7 +1453,7 @@ const DashboardScreen = ({ navigation }) => {
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row', alignItems: 'center', gap: 16, paddingHorizontal: 4 }}>
                 
                 {/* Add to story */}
-                <TouchableOpacity style={{ alignItems: 'center', width: 66 }} onPress={() => { closeModal(); navigation.navigate('PostCreation'); }}>
+                <TouchableOpacity style={{ alignItems: 'center', width: 66 }} onPress={() => handleAddToStory(selectedPost)}>
                   <View style={{ width: 54, height: 54, borderRadius: 27, backgroundColor: isDarkMode ? '#262626' : '#F1F5F9', justifyContent: 'center', alignItems: 'center' }}>
                     <Ionicons name="add-circle-outline" size={26} color={theme.text} />
                   </View>
@@ -1385,7 +1461,7 @@ const DashboardScreen = ({ navigation }) => {
                 </TouchableOpacity>
 
                 {/* WhatsApp */}
-                <TouchableOpacity style={{ alignItems: 'center', width: 66 }} onPress={() => handleShare(selectedPost)}>
+                <TouchableOpacity style={{ alignItems: 'center', width: 66 }} onPress={() => handleWhatsAppShare(selectedPost)}>
                   <View style={{ width: 54, height: 54, borderRadius: 27, backgroundColor: '#25D366', justifyContent: 'center', alignItems: 'center' }}>
                     <Ionicons name="logo-whatsapp" size={26} color="#FFF" />
                   </View>
@@ -1393,7 +1469,7 @@ const DashboardScreen = ({ navigation }) => {
                 </TouchableOpacity>
 
                 {/* WhatsApp Status */}
-                <TouchableOpacity style={{ alignItems: 'center', width: 66 }} onPress={() => handleShare(selectedPost)}>
+                <TouchableOpacity style={{ alignItems: 'center', width: 66 }} onPress={() => handleWhatsAppShare(selectedPost)}>
                   <View style={{ width: 54, height: 54, borderRadius: 27, backgroundColor: '#22C55E', justifyContent: 'center', alignItems: 'center' }}>
                     <Ionicons name="aperture-outline" size={26} color="#FFF" />
                   </View>
@@ -1401,7 +1477,7 @@ const DashboardScreen = ({ navigation }) => {
                 </TouchableOpacity>
 
                 {/* Share to... */}
-                <TouchableOpacity style={{ alignItems: 'center', width: 66 }} onPress={() => handleShare(selectedPost)}>
+                <TouchableOpacity style={{ alignItems: 'center', width: 66 }} onPress={() => handleNativeShare(selectedPost)}>
                   <View style={{ width: 54, height: 54, borderRadius: 27, backgroundColor: isDarkMode ? '#262626' : '#F1F5F9', justifyContent: 'center', alignItems: 'center' }}>
                     <Ionicons name="share-outline" size={24} color={theme.text} />
                   </View>
@@ -1409,7 +1485,7 @@ const DashboardScreen = ({ navigation }) => {
                 </TouchableOpacity>
 
                 {/* Copy Link */}
-                <TouchableOpacity style={{ alignItems: 'center', width: 66 }} onPress={() => handleShare(selectedPost)}>
+                <TouchableOpacity style={{ alignItems: 'center', width: 66 }} onPress={() => handleCopyToClipboard(selectedPost)}>
                   <View style={{ width: 54, height: 54, borderRadius: 27, backgroundColor: isDarkMode ? '#262626' : '#F1F5F9', justifyContent: 'center', alignItems: 'center' }}>
                     <Ionicons name="link-outline" size={24} color={theme.text} />
                   </View>
