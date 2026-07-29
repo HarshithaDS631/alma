@@ -23,7 +23,7 @@ import {
 } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
-import { getSuggestions, getPosts, getEvents, toggleFollowUser, getFollowing, getFollowers, toggleLikePost, getProfile } from '../services/authService';
+import { getSuggestions, getPosts, getEvents, toggleFollowUser, getFollowing, getFollowers, toggleLikePost, getProfile, getUsers } from '../services/authService';
 import { getImageUrl } from '../services/uploadService';
 import { addComment, toggleSavePost, resharePost } from '../services/postService';
 import { sendMessage } from '../services/messageService';
@@ -183,14 +183,7 @@ const DashboardScreen = ({ navigation }) => {
   const [sentShareMap, setSentShareMap] = useState({});
   const [shareSearchText, setShareSearchText] = useState('');
 
-  const DEFAULT_FOLLOWERS_SEED = [
-    { id: 'f1', name: 'Hemanth', subtitle: 'Alumni • Media Cell' },
-    { id: 'f2', name: "Girl's Gang", subtitle: 'Group • Alumni' },
-    { id: 'f3', name: '3 idiots', subtitle: 'Group • Alumni' },
-    { id: 'f4', name: 'NV ✨', subtitle: 'Alumni • Media Cell' },
-    { id: 'f5', name: 'Kiran Gunda', subtitle: 'Alumni Member' },
-    { id: 'f6', name: 'Ruchi', subtitle: 'Alumni • Media Cell' },
-  ];
+  const [directoryUsers, setDirectoryUsers] = useState([]);
 
   const handleShareToFollower = async (targetUser) => {
     const targetId = targetUser._id || targetUser.id;
@@ -208,7 +201,7 @@ const DashboardScreen = ({ navigation }) => {
   };
 
   const handleShareToAllFollowers = async () => {
-    const targetList = followersList.length > 0 ? followersList : (suggestions.length > 0 ? suggestions : DEFAULT_FOLLOWERS_SEED);
+    const targetList = combinedShareContacts;
     if (!selectedPost || targetList.length === 0) return;
 
     const postContent = selectedPost.content ? `"${selectedPost.content.substring(0, 100)}..."` : 'Check out this post!';
@@ -307,29 +300,38 @@ const DashboardScreen = ({ navigation }) => {
     if (type === 'share') {
       setShareSearchText('');
       getFollowers().then(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          setFollowersList(data);
-        }
+        if (Array.isArray(data) && data.length > 0) setFollowersList(data);
+      }).catch(() => {});
+      getUsers().then(data => {
+        if (Array.isArray(data) && data.length > 0) setDirectoryUsers(data);
       }).catch(() => {});
     }
   };
 
   const combinedShareContacts = React.useMemo(() => {
     const map = new Map();
+    const selfId = (currentUser?._id || currentUser?.id || '').toString();
+
+    // 1. Add real Followers
     followersList.forEach(u => {
-      const id = (u._id || u.id || u.name || '').toString();
-      if (id && !map.has(id)) map.set(id, u);
+      const id = (u._id || u.id || '').toString();
+      if (id && id !== selfId && !map.has(id)) map.set(id, u);
     });
+
+    // 2. Add Directory Users (Real registered alumni accounts)
+    directoryUsers.forEach(u => {
+      const id = (u._id || u.id || '').toString();
+      if (id && id !== selfId && !map.has(id)) map.set(id, u);
+    });
+
+    // 3. Add Suggested Alumni
     suggestions.forEach(u => {
-      const id = (u._id || u.id || u.name || '').toString();
-      if (id && !map.has(id)) map.set(id, u);
+      const id = (u._id || u.id || '').toString();
+      if (id && id !== selfId && !map.has(id)) map.set(id, u);
     });
-    DEFAULT_FOLLOWERS_SEED.forEach(u => {
-      const id = (u._id || u.id || u.name || '').toString();
-      if (id && !map.has(id)) map.set(id, u);
-    });
+
     return Array.from(map.values());
-  }, [followersList, suggestions]);
+  }, [followersList, directoryUsers, suggestions, currentUser]);
 
   const closeModal = () => {
     setActiveModal(null);
@@ -410,7 +412,8 @@ const DashboardScreen = ({ navigation }) => {
             eventsRes,
             jobsRes,
             followingRes,
-            followersRes
+            followersRes,
+            usersRes
           ] = await Promise.allSettled([
             getProfile().catch(() => null),
             getPosts().catch(() => []),
@@ -419,6 +422,7 @@ const DashboardScreen = ({ navigation }) => {
             fetchJobs().catch(() => []),
             getFollowing().catch(() => []),
             getFollowers().catch(() => []),
+            getUsers().catch(() => []),
           ]);
 
           if (!isMounted) return;
@@ -434,6 +438,10 @@ const DashboardScreen = ({ navigation }) => {
 
           if (followersRes.status === 'fulfilled' && Array.isArray(followersRes.value)) {
             setFollowersList(followersRes.value);
+          }
+
+          if (usersRes.status === 'fulfilled' && Array.isArray(usersRes.value)) {
+            setDirectoryUsers(usersRes.value);
           }
 
           // 2. Process posts — filter to only show posts from people the user follows (Instagram style)
@@ -1432,44 +1440,51 @@ const DashboardScreen = ({ navigation }) => {
             {/* 2. Grid of Followers & Network Contacts (3 Columns Instagram Style) */}
             <ScrollView style={{ maxHeight: 300 }} showsVerticalScrollIndicator={false}>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
-                {(combinedShareContacts
-                  .filter(u => !shareSearchText || (u.name || '').toLowerCase().includes(shareSearchText.toLowerCase()))
-                ).map((item, index) => {
-                  const itemId = item._id || item.id || index.toString();
-                  const isSent = Boolean(sentShareMap[itemId]);
-                  const avatarUrl = item.profilePicture || item.avatar_url ? getImageUrl(item.profilePicture || item.avatar_url) : null;
-                  const initials = item.name ? item.name.substring(0, 2).toUpperCase() : 'AL';
+                {combinedShareContacts.filter(u => !shareSearchText || (u.name || '').toLowerCase().includes(shareSearchText.toLowerCase())).length === 0 ? (
+                  <View style={{ width: '100%', paddingVertical: 36, alignItems: 'center', justifyContent: 'center' }}>
+                    <Ionicons name="people-outline" size={36} color={isDarkMode ? '#A8A8A8' : '#64748B'} />
+                    <Text style={{ marginTop: 8, fontSize: 13, color: theme.textMuted }}>No followers found in your network</Text>
+                  </View>
+                ) : (
+                  combinedShareContacts
+                    .filter(u => !shareSearchText || (u.name || '').toLowerCase().includes(shareSearchText.toLowerCase()))
+                    .map((item, index) => {
+                      const itemId = item._id || item.id || index.toString();
+                      const isSent = Boolean(sentShareMap[itemId]);
+                      const avatarUrl = item.profilePicture || item.avatar_url ? getImageUrl(item.profilePicture || item.avatar_url) : null;
+                      const initials = item.name ? item.name.substring(0, 2).toUpperCase() : 'AL';
 
-                  return (
-                    <TouchableOpacity
-                      key={itemId}
-                      activeOpacity={0.7}
-                      onPress={() => handleShareToFollower(item)}
-                      style={{ width: '33.33%', alignItems: 'center', marginBottom: 20, paddingHorizontal: 4 }}
-                    >
-                      <View style={{ position: 'relative' }}>
-                        {avatarUrl ? (
-                          <Image source={{ uri: avatarUrl }} style={{ width: 66, height: 66, borderRadius: 33, borderWidth: isSent ? 2.5 : 0, borderColor: '#22C55E' }} />
-                        ) : (
-                          <View style={{ width: 66, height: 66, borderRadius: 33, backgroundColor: isSent ? '#22C55E' : '#003366', justifyContent: 'center', alignItems: 'center' }}>
-                            <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 18 }}>{initials}</Text>
+                      return (
+                        <TouchableOpacity
+                          key={itemId}
+                          activeOpacity={0.7}
+                          onPress={() => handleShareToFollower(item)}
+                          style={{ width: '33.33%', alignItems: 'center', marginBottom: 20, paddingHorizontal: 4 }}
+                        >
+                          <View style={{ position: 'relative' }}>
+                            {avatarUrl ? (
+                              <Image source={{ uri: avatarUrl }} style={{ width: 66, height: 66, borderRadius: 33, borderWidth: isSent ? 2.5 : 0, borderColor: '#22C55E' }} />
+                            ) : (
+                              <View style={{ width: 66, height: 66, borderRadius: 33, backgroundColor: isSent ? '#22C55E' : '#003366', justifyContent: 'center', alignItems: 'center' }}>
+                                <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 18 }}>{initials}</Text>
+                              </View>
+                            )}
+                            {isSent && (
+                              <View style={{ position: 'absolute', bottom: -2, right: -2, backgroundColor: '#22C55E', width: 22, height: 22, borderRadius: 11, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: theme.cardBackground }}>
+                                <Ionicons name="checkmark" size={13} color="#FFF" />
+                              </View>
+                            )}
                           </View>
-                        )}
-                        {isSent && (
-                          <View style={{ position: 'absolute', bottom: -2, right: -2, backgroundColor: '#22C55E', width: 22, height: 22, borderRadius: 11, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: theme.cardBackground }}>
-                            <Ionicons name="checkmark" size={13} color="#FFF" />
-                          </View>
-                        )}
-                      </View>
-                      <Text style={{ marginTop: 6, fontSize: 12, fontWeight: '500', color: theme.text, textAlign: 'center' }} numberOfLines={1}>
-                        {item.name || 'Follower'}
-                      </Text>
-                      {isSent && (
-                        <Text style={{ fontSize: 10, color: '#22C55E', fontWeight: '700', marginTop: 1 }}>Sent</Text>
-                      )}
-                    </TouchableOpacity>
-                  );
-                })}
+                          <Text style={{ marginTop: 6, fontSize: 12, fontWeight: '500', color: theme.text, textAlign: 'center' }} numberOfLines={1}>
+                            {item.name || 'Follower'}
+                          </Text>
+                          {isSent && (
+                            <Text style={{ fontSize: 10, color: '#22C55E', fontWeight: '700', marginTop: 1 }}>Sent</Text>
+                          )}
+                        </TouchableOpacity>
+                      );
+                    })
+                )}
               </View>
             </ScrollView>
 
