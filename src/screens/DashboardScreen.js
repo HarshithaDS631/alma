@@ -180,6 +180,7 @@ const DashboardScreen = ({ navigation }) => {
   const [unfollowTarget, setUnfollowTarget] = useState(null);
   const [followersList, setFollowersList] = useState([]);
   const [sentShareMap, setSentShareMap] = useState({});
+  const [shareSearchText, setShareSearchText] = useState('');
 
   const handleShareToFollower = async (targetUser) => {
     const targetId = targetUser._id || targetUser.id;
@@ -1295,88 +1296,129 @@ const DashboardScreen = ({ navigation }) => {
         </KeyboardAvoidingView>
       </Modal>
 
-      {/* Share Modal */}
+      {/* Instagram HiFi Share Sheet Modal */}
       <Modal visible={activeModal === 'share'} animationType="slide" transparent={true}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={isWeb ? styles.webModalOverlay : styles.modalOverlay}>
-          <View style={isWeb ? styles.webModalContainer : styles.bottomSheet}>
-            <View style={styles.sheetHeader}>
-              <Text style={styles.sheetTitle}>Share to...</Text>
-              <TouchableOpacity onPress={closeModal}><Ionicons name="close" size={24} color={theme.text} /></TouchableOpacity>
-            </View>
-            <View style={styles.shareGrid}>
-              <TouchableOpacity style={styles.shareItem} onPress={handleShareToAllFollowers}>
-                <View style={[styles.shareIconWrap, {backgroundColor:'#6366F1'}]}><Ionicons name="people" size={24} color="#FFF"/></View>
-                <Text style={styles.shareText}>Followers</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.shareItem} onPress={() => handleShare(selectedPost)}>
-                <View style={[styles.shareIconWrap, {backgroundColor:'#25D366'}]}><Ionicons name="logo-whatsapp" size={24} color="#FFF"/></View>
-                <Text style={styles.shareText}>WhatsApp</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.shareItem} onPress={() => handleShare(selectedPost)}>
-                <View style={[styles.shareIconWrap, {backgroundColor:'#0077B5'}]}><Ionicons name="logo-linkedin" size={24} color="#FFF"/></View>
-                <Text style={styles.shareText}>LinkedIn</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.shareItem} onPress={() => handleShare(selectedPost)}>
-                <View style={[styles.shareIconWrap, {backgroundColor:'#1DA1F2'}]}><Ionicons name="logo-twitter" size={24} color="#FFF"/></View>
-                <Text style={styles.shareText}>Twitter</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.shareItem} onPress={() => handleShare(selectedPost)}>
-                <View style={[styles.shareIconWrap, {backgroundColor: theme.border}]}><Ionicons name="copy-outline" size={24} color={theme.text}/></View>
-                <Text style={styles.shareText}>Copy Link</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Direct Send to Followers List Section */}
-            <View style={{ marginTop: 16, borderTopWidth: 0.5, borderTopColor: theme.border, paddingTop: 12 }}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                <Text style={{ fontWeight: '700', fontSize: 14, color: theme.text }}>
-                  Send to Followers & Network
-                </Text>
-                <TouchableOpacity onPress={handleShareToAllFollowers} style={{ backgroundColor: 'rgba(99, 102, 241, 0.1)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 }}>
-                  <Text style={{ fontSize: 12, fontWeight: '600', color: '#6366F1' }}>Send to All</Text>
-                </TouchableOpacity>
+          <View style={[isWeb ? styles.webModalContainer : styles.bottomSheet, { backgroundColor: isDarkMode ? '#121212' : '#FFFFFF', paddingHorizontal: 16, paddingTop: 16, paddingBottom: 20, borderTopLeftRadius: 24, borderTopRightRadius: 24 }]}>
+            
+            {/* 1. Top Search Bar & Add Group Row */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16, gap: 10 }}>
+              <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: isDarkMode ? '#262626' : '#F1F5F9', borderRadius: 22, paddingHorizontal: 14, height: 44 }}>
+                <Ionicons name="search-outline" size={18} color={isDarkMode ? '#A8A8A8' : '#64748B'} style={{ marginRight: 8 }} />
+                <TextInput
+                  style={{ flex: 1, fontSize: 14, color: theme.text }}
+                  placeholder="Search"
+                  placeholderTextColor={isDarkMode ? '#A8A8A8' : '#94A3B8'}
+                  value={shareSearchText}
+                  onChangeText={setShareSearchText}
+                />
+                {shareSearchText.length > 0 && (
+                  <TouchableOpacity onPress={() => setShareSearchText('')}>
+                    <Ionicons name="close-circle" size={16} color="#94A3B8" />
+                  </TouchableOpacity>
+                )}
               </View>
 
-              <ScrollView style={{ maxHeight: 220 }} showsVerticalScrollIndicator={false}>
-                {((followersList.length > 0 ? followersList : suggestions)).map((follower, idx) => {
-                  const fid = follower._id || follower.id || idx.toString();
-                  const isSent = Boolean(sentShareMap[fid]);
+              <TouchableOpacity style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: isDarkMode ? '#262626' : '#F1F5F9', justifyContent: 'center', alignItems: 'center' }}>
+                <Ionicons name="person-add-outline" size={20} color={theme.text} />
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={closeModal} style={{ padding: 4 }}>
+                <Ionicons name="close" size={24} color={theme.text} />
+              </TouchableOpacity>
+            </View>
+
+            {/* 2. Grid of Followers & Network Contacts (3 Columns Instagram Style) */}
+            <ScrollView style={{ maxHeight: 300 }} showsVerticalScrollIndicator={false}>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
+                {((followersList.length > 0 ? followersList : suggestions)
+                  .filter(u => !shareSearchText || (u.name || '').toLowerCase().includes(shareSearchText.toLowerCase()))
+                ).map((item, index) => {
+                  const itemId = item._id || item.id || index.toString();
+                  const isSent = Boolean(sentShareMap[itemId]);
+                  const avatarUrl = item.profilePicture || item.avatar_url ? getImageUrl(item.profilePicture || item.avatar_url) : null;
+                  const initials = item.name ? item.name.substring(0, 2).toUpperCase() : 'AL';
+
                   return (
-                    <View key={fid} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 8 }}>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 10 }}>
-                        <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
-                          <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 12 }}>
-                            {follower.name ? follower.name.substring(0, 2).toUpperCase() : 'AL'}
-                          </Text>
-                        </View>
-                        <View style={{ flex: 1 }}>
-                          <Text style={{ fontWeight: '600', fontSize: 13, color: theme.text }} numberOfLines={1}>
-                            {follower.name || 'Alumni Member'}
-                          </Text>
-                          <Text style={{ fontSize: 11, color: theme.textMuted }} numberOfLines={1}>
-                            {follower.institution || follower.department || follower.subtitle || 'Media Cell Alumni Network'}
-                          </Text>
-                        </View>
+                    <TouchableOpacity
+                      key={itemId}
+                      activeOpacity={0.7}
+                      onPress={() => handleShareToFollower(item)}
+                      style={{ width: '33.33%', alignItems: 'center', marginBottom: 20, paddingHorizontal: 4 }}
+                    >
+                      <View style={{ position: 'relative' }}>
+                        {avatarUrl ? (
+                          <Image source={{ uri: avatarUrl }} style={{ width: 66, height: 66, borderRadius: 33, borderWidth: isSent ? 2.5 : 0, borderColor: '#22C55E' }} />
+                        ) : (
+                          <View style={{ width: 66, height: 66, borderRadius: 33, backgroundColor: isSent ? '#22C55E' : '#003366', justifyContent: 'center', alignItems: 'center' }}>
+                            <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 18 }}>{initials}</Text>
+                          </View>
+                        )}
+                        {isSent && (
+                          <View style={{ position: 'absolute', bottom: -2, right: -2, backgroundColor: '#22C55E', width: 22, height: 22, borderRadius: 11, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: theme.cardBackground }}>
+                            <Ionicons name="checkmark" size={13} color="#FFF" />
+                          </View>
+                        )}
                       </View>
-                      <TouchableOpacity
-                        style={{
-                          backgroundColor: isSent ? '#22C55E' : theme.primary,
-                          paddingHorizontal: 14,
-                          paddingVertical: 6,
-                          borderRadius: 16
-                        }}
-                        disabled={isSent}
-                        onPress={() => handleShareToFollower(follower)}
-                      >
-                        <Text style={{ color: '#FFF', fontWeight: '600', fontSize: 12 }}>
-                          {isSent ? 'Sent ✓' : 'Send'}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
+                      <Text style={{ marginTop: 6, fontSize: 12, fontWeight: '500', color: theme.text, textAlign: 'center' }} numberOfLines={1}>
+                        {item.name || 'Follower'}
+                      </Text>
+                      {isSent && (
+                        <Text style={{ fontSize: 10, color: '#22C55E', fontWeight: '700', marginTop: 1 }}>Sent</Text>
+                      )}
+                    </TouchableOpacity>
                   );
                 })}
+              </View>
+            </ScrollView>
+
+            {/* 3. Horizontal Bottom Action Row (Instagram Style Circular Action Buttons) */}
+            <View style={{ borderTopWidth: 0.5, borderTopColor: isDarkMode ? '#262626' : '#E2E8F0', paddingTop: 14, marginTop: 10 }}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row', alignItems: 'center', gap: 16, paddingHorizontal: 4 }}>
+                
+                {/* Add to story */}
+                <TouchableOpacity style={{ alignItems: 'center', width: 66 }} onPress={() => { closeModal(); navigation.navigate('PostCreation'); }}>
+                  <View style={{ width: 54, height: 54, borderRadius: 27, backgroundColor: isDarkMode ? '#262626' : '#F1F5F9', justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name="add-circle-outline" size={26} color={theme.text} />
+                  </View>
+                  <Text style={{ fontSize: 11, color: theme.text, marginTop: 6, textAlign: 'center' }} numberOfLines={1}>Add to story</Text>
+                </TouchableOpacity>
+
+                {/* WhatsApp */}
+                <TouchableOpacity style={{ alignItems: 'center', width: 66 }} onPress={() => handleShare(selectedPost)}>
+                  <View style={{ width: 54, height: 54, borderRadius: 27, backgroundColor: '#25D366', justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name="logo-whatsapp" size={26} color="#FFF" />
+                  </View>
+                  <Text style={{ fontSize: 11, color: theme.text, marginTop: 6, textAlign: 'center' }} numberOfLines={1}>WhatsApp</Text>
+                </TouchableOpacity>
+
+                {/* WhatsApp Status */}
+                <TouchableOpacity style={{ alignItems: 'center', width: 66 }} onPress={() => handleShare(selectedPost)}>
+                  <View style={{ width: 54, height: 54, borderRadius: 27, backgroundColor: '#22C55E', justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name="aperture-outline" size={26} color="#FFF" />
+                  </View>
+                  <Text style={{ fontSize: 11, color: theme.text, marginTop: 6, textAlign: 'center' }} numberOfLines={1}>WhatsApp Status</Text>
+                </TouchableOpacity>
+
+                {/* Share to... */}
+                <TouchableOpacity style={{ alignItems: 'center', width: 66 }} onPress={() => handleShare(selectedPost)}>
+                  <View style={{ width: 54, height: 54, borderRadius: 27, backgroundColor: isDarkMode ? '#262626' : '#F1F5F9', justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name="share-outline" size={24} color={theme.text} />
+                  </View>
+                  <Text style={{ fontSize: 11, color: theme.text, marginTop: 6, textAlign: 'center' }} numberOfLines={1}>Share to...</Text>
+                </TouchableOpacity>
+
+                {/* Copy Link */}
+                <TouchableOpacity style={{ alignItems: 'center', width: 66 }} onPress={() => handleShare(selectedPost)}>
+                  <View style={{ width: 54, height: 54, borderRadius: 27, backgroundColor: isDarkMode ? '#262626' : '#F1F5F9', justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name="link-outline" size={24} color={theme.text} />
+                  </View>
+                  <Text style={{ fontSize: 11, color: theme.text, marginTop: 6, textAlign: 'center' }} numberOfLines={1}>Copy link</Text>
+                </TouchableOpacity>
+
               </ScrollView>
             </View>
+
           </View>
         </KeyboardAvoidingView>
       </Modal>
