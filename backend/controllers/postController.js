@@ -123,6 +123,10 @@ exports.createPost = async (req, res) => {
             await Notification.insertMany(notifications);
         }
 
+        if (req.io) {
+            req.io.emit('new_post_created', fullPost);
+        }
+
         res.status(201).json(fullPost);
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -174,6 +178,14 @@ exports.likePost = async (req, res) => {
             .populate('user', 'name branch department batchYear avatar_url username role institution')
             .populate('tags', 'name username avatar_url')
             .populate('comments.user', 'name avatar_url username');
+
+        if (req.io) {
+            req.io.emit('post_liked_updated', {
+                postId: post._id,
+                likes: updatedPost.likes,
+                likesCount: updatedPost.likes.length
+            });
+        }
 
         res.json(updatedPost);
     } catch (error) {
@@ -230,6 +242,14 @@ exports.addComment = async (req, res) => {
         const updatedPost = await Post.findById(req.params.id)
             .populate('user', 'name branch department batchYear avatar_url')
             .populate('comments.user', 'name avatar_url');
+
+        if (req.io) {
+            req.io.emit('post_comment_added', {
+                postId: post._id,
+                comments: updatedPost.comments,
+                commentsCount: updatedPost.comments.length
+            });
+        }
 
         res.json(updatedPost);
     } catch (error) {

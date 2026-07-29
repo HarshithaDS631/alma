@@ -29,6 +29,7 @@ import { addComment, toggleSavePost, resharePost } from '../services/postService
 import { sendMessage } from '../services/messageService';
 import { fetchJobs } from '../services/jobService';
 import useUserRole from '../hooks/useUserRole';
+import { initSocket, getSocket } from '../services/socketService';
 
 
 // Pool of all known posts across all users — used as offline fallback
@@ -389,6 +390,56 @@ const DashboardScreen = ({ navigation }) => {
     };
     fetchUserInfo();
   }, []);
+
+  // Real-time WebSocket synchronization across mobile & web apps
+  useEffect(() => {
+    const userId = currentUser?._id || currentUser?.id;
+    let socketInstance = null;
+
+    initSocket(userId).then(sk => {
+      socketInstance = sk;
+      if (!socketInstance) return;
+
+      socketInstance.on('new_post_created', (newPost) => {
+        if (!newPost) return;
+        setPosts(prevPosts => {
+          const exists = prevPosts.some(p => (p._id || p.id) === (newPost._id || newPost.id));
+          if (exists) return prevPosts;
+          return [newPost, ...prevPosts];
+        });
+      });
+
+      socketInstance.on('post_liked_updated', ({ postId, likes, likesCount }) => {
+        setPosts(prevPosts =>
+          prevPosts.map(p => {
+            if ((p._id || p.id).toString() === postId.toString()) {
+              return { ...p, likes, likesCount: likesCount !== undefined ? likesCount : (likes ? likes.length : p.likesCount) };
+            }
+            return p;
+          })
+        );
+      });
+
+      socketInstance.on('post_comment_added', ({ postId, comments, commentsCount }) => {
+        setPosts(prevPosts =>
+          prevPosts.map(p => {
+            if ((p._id || p.id).toString() === postId.toString()) {
+              return { ...p, comments, commentsCount: commentsCount !== undefined ? commentsCount : (comments ? comments.length : p.commentsCount) };
+            }
+            return p;
+          })
+        );
+      });
+    });
+
+    return () => {
+      if (socketInstance) {
+        socketInstance.off('new_post_created');
+        socketInstance.off('post_liked_updated');
+        socketInstance.off('post_comment_added');
+      }
+    };
+  }, [currentUser?._id, currentUser?.id]);
 
   const userAvatarPath = currentUser?.profilePicture || currentUser?.avatar_url || currentUser?.avatar;
   const userAvatarUrl = userAvatarPath ? getImageUrl(userAvatarPath) : null;

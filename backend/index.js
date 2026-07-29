@@ -143,6 +143,7 @@ connectDB().catch(err => console.error('[DB STARTUP ERROR]:', err.message));
 
 // Middleware: ensure DB is connected, but don't block request processing
 app.use((req, res, next) => {
+    req.io = io;
     // If already connected, proceed instantly
     if (require('mongoose').connection.readyState === 1) {
         return next();
