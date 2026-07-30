@@ -269,6 +269,9 @@ exports.loginUser = async (req, res) => {
             user.loginHistory = [...(user.loginHistory || []).slice(-19), loginEntry]; // Keep last 20
             await user.save({ validateBeforeSave: false });
 
+            const { recordSessionLogin } = require('../utils/sessionTracker');
+            await recordSessionLogin(req, user);
+
             const refreshToken = await createRefreshToken(user._id, req);
 
             res.json({
@@ -810,6 +813,12 @@ exports.logoutUser = async (req, res) => {
             reason: 'logout',
             expiresAt
         });
+
+        // Record session logout timestamp & calculate duration
+        const { recordSessionLogout } = require('../utils/sessionTracker');
+        if (req.user) {
+            await recordSessionLogout(req, req.user);
+        }
 
         res.json({ message: 'Logged out successfully' });
     } catch (error) {

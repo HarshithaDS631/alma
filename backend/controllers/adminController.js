@@ -294,3 +294,26 @@ exports.downloadFullDatabaseBackup = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// @desc    Get session history (user, admin, super admin)
+// @route   GET /api/admin/sessions
+exports.getAllSessions = async (req, res) => {
+    try {
+        await connectDB();
+        const UserSession = require('../models/UserSession');
+        const AdminSession = require('../models/AdminSession');
+        const SuperAdminSession = require('../models/SuperAdminSession');
+
+        const userSessions = await UserSession.find({}).sort({ loginTime: -1 }).limit(100);
+        const adminSessions = await AdminSession.find({}).sort({ loginTime: -1 }).limit(100);
+        const superAdminSessions = await SuperAdminSession.find({}).sort({ loginTime: -1 }).limit(100);
+
+        res.json({
+            userSessions,
+            adminSessions,
+            superAdminSessions
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
