@@ -212,12 +212,16 @@ exports.loginUser = async (req, res) => {
 
     try {
         const AdminUser = require('../models/AdminUser');
+        const SuperAdminUser = require('../models/SuperAdminUser');
         let user = await User.findOne({ email: email.trim().toLowerCase() });
-        let isAdminUser = false;
+        let isAdminOrSuper = false;
 
         if (!user) {
             user = await AdminUser.findOne({ email: email.trim().toLowerCase() });
-            if (user) isAdminUser = true;
+            if (!user) {
+                user = await SuperAdminUser.findOne({ email: email.trim().toLowerCase() });
+            }
+            if (user) isAdminOrSuper = true;
         }
 
         // Track login attempt in history
@@ -229,7 +233,7 @@ exports.loginUser = async (req, res) => {
         };
 
         if (user && user.password && (await user.comparePassword(password))) {
-            if (!isAdminUser && !user.is_approved) {
+            if (!isAdminOrSuper && !user.is_approved) {
                 return res.status(403).json({ message: 'Your account is pending admin approval. You cannot log in yet.' });
             }
 

@@ -24,7 +24,10 @@ const protect = async (req, res, next) => {
 
                 const decoded = jwt.verify(token, process.env.JWT_SECRET);
                 const AdminUser = require('../models/AdminUser');
-                req.user = (await User.findById(decoded.id).select('-password')) || (await AdminUser.findById(decoded.id).select('-password'));
+                const SuperAdminUser = require('../models/SuperAdminUser');
+                req.user = (await User.findById(decoded.id).select('-password')) || 
+                           (await AdminUser.findById(decoded.id).select('-password')) ||
+                           (await SuperAdminUser.findById(decoded.id).select('-password'));
                 if (!req.user) {
                     return res.status(401).json({ message: 'User not found' });
                 }
@@ -71,7 +74,10 @@ const optionalProtect = async (req, res, next) => {
                 try {
                     const decoded = jwt.verify(token, process.env.JWT_SECRET);
                     const AdminUser = require('../models/AdminUser');
-                    req.user = (await User.findById(decoded.id).select('-password')) || (await AdminUser.findById(decoded.id).select('-password'));
+                    const SuperAdminUser = require('../models/SuperAdminUser');
+                    req.user = (await User.findById(decoded.id).select('-password')) || 
+                               (await AdminUser.findById(decoded.id).select('-password')) ||
+                               (await SuperAdminUser.findById(decoded.id).select('-password'));
                 } catch (e) {
                     // Token invalid/expired — still allow the request through
                 }

@@ -33,4 +33,8 @@ const activityLogSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-module.exports = mongoose.model('ActivityLog', activityLogSchema);
+// Index for fast lookup by user
+activityLogSchema.index({ user: 1, createdAt: -1 });
+activityLogSchema.index({ actionType: 1, createdAt: -1 });
+
+module.exports = mongoose.model('ActivityLog', activityLogSchema, 'useractivitylogs');

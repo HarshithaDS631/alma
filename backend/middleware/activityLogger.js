@@ -67,11 +67,25 @@ const activityLogger = (req, res, next) => {
             if (metadata.currentPassword) metadata.currentPassword = '***';
             if (metadata.newPassword) metadata.newPassword = '***';
 
-            const isAdminRouteOrRole = url.includes('/api/admin') ||
-                actionType.startsWith('ADMIN_') ||
-                (req.user && (req.user.role === 'Admin' || req.user.role === 'Super Admin'));
+            const role = (req.user?.role || '').toLowerCase();
+            const isSuperAdmin = role === 'super admin' || role === 'superadmin' || role === 'super_admin';
+            const isAdmin = role === 'admin';
 
-            if (isAdminRouteOrRole) {
+            if (isSuperAdmin) {
+                const SuperAdminActivityLog = require('../models/SuperAdminActivityLog');
+                await SuperAdminActivityLog.create({
+                    superAdmin: userId || null,
+                    superAdminEmail: req.user?.email || null,
+                    superAdminName: req.user?.name || null,
+                    actionType,
+                    method,
+                    endpoint: url,
+                    metadata,
+                    ipAddress: req.ip || req.headers['x-forwarded-for'] || req.connection?.remoteAddress || '127.0.0.1',
+                    userAgent: req.get('user-agent') || 'Super Admin Dashboard',
+                    status: res.statusCode
+                });
+            } else if (isAdmin || url.includes('/api/admin')) {
                 const AdminActivityLog = require('../models/AdminActivityLog');
                 await AdminActivityLog.create({
                     admin: userId || null,
