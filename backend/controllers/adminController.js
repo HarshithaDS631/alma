@@ -263,3 +263,34 @@ exports.exportUserData = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// @desc    Download complete MongoDB Atlas database backup (JSON file)
+// @route   GET /api/admin/backup
+exports.downloadFullDatabaseBackup = async (req, res) => {
+    try {
+        await connectDB();
+        const db = mongoose.connection.db;
+
+        const collections = await db.listCollections().toArray();
+        const backupData = {
+            databaseName: db.databaseName,
+            backupTimestamp: new Date().toISOString(),
+            cluster: "cluster0.xk6n9j6.mongodb.net",
+            collections: {}
+        };
+
+        for (let col of collections) {
+            const docs = await db.collection(col.name).find({}).toArray();
+            backupData.collections[col.name] = docs;
+        }
+
+        const timestampStr = new Date().toISOString().replace(/[:.]/g, '-');
+        const filename = `alumni_db_backup_${timestampStr}.json`;
+
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+        res.json(backupData);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
