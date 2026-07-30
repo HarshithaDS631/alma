@@ -67,16 +67,36 @@ const activityLogger = (req, res, next) => {
             if (metadata.currentPassword) metadata.currentPassword = '***';
             if (metadata.newPassword) metadata.newPassword = '***';
 
-            await ActivityLog.create({
-                user: userId || null,
-                actionType,
-                method,
-                endpoint: url,
-                metadata,
-                ipAddress: req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress || '127.0.0.1',
-                userAgent: req.get('user-agent') || 'Mobile App Client',
-                status: res.statusCode
-            });
+            const isAdminRouteOrRole = url.includes('/api/admin') ||
+                actionType.startsWith('ADMIN_') ||
+                (req.user && (req.user.role === 'Admin' || req.user.role === 'Super Admin'));
+
+            if (isAdminRouteOrRole) {
+                const AdminActivityLog = require('../models/AdminActivityLog');
+                await AdminActivityLog.create({
+                    admin: userId || null,
+                    adminEmail: req.user?.email || null,
+                    adminName: req.user?.name || null,
+                    actionType,
+                    method,
+                    endpoint: url,
+                    metadata,
+                    ipAddress: req.ip || req.headers['x-forwarded-for'] || req.connection?.remoteAddress || '127.0.0.1',
+                    userAgent: req.get('user-agent') || 'Admin Dashboard',
+                    status: res.statusCode
+                });
+            } else {
+                await ActivityLog.create({
+                    user: userId || null,
+                    actionType,
+                    method,
+                    endpoint: url,
+                    metadata,
+                    ipAddress: req.ip || req.headers['x-forwarded-for'] || req.connection?.remoteAddress || '127.0.0.1',
+                    userAgent: req.get('user-agent') || 'Mobile App Client',
+                    status: res.statusCode
+                });
+            }
         } catch (error) {
             console.error('[ACTIVITY LOGGER ERROR]:', error.message);
         }
