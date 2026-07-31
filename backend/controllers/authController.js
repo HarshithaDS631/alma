@@ -954,6 +954,99 @@ exports.googleAuth = async (req, res) => {
     }
 };
 
+// @desc    LinkedIn OAuth Sign-In / Registration
+// @route   POST /api/auth/linkedin
+exports.linkedinAuth = async (req, res) => {
+    try {
+        const { accessToken, code, redirectUri } = req.body;
+        let tokenToUse = accessToken;
+
+        // If authorization code is provided, exchange for access token with LinkedIn
+        if (!tokenToUse && code) {
+            const tokenRes = await axios.post('https://www.linkedin.com/oauth/v2/accessToken', null, {
+                params: {
+                    grant_type: 'authorization_code',
+                    code,
+                    client_id: process.env.LINKEDIN_CLIENT_ID,
+                    client_secret: process.env.LINKEDIN_CLIENT_SECRET,
+                    redirect_uri: redirectUri || process.env.LINKEDIN_REDIRECT_URI
+                },
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            });
+            tokenToUse = tokenRes.data.access_token;
+        }
+
+        if (!tokenToUse) {
+            return res.status(400).json({ message: 'LinkedIn Access Token or Authorization Code is required' });
+        }
+
+        // Fetch User Info from LinkedIn OpenID Connect UserInfo endpoint
+        const linkedinRes = await axios.get('https://api.linkedin.com/v2/userinfo', {
+            headers: { Authorization: `Bearer ${tokenToUse}` }
+        });
+
+        const { email, name, picture, sub } = linkedinRes.data;
+
+        if (!email) {
+            return res.status(400).json({ message: 'Could not retrieve email from LinkedIn account' });
+        }
+
+        let user = await User.findOne({ email: email.toLowerCase() });
+
+        if (!user) {
+            user = await User.create({
+                name: name || 'LinkedIn User',
+                email: email.toLowerCase(),
+                avatar_url: picture || '',
+                authProvider: 'linkedin',
+                providerId: sub,
+                is_approved: true, // OAuth signups pre-verified via LinkedIn
+                role: 'Alumni'
+            });
+        } else {
+            if (!user.is_approved) {
+                return res.status(403).json({ message: 'Your account is pending admin approval' });
+            }
+            if (!user.providerId) {
+                user.authProvider = 'linkedin';
+                user.providerId = sub;
+                if (!user.avatar_url && picture) user.avatar_url = picture;
+                await user.save();
+            }
+        }
+
+        // Record active session
+        const { recordSessionLogin } = require('../utils/sessionTracker');
+        await recordSessionLogin(req, user);
+
+        const refreshToken = await createRefreshToken(user._id, req);
+
+        res.json({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            institution: user.institution,
+            branch: user.branch,
+            department: user.department,
+            batchYear: user.batchYear,
+            joiningYear: user.joiningYear,
+            bio: user.bio,
+            location: user.location,
+            company: user.company,
+            designation: user.designation,
+            role: user.role,
+            avatar_url: user.avatar_url,
+            linkedin: user.linkedin,
+            twoFactorEnabled: user.twoFactorEnabled || false,
+            token: generateToken(user._id),
+            refreshToken
+        });
+    } catch (error) {
+        console.error('LinkedIn Auth Error:', error?.response?.data || error.message);
+        res.status(500).json({ message: 'LinkedIn authentication failed: ' + (error?.response?.data?.message || error.message) });
+    }
+};
+
 // @desc    Refresh Access Token using Refresh Token Rotation
 // @route   POST /api/auth/refresh-token
 exports.refreshAccessToken = async (req, res) => {

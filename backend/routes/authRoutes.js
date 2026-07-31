@@ -23,6 +23,7 @@ const {
     markNotificationsRead,
     getLoginHistory,
     googleAuth,
+    linkedinAuth,
     refreshAccessToken,
     setup2FA,
     verify2FA,
@@ -47,6 +48,7 @@ router.post('/register', registerValidation, registerUser);
 router.post('/login', authLimiter, loginValidation, loginUser);
 router.post('/logout', protect, logoutUser);
 router.post('/google', googleAuth);
+router.post('/linkedin', linkedinAuth);
 router.post('/refresh-token', refreshAccessToken);
 router.post('/oauth', oauthLogin);
 router.get('/linkedin/callback', linkedinAuthCallback);
