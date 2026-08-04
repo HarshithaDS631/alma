@@ -20,6 +20,7 @@ const activityRoutes = require('./routes/activityRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const jobRoutes = require('./routes/jobRoutes');
+const firebaseAuthRoutes = require('./routes/firebaseAuthRoutes');
 const activityLogger = require('./middleware/activityLogger');
 const { apiLimiter } = require('./middleware/rateLimiter');
 
@@ -167,6 +168,7 @@ app.use('/api/activity', activityRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/jobs', jobRoutes);
+app.use('/api/firebase-auth', firebaseAuthRoutes);
 
 // ─── System Health ──────────────────────────────────────────────
 app.get('/api/system-status', async (req, res) => {

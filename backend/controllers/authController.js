@@ -15,8 +15,27 @@ const ConnectionRequest = require('../models/ConnectionRequest');
 const speakeasy = require('speakeasy');
 const QRCode = require('qrcode');
 const { OAuth2Client } = require('google-auth-library');
+const { sendFCMNotification } = require('../utils/fcmService');
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+// Helper function to dispatch Push Notifications
+const sendPushToUser = async (recipientId, title, body, dataPayload = {}) => {
+    try {
+        const recipient = await User.findById(recipientId).select('fcmToken pushToken name');
+        if (!recipient) return false;
+        const deviceToken = recipient.fcmToken || recipient.pushToken;
+        if (deviceToken) {
+            await sendFCMNotification(deviceToken, title, body, dataPayload);
+        } else {
+            console.log(`[PUSH NOTIFICATION SIMULATED] To: ${recipient.name} (${recipientId}) | "${title}": "${body}"`);
+        }
+        return true;
+    } catch (err) {
+        console.error('[PUSH NOTIFICATION DISPATCH ERROR]:', err.message);
+        return false;
+    }
+};
 
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
@@ -348,6 +367,9 @@ exports.updateUserProfile = async (req, res) => {
             user.designation = req.body.designation || user.designation;
             user.linkedin = req.body.linkedin || user.linkedin;
             user.avatar_url = req.body.avatar_url || user.avatar_url;
+            if (req.body.dateOfBirth !== undefined) {
+                user.dateOfBirth = req.body.dateOfBirth ? new Date(req.body.dateOfBirth) : null;
+            }
 
             const updatedUser = await user.save();
 
@@ -367,6 +389,7 @@ exports.updateUserProfile = async (req, res) => {
                 role: updatedUser.role,
                 avatar_url: updatedUser.avatar_url,
                 linkedin: updatedUser.linkedin,
+                dateOfBirth: updatedUser.dateOfBirth,
                 token: generateToken(updatedUser._id) // Optionally return a new token
             });
         } else {
@@ -392,12 +415,35 @@ exports.changePassword = async (req, res) => {
             return res.status(400).json({ message: 'Current password is incorrect' });
         }
 
-        if (await user.comparePassword(newPassword)) {
-            return res.status(400).json({ message: 'New password cannot be the same as your old password' });
+        if (user.isPasswordInHistory && (await user.isPasswordInHistory(newPassword))) {
+            return res.status(400).json({ message: 'New password cannot be the same as your old password or any of your previously used passwords' });
+        }
+
+        if (!user.passwordHistory) {
+            user.passwordHistory = [];
+        }
+        if (user.password && !user.passwordHistory.includes(user.password)) {
+            user.passwordHistory.push(user.password);
         }
         
         user.password = newPassword;
         await user.save();
+
+        // Store activity log in MongoDB Atlas
+        try {
+            await ActivityLog.create({
+                user: user._id,
+                actionType: 'CHANGE_PASSWORD',
+                method: 'PUT',
+                endpoint: '/api/auth/change-password',
+                metadata: { email: user.email, success: true },
+                ipAddress: req.ip || req.headers['x-forwarded-for'] || req.connection?.remoteAddress,
+                userAgent: req.get('user-agent') || 'Client App',
+                status: 200
+            });
+        } catch (logErr) {
+            console.error('[ACTIVITY LOG ERROR]:', logErr.message);
+        }
 
         res.json({ message: 'Password updated successfully' });
     } catch (error) {
@@ -481,8 +527,15 @@ exports.resetPassword = async (req, res) => {
             return res.status(400).json({ message: 'Token is invalid or has expired' });
         }
 
-        if (await user.comparePassword(newPassword)) {
-            return res.status(400).json({ message: 'New password cannot be the same as your old password' });
+        if (user.isPasswordInHistory && (await user.isPasswordInHistory(newPassword))) {
+            return res.status(400).json({ message: 'New password cannot be the same as your old password or any of your previously used passwords' });
+        }
+
+        if (!user.passwordHistory) {
+            user.passwordHistory = [];
+        }
+        if (user.password && !user.passwordHistory.includes(user.password)) {
+            user.passwordHistory.push(user.password);
         }
 
         user.password = newPassword;
@@ -766,10 +819,74 @@ exports.getFollowing = async (req, res) => {
     }
 };
 
+const checkAndGenerateBirthdayNotifications = async (currentUserId) => {
+    try {
+        const today = new Date();
+        const currentMonth = today.getMonth();
+        const currentDay = today.getDate();
+        const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+        const usersWithDob = await User.find({ dateOfBirth: { $exists: true, $ne: null } }).select('_id name dateOfBirth avatar_url');
+
+        for (const u of usersWithDob) {
+            if (!u.dateOfBirth) continue;
+            const dob = new Date(u.dateOfBirth);
+            if (dob.getMonth() === currentMonth && dob.getDate() === currentDay) {
+                const uId = u._id.toString();
+                const curId = currentUserId.toString();
+
+                if (uId === curId) {
+                    const exists = await Notification.findOne({
+                        recipient: currentUserId,
+                        sender: u._id,
+                        type: 'birthday',
+                        createdAt: { $gte: startOfToday }
+                    });
+                    if (!exists) {
+                        const title = '🎂 Happy Birthday!';
+                        const message = `Happy Birthday, ${u.name}! The entire Alumni Network wishes you a joyful day filled with success! 🎉🎈`;
+                        await Notification.create({
+                            recipient: currentUserId,
+                            sender: u._id,
+                            type: 'birthday',
+                            title,
+                            message
+                        });
+                        await sendPushToUser(currentUserId, title, message, { type: 'birthday' });
+                    }
+                } else {
+                    const exists = await Notification.findOne({
+                        recipient: currentUserId,
+                        sender: u._id,
+                        type: 'birthday',
+                        createdAt: { $gte: startOfToday }
+                    });
+                    if (!exists) {
+                        const title = '🎂 Birthday Alert!';
+                        const message = `Today is ${u.name}'s birthday! Wish them a Happy Birthday! 🎉`;
+                        await Notification.create({
+                            recipient: currentUserId,
+                            sender: u._id,
+                            type: 'birthday',
+                            title,
+                            message
+                        });
+                        await sendPushToUser(currentUserId, title, message, { type: 'birthday', birthdayUserId: u._id });
+                    }
+                }
+            }
+        }
+    } catch (err) {
+        console.error('[BIRTHDAY NOTIFICATION CHECK ERROR]:', err.message);
+    }
+};
+
 // @desc    Get Notifications
 // @route   GET /api/auth/notifications
 exports.getNotifications = async (req, res) => {
     try {
+        await checkAndGenerateBirthdayNotifications(req.user._id);
+
         const notifications = await Notification.find({ recipient: req.user._id })
             .populate('sender', 'name avatar_url')
             .sort({ createdAt: -1 });
@@ -1367,13 +1484,16 @@ exports.sendConnectionRequest = async (req, res) => {
         }
 
         // Dispatch Notification to recipient
+        const notifTitle = 'New Connection Request';
+        const notifMessage = `${req.user.name || 'An alumni'} sent you a connection request.`;
         await Notification.create({
             recipient: recipientId,
             sender: senderId,
             type: 'follow',
-            title: 'New Connection Request',
-            message: `${req.user.name || 'An alumni'} sent you a connection request.`
+            title: notifTitle,
+            message: notifMessage
         });
+        await sendPushToUser(recipientId, `🤝 ${notifTitle}`, notifMessage, { type: 'connection' });
 
         res.status(200).json({ success: true, message: 'Connection request sent successfully', request });
     } catch (error) {
@@ -1435,13 +1555,16 @@ exports.acceptConnectionRequest = async (req, res) => {
         }
 
         // Notify sender that their request was accepted
+        const acceptTitle = 'Connection Request Accepted';
+        const acceptMessage = `${req.user.name || 'An alumni'} accepted your connection request.`;
         await Notification.create({
             recipient: request.sender,
             sender: req.user._id,
             type: 'follow',
-            title: 'Connection Request Accepted',
-            message: `${req.user.name || 'An alumni'} accepted your connection request.`
+            title: acceptTitle,
+            message: acceptMessage
         });
+        await sendPushToUser(request.sender, `🎉 ${acceptTitle}`, acceptMessage, { type: 'connection' });
 
         res.json({ success: true, message: 'Connection request accepted successfully' });
     } catch (error) {

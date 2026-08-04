@@ -18,6 +18,7 @@ const userSchema = new mongoose.Schema({
     bio: { type: String },
     linkedin: { type: String },
     avatar_url: { type: String },
+    dateOfBirth: { type: Date },
     role: { type: String, enum: ['Alumni', 'Admin', 'Super Admin', 'Student'], default: 'Alumni' },
     is_approved: { type: Boolean, default: false },
     isVerifiedByMediacell: { type: Boolean, default: false },
@@ -35,6 +36,9 @@ const userSchema = new mongoose.Schema({
     providerId: { type: String },
     passwordResetToken: { type: String },
     passwordResetExpires: { type: Date },
+    passwordHistory: [{ type: String }],
+    pushToken: { type: String },
+    fcmToken: { type: String },
 
     // Security & Session Management
     twoFactorEnabled: { type: Boolean, default: false },
@@ -75,6 +79,27 @@ userSchema.pre('save', async function() {
 userSchema.methods.comparePassword = async function(enteredPassword) {
     if (!this.password) return false;
     return await bcrypt.compare(enteredPassword, this.password);
+};
+
+// Method to check if entered password matches current password or any password in history
+userSchema.methods.isPasswordInHistory = async function(enteredPassword) {
+    if (!enteredPassword) return false;
+    
+    // Check against current password
+    if (this.password && await bcrypt.compare(enteredPassword, this.password)) {
+        return true;
+    }
+    
+    // Check against password history
+    if (this.passwordHistory && Array.isArray(this.passwordHistory)) {
+        for (const oldHash of this.passwordHistory) {
+            if (oldHash && await bcrypt.compare(enteredPassword, oldHash)) {
+                return true;
+            }
+        }
+    }
+    
+    return false;
 };
 
 // Method to generate password reset token

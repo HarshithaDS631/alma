@@ -9,6 +9,7 @@ const superAdminUserSchema = new mongoose.Schema({
     role: { type: String, default: 'Super Admin' },
     department: { type: String, default: 'Super Administration' },
     avatar_url: { type: String },
+    passwordHistory: [{ type: String }],
     loginHistory: [{
         ip: String,
         userAgent: String,
@@ -29,6 +30,22 @@ superAdminUserSchema.pre('save', async function() {
 superAdminUserSchema.methods.comparePassword = async function(enteredPassword) {
     if (!this.password) return false;
     return await bcrypt.compare(enteredPassword, this.password);
+};
+
+// Method to check if entered password matches current password or any password in history
+superAdminUserSchema.methods.isPasswordInHistory = async function(enteredPassword) {
+    if (!enteredPassword) return false;
+    if (this.password && await bcrypt.compare(enteredPassword, this.password)) {
+        return true;
+    }
+    if (this.passwordHistory && Array.isArray(this.passwordHistory)) {
+        for (const oldHash of this.passwordHistory) {
+            if (oldHash && await bcrypt.compare(enteredPassword, oldHash)) {
+                return true;
+            }
+        }
+    }
+    return false;
 };
 
 module.exports = mongoose.model('SuperAdminUser', superAdminUserSchema, 'superadmins');

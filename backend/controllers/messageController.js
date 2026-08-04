@@ -57,6 +57,24 @@ exports.sendMessage = async (req, res) => {
         const message = await Message.create(messageData);
         const responseMsg = message.toObject();
 
+        // Dispatch Push Notification to message recipient
+        try {
+            const { sendFCMNotification } = require('../utils/fcmService');
+            const receiverUser = await User.findById(targetId).select('fcmToken pushToken name');
+            if (receiverUser) {
+                const deviceToken = receiverUser.fcmToken || receiverUser.pushToken;
+                const pushTitle = `💬 Message from ${req.user.name || 'Alumni'}`;
+                const pushBody = text || (attachment ? `Sent an attachment: ${attachment.name || 'File'}` : 'Sent a message');
+                if (deviceToken) {
+                    await sendFCMNotification(deviceToken, pushTitle, pushBody, { type: 'message', senderId: senderId.toString() });
+                } else {
+                    console.log(`[PUSH NOTIFICATION DISPATCHED] To: ${receiverUser.name} | TITLE: "${pushTitle}" | BODY: "${pushBody}"`);
+                }
+            }
+        } catch (pushErr) {
+            console.error('[MESSAGE PUSH ERROR]:', pushErr.message);
+        }
+
         res.status(201).json(responseMsg);
     } catch (error) {
         console.error('sendMessage error:', error);

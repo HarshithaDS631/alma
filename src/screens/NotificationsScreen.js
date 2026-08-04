@@ -21,6 +21,7 @@ const NotificationsScreen = ({ navigation }) => {
           type: n.type,
           title: n.title,
           message: n.message,
+          sender: n.sender,
           time: getTimeAgo(n.createdAt),
           icon: getIconForType(n.type),
           color: getColorForType(n.type),
@@ -66,6 +67,14 @@ const NotificationsScreen = ({ navigation }) => {
       navigation.navigate('Main', { screen: 'Jobs' });
     } else if (item.type === 'connection' || item.type === 'referral') {
       navigation.navigate('Main', { screen: 'Engage' });
+    } else if (item.type === 'birthday' && item.sender) {
+      navigation.navigate('Chat', {
+        user: {
+          id: item.sender._id || item.sender.id,
+          name: item.sender.name || 'Alumni Member',
+          initials: item.sender.name ? item.sender.name.substring(0, 2).toUpperCase() : 'AL'
+        }
+      });
     } else {
       navigation.navigate('Main', { screen: 'Home' });
     }
@@ -81,6 +90,7 @@ const NotificationsScreen = ({ navigation }) => {
       case 'referral': return 'checkmark-circle-outline';
       case 'announcement': return 'megaphone-outline';
       case 'mention': return 'at-circle-outline';
+      case 'birthday': return 'gift-outline';
       default: return 'notifications-outline';
     }
   };
@@ -94,6 +104,7 @@ const NotificationsScreen = ({ navigation }) => {
       case 'referral': return '#DCFCE7';
       case 'announcement': return '#FFEDD5';
       case 'mention': return '#FCE7F3';
+      case 'birthday': return '#FEE2E2';
       default: return '#F1F5F9';
     }
   };
@@ -107,6 +118,7 @@ const NotificationsScreen = ({ navigation }) => {
       case 'referral': return '#16A34A';
       case 'announcement': return '#EA580C';
       case 'mention': return '#DB2777';
+      case 'birthday': return '#EF4444';
       default: return '#64748B';
     }
   };

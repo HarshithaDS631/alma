@@ -63,7 +63,7 @@ const ResetPasswordScreen = ({ navigation, route }) => {
       ]);
       
     } catch (error) {
-      Alert.alert('Error', error.message || 'Failed to update password');
+      Alert.alert('Error', error.response?.data?.message || error.message || 'Failed to update password');
     } finally {
       setLoading(false);
     }

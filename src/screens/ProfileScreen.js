@@ -480,6 +480,7 @@ const DEFAULT_TAGGED_POSTS = [
   const [editBio, setEditBio] = useState(profileData.bio);
   const [editLinkedin, setEditLinkedin] = useState(profileData.linkedin);
   const [editAvatarUrl, setEditAvatarUrl] = useState(profileData.avatar_url || '');
+  const [editDob, setEditDob] = useState(profileData.dateOfBirth ? (typeof profileData.dateOfBirth === 'string' ? profileData.dateOfBirth.substring(0, 10) : new Date(profileData.dateOfBirth).toISOString().substring(0, 10)) : '');
 
   const handlePickProfilePhoto = async () => {
     try {
@@ -1054,6 +1055,15 @@ const DEFAULT_TAGGED_POSTS = [
                   onChangeText={setEditLinkedin}
                 />
 
+                <Text style={styles.editLabel}>Date of Birth 🎂 (YYYY-MM-DD)</Text>
+                <TextInput 
+                  style={styles.securityInput} 
+                  placeholder="YYYY-MM-DD (e.g. 1998-08-15)" 
+                  placeholderTextColor="#94A3B8"
+                  value={editDob}
+                  onChangeText={setEditDob}
+                />
+
                 <TouchableOpacity 
                   style={styles.saveSettingsBtn}
                   onPress={() => {
@@ -1070,6 +1080,7 @@ const DEFAULT_TAGGED_POSTS = [
                       bio: editBio,
                       linkedin: editLinkedin,
                       avatar_url: editAvatarUrl,
+                      dateOfBirth: editDob,
                       avatar: editName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'AJ'
                     });
 
@@ -1081,7 +1092,8 @@ const DEFAULT_TAGGED_POSTS = [
                           batch_year: editBatch,
                           bio: editBio,
                           linkedin: editLinkedin,
-                          avatar_url: editAvatarUrl
+                          avatar_url: editAvatarUrl,
+                          dateOfBirth: editDob
                         });
                       } catch (err) {
                         console.error('Error saving profile:', err);
@@ -1098,6 +1110,7 @@ const DEFAULT_TAGGED_POSTS = [
                           cached.batch_year = editBatch;
                           cached.bio = editBio;
                           cached.linkedin = editLinkedin;
+                          cached.dateOfBirth = editDob;
                           if (editAvatarUrl) cached.avatar_url = editAvatarUrl;
                           await AsyncStorage.setItem('userInfo', JSON.stringify(cached));
                         }
@@ -1234,7 +1247,7 @@ const DEFAULT_TAGGED_POSTS = [
                       setSettingsSubView('menu');
                       Alert.alert('Success', 'Your password has been changed successfully!');
                     } catch (err) {
-                      Alert.alert('Error', err.message || 'Failed to update password.');
+                      Alert.alert('Error', err.response?.data?.message || err.message || 'Failed to update password.');
                     }
                   }}
                 >

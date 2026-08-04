@@ -9,11 +9,11 @@ const notificationSchema = new mongoose.Schema({
     sender: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+        required: false
     },
     type: {
         type: String,
-        enum: ['follow', 'connection', 'event', 'job', 'announcement', 'referral', 'mention'],
+        enum: ['follow', 'connection', 'event', 'job', 'announcement', 'referral', 'mention', 'birthday'],
         required: true
     },
     title: {

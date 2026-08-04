@@ -1,0 +1,25 @@
+{
+  "projectId": "alumni-app-956c6",
+  "testMatrix": {
+    "android": {
+      "devices": [
+        { "model": "Pixel7", "version": "33", "locale": "en", "orientation": "portrait" },
+        { "model": "GalaxyS23", "version": "34", "locale": "en", "orientation": "portrait" }
+      ],
+      "testType": "robo",
+      "roboDirective": {
+        "maxDepth": 10,
+        "maxSteps": 100,
+        "timeoutSeconds": 300
+      }
+    },
+    "ios": {
+      "devices": [
+        { "model": "iphone14pro", "version": "16.6", "locale": "en", "orientation": "portrait" },
+        { "model": "iphone15", "version": "17.0", "locale": "en", "orientation": "portrait" }
+      ],
+      "testType": "xctest",
+      "timeoutSeconds": 300
+    }
+  }
+}
