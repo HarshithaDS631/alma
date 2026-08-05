@@ -588,12 +588,14 @@ const DEFAULT_TAGGED_POSTS = [
   };
 
   const handleOpenEdit = () => {
-    setEditName(profileData.name);
-    setEditUsername(profileData.username);
-    setEditBranch(profileData.branch);
-    setEditBatch(profileData.batch);
-    setEditBio(profileData.bio);
+    setEditName(profileData.name || '');
+    setEditUsername(profileData.username || '');
+    setEditBranch(profileData.branch || '');
+    setEditBatch(profileData.batch || '');
+    setEditBio(profileData.bio || '');
     setEditLinkedin(profileData.linkedin || '');
+    setEditAvatarUrl(profileData.avatar_url || '');
+    setEditDob(profileData.dateOfBirth || '');
     setSettingsSubView('profile_edit');
     setSettingsVisible(true);
   };
@@ -934,7 +936,7 @@ const DEFAULT_TAGGED_POSTS = [
       {/* Settings Modal Sheet */}
       <Modal visible={settingsVisible} transparent animationType="slide">
         <View style={styles.modalOverlay}>
-          <TouchableOpacity style={{ flex: 1 }} onPress={() => { setSettingsVisible(false); setSettingsSubView('menu'); }} />
+          <TouchableOpacity style={StyleSheet.absoluteFillObject} onPress={() => { setSettingsVisible(false); setSettingsSubView('menu'); }} />
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               {settingsSubView !== 'menu' ? (
