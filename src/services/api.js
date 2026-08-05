@@ -24,12 +24,45 @@ const api = axios.create({
 
 api.interceptors.request.use(
   async (config) => {
-    const userInfo = await AsyncStorage.getItem('userInfo');
-    if (userInfo) {
-      const { token } = JSON.parse(userInfo);
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
+    let token = null;
+
+    try {
+      token = await AsyncStorage.getItem('userToken');
+    } catch (e) {}
+
+    if (!token) {
+      try {
+        token = await AsyncStorage.getItem('token');
+      } catch (e) {}
+    }
+
+    if (!token) {
+      try {
+        const userInfoRaw = await AsyncStorage.getItem('userInfo');
+        if (userInfoRaw) {
+          const parsed = JSON.parse(userInfoRaw);
+          token = parsed.token || parsed.accessToken || parsed.idToken;
+        }
+      } catch (e) {}
+    }
+
+    // Web localStorage fallback
+    if (!token && Platform.OS === 'web' && typeof window !== 'undefined' && window.localStorage) {
+      try {
+        token = window.localStorage.getItem('userToken') || 
+                window.localStorage.getItem('token') || 
+                window.localStorage.getItem('firebase_id_token');
+        if (!token) {
+          const raw = window.localStorage.getItem('userInfo');
+          if (raw) {
+            token = JSON.parse(raw)?.token;
+          }
+        }
+      } catch (e) {}
+    }
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },

@@ -156,7 +156,7 @@ const ProfileSetupScreen = ({ navigation }) => {
         payload.avatar_url = avatarUrl;
       }
 
-      await updateProfile(payload);
+      const updatedRes = await updateProfile(payload);
 
       try {
         const stored = await AsyncStorage.getItem('userInfo');
@@ -172,7 +172,14 @@ const ProfileSetupScreen = ({ navigation }) => {
           user.company = formData.company;
           user.location = formData.location;
           if (avatarUrl) user.avatar_url = avatarUrl;
+          if (updatedRes && updatedRes.token) {
+            user.token = updatedRes.token;
+          }
           await AsyncStorage.setItem('userInfo', JSON.stringify(user));
+          if (user.token) {
+            await AsyncStorage.setItem('userToken', user.token);
+            await AsyncStorage.setItem('token', user.token);
+          }
         }
       } catch (e) {}
 
