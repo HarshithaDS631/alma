@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, TextInput, ScrollView, KeyboardAvoidingView, Platform, Alert, Image, StatusBar, Modal, FlatList } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -95,6 +96,32 @@ const ProfileSetupScreen = ({ navigation }) => {
   const [batchModalVisible, setBatchModalVisible] = useState(false);
   const [dobModalVisible, setDobModalVisible] = useState(false);
 
+  useEffect(() => {
+    const loadCachedUser = async () => {
+      try {
+        const stored = await AsyncStorage.getItem('userInfo');
+        if (stored) {
+          const user = JSON.parse(stored);
+          setFormData({
+            fullName: user.name || '',
+            institution: user.institution || '',
+            batchYear: (user.batchYear || user.batch_year || user.batch || '').toString(),
+            department: user.department || user.branch || '',
+            dateOfBirth: user.dateOfBirth || '',
+            company: user.company || '',
+            location: user.location || '',
+          });
+          if (user.avatar_url) {
+            setAvatar(user.avatar_url);
+          }
+        }
+      } catch (e) {
+        console.log('Error loading cached user in ProfileSetupScreen:', e);
+      }
+    };
+    loadCachedUser();
+  }, []);
+
   const handleContinue = async () => {
     if (!formData.fullName.trim()) {
       Alert.alert('Required', 'Please enter your full name.');
@@ -123,8 +150,27 @@ const ProfileSetupScreen = ({ navigation }) => {
         department: formData.department,
         company: formData.company,
         location: formData.location,
+        dateOfBirth: formData.dateOfBirth,
         avatar_url: avatarUrl
       });
+
+      try {
+        const stored = await AsyncStorage.getItem('userInfo');
+        if (stored) {
+          const user = JSON.parse(stored);
+          user.name = formData.fullName;
+          user.institution = formData.institution;
+          user.batchYear = formData.batchYear;
+          user.batch_year = formData.batchYear;
+          user.department = formData.department;
+          user.branch = formData.department;
+          user.dateOfBirth = formData.dateOfBirth;
+          user.company = formData.company;
+          user.location = formData.location;
+          if (avatarUrl) user.avatar_url = avatarUrl;
+          await AsyncStorage.setItem('userInfo', JSON.stringify(user));
+        }
+      } catch (e) {}
 
       setIsUploading(false);
       navigation.navigate('Main');

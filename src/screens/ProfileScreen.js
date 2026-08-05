@@ -588,16 +588,22 @@ const DEFAULT_TAGGED_POSTS = [
   };
 
   const handleOpenEdit = () => {
-    setEditName(profileData.name || '');
-    setEditUsername(profileData.username || '');
-    setEditBranch(profileData.branch || '');
-    setEditBatch(profileData.batch || '');
-    setEditBio(profileData.bio || '');
-    setEditLinkedin(profileData.linkedin || '');
-    setEditAvatarUrl(profileData.avatar_url || '');
-    setEditDob(profileData.dateOfBirth || '');
-    setSettingsSubView('profile_edit');
-    setSettingsVisible(true);
+    setSettingsVisible(false);
+    setSettingsSubView('menu');
+    if (navigation && typeof navigation.navigate === 'function') {
+      navigation.navigate('ProfileSetup');
+    } else {
+      setEditName(profileData.name || '');
+      setEditUsername(profileData.username || '');
+      setEditBranch(profileData.branch || '');
+      setEditBatch(profileData.batch || '');
+      setEditBio(profileData.bio || '');
+      setEditLinkedin(profileData.linkedin || '');
+      setEditAvatarUrl(profileData.avatar_url || '');
+      setEditDob(profileData.dateOfBirth || '');
+      setSettingsSubView('profile_edit');
+      setSettingsVisible(true);
+    }
   };
 
   const handleLogout = () => {
