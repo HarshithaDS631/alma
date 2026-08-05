@@ -1,50 +1,50 @@
-name: Alumni Platform CI/CD Pipeline
+name: Alumni App CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, master ]
 
 jobs:
-  build-and-test:
+  lint-and-test:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
-      - name: Setup Node.js Environment
-        uses: actions/setup-node@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: '22'
+          node-version: 18
+          cache: 'npm'
 
       - name: Install Frontend Dependencies
-        run: npm install --legacy-peer-deps
+        run: npm ci
 
-      - name: Install Backend Dependencies
-        run: |
-          cd backend
-          npm install --legacy-peer-deps
-
-      - name: Verify Web Build
+      - name: Verify Frontend Web Build
         run: npm run build
 
-  deploy-vercel:
-    needs: build-and-test
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+      - name: Install Backend Dependencies
+        run: cd backend && npm ci
 
+      - name: Test Backend Models & Controllers Syntax
+        run: |
+          cd backend
+          node -e "require('./models/User.js'); require('./controllers/authController.js'); console.log('Backend syntax clean!');"
+
+  deploy-web:
+    needs: lint-and-test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Deploy to Vercel Production
+        uses: amondnet/vercel-action@v25
         with:
-          node-version: '22'
-
-      - name: Validate & Trigger Production Deploy
-        run: |
-          echo "✅ CI/CD Pipeline passed build verification!"
-          echo "🚀 Vercel Git Integration automatically deploys production build to Vercel."
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'

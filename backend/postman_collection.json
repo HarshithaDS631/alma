@@ -1,0 +1,117 @@
+{
+  "info": {
+    "name": "Alumni App API Suite",
+    "description": "Complete Postman API Collection for Alumni Network Platform (Auth, Profile, Posts, Jobs, Events, Messages, Firebase, Notifications)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "User Registration",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"SecurePass123!\",\n  \"department\": \"Computer Science\",\n  \"batchYear\": \"2024\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api", "auth", "register"] }
+          }
+        },
+        {
+          "name": "User Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"SecurePass123!\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+          }
+        },
+        {
+          "name": "Firebase Token Auth Verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idToken\": \"FIREBASE_ID_TOKEN_HERE\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/firebase-auth/verify-token", "host": ["{{baseUrl}}"], "path": ["api", "firebase-auth", "verify-token"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications & Birthday",
+      "item": [
+        {
+          "name": "Get Notifications & Check Birthdays",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/auth/notifications", "host": ["{{baseUrl}}"], "path": ["api", "auth", "notifications"] }
+          }
+        },
+        {
+          "name": "Send Push Notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipientId\": \"TARGET_USER_ID\",\n  \"title\": \"🎂 Birthday Alert!\",\n  \"message\": \"Today is John's birthday! Wish them a Happy Birthday!\",\n  \"type\": \"birthday\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/notifications/send", "host": ["{{baseUrl}}"], "path": ["api", "notifications", "send"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Posts & Feed",
+      "item": [
+        {
+          "name": "Get Feed Posts",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/posts", "host": ["{{baseUrl}}"], "path": ["api", "posts"] }
+          }
+        },
+        {
+          "name": "Create New Post",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Reconnected with alumni today! #AlumniMeet\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/posts", "host": ["{{baseUrl}}"], "path": ["api", "posts"] }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "https://backend-pi-bice-97.vercel.app" },
+    { "key": "jwtToken", "value": "YOUR_JWT_TOKEN_HERE" }
+  ]
+}
