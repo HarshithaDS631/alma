@@ -48,6 +48,29 @@ const locations = [
   { id: 'OTHER', name: 'Other Location' },
 ];
 
+const BRANCHES_LIST = [
+  'Computer Science & Engineering',
+  'Information Science & Engineering',
+  'Electronics & Communication Engineering',
+  'Electrical & Electronics Engineering',
+  'Mechanical Engineering',
+  'Civil Engineering',
+  'Chemical Engineering',
+  'Biotechnology',
+  'Aerospace Engineering',
+  'Artificial Intelligence & Machine Learning',
+  'Data Science',
+  'Cyber Security',
+  'Telecommunication Engineering',
+  'Industrial Engineering & Management',
+  'Media Cell & Communications',
+  'Social Media',
+  'Master of Business Administration (MBA)',
+  'Master of Computer Applications (MCA)',
+  'Other / Custom'
+];
+
+const BATCH_YEARS_LIST = Array.from({ length: 61 }, (_, i) => String(2030 - i));
 
 const ProfileSetupScreen = ({ navigation }) => {
   const { theme, isDarkMode } = useTheme();
@@ -58,6 +81,7 @@ const ProfileSetupScreen = ({ navigation }) => {
     institution: '',
     batchYear: '',
     department: '',
+    dateOfBirth: '',
     company: '',
     location: '',
   });
@@ -67,6 +91,9 @@ const ProfileSetupScreen = ({ navigation }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [instModalVisible, setInstModalVisible] = useState(false);
   const [locModalVisible, setLocModalVisible] = useState(false);
+  const [deptModalVisible, setDeptModalVisible] = useState(false);
+  const [batchModalVisible, setBatchModalVisible] = useState(false);
+  const [dobModalVisible, setDobModalVisible] = useState(false);
 
   const handleContinue = async () => {
     if (!formData.fullName.trim()) {
@@ -195,33 +222,71 @@ const ProfileSetupScreen = ({ navigation }) => {
             <View style={styles.inputRow}>
               <View style={[styles.inputContainer, { flex: 1, marginRight: 12 }]}>
                 <Text style={styles.label}>Batch Year *</Text>
-                <View style={styles.inputWrapper}>
+                <TouchableOpacity 
+                  style={styles.inputWrapper} 
+                  onPress={() => setBatchModalVisible(true)}
+                  activeOpacity={0.8}
+                >
                   <Ionicons name="calendar-outline" size={20} color="#94A3B8" style={styles.inputIcon} />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="e.g. 2024"
-                    placeholderTextColor="#94A3B8"
-                    keyboardType="number-pad"
-                    maxLength={4}
-                    value={formData.batchYear}
-                    onChangeText={(text) => setFormData({ ...formData, batchYear: text })}
-                  />
-                </View>
+                  <Text style={[styles.input, !formData.batchYear && { color: theme.textMuted }]}>
+                    {formData.batchYear ? formData.batchYear : 'Select Year'}
+                  </Text>
+                  <Ionicons name="chevron-down" size={18} color="#94A3B8" />
+                </TouchableOpacity>
               </View>
 
               <View style={[styles.inputContainer, { flex: 1 }]}>
                 <Text style={styles.label}>Department *</Text>
-                <View style={styles.inputWrapper}>
+                <TouchableOpacity 
+                  style={styles.inputWrapper} 
+                  onPress={() => setDeptModalVisible(true)}
+                  activeOpacity={0.8}
+                >
                   <Ionicons name="school-outline" size={20} color="#94A3B8" style={styles.inputIcon} />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="e.g. CSE, ECE"
-                    placeholderTextColor="#94A3B8"
-                    value={formData.department}
-                    onChangeText={(text) => setFormData({ ...formData, department: text })}
+                  <Text style={[styles.input, !formData.department && { color: theme.textMuted }]} numberOfLines={1}>
+                    {formData.department ? formData.department : 'Select Dept'}
+                  </Text>
+                  <Ionicons name="chevron-down" size={18} color="#94A3B8" />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Date of Birth 🎂</Text>
+              {Platform.OS === 'web' ? (
+                <View style={styles.inputWrapper}>
+                  <Ionicons name="calendar-sharp" size={20} color="#003366" style={styles.inputIcon} />
+                  <input
+                    type="date"
+                    value={formData.dateOfBirth}
+                    onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                    style={{
+                      flex: 1,
+                      height: '100%',
+                      border: 'none',
+                      outline: 'none',
+                      background: 'transparent',
+                      color: theme.text,
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      fontFamily: 'inherit',
+                      cursor: 'pointer'
+                    }}
                   />
                 </View>
-              </View>
+              ) : (
+                <TouchableOpacity 
+                  style={styles.inputWrapper} 
+                  onPress={() => setDobModalVisible(true)}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="calendar-sharp" size={20} color="#003366" style={styles.inputIcon} />
+                  <Text style={[styles.input, !formData.dateOfBirth && { color: theme.textMuted }]}>
+                    {formData.dateOfBirth ? formData.dateOfBirth : 'YYYY-MM-DD'}
+                  </Text>
+                  <Ionicons name="chevron-down" size={18} color="#94A3B8" />
+                </TouchableOpacity>
+              )}
             </View>
 
             <View style={styles.inputContainer}>
@@ -338,6 +403,107 @@ const ProfileSetupScreen = ({ navigation }) => {
           </View>
         </View>
       </Modal>
+
+      {/* Department Dropdown Modal */}
+      <Modal visible={deptModalVisible} transparent animationType="slide" onRequestClose={() => setDeptModalVisible(false)}>
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setDeptModalVisible(false)}>
+          <View style={[styles.modalContent, { maxHeight: 500 }]}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Department / Branch</Text>
+              <TouchableOpacity onPress={() => setDeptModalVisible(false)}>
+                <Ionicons name="close" size={24} color="#0F172A" />
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={BRANCHES_LIST}
+              keyExtractor={(item, idx) => idx.toString()}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={{ paddingVertical: 14, paddingHorizontal: 20, borderBottomWidth: 0.5, borderColor: theme.border }}
+                  onPress={() => {
+                    setFormData({ ...formData, department: item });
+                    setDeptModalVisible(false);
+                  }}
+                >
+                  <Text style={{ fontSize: 15, color: formData.department === item ? theme.primary : theme.text, fontWeight: formData.department === item ? '700' : '400' }}>
+                    {item}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* Batch Year Dropdown Modal */}
+      <Modal visible={batchModalVisible} transparent animationType="slide" onRequestClose={() => setBatchModalVisible(false)}>
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setBatchModalVisible(false)}>
+          <View style={[styles.modalContent, { maxHeight: 480 }]}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Graduation Batch Year</Text>
+              <TouchableOpacity onPress={() => setBatchModalVisible(false)}>
+                <Ionicons name="close" size={24} color="#0F172A" />
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={{ paddingHorizontal: 16, marginTop: 10 }}>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+                {BATCH_YEARS_LIST.map((yearStr, idx) => (
+                  <TouchableOpacity
+                    key={idx}
+                    style={{
+                      width: '30%',
+                      paddingVertical: 12,
+                      marginVertical: 6,
+                      borderRadius: 10,
+                      backgroundColor: formData.batchYear === yearStr ? theme.primary : 'rgba(0, 33, 68, 0.05)',
+                      alignItems: 'center'
+                    }}
+                    onPress={() => {
+                      setFormData({ ...formData, batchYear: yearStr });
+                      setBatchModalVisible(false);
+                    }}
+                  >
+                    <Text style={{ color: formData.batchYear === yearStr ? '#FFFFFF' : theme.text, fontWeight: formData.batchYear === yearStr ? '700' : '500', fontSize: 14 }}>
+                      {yearStr}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* DOB Calendar Picker Modal (Mobile) */}
+      <Modal visible={dobModalVisible} transparent animationType="slide" onRequestClose={() => setDobModalVisible(false)}>
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setDobModalVisible(false)}>
+          <View style={[styles.modalContent, { paddingBottom: 24 }]}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Date of Birth 🎂</Text>
+              <TouchableOpacity onPress={() => setDobModalVisible(false)}>
+                <Ionicons name="close" size={24} color="#0F172A" />
+              </TouchableOpacity>
+            </View>
+            <View style={{ padding: 16, alignItems: 'center' }}>
+              <TextInput
+                style={[styles.input, { width: '100%', textAlign: 'center', fontSize: 18, fontWeight: '700', letterSpacing: 2 }]}
+                placeholder="YYYY-MM-DD"
+                placeholderTextColor="#94A3B8"
+                maxLength={10}
+                value={formData.dateOfBirth}
+                onChangeText={(text) => setFormData({ ...formData, dateOfBirth: text })}
+              />
+              <TouchableOpacity
+                style={[styles.button, { width: '100%', marginTop: 16 }]}
+                onPress={() => setDobModalVisible(false)}
+              >
+                <Text style={styles.buttonText}>Confirm Date</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
     </View>
     </SafeAreaView>
   );
