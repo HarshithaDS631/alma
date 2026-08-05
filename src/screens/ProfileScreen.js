@@ -1326,46 +1326,24 @@ const DEFAULT_TAGGED_POSTS = [
                   </TouchableOpacity>
                 </View>
 
-                <Text style={[styles.settingsSectionTitle, { marginTop: 30, color: '#DC2626' }]}>Danger Zone</Text>
-                <TouchableOpacity 
+                <Text style={[styles.settingsSectionTitle, { marginTop: 30, color: '#475569' }]}>Account Management</Text>
+                <View 
                   style={{
-                    backgroundColor: '#FEF2F2',
+                    backgroundColor: 'rgba(0, 33, 68, 0.04)',
                     borderWidth: 1,
-                    borderColor: '#FECACA',
+                    borderColor: 'rgba(0, 33, 68, 0.1)',
                     padding: 16,
                     borderRadius: 12,
                     marginTop: 8,
                     flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                  onPress={() => {
-                    Alert.alert(
-                      'Delete Account',
-                      'Are you sure you want to permanently delete your account? This action cannot be undone and all your data will be removed.',
-                      [
-                        { text: 'Cancel', style: 'cancel' },
-                        { 
-                          text: 'Delete Permanently', 
-                          style: 'destructive',
-                                                    onPress: async () => {
-                            try {
-                              await deleteAccount();
-                              await AsyncStorage.removeItem('userInfo');
-                            } catch (e) {
-                              console.error('Delete Account Error', e);
-                            }
-                            setSettingsVisible(false);
-                            navigation.replace('Welcome');
-                          }
-                        }
-                      ]
-                    );
+                    alignItems: 'center'
                   }}
                 >
-                  <Ionicons name="trash-outline" size={20} color="#DC2626" style={{ marginRight: 8 }} />
-                  <Text style={{ color: '#DC2626', fontWeight: '600', fontSize: 16 }}>Delete Account</Text>
-                </TouchableOpacity>
+                  <Ionicons name="information-circle-outline" size={22} color="#003366" style={{ marginRight: 12 }} />
+                  <Text style={{ color: '#334155', fontSize: 13, lineHeight: 18, flex: 1 }}>
+                    Alumni account deletions are governed by your Institution Administration. If you wish to request account deletion, please contact your Admin team.
+                  </Text>
+                </View>
               </View>
             )}
           </View>

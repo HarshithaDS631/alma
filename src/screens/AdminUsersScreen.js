@@ -491,21 +491,47 @@ const AdminUsersScreen = ({ navigation, route }) => {
         <Text style={styles.friendDetail}>{item.branch} • Batch {item.batch}</Text>
         <Text style={styles.friendDetailSub}>{item.course} • {item.location}</Text>
       </View>
-      <TouchableOpacity 
-        style={styles.messageBtn} 
-        activeOpacity={0.7}
-        onPress={() => navigation && navigation.navigate('Chat', { 
-          user: { 
-            id: item._id || item.id,
-            name: item.name, 
-            role: item.institution || `${item.branch} • Batch ${item.batch}` || '', 
-            initials: item.avatar || (item.name || '?').charAt(0).toUpperCase()
-          } 
-        })}
-      >
-        <Ionicons name="chatbubble-outline" size={16} color="#003366" />
-        <Text style={styles.messageBtnText}>Message</Text>
-      </TouchableOpacity>
+      <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+        <TouchableOpacity 
+          style={styles.messageBtn} 
+          activeOpacity={0.7}
+          onPress={() => navigation && navigation.navigate('Chat', { 
+            user: { 
+              id: item._id || item.id,
+              name: item.name, 
+              role: item.institution || `${item.branch} • Batch ${item.batch}` || '', 
+              initials: item.avatar || (item.name || '?').charAt(0).toUpperCase()
+            } 
+          })}
+        >
+          <Ionicons name="chatbubble-outline" size={16} color="#003366" />
+          <Text style={styles.messageBtnText}>Message</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={[styles.messageBtn, { borderColor: '#FECACA', backgroundColor: '#FEF2F2', paddingHorizontal: 10 }]} 
+          activeOpacity={0.7}
+          onPress={() => {
+            Alert.alert(
+              'Delete Alumni Account',
+              `Are you sure you want to permanently delete ${item.name}'s account as Admin authority?`,
+              [
+                { text: 'Cancel', style: 'cancel' },
+                { 
+                  text: 'Delete Account', 
+                  style: 'destructive',
+                  onPress: () => {
+                    setFriends(prev => prev.filter(f => (f._id || f.id) !== (item._id || item.id)));
+                    Alert.alert('Account Deleted', `${item.name}'s alumni account has been removed by Admin authority.`);
+                  }
+                }
+              ]
+            );
+          }}
+        >
+          <Ionicons name="trash-outline" size={16} color="#DC2626" />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
