@@ -26,7 +26,7 @@ const vercelJsonConfig = {
   cleanUrls: false,
   rewrites: [
     {
-      source: "/((?!api|_expo|assets|favicon|index\\.html).*)",
+      source: "/:path*",
       destination: "/index.html"
     }
   ]
@@ -46,7 +46,7 @@ const buildOutputConfig = {
   version: 3,
   routes: [
     { handle: "filesystem" },
-    { src: "/((?!api|_expo|assets|favicon|index\\.html).*)", dest: "/index.html" }
+    { src: "/(.*)", dest: "/index.html" }
   ]
 };
 
