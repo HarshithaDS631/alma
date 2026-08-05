@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { uploadFile } from '../services/uploadService';
 import { updateProfile } from '../services/authService';
+import { institutionDepartments, defaultDepartments } from '../constants/institutionDepartments';
 
 const institutions = [
   { id: 'RV School', name: 'RVS', fullName: 'RV School' },
@@ -49,28 +50,6 @@ const locations = [
   { id: 'OTHER', name: 'Other Location' },
 ];
 
-const BRANCHES_LIST = [
-  'Computer Science & Engineering',
-  'Information Science & Engineering',
-  'Electronics & Communication Engineering',
-  'Electrical & Electronics Engineering',
-  'Mechanical Engineering',
-  'Civil Engineering',
-  'Chemical Engineering',
-  'Biotechnology',
-  'Aerospace Engineering',
-  'Artificial Intelligence & Machine Learning',
-  'Data Science',
-  'Cyber Security',
-  'Telecommunication Engineering',
-  'Industrial Engineering & Management',
-  'Media Cell & Communications',
-  'Social Media',
-  'Master of Business Administration (MBA)',
-  'Master of Computer Applications (MCA)',
-  'Other / Custom'
-];
-
 const BATCH_YEARS_LIST = Array.from({ length: 61 }, (_, i) => String(2030 - i));
 
 const ProfileSetupScreen = ({ navigation }) => {
@@ -86,6 +65,15 @@ const ProfileSetupScreen = ({ navigation }) => {
     company: '',
     location: '',
   });
+
+  const getActiveDepartments = () => {
+    if (!formData.institution) return defaultDepartments;
+    const instStr = formData.institution.toLowerCase();
+    const matchedKey = Object.keys(institutionDepartments).find(k => 
+      instStr.includes(k.toLowerCase()) || k.toLowerCase().includes(instStr)
+    );
+    return matchedKey ? institutionDepartments[matchedKey] : (institutionDepartments[formData.institution] || defaultDepartments);
+  };
   
   const [avatar, setAvatar] = useState(null);
   const [avatarMimeType, setAvatarMimeType] = useState('image/jpeg');
@@ -461,7 +449,7 @@ const ProfileSetupScreen = ({ navigation }) => {
               </TouchableOpacity>
             </View>
             <FlatList
-              data={BRANCHES_LIST}
+              data={getActiveDepartments()}
               keyExtractor={(item, idx) => idx.toString()}
               renderItem={({ item }) => (
                 <TouchableOpacity

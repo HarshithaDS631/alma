@@ -9,6 +9,7 @@ import { getChatHistory, sendMessage } from '../services/messageService';
 import { uploadFile, getImageUrl } from '../services/uploadService';
 import { addComment, deletePost, toggleSavePost, updatePostSettings, editPost, getSavedPosts, getUserPosts } from '../services/postService';
 import * as ImagePicker from 'expo-image-picker';
+import { institutionDepartments, defaultDepartments } from '../constants/institutionDepartments';
 
 const validatePasswordStrength = (password) => {
   if (password.length < 8) {
@@ -581,6 +582,16 @@ const DEFAULT_TAGGED_POSTS = [
   const mockTags = [];
   const mockSaved = [];
   const mockReshares = [];
+
+  const getActiveDepartments = () => {
+    const inst = profileData.institution || '';
+    if (!inst) return defaultDepartments;
+    const instStr = inst.toLowerCase();
+    const matchedKey = Object.keys(institutionDepartments).find(k => 
+      instStr.includes(k.toLowerCase()) || k.toLowerCase().includes(instStr)
+    );
+    return matchedKey ? institutionDepartments[matchedKey] : (institutionDepartments[inst] || defaultDepartments);
+  };
 
   const handleSettings = () => {
     setSettingsSubView('menu');
@@ -2180,7 +2191,7 @@ const DEFAULT_TAGGED_POSTS = [
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, paddingHorizontal: 16, marginTop: 4 }}>
-              {BRANCHES_LIST.filter(b => b.toLowerCase().includes(branchSearch.toLowerCase())).map((item, idx) => {
+              {getActiveDepartments().filter(b => b.toLowerCase().includes(branchSearch.toLowerCase())).map((item, idx) => {
                 const isSelected = editBranch === item;
                 return (
                   <TouchableOpacity
