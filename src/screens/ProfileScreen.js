@@ -26,8 +26,31 @@ const validatePasswordStrength = (password) => {
   if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
     return { valid: false, reason: 'Password must contain at least one special character.' };
   }
-  return { valid: true };
 };
+
+const BRANCHES_LIST = [
+  'Computer Science & Engineering',
+  'Information Science & Engineering',
+  'Electronics & Communication Engineering',
+  'Electrical & Electronics Engineering',
+  'Mechanical Engineering',
+  'Civil Engineering',
+  'Chemical Engineering',
+  'Biotechnology',
+  'Aerospace Engineering',
+  'Artificial Intelligence & Machine Learning',
+  'Data Science',
+  'Cyber Security',
+  'Telecommunication Engineering',
+  'Industrial Engineering & Management',
+  'Media Cell & Communications',
+  'Social Media',
+  'Master of Business Administration (MBA)',
+  'Master of Computer Applications (MCA)',
+  'Other / Custom'
+];
+
+const BATCH_YEARS_LIST = Array.from({ length: 61 }, (_, i) => String(2030 - i));
 
 const ProfileScreen = ({ navigation }) => {
   const { theme, isDarkMode } = useTheme();
@@ -479,8 +502,11 @@ const DEFAULT_TAGGED_POSTS = [
   const [editBatch, setEditBatch] = useState(profileData.batch);
   const [editBio, setEditBio] = useState(profileData.bio);
   const [editLinkedin, setEditLinkedin] = useState(profileData.linkedin);
-  const [editAvatarUrl, setEditAvatarUrl] = useState(profileData.avatar_url || '');
   const [editDob, setEditDob] = useState(profileData.dateOfBirth ? (typeof profileData.dateOfBirth === 'string' ? profileData.dateOfBirth.substring(0, 10) : new Date(profileData.dateOfBirth).toISOString().substring(0, 10)) : '');
+  const [branchModalVisible, setBranchModalVisible] = useState(false);
+  const [batchModalVisible, setBatchModalVisible] = useState(false);
+  const [dobCalendarVisible, setDobCalendarVisible] = useState(false);
+  const [branchSearch, setBranchSearch] = useState('');
 
   const handlePickProfilePhoto = async () => {
     try {
@@ -1017,24 +1043,28 @@ const DEFAULT_TAGGED_POSTS = [
                 />
 
                 <Text style={styles.editLabel}>Branch / Department</Text>
-                <TextInput 
-                  style={styles.securityInput} 
-                  placeholder="Branch / Department" 
-                  placeholderTextColor="#94A3B8"
-                  value={editBranch}
-                  onChangeText={setEditBranch}
-                />
+                <TouchableOpacity 
+                  style={[styles.securityInput, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingRight: 12 }]}
+                  onPress={() => setBranchModalVisible(true)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={{ color: editBranch ? theme.text : '#94A3B8', fontSize: 14 }}>
+                    {editBranch || 'Select Branch / Department'}
+                  </Text>
+                  <Ionicons name="chevron-down" size={18} color="#64748B" />
+                </TouchableOpacity>
 
                 <Text style={styles.editLabel}>Graduation Batch Year</Text>
-                <TextInput 
-                  style={styles.securityInput} 
-                  placeholder="Batch Year" 
-                  placeholderTextColor="#94A3B8"
-                  keyboardType="number-pad"
-                  maxLength={4}
-                  value={editBatch}
-                  onChangeText={setEditBatch}
-                />
+                <TouchableOpacity 
+                  style={[styles.securityInput, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingRight: 12 }]}
+                  onPress={() => setBatchModalVisible(true)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={{ color: editBatch ? theme.text : '#94A3B8', fontSize: 14 }}>
+                    {editBatch ? `Class of ${editBatch}` : 'Select Graduation Batch Year'}
+                  </Text>
+                  <Ionicons name="calendar-outline" size={18} color="#64748B" />
+                </TouchableOpacity>
 
                 <Text style={styles.editLabel}>Bio</Text>
                 <TextInput 
@@ -1055,14 +1085,43 @@ const DEFAULT_TAGGED_POSTS = [
                   onChangeText={setEditLinkedin}
                 />
 
-                <Text style={styles.editLabel}>Date of Birth 🎂 (YYYY-MM-DD)</Text>
-                <TextInput 
-                  style={styles.securityInput} 
-                  placeholder="YYYY-MM-DD (e.g. 1998-08-15)" 
-                  placeholderTextColor="#94A3B8"
-                  value={editDob}
-                  onChangeText={setEditDob}
-                />
+                <Text style={styles.editLabel}>Date of Birth 🎂</Text>
+                {Platform.OS === 'web' ? (
+                  <View style={[styles.securityInput, { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, position: 'relative' }]}>
+                    <Ionicons name="calendar-sharp" size={18} color="#003366" style={{ marginRight: 8 }} />
+                    <input
+                      type="date"
+                      value={editDob}
+                      onChange={(e) => setEditDob(e.target.value)}
+                      style={{
+                        flex: 1,
+                        height: '100%',
+                        border: 'none',
+                        outline: 'none',
+                        background: 'transparent',
+                        color: theme.text,
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        fontFamily: 'inherit',
+                        cursor: 'pointer'
+                      }}
+                    />
+                  </View>
+                ) : (
+                  <TouchableOpacity 
+                    style={[styles.securityInput, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingRight: 12 }]}
+                    onPress={() => setDobCalendarVisible(true)}
+                    activeOpacity={0.7}
+                  >
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <Ionicons name="calendar-sharp" size={18} color="#003366" style={{ marginRight: 8 }} />
+                      <Text style={{ color: editDob ? theme.text : '#94A3B8', fontSize: 14 }}>
+                        {editDob ? editDob : 'Select Date of Birth'}
+                      </Text>
+                    </View>
+                    <Ionicons name="chevron-down" size={18} color="#64748B" />
+                  </TouchableOpacity>
+                )}
 
                 <TouchableOpacity 
                   style={styles.saveSettingsBtn}
@@ -2101,6 +2160,143 @@ const DEFAULT_TAGGED_POSTS = [
             </View>
           </View>
         </View>
+      </Modal>
+
+      {/* Branch Selection Dropdown Modal */}
+      <Modal visible={branchModalVisible} transparent animationType="slide" onRequestClose={() => setBranchModalVisible(false)}>
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setBranchModalVisible(false)}>
+          <View style={[styles.modalContent, { maxHeight: 520 }]}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Branch / Department</Text>
+              <TouchableOpacity onPress={() => setBranchModalVisible(false)}>
+                <Ionicons name="close" size={24} color="#0F172A" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Search filter for branches */}
+            <View style={{ paddingHorizontal: 16, paddingTop: 10, paddingBottom: 6 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.05)', borderRadius: 10, paddingHorizontal: 12, height: 40 }}>
+                <Ionicons name="search" size={18} color="#64748B" style={{ marginRight: 8 }} />
+                <TextInput
+                  style={{ flex: 1, color: theme.text, fontSize: 14 }}
+                  placeholder="Search branch..."
+                  placeholderTextColor="#94A3B8"
+                  value={branchSearch}
+                  onChangeText={setBranchSearch}
+                />
+                {branchSearch ? (
+                  <TouchableOpacity onPress={() => setBranchSearch('')}>
+                    <Ionicons name="close-circle" size={18} color="#94A3B8" />
+                  </TouchableOpacity>
+                ) : null}
+              </View>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, paddingHorizontal: 16, marginTop: 4 }}>
+              {BRANCHES_LIST.filter(b => b.toLowerCase().includes(branchSearch.toLowerCase())).map((item, idx) => {
+                const isSelected = editBranch === item;
+                return (
+                  <TouchableOpacity
+                    key={idx}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      paddingVertical: 14,
+                      borderBottomWidth: 0.5,
+                      borderColor: 'rgba(0,0,0,0.06)'
+                    }}
+                    onPress={() => {
+                      setEditBranch(item);
+                      setBranchModalVisible(false);
+                      setBranchSearch('');
+                    }}
+                  >
+                    <Text style={{ fontSize: 14, color: isSelected ? theme.primary : theme.text, fontWeight: isSelected ? '700' : '400' }}>
+                      {item}
+                    </Text>
+                    {isSelected && <Ionicons name="checkmark" size={20} color={theme.primary} />}
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* Graduation Batch Year Dropdown Modal */}
+      <Modal visible={batchModalVisible} transparent animationType="slide" onRequestClose={() => setBatchModalVisible(false)}>
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setBatchModalVisible(false)}>
+          <View style={[styles.modalContent, { maxHeight: 480 }]}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Graduation Batch Year</Text>
+              <TouchableOpacity onPress={() => setBatchModalVisible(false)}>
+                <Ionicons name="close" size={24} color="#0F172A" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, paddingHorizontal: 16, marginTop: 10 }}>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+                {BATCH_YEARS_LIST.map((yearStr, idx) => {
+                  const isSelected = editBatch === yearStr;
+                  return (
+                    <TouchableOpacity
+                      key={idx}
+                      style={{
+                        width: '30%',
+                        paddingVertical: 12,
+                        marginVertical: 6,
+                        borderRadius: 10,
+                        backgroundColor: isSelected ? theme.primary : 'rgba(0, 33, 68, 0.05)',
+                        alignItems: 'center'
+                      }}
+                      onPress={() => {
+                        setEditBatch(yearStr);
+                        setBatchModalVisible(false);
+                      }}
+                    >
+                      <Text style={{ color: isSelected ? '#FFFFFF' : theme.text, fontWeight: isSelected ? '700' : '500', fontSize: 14 }}>
+                        {yearStr}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </ScrollView>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* Mobile Real-time DOB Calendar Picker Modal */}
+      <Modal visible={dobCalendarVisible} transparent animationType="slide" onRequestClose={() => setDobCalendarVisible(false)}>
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setDobCalendarVisible(false)}>
+          <View style={[styles.modalContent, { paddingBottom: 24 }]}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Date of Birth 🎂</Text>
+              <TouchableOpacity onPress={() => setDobCalendarVisible(false)}>
+                <Ionicons name="close" size={24} color="#0F172A" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={{ padding: 16, alignItems: 'center' }}>
+              <Text style={{ fontSize: 13, color: '#64748B', marginBottom: 12 }}>Enter date formatted as YYYY-MM-DD</Text>
+              <TextInput
+                style={[styles.securityInput, { width: '100%', textAlign: 'center', fontSize: 18, fontWeight: '700', letterSpacing: 2 }]}
+                placeholder="YYYY-MM-DD"
+                placeholderTextColor="#94A3B8"
+                maxLength={10}
+                value={editDob}
+                onChangeText={setEditDob}
+              />
+              <TouchableOpacity
+                style={[styles.saveSettingsBtn, { width: '100%', marginTop: 16 }]}
+                onPress={() => setDobCalendarVisible(false)}
+              >
+                <Text style={styles.saveSettingsBtnText}>Confirm Date</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableOpacity>
       </Modal>
 
     </View>
