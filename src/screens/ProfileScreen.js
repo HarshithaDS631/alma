@@ -280,14 +280,15 @@ const DEFAULT_TAGGED_POSTS = [
 
       const loadAllData = async () => {
         try {
-          // 1. Fetch profile first to get the user ID
-          const userData = await getProfile().catch(() => null);
           const cachedStr = await AsyncStorage.getItem('userInfo');
           const cachedObj = cachedStr ? JSON.parse(cachedStr) : null;
+          const existingToken = (cachedObj && (cachedObj.token || cachedObj.accessToken)) || await AsyncStorage.getItem('userToken') || await AsyncStorage.getItem('token');
+          const userData = await getProfile().catch(() => null);
 
           const activeUser = {
             ...cachedObj,
             ...userData,
+            token: existingToken || (userData && userData.token) || (cachedObj && cachedObj.token),
             _id: (userData && (userData._id || userData.id)) || (cachedObj && (cachedObj._id || cachedObj.id))
           };
 
@@ -297,6 +298,10 @@ const DEFAULT_TAGGED_POSTS = [
                 ...cachedObj,
                 ...activeUser
               }));
+              if (activeUser.token) {
+                await AsyncStorage.setItem('userToken', activeUser.token);
+                await AsyncStorage.setItem('token', activeUser.token);
+              }
             } catch (e) {}
 
             const rawAvatar = activeUser.avatar_url || activeUser.profilePicture;

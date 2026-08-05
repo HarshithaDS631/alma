@@ -26,13 +26,11 @@ api.interceptors.request.use(
   async (config) => {
     let token = null;
 
-    try {
-      token = await AsyncStorage.getItem('userToken');
-    } catch (e) {}
-
-    if (!token) {
+    const keysToTry = ['userToken', 'token', 'firebase_id_token', 'jwtToken', 'auth_token'];
+    for (const key of keysToTry) {
       try {
-        token = await AsyncStorage.getItem('token');
+        const val = await AsyncStorage.getItem(key);
+        if (val) { token = val; break; }
       } catch (e) {}
     }
 
@@ -41,7 +39,7 @@ api.interceptors.request.use(
         const userInfoRaw = await AsyncStorage.getItem('userInfo');
         if (userInfoRaw) {
           const parsed = JSON.parse(userInfoRaw);
-          token = parsed.token || parsed.accessToken || parsed.idToken;
+          token = parsed.token || parsed.accessToken || parsed.idToken || parsed.jwt;
         }
       } catch (e) {}
     }
@@ -51,18 +49,28 @@ api.interceptors.request.use(
       try {
         token = window.localStorage.getItem('userToken') || 
                 window.localStorage.getItem('token') || 
-                window.localStorage.getItem('firebase_id_token');
+                window.localStorage.getItem('firebase_id_token') ||
+                window.localStorage.getItem('jwtToken');
         if (!token) {
           const raw = window.localStorage.getItem('userInfo');
           if (raw) {
-            token = JSON.parse(raw)?.token;
+            const parsed = JSON.parse(raw);
+            token = parsed?.token || parsed?.accessToken || parsed?.idToken;
           }
         }
       } catch (e) {}
     }
 
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      if (config.headers && typeof config.headers.set === 'function') {
+        config.headers.set('Authorization', `Bearer ${token}`);
+      } else {
+        config.headers = {
+          ...(config.headers || {}),
+          Authorization: `Bearer ${token}`,
+          authorization: `Bearer ${token}`
+        };
+      }
     }
     return config;
   },
