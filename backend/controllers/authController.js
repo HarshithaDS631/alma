@@ -348,7 +348,7 @@ exports.updateUserProfile = async (req, res) => {
 
         if (user) {
             const newJoiningYear = req.body.joiningYear || user.joiningYear;
-            const newBatchYear = req.body.batchYear || user.batchYear;
+            const newBatchYear = req.body.batchYear || req.body.batch_year || user.batchYear;
 
             if (newJoiningYear && newBatchYear && parseInt(newJoiningYear, 10) >= parseInt(newBatchYear, 10)) {
                 return res.status(400).json({ message: 'Graduation year must be greater than joining year' });
@@ -357,18 +357,22 @@ exports.updateUserProfile = async (req, res) => {
             user.name = req.body.name || user.name;
             user.email = req.body.email || user.email;
             user.institution = req.body.institution || user.institution;
-            user.branch = req.body.branch || user.branch;
-            user.department = req.body.department || user.department;
+            user.branch = req.body.branch || req.body.department || user.branch;
+            user.department = req.body.department || req.body.branch || user.department;
             user.batchYear = newBatchYear;
             user.joiningYear = newJoiningYear;
-            user.bio = req.body.bio || user.bio;
-            user.location = req.body.location || user.location;
-            user.company = req.body.company || user.company;
-            user.designation = req.body.designation || user.designation;
-            user.linkedin = req.body.linkedin || user.linkedin;
+            user.bio = req.body.bio !== undefined ? req.body.bio : user.bio;
+            user.location = req.body.location !== undefined ? req.body.location : user.location;
+            user.company = req.body.company !== undefined ? req.body.company : user.company;
+            user.designation = req.body.designation !== undefined ? req.body.designation : user.designation;
+            user.linkedin = req.body.linkedin !== undefined ? req.body.linkedin : user.linkedin;
             user.avatar_url = req.body.avatar_url || user.avatar_url;
             if (req.body.dateOfBirth !== undefined) {
-                user.dateOfBirth = req.body.dateOfBirth ? new Date(req.body.dateOfBirth) : null;
+                if (req.body.dateOfBirth && !isNaN(new Date(req.body.dateOfBirth).getTime())) {
+                    user.dateOfBirth = new Date(req.body.dateOfBirth);
+                } else {
+                    user.dateOfBirth = null;
+                }
             }
 
             const updatedUser = await user.save();

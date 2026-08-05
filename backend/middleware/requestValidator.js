@@ -79,7 +79,7 @@ const profileUpdateValidation = [
         .trim()
         .isLength({ max: 500 }).withMessage('Bio must be under 500 characters'),
     body('linkedin')
-        .optional()
+        .optional({ checkFalsy: true })
         .trim()
         .matches(/^(https?:\/\/)?(www\.)?linkedin\.com\/.*$/i).withMessage('Please provide a valid LinkedIn URL'),
     validate

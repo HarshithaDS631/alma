@@ -141,16 +141,22 @@ const ProfileSetupScreen = ({ navigation }) => {
         avatarUrl = await uploadFile(avatar, avatarMimeType, 'avatar.jpg');
       }
 
-      await updateProfile({
+      const payload = {
         name: formData.fullName,
         institution: formData.institution,
+        batchYear: formData.batchYear,
         batch_year: formData.batchYear,
         department: formData.department,
+        branch: formData.department,
         company: formData.company,
         location: formData.location,
-        dateOfBirth: formData.dateOfBirth,
-        avatar_url: avatarUrl
-      });
+        dateOfBirth: formData.dateOfBirth && formData.dateOfBirth.trim() ? formData.dateOfBirth : null,
+      };
+      if (avatarUrl) {
+        payload.avatar_url = avatarUrl;
+      }
+
+      await updateProfile(payload);
 
       try {
         const stored = await AsyncStorage.getItem('userInfo');
@@ -175,7 +181,8 @@ const ProfileSetupScreen = ({ navigation }) => {
     } catch (error) {
       console.error('Error saving profile setup:', error);
       setIsUploading(false);
-      Alert.alert('Error', 'Failed to save profile. Please try again.');
+      const serverMsg = error?.response?.data?.message || (Array.isArray(error?.response?.data?.errors) ? error.response.data.errors.map(err => err.msg).join('\n') : null);
+      Alert.alert('Error', serverMsg || error?.message || 'Failed to save profile. Please try again.');
     }
   };
 
