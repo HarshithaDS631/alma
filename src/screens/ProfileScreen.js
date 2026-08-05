@@ -2144,8 +2144,9 @@ const DEFAULT_TAGGED_POSTS = [
 
       {/* Branch Selection Dropdown Modal */}
       <Modal visible={branchModalVisible} transparent animationType="slide" onRequestClose={() => setBranchModalVisible(false)}>
-        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setBranchModalVisible(false)}>
-          <View style={[styles.modalContent, { maxHeight: 520 }]}>
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity style={StyleSheet.absoluteFillObject} activeOpacity={1} onPress={() => setBranchModalVisible(false)} />
+          <View style={[styles.modalContent, { maxHeight: 520, zIndex: 10 }]}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Select Branch / Department</Text>
               <TouchableOpacity onPress={() => setBranchModalVisible(false)}>
@@ -2201,13 +2202,14 @@ const DEFAULT_TAGGED_POSTS = [
               })}
             </ScrollView>
           </View>
-        </TouchableOpacity>
+        </View>
       </Modal>
 
       {/* Graduation Batch Year Dropdown Modal */}
       <Modal visible={batchModalVisible} transparent animationType="slide" onRequestClose={() => setBatchModalVisible(false)}>
-        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setBatchModalVisible(false)}>
-          <View style={[styles.modalContent, { maxHeight: 480 }]}>
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity style={StyleSheet.absoluteFillObject} activeOpacity={1} onPress={() => setBatchModalVisible(false)} />
+          <View style={[styles.modalContent, { maxHeight: 480, zIndex: 10 }]}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Select Graduation Batch Year</Text>
               <TouchableOpacity onPress={() => setBatchModalVisible(false)}>
@@ -2244,13 +2246,14 @@ const DEFAULT_TAGGED_POSTS = [
               </View>
             </ScrollView>
           </View>
-        </TouchableOpacity>
+        </View>
       </Modal>
 
       {/* Mobile Real-time DOB Calendar Picker Modal */}
       <Modal visible={dobCalendarVisible} transparent animationType="slide" onRequestClose={() => setDobCalendarVisible(false)}>
-        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setDobCalendarVisible(false)}>
-          <View style={[styles.modalContent, { paddingBottom: 24 }]}>
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity style={StyleSheet.absoluteFillObject} activeOpacity={1} onPress={() => setDobCalendarVisible(false)} />
+          <View style={[styles.modalContent, { paddingBottom: 24, zIndex: 10 }]}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Select Date of Birth 🎂</Text>
               <TouchableOpacity onPress={() => setDobCalendarVisible(false)}>
@@ -2276,7 +2279,7 @@ const DEFAULT_TAGGED_POSTS = [
               </TouchableOpacity>
             </View>
           </View>
-        </TouchableOpacity>
+        </View>
       </Modal>
 
     </View>
