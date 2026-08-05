@@ -994,7 +994,7 @@ const DEFAULT_TAGGED_POSTS = [
 
             {/* Profile Edit Sub-view */}
             {settingsSubView === 'profile_edit' && (
-              <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 380, marginTop: 10 }}>
+              <ScrollView showsVerticalScrollIndicator={true} style={{ maxHeight: Platform.OS === 'web' ? 580 : 500, flexGrow: 1, marginTop: 10, paddingRight: 4 }}>
                 <Text style={styles.settingsSectionTitle}>Profile Information</Text>
                 
                 {/* Photo Upload Option */}
@@ -2462,7 +2462,11 @@ const getStyles = (theme) => StyleSheet.create({
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: 20,
-    paddingBottom: 40,
+    paddingBottom: 24,
+    maxHeight: '90%',
+    width: '100%',
+    maxWidth: 640,
+    alignSelf: 'center',
   },
   modalHeader: {
     flexDirection: 'row',
