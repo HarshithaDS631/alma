@@ -37,17 +37,27 @@ const institutions = [
   { id: 'RV University, Mysuru Campus', name: 'RVU_MYS', fullName: 'RV University, Mysuru Campus' },
 ];
 
-const locations = [
-  { id: 'BLR', name: 'Bengaluru, India' },
-  { id: 'MUM', name: 'Mumbai, India' },
-  { id: 'DEL', name: 'Delhi NCR, India' },
-  { id: 'HYD', name: 'Hyderabad, India' },
-  { id: 'PUN', name: 'Pune, India' },
-  { id: 'SV', name: 'Silicon Valley, USA' },
-  { id: 'NYC', name: 'New York City, USA' },
-  { id: 'LON', name: 'London, UK' },
-  { id: 'SGP', name: 'Singapore' },
-  { id: 'OTHER', name: 'Other Location' },
+const popularLocations = [
+  'Bengaluru, Karnataka, India',
+  'Mysuru, Karnataka, India',
+  'Mangaluru, Karnataka, India',
+  'Hubballi-Dharwad, Karnataka, India',
+  'Mumbai, Maharashtra, India',
+  'Pune, Maharashtra, India',
+  'Delhi NCR, India',
+  'Hyderabad, Telangana, India',
+  'Chennai, Tamil Nadu, India',
+  'Kolkata, West Bengal, India',
+  'Ahmedabad, Gujarat, India',
+  'Kochi, Kerala, India',
+  'San Francisco Bay Area, CA, USA',
+  'New York City, NY, USA',
+  'Seattle, WA, USA',
+  'London, United Kingdom',
+  'Singapore',
+  'Dubai, United Arab Emirates',
+  'Sydney, Australia',
+  'Toronto, Canada'
 ];
 
 const BATCH_YEARS_LIST = Array.from({ length: 61 }, (_, i) => String(2030 - i));
@@ -79,7 +89,7 @@ const ProfileSetupScreen = ({ navigation }) => {
   const [avatarMimeType, setAvatarMimeType] = useState('image/jpeg');
   const [isUploading, setIsUploading] = useState(false);
   const [instModalVisible, setInstModalVisible] = useState(false);
-  const [locModalVisible, setLocModalVisible] = useState(false);
+  const [showLocSuggestions, setShowLocSuggestions] = useState(false);
   const [deptModalVisible, setDeptModalVisible] = useState(false);
   const [batchModalVisible, setBatchModalVisible] = useState(false);
   const [dobModalVisible, setDobModalVisible] = useState(false);
@@ -337,21 +347,90 @@ const ProfileSetupScreen = ({ navigation }) => {
               </View>
             </View>
 
-             <View style={styles.inputContainer}>
-               <Text style={styles.label}>Location</Text>
-               <TouchableOpacity 
-                 style={styles.inputWrapper} 
-                 onPress={() => setLocModalVisible(true)}
-                 activeOpacity={0.8}
-               >
-                 <Ionicons name="location-outline" size={20} color="#94A3B8" style={styles.inputIcon} />
-                 <Text style={[styles.input, !formData.location && { color: theme.textMuted }]}>
-                   {formData.location ? formData.location : 'Select Location'}
-                 </Text>
-                 <Ionicons name="chevron-down" size={18} color="#94A3B8" />
-               </TouchableOpacity>
-             </View>
-          </View>
+            <View style={[styles.inputContainer, { zIndex: 100 }]}>
+                <Text style={styles.label}>Location</Text>
+                <View style={styles.inputWrapper}>
+                  <Ionicons name="location-outline" size={20} color="#94A3B8" style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="e.g. Bengaluru, India or San Francisco, USA"
+                    placeholderTextColor="#94A3B8"
+                    value={formData.location}
+                    onChangeText={(text) => {
+                      setFormData({ ...formData, location: text });
+                      setShowLocSuggestions(true);
+                    }}
+                    onFocus={() => setShowLocSuggestions(true)}
+                  />
+                  {formData.location ? (
+                    <TouchableOpacity onPress={() => { setFormData({ ...formData, location: '' }); setShowLocSuggestions(false); }}>
+                      <Ionicons name="close-circle" size={18} color="#94A3B8" />
+                    </TouchableOpacity>
+                  ) : null}
+                </View>
+
+                {/* Auto-complete Location Suggestions Dropdown */}
+                {showLocSuggestions && (
+                  <View style={{
+                    backgroundColor: theme.cardBackground || '#FFFFFF',
+                    borderRadius: 12,
+                    borderWidth: 1,
+                    borderColor: 'rgba(0,0,0,0.1)',
+                    marginTop: 6,
+                    maxHeight: 180,
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.15,
+                    shadowRadius: 6,
+                    elevation: 5,
+                    zIndex: 1000
+                  }}>
+                    <ScrollView nestedScrollEnabled keyboardShouldPersistTaps="handled" style={{ maxHeight: 180 }}>
+                      {popularLocations
+                        .filter(loc => loc.toLowerCase().includes((formData.location || '').toLowerCase()))
+                        .slice(0, 5)
+                        .map((locItem, idx) => (
+                          <TouchableOpacity
+                            key={idx}
+                            style={{
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              paddingVertical: 12,
+                              paddingHorizontal: 16,
+                              borderBottomWidth: 0.5,
+                              borderColor: 'rgba(0,0,0,0.06)'
+                            }}
+                            onPress={() => {
+                              setFormData({ ...formData, location: locItem });
+                              setShowLocSuggestions(false);
+                            }}
+                          >
+                            <Ionicons name="location-sharp" size={16} color="#003366" style={{ marginRight: 10 }} />
+                            <Text style={{ fontSize: 14, color: theme.text, flex: 1 }}>{locItem}</Text>
+                          </TouchableOpacity>
+                        ))}
+                      {formData.location && !popularLocations.some(l => l.toLowerCase() === formData.location.toLowerCase()) ? (
+                        <TouchableOpacity
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            paddingVertical: 12,
+                            paddingHorizontal: 16,
+                            backgroundColor: 'rgba(0, 51, 102, 0.04)'
+                          }}
+                          onPress={() => setShowLocSuggestions(false)}
+                        >
+                          <Ionicons name="add-circle" size={16} color="#003366" style={{ marginRight: 10 }} />
+                          <Text style={{ fontSize: 14, color: '#003366', fontWeight: '600' }}>
+                            Use "{formData.location}"
+                          </Text>
+                        </TouchableOpacity>
+                      ) : null}
+                    </ScrollView>
+                  </View>
+                )}
+              </View>
+            </View>
 
           <TouchableOpacity style={[styles.button, isUploading && { opacity: 0.7 }]} onPress={handleContinue} activeOpacity={0.8} disabled={isUploading}>
             <Text style={styles.buttonText}>{isUploading ? 'Saving...' : 'Save & Continue'}</Text>
@@ -359,45 +438,6 @@ const ProfileSetupScreen = ({ navigation }) => {
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
-
-      {/* Location Selection Modal */}
-      <Modal visible={locModalVisible} transparent animationType="slide">
-        <View style={styles.modalOverlay}>
-          <TouchableOpacity style={{ flex: 1 }} onPress={() => setLocModalVisible(false)} />
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Location</Text>
-              <TouchableOpacity onPress={() => setLocModalVisible(false)}>
-                <Ionicons name="close" size={24} color="#002144" />
-              </TouchableOpacity>
-            </View>
-            <FlatList
-              data={locations}
-              keyExtractor={(item) => item.id}
-              showsVerticalScrollIndicator={false}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={[
-                    styles.modalListItem,
-                    formData.location === item.name && styles.selectedModalListItem
-                  ]}
-                  onPress={() => {
-                    setFormData({ ...formData, location: item.name });
-                    setLocModalVisible(false);
-                  }}
-                >
-                  <Text style={[
-                    styles.modalListItemText,
-                    formData.location === item.name && styles.selectedModalListItemText
-                  ]}>
-                    {item.name}
-                  </Text>
-                </TouchableOpacity>
-              )}
-            />
-          </View>
-        </View>
-      </Modal>
 
       {/* Institution Selection Modal */}
       <Modal visible={instModalVisible} transparent animationType="slide">
