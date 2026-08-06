@@ -33,18 +33,3 @@ jobs:
           cd backend
           node -e "require('./models/User.js'); require('./controllers/authController.js'); console.log('Backend syntax clean!');"
 
-  deploy-web:
-    needs: lint-and-test
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Deploy to Vercel Production
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod'
