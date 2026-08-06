@@ -232,30 +232,6 @@ const getStyles = (theme) => StyleSheet.create({
     borderWidth: 1,
     borderColor: theme.border,
   },
-  adminLoginLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 24,
-    paddingVertical: 8,
-  },
-  adminLoginText: {
-    color: theme.textMuted,
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  superAdminLoginLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 12,
-    paddingVertical: 8,
-  },
-  superAdminLoginText: {
-    color: '#D97706',
-    fontSize: 13,
-    fontWeight: '700',
-  },
 });
 
 export default WelcomeScreen;
