@@ -425,8 +425,8 @@ function RootNavigator() {
         {/* Alumni Main App */}
         <Stack.Screen name="Main" component={MainTabs} />
 
-        {/* Admin Auth Flow */}
-        <Stack.Screen name="AdminLogin" component={AdminLoginScreen} />
+        {/* Admin Auth Flow (Unified under LoginScreen) */}
+        <Stack.Screen name="AdminLogin" component={LoginScreen} />
         <Stack.Screen name="AdminOTP" component={AdminOTPScreen} />
 
         {/* Admin Main App */}

@@ -27,26 +27,25 @@ const AdminLoginScreen = ({ navigation }) => {
     try {
       const userData = await login({ email: emailClean, password });
       
-      const role = userData.role;
-      if (role !== 'Admin' && role !== 'Super Admin' && role !== 'admin' && role !== 'superadmin') {
-        alert('Access denied. You do not have administrator permissions.');
-        setLoading(false);
-        return;
-      }
+      const role = userData.role || '';
+      const roleNorm = role.trim().toLowerCase();
       
       await AsyncStorage.setItem('userInfo', JSON.stringify({
         token: userData.token,
-        name: userData.name || 'Admin',
+        refreshToken: userData.refreshToken,
+        name: userData.name || 'User',
         email: userData.email,
         institution: userData.institution || 'All',
-        role: role.toLowerCase() === 'super admin' ? 'superadmin' : role.toLowerCase() === 'superadmin' ? 'superadmin' : 'admin'
+        role: userData.role
       }));
       
       setLoading(false);
-      if (role.toLowerCase() === 'super admin' || role.toLowerCase() === 'superadmin') {
+      if (roleNorm === 'super admin' || roleNorm === 'superadmin') {
         navigation.navigate('SuperAdminMain');
-      } else {
+      } else if (roleNorm === 'admin' || roleNorm === 'institution admin') {
         navigation.navigate('AdminMain');
+      } else {
+        navigation.navigate('Main');
       }
     } catch (error) {
       alert(error.response?.data?.message || error.message || 'Login failed');

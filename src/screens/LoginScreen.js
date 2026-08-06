@@ -53,10 +53,6 @@ const LoginScreen = ({ navigation }) => {
       return;
     }
 
-
-
-    // No bypasses anymore, real auth is required
-
     if (emailClean === 'superadmin@institution.edu' && password === 'super123') {
       await AsyncStorage.setItem('userInfo', JSON.stringify({ 
         name: 'Super Admin', 
@@ -73,7 +69,7 @@ const LoginScreen = ({ navigation }) => {
         name: 'Test Admin', 
         email: 'testadmin@institution.edu',
         role: 'Admin',
-        institution: 'Media Cell Institution', // Provide a real institution so it can fetch users
+        institution: 'Media Cell Institution',
         token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNTlmMzJhNmY3NmUxODFjYTg4Yjc3YSIsImlhdCI6MTc4NDI4MTE2MiwiZXhwIjoxNzg2ODczMTYyfQ.tCgKkvSUnJLcK_lenejGRYAqhXJik2HxglqrydpafBI'
       }));
       setLoading(false);
@@ -97,7 +93,7 @@ const LoginScreen = ({ navigation }) => {
         id: userData._id || userData.id,
         token: userData.token,
         refreshToken: userData.refreshToken,
-        name: userData.name || 'Alumni User', 
+        name: userData.name || 'User', 
         email: userData.email,
         institution: userData.institution || 'Institution',
         department: userData.department,
@@ -108,9 +104,10 @@ const LoginScreen = ({ navigation }) => {
         role: userData.role
       }));
       
-      if (userData.role === 'Super Admin') {
+      const userRole = (userData.role || '').trim().toLowerCase();
+      if (userRole === 'super admin' || userRole === 'superadmin') {
         navigation.navigate('SuperAdminMain');
-      } else if (userData.role === 'Admin') {
+      } else if (userRole === 'admin' || userRole === 'institution admin') {
         navigation.navigate('AdminMain');
       } else {
         navigation.navigate('Main');
@@ -135,15 +132,16 @@ const LoginScreen = ({ navigation }) => {
       await AsyncStorage.setItem('userInfo', JSON.stringify({
         token: userData.token,
         refreshToken: userData.refreshToken,
-        name: userData.name || 'Alumni User', 
+        name: userData.name || 'User', 
         email: userData.email,
         institution: userData.institution || 'Institution',
         role: userData.role
       }));
 
-      if (userData.role === 'Super Admin') {
+      const userRole = (userData.role || '').trim().toLowerCase();
+      if (userRole === 'super admin' || userRole === 'superadmin') {
         navigation.navigate('SuperAdminMain');
-      } else if (userData.role === 'Admin') {
+      } else if (userRole === 'admin' || userRole === 'institution admin') {
         navigation.navigate('AdminMain');
       } else {
         navigation.navigate('Main');
@@ -181,9 +179,9 @@ const LoginScreen = ({ navigation }) => {
           </TouchableOpacity>
 
           <View style={styles.header}>
-            <Text style={styles.title}>Log in to Alumni Network</Text>
+            <Text style={styles.title}>Sign in to your Account</Text>
             <Text style={styles.subtitle}>
-              Enter your credentials to access your alumni account.
+              Enter your email and password to sign in as Alumni, Student, or Admin.
             </Text>
           </View>
 
