@@ -151,7 +151,7 @@ export default {
       supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL ?? '',
       supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '',
       eas: {
-        projectId: process.env.EAS_PROJECT_ID ?? '',
+        projectId: '9f81aff3-c755-41bd-8bcd-9be07110ba45',
       },
     },
 

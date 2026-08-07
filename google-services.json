@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "REPLACE_WITH_YOUR_PROJECT_NUMBER",
-    "project_id": "REPLACE_WITH_YOUR_PROJECT_ID",
-    "storage_bucket": "REPLACE_WITH_YOUR_PROJECT_ID.appspot.com"
+    "project_number": "768299462386",
+    "project_id": "alumni-app-956c6",
+    "storage_bucket": "alumni-app-956c6.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "REPLACE_WITH_YOUR_APP_ID",
+        "mobilesdk_app_id": "1:768299462386:android:985162af810e820fd3ea6b",
         "android_client_info": {
           "package_name": "com.mediacell.alumni"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "REPLACE_WITH_YOUR_API_KEY"
+          "current_key": "AIzaSyBeYSmgQ3zbqVl__gEszJpaPausQt2_Fc0"
         }
       ],
       "services": {
