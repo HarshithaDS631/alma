@@ -13,7 +13,10 @@ const connectDB = async () => {
         return mongoose.connection;
     }
 
-    const mongoUri = process.env.MONGO_URI || 'mongodb+srv://rveducational_db_user:Alumni%40123@cluster0.xk6n9j6.mongodb.net/alumni_db?appName=Cluster0';
+    let mongoUri = process.env.MONGO_URI || 'mongodb+srv://rveducational_db_user:Alumni%40123@cluster0.xk6n9j6.mongodb.net/alumni_db?appName=Cluster0';
+    if (!mongoUri.includes('/alumni_db')) {
+        mongoUri = mongoUri.replace('.mongodb.net/', '.mongodb.net/alumni_db');
+    }
     
     if (!connectionPromise || mongoose.connection.readyState === 0) {
         connectionPromise = mongoose.connect(mongoUri, {
