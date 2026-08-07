@@ -13,10 +13,10 @@ const apiLimiter = rateLimit({
     skip: () => process.env.NODE_ENV === 'test'
 });
 
-// Strict rate limiter for login: 5 attempts per 15 minutes
+// Strict rate limiter for login: 30 attempts per 15 minutes
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 5,
+    max: 30,
     standardHeaders: true,
     legacyHeaders: false,
     message: {
