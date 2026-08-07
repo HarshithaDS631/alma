@@ -13,17 +13,16 @@ const apiLimiter = rateLimit({
     skip: () => process.env.NODE_ENV === 'test'
 });
 
-// Strict rate limiter for login: 30 attempts per 15 minutes
+// Rate limiter for login: generous 100 attempts per 15 minutes to avoid proxy blocking
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 30,
+    max: 100,
     standardHeaders: true,
     legacyHeaders: false,
     message: {
         message: 'Too many login attempts. Please try again after 15 minutes.'
     },
-    // Use default IP-based key generator (handles IPv6 properly)
-    validate: { xForwardedForHeader: false }
+    skip: () => Boolean(process.env.VERCEL)
 });
 
 // OTP rate limiter: 3 OTP requests per 10 minutes
