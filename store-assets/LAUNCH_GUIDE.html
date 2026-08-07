@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alumni Network — App Store Launch Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0f1e;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e2d4a;
+    --accent: #3b82f6;
+    --accent2: #6366f1;
+    --green: #10b981;
+    --yellow: #f59e0b;
+    --red: #ef4444;
+    --text: #f1f5f9;
+    --subtext: #94a3b8;
+    --code-bg: #0d1b2a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 60px 40px 50px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%);
+    top: -200px; left: 50%; transform: translateX(-50%);
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(59,130,246,0.15);
+    border: 1px solid rgba(59,130,246,0.3);
+    border-radius: 20px; padding: 6px 16px;
+    font-size: 12px; font-weight: 600; color: #93c5fd;
+    margin-bottom: 24px; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .hero h1 { font-size: 42px; font-weight: 900; margin-bottom: 14px;
+    background: linear-gradient(135deg, #fff 0%, #93c5fd 60%, #818cf8 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero p { font-size: 16px; color: var(--subtext); max-width: 560px; margin: 0 auto; }
+
+  /* ── PROGRESS ── */
+  .progress-bar-container {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 20px 40px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+  }
+  .progress-label { font-size: 13px; font-weight: 600; color: var(--subtext); white-space: nowrap; }
+  .progress-track {
+    flex: 1; background: var(--border); border-radius: 10px; height: 8px; min-width: 200px;
+  }
+  .progress-fill {
+    height: 8px; border-radius: 10px;
+    background: linear-gradient(90deg, #3b82f6, #6366f1);
+    width: 40%; transition: width 0.5s ease;
+    box-shadow: 0 0 10px rgba(99,102,241,0.5);
+  }
+  .progress-pct { font-size: 14px; font-weight: 700; color: #6366f1; }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+
+  /* ── STATUS GRID ── */
+  .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 40px; }
+  .status-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px 18px;
+    display: flex; align-items: center; gap: 14px;
+    transition: border-color 0.2s;
+  }
+  .status-card:hover { border-color: var(--accent); }
+  .status-icon { font-size: 22px; flex-shrink: 0; }
+  .status-info { flex: 1; min-width: 0; }
+  .status-title { font-size: 13px; font-weight: 600; color: var(--text); }
+  .status-desc { font-size: 11px; color: var(--subtext); margin-top: 2px; }
+  .badge {
+    padding: 3px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 700; white-space: nowrap;
+  }
+  .badge-done { background: rgba(16,185,129,0.15); color: #34d399; }
+  .badge-todo { background: rgba(245,158,11,0.15); color: #fbbf24; }
+  .badge-manual { background: rgba(99,102,241,0.15); color: #a5b4fc; }
+
+  /* ── STEPS ── */
+  .section-title {
+    font-size: 20px; font-weight: 800; margin-bottom: 20px; margin-top: 40px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-title::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+
+  .step-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; margin-bottom: 16px; overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .step-card.active { border-color: #3b82f6; box-shadow: 0 0 0 1px rgba(59,130,246,0.2); }
+  .step-card.done { border-color: rgba(16,185,129,0.4); }
+  .step-card.warn { border-color: rgba(245,158,11,0.4); }
+
+  .step-header {
+    padding: 18px 22px; display: flex; align-items: center; gap: 14px;
+    cursor: pointer; user-select: none;
+    background: linear-gradient(90deg, transparent, transparent);
+    transition: background 0.2s;
+  }
+  .step-header:hover { background: rgba(255,255,255,0.03); }
+
+  .step-num {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 800; flex-shrink: 0;
+  }
+  .step-num.blue { background: rgba(59,130,246,0.2); color: #60a5fa; border: 2px solid #3b82f6; }
+  .step-num.green { background: rgba(16,185,129,0.2); color: #34d399; border: 2px solid #10b981; }
+  .step-num.yellow { background: rgba(245,158,11,0.2); color: #fbbf24; border: 2px solid #f59e0b; }
+  .step-num.purple { background: rgba(139,92,246,0.2); color: #c4b5fd; border: 2px solid #8b5cf6; }
+
+  .step-meta { flex: 1; }
+  .step-title { font-size: 15px; font-weight: 700; }
+  .step-subtitle { font-size: 12px; color: var(--subtext); margin-top: 2px; }
+  .step-tag {
+    padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;
+  }
+  .tag-free { background: rgba(16,185,129,0.15); color: #34d399; }
+  .tag-paid { background: rgba(239,68,68,0.15); color: #f87171; }
+  .tag-required { background: rgba(59,130,246,0.15); color: #60a5fa; }
+
+  .step-body { padding: 0 22px 22px; }
+  .step-body p { font-size: 14px; color: var(--subtext); margin-bottom: 14px; }
+
+  .action-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 22px; border-radius: 10px; font-size: 14px; font-weight: 700;
+    text-decoration: none; cursor: pointer; border: none;
+    transition: all 0.2s; letter-spacing: 0.01em;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #3b82f6, #6366f1);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(99,102,241,0.4);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99,102,241,0.5); }
+  .btn-secondary {
+    background: var(--surface2); color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--accent); }
+  .btn-green {
+    background: linear-gradient(135deg, #059669, #10b981);
+    color: #fff; box-shadow: 0 4px 15px rgba(16,185,129,0.4);
+  }
+  .btn-yellow {
+    background: linear-gradient(135deg, #d97706, #f59e0b);
+    color: #fff; box-shadow: 0 4px 15px rgba(245,158,11,0.3);
+  }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+
+  /* ── CODE BLOCKS ── */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 18px;
+    margin: 14px 0; position: relative;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; color: #93c5fd; overflow-x: auto;
+  }
+  .code-block .copy-btn {
+    position: absolute; top: 10px; right: 10px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 6px; padding: 4px 10px;
+    font-size: 11px; font-weight: 600; color: var(--subtext);
+    cursor: pointer; font-family: 'Inter', sans-serif;
+    transition: all 0.15s;
+  }
+  .code-block .copy-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .copy-btn.copied { background: var(--green); color: #fff; border-color: var(--green); }
+
+  /* ── INFO BOXES ── */
+  .info-box {
+    border-radius: 10px; padding: 14px 16px;
+    margin: 14px 0; display: flex; gap: 12px; align-items: flex-start;
+    font-size: 13px; line-height: 1.6;
+  }
+  .info-box.blue { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.25); color: #93c5fd; }
+  .info-box.green { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); color: #6ee7b7; }
+  .info-box.yellow { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); color: #fcd34d; }
+  .info-box.red { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); color: #fca5a5; }
+  .info-box .icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+  /* ── COST TABLE ── */
+  .cost-table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13px; }
+  .cost-table th {
+    background: var(--surface2); color: var(--subtext);
+    padding: 10px 14px; text-align: left; font-weight: 600;
+    border-bottom: 1px solid var(--border); font-size: 11px; text-transform: uppercase;
+  }
+  .cost-table td {
+    padding: 12px 14px; border-bottom: 1px solid rgba(30,45,74,0.5);
+    color: var(--text);
+  }
+  .cost-table tr:last-child td { border-bottom: none; }
+  .cost-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .priority-high { color: #f87171; font-weight: 700; }
+  .priority-med { color: #fbbf24; font-weight: 700; }
+  .priority-low { color: #34d399; font-weight: 700; }
+
+  /* ── CHECKLIST ── */
+  .checklist { list-style: none; }
+  .checklist li {
+    padding: 10px 0; border-bottom: 1px solid rgba(30,45,74,0.5);
+    display: flex; align-items: center; gap: 12px;
+    font-size: 14px; color: var(--subtext);
+    cursor: pointer; transition: color 0.15s;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li:hover { color: var(--text); }
+  .check-box {
+    width: 20px; height: 20px; border-radius: 6px;
+    border: 2px solid var(--border); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; cursor: pointer;
+    background: transparent;
+  }
+  .check-box.checked { background: var(--green); border-color: var(--green); }
+  .check-box.checked::after { content: '✓'; font-size: 12px; color: #fff; font-weight: 800; }
+  li.checked-item .check-text { text-decoration: line-through; opacity: 0.5; }
+
+  /* ── FOOTER ── */
+  .footer {
+    text-align: center; padding: 40px 24px;
+    border-top: 1px solid var(--border); color: var(--subtext); font-size: 13px;
+    margin-top: 40px;
+  }
+  .footer a { color: var(--accent); text-decoration: none; }
+
+  @media (max-width: 640px) {
+    .hero h1 { font-size: 28px; }
+    .status-grid { grid-template-columns: 1fr; }
+    .hero { padding: 40px 20px; }
+    .container { padding: 24px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">🚀 Store Launch</div>
+  <h1>Alumni Network</h1>
+  <p>Complete end-to-end guide to launch on Google Play Store & Apple App Store</p>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-bar-container">
+  <span class="progress-label">Launch Progress</span>
+  <div class="progress-track">
+    <div class="progress-fill" id="progress-fill"></div>
+  </div>
+  <span class="progress-pct" id="progress-pct">40% Complete</span>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="container">
+
+  <!-- STATUS OVERVIEW -->
+  <div class="section-title">✅ What's Already Done</div>
+  <div class="status-grid">
+    <div class="status-card">
+      <div class="status-icon">📋</div>
+      <div class="status-info">
+        <div class="status-title">app.config.js — Dynamic Config</div>
+        <div class="status-desc">Dev / Preview / Production variants ready</div>
+      </div>
+      <span class="badge badge-done">Done</span>
+    </div>
+    <div class="status-card">
+      <div class="status-icon">⚙️</div>
+      <div class="status-info">
+        <div class="status-title">eas.json — Build + Submit</div>
+        <div class="status-desc">AAB for Android, IPA for iOS configured</div>
+      </div>
+      <span class="badge badge-done">Done</span>
+    </div>
+    <div class="status-card">
+      <div class="status-icon">📜</div>
+      <div class="status-info">
+        <div class="status-title">Legal Documents</div>
+        <div class="status-desc">Terms, Privacy Policy, Community Guidelines</div>
+      </div>
+      <span class="badge badge-done">Done</span>
+    </div>
+    <div class="status-card">
+      <div class="status-icon">🔔</div>
+      <div class="status-info">
+        <div class="status-title">expo-notifications + expo-updates</div>
+        <div class="status-desc">Push notifications + OTA updates installed</div>
+      </div>
+      <span class="badge badge-done">Done</span>
+    </div>
+    <div class="status-card">
+      <div class="status-icon">🤖</div>
+      <div class="status-info">
+        <div class="status-title">Firebase Config Templates</div>
+        <div class="status-desc">google-services.json + GoogleService-Info.plist</div>
+      </div>
+      <span class="badge badge-todo">Fill values</span>
+    </div>
+    <div class="status-card">
+      <div class="status-icon">🔄</div>
+      <div class="status-info">
+        <div class="status-title">GitHub Actions CI/CD</div>
+        <div class="status-desc">Auto EAS build on version tags</div>
+      </div>
+      <span class="badge badge-done">Done</span>
+    </div>
+    <div class="status-card">
+      <div class="status-icon">🏪</div>
+      <div class="status-info">
+        <div class="status-title">Expo Account</div>
+        <div class="status-desc">Needed to run EAS cloud builds</div>
+      </div>
+      <span class="badge badge-todo">Create now</span>
+    </div>
+    <div class="status-card">
+      <div class="status-icon">▶️</div>
+      <div class="status-info">
+        <div class="status-title">Google Play Account</div>
+        <div class="status-desc">$25 one-time — needed to publish</div>
+      </div>
+      <span class="badge badge-todo">Create next</span>
+    </div>
+  </div>
+
+  <!-- COST OVERVIEW -->
+  <div class="section-title">💰 Cost Overview</div>
+  <table class="cost-table">
+    <tr><th>Action</th><th>Cost</th><th>Priority</th><th>Time</th></tr>
+    <tr>
+      <td>Expo Account (EAS builds)</td>
+      <td style="color:#34d399;font-weight:700">Free</td>
+      <td><span class="priority-high">🔴 Do Now</span></td>
+      <td>5 min</td>
+    </tr>
+    <tr>
+      <td>Firebase Project (FCM push notifications)</td>
+      <td style="color:#34d399;font-weight:700">Free</td>
+      <td><span class="priority-high">🔴 Do Now</span></td>
+      <td>15 min</td>
+    </tr>
+    <tr>
+      <td>EAS Cloud Build (Android AAB)</td>
+      <td style="color:#34d399;font-weight:700">Free (30 builds/month)</td>
+      <td><span class="priority-high">🔴 Do Now</span></td>
+      <td>15 min build</td>
+    </tr>
+    <tr>
+      <td>Google Play Developer Account</td>
+      <td style="color:#fbbf24;font-weight:700">$25 one-time</td>
+      <td><span class="priority-med">🟡 Next</span></td>
+      <td>15 min</td>
+    </tr>
+    <tr>
+      <td>Apple Developer Account (iOS)</td>
+      <td style="color:#f87171;font-weight:700">$99 / year</td>
+      <td><span class="priority-low">🟢 Later</span></td>
+      <td>30+ min</td>
+    </tr>
+  </table>
+
+  <!-- STEPS -->
+  <div class="section-title">📋 Your Steps — In Order</div>
+
+  <!-- STEP 1 -->
+  <div class="step-card active">
+    <div class="step-header" onclick="toggleStep(this)">
+      <div class="step-num blue">1</div>
+      <div class="step-meta">
+        <div class="step-title">Create Expo Account & Run EAS Login</div>
+        <div class="step-subtitle">Free · 5 minutes · Required for cloud builds</div>
+      </div>
+      <span class="step-tag tag-free">Free</span>
+    </div>
+    <div class="step-body">
+      <div class="info-box blue">
+        <span class="icon">ℹ️</span>
+        <span>EAS (Expo Application Services) builds your app in the cloud — no Android Studio or Xcode needed on your machine.</span>
+      </div>
+      <p>1. Create your free account, then come back and run the login command.</p>
+      <div class="btn-row">
+        <a href="https://expo.dev/signup" target="_blank" class="action-btn btn-primary">🔗 Create Expo Account</a>
+      </div>
+      <p style="margin-top:20px">2. After creating your account, open the PowerShell terminal that just appeared on your screen and run:</p>
+      <div class="code-block">
+        eas login<button class="copy-btn" onclick="copyCode(this, 'eas login')">Copy</button>
+      </div>
+      <p>3. Enter your email and password when prompted. Then verify:</p>
+      <div class="code-block">
+        eas whoami<button class="copy-btn" onclick="copyCode(this, 'eas whoami')">Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step-card">
+    <div class="step-header" onclick="toggleStep(this)">
+      <div class="step-num blue">2</div>
+      <div class="step-meta">
+        <div class="step-title">Set Up Firebase (Push Notifications)</div>
+        <div class="step-subtitle">Free · 15 minutes · Required for push notifications</div>
+      </div>
+      <span class="step-tag tag-free">Free</span>
+    </div>
+    <div class="step-body">
+      <div class="info-box yellow">
+        <span class="icon">⚠️</span>
+        <span>Without Firebase, push notifications will not work. Firebase is free for your usage level.</span>
+      </div>
+      <p>Follow the <strong>FIREBASE_SETUP_GUIDE.md</strong> in your project root. Key steps:</p>
+      <ul style="color:var(--subtext);font-size:14px;padding-left:20px;line-height:2">
+        <li>Go to <a href="https://console.firebase.google.com" target="_blank" style="color:var(--accent)">console.firebase.google.com</a> → Create project "alumni-network"</li>
+        <li>Add Android app (package: <code style="color:#93c5fd">com.mediacell.alumni</code>) → Download <strong>google-services.json</strong></li>
+        <li>Replace the template <strong>google-services.json</strong> in your project root with the downloaded file</li>
+        <li>Add iOS app (bundle ID: <code style="color:#93c5fd">com.mediacell.alumni</code>) → Download <strong>GoogleService-Info.plist</strong></li>
+        <li>Replace the template <strong>GoogleService-Info.plist</strong> in your project root with the downloaded file</li>
+      </ul>
+      <div class="btn-row">
+        <a href="https://console.firebase.google.com" target="_blank" class="action-btn btn-primary">🔗 Open Firebase Console</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step-card">
+    <div class="step-header" onclick="toggleStep(this)">
+      <div class="step-num blue">3</div>
+      <div class="step-meta">
+        <div class="step-title">Link EAS to Your Project</div>
+        <div class="step-subtitle">Free · 2 minutes · Do after Step 1</div>
+      </div>
+      <span class="step-tag tag-free">Free</span>
+    </div>
+    <div class="step-body">
+      <p>Run this in your project terminal after logging in to EAS:</p>
+      <div class="code-block">
+        eas init<button class="copy-btn" onclick="copyCode(this, 'eas init')">Copy</button>
+      </div>
+      <p>This creates your EAS project and fills the <code style="color:#93c5fd">projectId</code> in your config automatically. When asked, select <strong>Create a new project</strong> and name it <strong>alumni-network</strong>.</p>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="step-card">
+    <div class="step-header" onclick="toggleStep(this)">
+      <div class="step-num green">4</div>
+      <div class="step-meta">
+        <div class="step-title">Build Android Production AAB</div>
+        <div class="step-subtitle">Free · ~20 min cloud build · Produces Play Store file</div>
+      </div>
+      <span class="step-tag tag-free">Free</span>
+    </div>
+    <div class="step-body">
+      <div class="info-box green">
+        <span class="icon">✅</span>
+        <span>EAS builds the <strong>.aab</strong> file in the cloud. You do NOT need Android Studio installed. The build happens on Expo's servers.</span>
+      </div>
+      <p>Run this command (after Steps 1–3 are complete):</p>
+      <div class="code-block">
+        npm run build:android<button class="copy-btn" onclick="copyCode(this, 'npm run build:android')">Copy</button>
+      </div>
+      <p>When it finishes (~15–20 min), download the <strong>.aab</strong> file from:</p>
+      <div class="btn-row">
+        <a href="https://expo.dev" target="_blank" class="action-btn btn-secondary">🔗 expo.dev → Your Project → Builds</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 5 -->
+  <div class="step-card warn">
+    <div class="step-header" onclick="toggleStep(this)">
+      <div class="step-num yellow">5</div>
+      <div class="step-meta">
+        <div class="step-title">Create Google Play Developer Account</div>
+        <div class="step-subtitle">$25 one-time fee · 15 minutes</div>
+      </div>
+      <span class="step-tag tag-paid">$25</span>
+    </div>
+    <div class="step-body">
+      <div class="info-box yellow">
+        <span class="icon">💳</span>
+        <span>This is a one-time $25 registration fee — you only pay this once ever, not per app or per year.</span>
+      </div>
+      <p>Steps:</p>
+      <ul style="color:var(--subtext);font-size:14px;padding-left:20px;line-height:2">
+        <li>Click the button below → Sign in with your Google account</li>
+        <li>Fill developer profile (name: <strong>Media Cell Institution</strong>, email: rvmediadevelopers@gmail.com)</li>
+        <li>Pay $25 via credit/debit card</li>
+        <li>Account is usually approved instantly</li>
+      </ul>
+      <div class="btn-row">
+        <a href="https://play.google.com/console/signup" target="_blank" class="action-btn btn-yellow">🔗 Open Play Console Signup</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 6 -->
+  <div class="step-card">
+    <div class="step-header" onclick="toggleStep(this)">
+      <div class="step-num yellow">6</div>
+      <div class="step-meta">
+        <div class="step-title">Create App & Upload to Play Console</div>
+        <div class="step-subtitle">Free · 30 minutes · After Step 5</div>
+      </div>
+      <span class="step-tag tag-required">Required</span>
+    </div>
+    <div class="step-body">
+      <p>In Play Console after account is approved:</p>
+      <ul style="color:var(--subtext);font-size:14px;padding-left:20px;line-height:2">
+        <li><strong>Create app</strong> → Name: <code style="color:#93c5fd">Alumni Network</code> → Free</li>
+        <li><strong>Store listing</strong> → Use content from <code style="color:#93c5fd">STORE_SUBMISSION_GUIDE.md</code></li>
+        <li><strong>Short description:</strong> "Connect with RV alumni. Network, jobs, mentors & events."</li>
+        <li><strong>Privacy policy URL:</strong> Paste below ↓</li>
+      </ul>
+      <div class="code-block">
+        https://github.com/HarshithaDS631/alma/blob/main/PRIVACY_POLICY.md<button class="copy-btn" onclick="copyCode(this, 'https://github.com/HarshithaDS631/alma/blob/main/PRIVACY_POLICY.md')">Copy</button>
+      </div>
+      <ul style="color:var(--subtext);font-size:14px;padding-left:20px;line-height:2">
+        <li><strong>Release</strong> → Internal testing → Upload the <strong>.aab</strong> from Step 4</li>
+        <li><strong>Age rating:</strong> Teen (13+) · <strong>Data safety:</strong> fill from STORE_SUBMISSION_GUIDE.md</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- STEP 7 -->
+  <div class="step-card">
+    <div class="step-header" onclick="toggleStep(this)">
+      <div class="step-num yellow">7</div>
+      <div class="step-meta">
+        <div class="step-title">Test Internally → Submit for Review</div>
+        <div class="step-subtitle">Free · 1–7 days review time</div>
+      </div>
+      <span class="step-tag tag-required">Required</span>
+    </div>
+    <div class="step-body">
+      <div class="info-box blue">
+        <span class="icon">ℹ️</span>
+        <span>Google reviews new apps within 1–7 days. Test on Internal Testing track first (instant), then promote to Production.</span>
+      </div>
+      <ul style="color:var(--subtext);font-size:14px;padding-left:20px;line-height:2">
+        <li>Add your own Gmail as an internal tester</li>
+        <li>Install the app on your Android phone via the testing link</li>
+        <li>Test all features: login, profile, jobs, chat, notifications</li>
+        <li>When satisfied → <strong>Production</strong> → Create release → Submit for review</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- STEP 8 iOS -->
+  <div class="section-title" style="margin-top:40px">🍎 Apple App Store (Optional / Later)</div>
+  <div class="step-card">
+    <div class="step-header" onclick="toggleStep(this)">
+      <div class="step-num purple">8</div>
+      <div class="step-meta">
+        <div class="step-title">Create Apple Developer Account</div>
+        <div class="step-subtitle">$99/year · 30 minutes + verification time</div>
+      </div>
+      <span class="step-tag tag-paid">$99/yr</span>
+    </div>
+    <div class="step-body">
+      <div class="info-box red">
+        <span class="icon">⚠️</span>
+        <span>Apple requires $99/year. Apple also manually reviews every app which can take 1–3 days. Skip this for now and launch on Play Store first.</span>
+      </div>
+      <div class="btn-row">
+        <a href="https://developer.apple.com/enroll" target="_blank" class="action-btn btn-secondary">🔗 Apple Developer Enrollment</a>
+        <a href="https://appstoreconnect.apple.com" target="_blank" class="action-btn btn-secondary">🔗 App Store Connect</a>
+      </div>
+      <p style="margin-top:16px">After account approval, run:</p>
+      <div class="code-block">
+        npm run build:ios<button class="copy-btn" onclick="copyCode(this, 'npm run build:ios')">Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE CHECKLIST -->
+  <div class="section-title" style="margin-top:40px">☑️ Launch Checklist</div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px 24px;">
+    <ul class="checklist" id="launch-checklist">
+      <li onclick="toggleCheck(this)"><div class="check-box" id="c1"></div><span class="check-text">Created Expo account at expo.dev</span></li>
+      <li onclick="toggleCheck(this)"><div class="check-box" id="c2"></div><span class="check-text">Ran <code>eas login</code> successfully</span></li>
+      <li onclick="toggleCheck(this)"><div class="check-box" id="c3"></div><span class="check-text">Set up Firebase project</span></li>
+      <li onclick="toggleCheck(this)"><div class="check-box" id="c4"></div><span class="check-text">Replaced google-services.json with real Firebase file</span></li>
+      <li onclick="toggleCheck(this)"><div class="check-box" id="c5"></div><span class="check-text">Ran <code>eas init</code> — project linked</span></li>
+      <li onclick="toggleCheck(this)"><div class="check-box" id="c6"></div><span class="check-text">Ran <code>npm run build:android</code> — .aab downloaded</span></li>
+      <li onclick="toggleCheck(this)"><div class="check-box" id="c7"></div><span class="check-text">Created Google Play Developer account ($25)</span></li>
+      <li onclick="toggleCheck(this)"><div class="check-box" id="c8"></div><span class="check-text">Created app in Play Console</span></li>
+      <li onclick="toggleCheck(this)"><div class="check-box" id="c9"></div><span class="check-text">Uploaded .aab to Internal Testing</span></li>
+      <li onclick="toggleCheck(this)"><div class="check-box" id="c10"></div><span class="check-text">Filled store listing (description, screenshots, privacy URL)</span></li>
+      <li onclick="toggleCheck(this)"><div class="check-box" id="c11"></div><span class="check-text">Completed Data Safety questionnaire</span></li>
+      <li onclick="toggleCheck(this)"><div class="check-box" id="c12"></div><span class="check-text">Tested on physical Android device ✅</span></li>
+      <li onclick="toggleCheck(this)"><div class="check-box" id="c13"></div><span class="check-text">Submitted for Play Store review 🎉</span></li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <p>Alumni Network · <code>com.mediacell.alumni</code> · Media Cell Institution · Bengaluru, India</p>
+  <p style="margin-top:8px">
+    <a href="https://github.com/HarshithaDS631/alma" target="_blank">GitHub Repository</a> ·
+    <a href="https://expo.dev" target="_blank">expo.dev</a> ·
+    <a href="https://play.google.com/console" target="_blank">Play Console</a> ·
+    <a href="https://appstoreconnect.apple.com" target="_blank">App Store Connect</a>
+  </p>
+</div>
+
+<script>
+  function toggleStep(header) {
+    const body = header.nextElementSibling;
+    const isOpen = body.style.display !== 'none';
+    body.style.display = isOpen ? 'none' : 'block';
+  }
+
+  function copyCode(btn, text) {
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Copy';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+
+  function toggleCheck(li) {
+    const box = li.querySelector('.check-box');
+    const isChecked = box.classList.contains('checked');
+    box.classList.toggle('checked');
+    li.classList.toggle('checked-item');
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const total = document.querySelectorAll('#launch-checklist li').length;
+    const done = document.querySelectorAll('#launch-checklist .check-box.checked').length;
+    const pct = Math.round((done / total) * 100);
+    // base is 40% (already done), rest is from checklist
+    const displayPct = 40 + Math.round((done / total) * 60);
+    document.getElementById('progress-fill').style.width = displayPct + '%';
+    document.getElementById('progress-pct').textContent = displayPct + '% Complete';
+  }
+</script>
+</body>
+</html>
