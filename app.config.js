@@ -47,6 +47,8 @@ export default {
       buildNumber: '1.0.0',
       requireFullScreen: false,
       usesAppleSignIn: false,
+      googleServicesFile:
+        process.env.GOOGLE_SERVICES_PLIST ?? './GoogleService-Info.plist',
       config: {
         usesNonExemptEncryption: false,
       },
