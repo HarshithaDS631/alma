@@ -13,26 +13,32 @@ const connectDB = async () => {
         return mongoose.connection;
     }
 
+    const mongoUri = process.env.MONGO_URI || 'mongodb+srv://rveducational_db_user:Alumni%40123@cluster0.xk6n9j6.mongodb.net/alumni_db?appName=Cluster0';
+    
     if (!connectionPromise || mongoose.connection.readyState === 0) {
-        const mongoUri = process.env.MONGO_URI || 'mongodb+srv://rveducational_db_user:Alumni%40123@cluster0.xk6n9j6.mongodb.net/alumni_db?appName=Cluster0';
         connectionPromise = mongoose.connect(mongoUri, {
-            serverSelectionTimeoutMS: 8000,
-            connectTimeoutMS: 10000,
+            serverSelectionTimeoutMS: 15000,
+            connectTimeoutMS: 15000,
             socketTimeoutMS: 45000,
             maxPoolSize: 10,
-            autoIndex: false,
-            heartbeatFrequencyMS: 10000
-        }).then((conn) => {
-            console.log(`MongoDB Connected: ${conn.connection.host}`);
-            return conn;
-        }).catch((error) => {
+            autoIndex: false
+        }).catch((err) => {
             connectionPromise = null;
-            console.error(`Database Connection Error: ${error.message}`);
-            throw error;
+            throw err;
         });
     }
 
     await connectionPromise;
+
+    // Ensure connection is fully established before returning
+    if (mongoose.connection.readyState !== 1) {
+        await new Promise((resolve) => {
+            if (mongoose.connection.readyState === 1) return resolve();
+            mongoose.connection.once('connected', resolve);
+            setTimeout(resolve, 3000);
+        });
+    }
+
     return mongoose.connection;
 };
 
