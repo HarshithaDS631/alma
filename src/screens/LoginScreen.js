@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as WebBrowser from 'expo-web-browser';
 import { login, loginVerify2FA } from '../services/authService';
+import { handleGoogleLogin } from '../services/googleAuthService';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -19,6 +20,7 @@ const LoginScreen = ({ navigation }) => {
   const [portal, setPortal] = useState(null);
 
   // 2FA Challenge States
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [show2FAModal, setShow2FAModal] = useState(false);
   const [twoFactorToken, setTwoFactorToken] = useState('');
   const [twoFactorCode, setTwoFactorCode] = useState('');
@@ -37,6 +39,25 @@ const LoginScreen = ({ navigation }) => {
     };
     fetchPortal();
   }, []);
+
+  const handleGoogleSignIn = async () => {
+    setGoogleLoading(true);
+    try {
+      const userData = await handleGoogleLogin();
+      const userRole = (userData.role || '').trim().toLowerCase();
+      if (userRole === 'super admin' || userRole === 'superadmin') {
+        navigation.navigate('SuperAdminMain');
+      } else if (userRole === 'admin' || userRole === 'institution admin') {
+        navigation.navigate('AdminMain');
+      } else {
+        navigation.navigate('Main');
+      }
+    } catch (error) {
+      alert(error.message || 'Google Sign-In failed. Please try again.');
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -233,6 +254,50 @@ const LoginScreen = ({ navigation }) => {
                 <ActivityIndicator color="#FFFFFF" size="small" />
               ) : (
                 <Text style={styles.primaryButtonText}>Login</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+
+          {/* ── Google Sign-In Button ── */}
+          <View style={{ marginBottom: 16 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+              <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
+              <Text style={{ marginHorizontal: 12, color: theme.textMuted, fontSize: 13, fontWeight: '500' }}>or continue with</Text>
+              <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
+            </View>
+
+            <TouchableOpacity
+              id="google-signin-btn"
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: '#FFFFFF',
+                borderWidth: 1.5,
+                borderColor: '#E2E8F0',
+                borderRadius: 12,
+                height: 52,
+                gap: 10,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.06,
+                shadowRadius: 3,
+                elevation: 2,
+              }}
+              onPress={handleGoogleSignIn}
+              disabled={googleLoading}
+              activeOpacity={0.8}
+            >
+              {googleLoading ? (
+                <ActivityIndicator color="#4285F4" size="small" />
+              ) : (
+                <>
+                  {/* Google G logo SVG-style using text */}
+                  <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: '#4285F4', justifyContent: 'center', alignItems: 'center' }}>
+                    <Text style={{ color: '#fff', fontWeight: '900', fontSize: 13, lineHeight: 22 }}>G</Text>
+                  </View>
+                  <Text style={{ fontSize: 15, fontWeight: '700', color: '#1E293B' }}>Continue with Google</Text>
+                </>
               )}
             </TouchableOpacity>
           </View>

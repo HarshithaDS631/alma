@@ -7,11 +7,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 
 const getApiUrl = () => {
+  // On web running locally, always use local backend to avoid Vercel rate limits
+  if (typeof window !== 'undefined' && 
+      (window.location?.hostname === 'localhost' || window.location?.hostname === '127.0.0.1')) {
+    return 'http://localhost:5000/api';
+  }
   if (process.env.EXPO_PUBLIC_API_URL) {
     return process.env.EXPO_PUBLIC_API_URL;
   }
-  // Default to the live Vercel backend so physical devices work out of the box
-  // without needing a local backend server running.
   return 'https://backend-pi-bice-97.vercel.app/api';
 };
 

@@ -22,6 +22,8 @@ const notificationRoutes = require('./routes/notificationRoutes');
 const jobRoutes = require('./routes/jobRoutes');
 const firebaseAuthRoutes = require('./routes/firebaseAuthRoutes');
 const { initScheduler } = require('./utils/cronScheduler');
+const { apiLimiter, authLimiter } = require('./middleware/rateLimiter');
+const activityLogger = require('./middleware/activityLogger');
 
 dotenv.config();
 
