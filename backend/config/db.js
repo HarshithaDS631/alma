@@ -17,6 +17,7 @@ const connectDB = async () => {
     
     if (!connectionPromise || mongoose.connection.readyState === 0) {
         connectionPromise = mongoose.connect(mongoUri, {
+            dbName: 'alumni_db',
             serverSelectionTimeoutMS: 15000,
             connectTimeoutMS: 15000,
             socketTimeoutMS: 45000,
