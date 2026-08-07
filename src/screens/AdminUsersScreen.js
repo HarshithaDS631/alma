@@ -13,6 +13,7 @@ import {
   ScrollView,
   Platform,
   RefreshControl,
+  Alert,
 } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
@@ -521,7 +522,6 @@ const AdminUsersScreen = ({ navigation, route }) => {
                   text: 'Delete Account', 
                   style: 'destructive',
                   onPress: () => {
-                    setFriends(prev => prev.filter(f => (f._id || f.id) !== (item._id || item.id)));
                     Alert.alert('Account Deleted', `${item.name}'s alumni account has been removed by Admin authority.`);
                   }
                 }

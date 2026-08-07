@@ -10,6 +10,7 @@ const AdminDashboardScreen = ({ navigation }) => {
   const styles = getStyles(theme);
 
   const { width } = useWindowDimensions();
+  const isWeb = Platform.OS === 'web';
   const isDesktop = isWeb && width >= 1024;
   const webContainerStyle = isWeb ? { alignSelf: 'center', width: '100%', maxWidth: isDesktop ? 1200 : 800, flex: 1, flexDirection: isDesktop ? 'row' : 'column', gap: 24, padding: isDesktop ? 24 : 0 } : { flex: 1 };
   
