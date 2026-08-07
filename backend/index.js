@@ -220,6 +220,8 @@ app.get('/api/system-status', async (req, res) => {
 
 app.get('/api/health', async (req, res) => {
     try {
+        const uri = process.env.MONGO_URI || 'default-fallback';
+        const masked = uri.replace(/:([^@]+)@/, ':****@');
         await connectDB();
         const mongoose = require('mongoose');
         res.json({
@@ -227,7 +229,8 @@ app.get('/api/health', async (req, res) => {
             timestamp: new Date(),
             dbState: mongoose.connection.readyState,
             dbHost: mongoose.connection.host || 'none',
-            dbName: mongoose.connection.name || 'none'
+            dbName: mongoose.connection.name || 'none',
+            configuredUri: masked
         });
     } catch (e) {
         res.status(500).json({ error: e.message });
