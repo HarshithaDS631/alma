@@ -172,7 +172,7 @@ const NotificationsScreen = ({ navigation }) => {
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <TouchableOpacity 
-            style={{ padding: 6, zIndex: 999 }}
+            style={styles.backButton}
             hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
             activeOpacity={0.6}
             onPress={() => {
@@ -182,7 +182,6 @@ const NotificationsScreen = ({ navigation }) => {
                 navigation.navigate('Main');
               }
             }} 
-            style={styles.backButton}
           >
             <Ionicons name="arrow-back" size={24} color="#002144" />
           </TouchableOpacity>
