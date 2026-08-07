@@ -48,3 +48,15 @@ expo-env.d.ts
 .env*
 backend/backups/
 backend/exports/
+
+# Store launch — sensitive credentials (DO NOT COMMIT real files)
+google-play-key.json
+# Note: google-services.json and GoogleService-Info.plist templates are committed
+# but should be replaced with real files locally. Real files with secrets are auto-excluded
+# by the .env* rule above if you use .env.local to inject them.
+
+# Store screenshots (large binary files — upload directly to stores)
+store-assets/*.png
+store-assets/*.jpg
+store-assets/*.jpeg
+
