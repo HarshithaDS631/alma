@@ -11,17 +11,39 @@
       }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      }
     },
     "production": {
       "autoIncrement": true,
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "ios": {
+        "enterpriseProvisioning": "adhoc"
+      },
       "env": {
         "EXPO_PUBLIC_SUPABASE_URL": "https://hdqpmawlhhvnioxkxvpj.supabase.co",
-        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_iBN9uFB_xdemug-BLp85-g_qBHO8YJj"
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_iBN9uFB_xdemug-BLp85-g_qBHO8YJj",
+        "EXPO_PUBLIC_API_URL": "https://backend-pi-bice-97.vercel.app/api"
       }
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "android": {
+        "serviceAccountKeyPath": "./google-play-key.json",
+        "track": "internal",
+        "releaseStatus": "draft",
+        "rollout": 1
+      },
+      "ios": {
+        "appleId": "your-apple-id@email.com",
+        "ascAppId": "your-app-store-connect-app-id",
+        "appleTeamId": "YOUR_APPLE_TEAM_ID"
+      }
+    }
   }
 }
