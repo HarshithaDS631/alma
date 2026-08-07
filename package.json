@@ -12,7 +12,10 @@
     "vercel-build": "npx expo export --platform web && node copy-vercel-config.js",
     "build:android": "eas build -p android --profile production",
     "build:ios": "eas build -p ios --profile production",
-    "build:all": "eas build -p all --profile production"
+    "build:all": "eas build -p all --profile production",
+    "launch:check": "npx expo config --type public && expo lint",
+    "launch:android": "eas build -p android --profile production",
+    "launch:ios": "eas build -p ios --profile production"
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",
