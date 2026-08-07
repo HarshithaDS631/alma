@@ -218,6 +218,22 @@ app.get('/api/system-status', async (req, res) => {
     });
 });
 
+app.get('/api/health', async (req, res) => {
+    try {
+        await connectDB();
+        const mongoose = require('mongoose');
+        res.json({
+            status: 'ok',
+            timestamp: new Date(),
+            dbState: mongoose.connection.readyState,
+            dbHost: mongoose.connection.host || 'none',
+            dbName: mongoose.connection.name || 'none'
+        });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 app.get('/', (req, res) => {
     res.send('RVITM Alumni API is running with HTTPS, WSS (Socket.IO), JWT Auth & MongoDB Atlas...');
 });

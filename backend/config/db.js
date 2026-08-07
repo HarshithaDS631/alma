@@ -9,36 +9,31 @@ mongoose.connection.on('error', (err) => {
 });
 
 const connectDB = async () => {
-    // If already connected, return immediately (O(1) check)
     if (mongoose.connection.readyState === 1) {
-        return;
+        return mongoose.connection;
     }
 
-    // If a connection is already in progress, wait for it (avoid duplicate connects)
-    if (connectionPromise) {
-        return connectionPromise;
+    if (!connectionPromise || mongoose.connection.readyState === 0) {
+        const mongoUri = process.env.MONGO_URI || 'mongodb+srv://rveducational_db_user:Alumni%40123@cluster0.xk6n9j6.mongodb.net/alumni_db?appName=Cluster0';
+        connectionPromise = mongoose.connect(mongoUri, {
+            serverSelectionTimeoutMS: 8000,
+            connectTimeoutMS: 10000,
+            socketTimeoutMS: 45000,
+            maxPoolSize: 10,
+            autoIndex: false,
+            heartbeatFrequencyMS: 10000
+        }).then((conn) => {
+            console.log(`MongoDB Connected: ${conn.connection.host}`);
+            return conn;
+        }).catch((error) => {
+            connectionPromise = null;
+            console.error(`Database Connection Error: ${error.message}`);
+            throw error;
+        });
     }
 
-    const mongoUri = process.env.MONGO_URI || 'mongodb+srv://rveducational_db_user:Alumni%40123@cluster0.xk6n9j6.mongodb.net/alumni_db?appName=Cluster0';
-
-    connectionPromise = mongoose.connect(mongoUri, {
-        serverSelectionTimeoutMS: 8000,  // Fail fast if Atlas is unreachable
-        connectTimeoutMS: 10000,
-        socketTimeoutMS: 45000,
-        maxPoolSize: 10,
-        minPoolSize: 2,
-        autoIndex: false,                // Disable auto-index on Vercel (speeds up cold start)
-        heartbeatFrequencyMS: 10000
-    }).then((conn) => {
-        console.log(`MongoDB Connected: ${conn.connection.host}`);
-        return conn;
-    }).catch((error) => {
-        connectionPromise = null;       // Reset on failure so next request retries
-        console.error(`Database Connection Error: ${error.message}`);
-        throw error;
-    });
-
-    return connectionPromise;
+    await connectionPromise;
+    return mongoose.connection;
 };
 
 module.exports = connectDB;

@@ -230,6 +230,7 @@ exports.loginUser = async (req, res) => {
     const { email, password } = req.body;
 
     try {
+        await connectDB();
         const AdminUser = require('../models/AdminUser');
         const SuperAdminUser = require('../models/SuperAdminUser');
         let user = await User.findOne({ email: email.trim().toLowerCase() });
