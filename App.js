@@ -55,6 +55,7 @@ import NotificationsScreen from './src/screens/NotificationsScreen';
 import PostCreationScreen from './src/screens/PostCreationScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import LegalScreen from './src/screens/LegalScreen';
+import CareerInsightsScreen from './src/screens/CareerInsightsScreen';
 
 // Admin Flow Screens
 import AdminLoginScreen from './src/screens/AdminLoginScreen';
@@ -445,6 +446,7 @@ function RootNavigator() {
         <Stack.Screen name="AdminProfile" component={AdminProfileScreen} />
         <Stack.Screen name="AdminPlacementDetails" component={AdminPlacementDetailsScreen} />
         <Stack.Screen name="Legal" component={LegalScreen} />
+        <Stack.Screen name="CareerInsights" component={CareerInsightsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

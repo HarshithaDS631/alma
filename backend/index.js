@@ -170,6 +170,8 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/firebase-auth', firebaseAuthRoutes);
+const recommendationRoutes = require('./routes/recommendationRoutes');
+app.use('/api/recommendations', recommendationRoutes);
 
 // ─── System Health ──────────────────────────────────────────────
 app.get('/api/system-status', async (req, res) => {
