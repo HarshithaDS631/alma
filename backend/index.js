@@ -174,6 +174,7 @@ app.use('/api/firebase-auth', firebaseAuthRoutes);
 // ─── System Health ──────────────────────────────────────────────
 app.get('/api/system-status', async (req, res) => {
     const mongoose = require('mongoose');
+    try { await connectDB(); } catch (e) {}
     res.json({
         status: 'healthy',
         architecture: {
