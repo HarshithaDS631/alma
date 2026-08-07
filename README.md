@@ -17,224 +17,51 @@ Welcome to the RVITM Alumni Network platform! This application serves as a centr
 - **Alumni Profiles**: View and customize your personal alumni profile.
 - **Cross-Platform**: Built with Expo and React Native for Web, iOS, and Android support.
 
-## 📊 System Architecture & Flowchart
+## 📊 Enterprise Production Flowchart
 
 ```mermaid
 flowchart TD
 
-%% ============================
-%% USERS
-%% ============================
+%% ================= USER LAYER =================
 
-Users([Users])
+A[Users]
 
-Users --> Alumni
-Users --> Student
-Users --> Admin
-Users --> SuperAdmin
+A --> Alumni
+A --> Student
+A --> Admin
+A --> SuperAdmin
 
-%% ============================
-%% CLIENT APPLICATIONS
-%% ============================
 
-subgraph Client["Frontend Layer (React Native + Expo + JavaScript)"]
+%% ================= FRONTEND =================
 
-Mobile["📱 Android & iOS App"]
-Web["💻 React Native Web"]
+subgraph Frontend["Frontend Layer"]
 
-Login["Authentication"]
-Dashboard["Dashboard"]
-Profile["Profile"]
-Jobs["Jobs"]
-Events["Events"]
-Mentorship["Mentorship"]
-Chat["Chat"]
-Notifications["Notifications"]
-Settings["Settings"]
-Legal["Terms • Privacy • Community Guidelines"]
+Mobile["Mobile Application<br/>React Native + Expo<br/>JavaScript"]
 
-Mobile --> Login
-Web --> Login
+Web["Web Application<br/>React Native Web<br/>JavaScript"]
 
-Login --> Dashboard
+UI["UI Components<br/>Navigation<br/>Forms<br/>Dashboard<br/>Screens"]
 
-Dashboard --> Profile
-Dashboard --> Jobs
-Dashboard --> Events
-Dashboard --> Mentorship
-Dashboard --> Chat
-Dashboard --> Notifications
-Dashboard --> Settings
-Dashboard --> Legal
+State["State Management<br/>Redux Toolkit / React Hooks"]
 
 end
 
-%% ============================
-%% API
-%% ============================
 
-subgraph API["Backend (Node.js + Express.js)"]
+Alumni --> Mobile
+Student --> Mobile
+Admin --> Web
+SuperAdmin --> Web
 
-APIGateway["REST API"]
+Mobile --> UI
+Web --> UI
 
-Security["Security Middleware<br/>Helmet<br/>CORS<br/>MongoSanitize<br/>Rate Limiter<br/>JWT<br/>RBAC"]
+UI --> State
 
-Controllers["Controllers<br/>Authentication<br/>Users<br/>Posts<br/>Jobs<br/>Events<br/>Mentorship<br/>Chat<br/>Admin<br/>Super Admin<br/>Notifications"]
 
-Business["Business Logic"]
+%% ================= LEGAL CONSENT =================
 
-end
 
-Dashboard --> APIGateway
-
-APIGateway --> Security
-
-Security --> Controllers
-
-Controllers --> Business
-
-%% ============================
-%% SERVICES
-%% ============================
-
-subgraph Services["Services"]
-
-Socket["Socket.io<br/>Real-Time Chat"]
-
-Firebase["Firebase Cloud Messaging<br/>Push Notifications"]
-
-Email["SendGrid<br/>OTP<br/>Verification<br/>Email"]
-
-Scheduler["Cron Jobs<br/>Email Reminders<br/>Cleanup<br/>Reports"]
-
-end
-
-Business --> Socket
-Business --> Firebase
-Business --> Email
-Business --> Scheduler
-
-%% ============================
-%% DATABASE
-%% ============================
-
-subgraph Database["MongoDB Atlas (alumni_db)"]
-
-UsersDB[(Users)]
-
-PostsDB[(Posts)]
-
-JobsDB[(Jobs)]
-
-EventsDB[(Events)]
-
-MentorshipDB[(Mentorship)]
-
-MessagesDB[(Messages)]
-
-NotificationDB[(Notifications)]
-
-AuditDB[(Audit Logs)]
-
-GridFS[(GridFS<br/>Images<br/>Documents<br/>Certificates<br/>Resumes)]
-
-end
-
-Business --> UsersDB
-Business --> PostsDB
-Business --> JobsDB
-Business --> EventsDB
-Business --> MentorshipDB
-Business --> MessagesDB
-Business --> NotificationDB
-Business --> AuditDB
-Business --> GridFS
-
-%% ============================
-%% SECURITY
-%% ============================
-
-Security --> JWT["JWT Authentication"]
-
-Security --> Password["bcrypt Password Hashing"]
-
-Security --> Validation["Input Validation"]
-
-Security --> Roles["Role Based Access"]
-
-%% ============================
-%% ADMIN FLOW
-%% ============================
-
-Admin --> AdminPanel["Admin Dashboard"]
-
-AdminPanel --> ApproveUsers["Approve Alumni"]
-
-AdminPanel --> ManageEvents["Manage Events"]
-
-AdminPanel --> ModeratePosts["Moderate Posts"]
-
-AdminPanel --> Reports["Reports"]
-
-SuperAdmin --> SuperPanel["Super Admin Dashboard"]
-
-SuperPanel --> CollegeMgmt["Manage Colleges"]
-
-SuperPanel --> AdminMgmt["Manage Admins"]
-
-SuperPanel --> Analytics["Analytics"]
-
-SuperPanel --> SystemConfig["System Settings"]
-
-%% ============================
-%% DEPLOYMENT
-%% ============================
-
-subgraph Deployment["Deployment Pipeline"]
-
-GitHub["GitHub Repository"]
-
-CI["GitHub Actions CI/CD"]
-
-Docker["Docker"]
-
-AWS["AWS EC2 / Vercel"]
-
-Nginx["Nginx Reverse Proxy"]
-
-HTTPS["SSL / HTTPS Encryption"]
-
-PlayStore["Google Play Store"]
-
-AppStore["Apple App Store"]
-
-end
-
-Business --> GitHub
-
-GitHub --> CI
-
-CI --> Docker
-
-Docker --> AWS
-
-AWS --> Nginx
-
-Nginx --> HTTPS
-
-HTTPS --> Mobile
-
-HTTPS --> Web
-
-Mobile --> PlayStore
-
-Mobile --> AppStore
-
-%% ============================
-%% LEGAL & COMPLIANCE
-%% ============================
-
-subgraph Compliance["Legal & Compliance"]
+subgraph Legal["Legal Compliance"]
 
 Terms["Terms & Conditions"]
 
@@ -242,31 +69,355 @@ Privacy["Privacy Policy"]
 
 Community["Community Guidelines"]
 
-Retention["Data Retention"]
+Data["Data Retention Policy"]
 
-Delete["Account Deletion"]
+Delete["Account Deletion Policy"]
 
-Consent["User Consent"]
+Cookie["Cookie Policy (Web)"]
 
 end
 
-Login --> Consent
+
+UI --> Consent["User Consent Screen"]
 
 Consent --> Terms
-
 Consent --> Privacy
-
 Consent --> Community
-
-Consent --> Retention
-
+Consent --> Data
 Consent --> Delete
+Consent --> Cookie
 
-Terms --> Dashboard
-Privacy --> Dashboard
+
+Consent --> Authentication
+
+
+%% ================= AUTH =================
+
+
+subgraph Authentication["Authentication Layer"]
+
+Signup["Register"]
+
+EmailVerify["Email Verification"]
+
+OTP["OTP Verification<br/>SendGrid"]
+
+Password["Password Hashing<br/>bcrypt"]
+
+JWT["JWT Access Token"]
+
+Refresh["Refresh Token"]
+
+RBAC["Role Based Access"]
+
+end
+
+
+Authentication --> Backend
+
+Authentication --> Signup
+Signup --> EmailVerify
+EmailVerify --> OTP
+OTP --> Password
+Password --> JWT
+JWT --> Refresh
+Refresh --> RBAC
+
+
+
+%% ================= BACKEND =================
+
+
+subgraph Backend["Backend Server"]
+
+Node["Node.js"]
+
+Express["Express.js"]
+
+Middleware["Security Middleware<br/>Helmet<br/>MongoSanitize<br/>CORS<br/>Rate Limiter"]
+
+Controllers["Controllers"]
+
+Services["Business Services"]
+
+end
+
+
+Backend --> Node
+
+Node --> Express
+
+Express --> Middleware
+
+Middleware --> Controllers
+
+Controllers --> Services
+
+
+
+%% ================= MODULES =================
+
+
+subgraph Modules["Application Modules"]
+
+Profile["Alumni Profile"]
+
+Network["Alumni Networking"]
+
+Posts["Social Feed"]
+
+Jobs["Jobs & Internship"]
+
+Events["Events Management"]
+
+Mentor["Mentorship"]
+
+Donation["Donation & Support"]
+
+Chat["Messaging"]
+
+Reports["Reports"]
+
+end
+
+
+Services --> Profile
+Services --> Network
+Services --> Posts
+Services --> Jobs
+Services --> Events
+Services --> Mentor
+Services --> Donation
+Services --> Chat
+Services --> Reports
+
+
+
+%% ================= REAL TIME =================
+
+
+subgraph Communication["Real Time Services"]
+
+Socket["Socket.io<br/>Live Chat"]
+
+FCM["Firebase Cloud Messaging<br/>Push Notification"]
+
+SendGrid["SendGrid<br/>OTP Emails"]
+
+end
+
+
+Services --> Socket
+Services --> FCM
+Services --> SendGrid
+
+
+
+%% ================= DATABASE =================
+
+
+subgraph Database["MongoDB Atlas (alumni_db)"]
+
+UserDB[(Users Collection)]
+
+ProfileDB[(Profiles)]
+
+PostDB[(Posts)]
+
+JobDB[(Jobs)]
+
+EventDB[(Events)]
+
+ChatDB[(Messages)]
+
+NotificationDB[(Notifications)]
+
+AuditDB[(Audit Logs)]
+
+end
+
+
+Services --> UserDB
+
+Services --> ProfileDB
+
+Services --> PostDB
+
+Services --> JobDB
+
+Services --> EventDB
+
+Services --> ChatDB
+
+Services --> NotificationDB
+
+Services --> AuditDB
+
+
+
+%% ================= FILE STORAGE =================
+
+
+GridFS["MongoDB GridFS<br/>Images<br/>Certificates<br/>Resume<br/>Documents"]
+
+
+Services --> GridFS
+
+
+
+%% ================= ADMIN =================
+
+
+subgraph AdminPanel["Admin Management"]
+
+AdminDashboard["Admin Dashboard"]
+
+Approve["Approve Alumni"]
+
+Moderate["Content Moderation"]
+
+EventManage["Event Management"]
+
+UserManage["User Management"]
+
+Analytics["Analytics"]
+
+end
+
+
+Admin --> AdminDashboard
+
+AdminDashboard --> Approve
+
+AdminDashboard --> Moderate
+
+AdminDashboard --> EventManage
+
+AdminDashboard --> UserManage
+
+AdminDashboard --> Analytics
+
+
+
+%% ================= SUPER ADMIN =================
+
+
+subgraph SuperAdminPanel["Super Admin"]
+
+College["College Management"]
+
+AdminControl["Admin Management"]
+
+System["System Configuration"]
+
+Security["Security Monitoring"]
+
+Subscription["Subscription Management"]
+
+end
+
+
+SuperAdmin --> College
+
+SuperAdmin --> AdminControl
+
+SuperAdmin --> System
+
+SuperAdmin --> Security
+
+SuperAdmin --> Subscription
+
+
+
+%% ================= DEPLOYMENT =================
+
+
+subgraph Deployment["Production Deployment"]
+
+GitHub["GitHub Repository"]
+
+CI["GitHub Actions CI/CD"]
+
+Docker["Docker"]
+
+AWS["AWS Cloud / Vercel"]
+
+EC2["Backend Server"]
+
+Mongo["MongoDB Atlas"]
+
+Vercel["Vercel Hosting"]
+
+SSL["HTTPS SSL"]
+
+end
+
+
+Frontend --> GitHub
+
+Backend --> GitHub
+
+GitHub --> CI
+
+CI --> Docker
+
+Docker --> EC2
+
+EC2 --> AWS
+
+Backend --> Mongo
+
+Web --> Vercel
+
+Vercel --> SSL
+
+
+
+%% ================= STORE RELEASE =================
+
+
+subgraph Stores["Application Release"]
+
+Android["Expo EAS Build"]
+
+PlayStore["Google Play Store"]
+
+IOS["iOS Build"]
+
+AppStore["Apple App Store"]
+
+end
+
+
+Mobile --> Android
+
+Android --> PlayStore
+
+Mobile --> IOS
+
+IOS --> AppStore
 ```
 
-## 🛠️ Technology Architecture Flow
+## 🛠️ Production Implementation Stack
+
+| Layer | Technology |
+| :--- | :--- |
+| **Mobile App** | React Native + Expo |
+| **Web App** | React Native Web |
+| **Language** | JavaScript / TypeScript |
+| **Backend** | Node.js + Express.js |
+| **Database** | MongoDB Atlas (`alumni_db`) |
+| **File Storage** | MongoDB GridFS |
+| **Authentication** | JWT + Refresh Token |
+| **OTP / Email** | SendGrid |
+| **Chat** | Socket.io |
+| **Notifications** | Firebase Cloud Messaging |
+| **Security** | Helmet + MongoSanitize + RateLimiter |
+| **Hosting Frontend** | Vercel |
+| **Hosting Backend** | AWS EC2 / Vercel |
+| **CI/CD** | GitHub Actions |
+| **Container** | Docker |
+| **Mobile Release** | Expo EAS + Play Store + App Store |
 
 | Layer | Technology | Status |
 | ----- | ---------- | ------ |

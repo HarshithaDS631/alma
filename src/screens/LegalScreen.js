@@ -6,8 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   SafeAreaView,
-  Alert,
-  Linking
+  Alert
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
@@ -48,35 +47,44 @@ export default function LegalScreen({ navigation }) {
       </View>
 
       {/* Tabs */}
-      <View style={[styles.tabBar, { borderBottomColor: theme.border }]}>
-        <TouchableOpacity
-          style={[styles.tabItem, activeTab === 'terms' && { borderBottomColor: theme.primary, borderBottomWidth: 2 }]}
-          onPress={() => setActiveTab('terms')}
-        >
-          <Text style={[styles.tabText, { color: activeTab === 'terms' ? theme.primary : theme.subtext }]}>Terms</Text>
-        </TouchableOpacity>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={[styles.tabBarContainer, { borderBottomColor: theme.border }]}>
+        <View style={styles.tabBar}>
+          <TouchableOpacity
+            style={[styles.tabItem, activeTab === 'terms' && { borderBottomColor: theme.primary, borderBottomWidth: 2 }]}
+            onPress={() => setActiveTab('terms')}
+          >
+            <Text style={[styles.tabText, { color: activeTab === 'terms' ? theme.primary : theme.subtext }]}>Terms</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.tabItem, activeTab === 'privacy' && { borderBottomColor: theme.primary, borderBottomWidth: 2 }]}
-          onPress={() => setActiveTab('privacy')}
-        >
-          <Text style={[styles.tabText, { color: activeTab === 'privacy' ? theme.primary : theme.subtext }]}>Privacy</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tabItem, activeTab === 'privacy' && { borderBottomColor: theme.primary, borderBottomWidth: 2 }]}
+            onPress={() => setActiveTab('privacy')}
+          >
+            <Text style={[styles.tabText, { color: activeTab === 'privacy' ? theme.primary : theme.subtext }]}>Privacy</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.tabItem, activeTab === 'community' && { borderBottomColor: theme.primary, borderBottomWidth: 2 }]}
-          onPress={() => setActiveTab('community')}
-        >
-          <Text style={[styles.tabText, { color: activeTab === 'community' ? theme.primary : theme.subtext }]}>Guidelines</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tabItem, activeTab === 'community' && { borderBottomColor: theme.primary, borderBottomWidth: 2 }]}
+            onPress={() => setActiveTab('community')}
+          >
+            <Text style={[styles.tabText, { color: activeTab === 'community' ? theme.primary : theme.subtext }]}>Guidelines</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.tabItem, activeTab === 'retention' && { borderBottomColor: theme.primary, borderBottomWidth: 2 }]}
-          onPress={() => setActiveTab('retention')}
-        >
-          <Text style={[styles.tabText, { color: activeTab === 'retention' ? theme.primary : theme.subtext }]}>Data Rights</Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity
+            style={[styles.tabItem, activeTab === 'cookies' && { borderBottomColor: theme.primary, borderBottomWidth: 2 }]}
+            onPress={() => setActiveTab('cookies')}
+          >
+            <Text style={[styles.tabText, { color: activeTab === 'cookies' ? theme.primary : theme.subtext }]}>Cookies</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.tabItem, activeTab === 'retention' && { borderBottomColor: theme.primary, borderBottomWidth: 2 }]}
+            onPress={() => setActiveTab('retention')}
+          >
+            <Text style={[styles.tabText, { color: activeTab === 'retention' ? theme.primary : theme.subtext }]}>Data Rights</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
 
       {/* Content */}
       <ScrollView contentContainerStyle={styles.contentContainer}>
@@ -126,6 +134,23 @@ export default function LegalScreen({ navigation }) {
           </View>
         )}
 
+        {activeTab === 'cookies' && (
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>Cookie Policy (Web Application)</Text>
+            <Text style={[styles.paragraph, { color: theme.subtext }]}>
+              Our web application uses essential cookies and local storage tokens to ensure secure login authentication and store user preferences.
+            </Text>
+            <Text style={[styles.subHeading, { color: theme.text }]}>1. Essential Authentication Tokens</Text>
+            <Text style={[styles.paragraph, { color: theme.subtext }]}>
+              We store encrypted JWT session tokens in web local storage (`AsyncStorage`) strictly for authentication state persistence. No third-party tracking cookies are used.
+            </Text>
+            <Text style={[styles.subHeading, { color: theme.text }]}>2. Managing Preferences</Text>
+            <Text style={[styles.paragraph, { color: theme.subtext }]}>
+              Theme preferences (Dark/Light mode) are persisted locally on your device to enhance visual accessibility.
+            </Text>
+          </View>
+        )}
+
         {activeTab === 'retention' && (
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: theme.text }]}>Data Retention & Deletion Rights</Text>
@@ -159,8 +184,9 @@ const styles = StyleSheet.create({
   },
   headerTitle: { fontSize: 18, fontWeight: '700' },
   backButton: { padding: 4 },
-  tabBar: { flexDirection: 'row', borderBottomWidth: 1 },
-  tabItem: { flex: 1, paddingVertical: 12, alignItems: 'center' },
+  tabBarContainer: { borderBottomWidth: 1, maxHeight: 48 },
+  tabBar: { flexDirection: 'row', paddingHorizontal: 10 },
+  tabItem: { paddingHorizontal: 16, paddingVertical: 12, alignItems: 'center' },
   tabText: { fontSize: 13, fontWeight: '600' },
   contentContainer: { padding: 20 },
   section: { gap: 12 },
