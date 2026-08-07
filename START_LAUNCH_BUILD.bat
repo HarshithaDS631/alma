@@ -1,11 +1,12 @@
 @echo off
-TITLE Alumni Network — Store Launch Builder
+TITLE Alumni Network — Multi-Platform Store Launch Builder (Web + Android + iOS)
 COLOR 0A
 cls
-echo ===================================================
-echo   ALUMNI NETWORK — 1-CLICK STORE LAUNCH BUILDER
-echo   Package: com.mediacell.alumni | Account: rvei
-echo ===================================================
+echo ===================================================================
+echo   ALUMNI NETWORK — MULTI-PLATFORM LAUNCH BUILDER
+echo   Package: com.mediacell.alumni | Account: rvei (expo.dev)
+echo   Platforms: Android (Play Store) | iOS (App Store) | Web (Vercel)
+echo ===================================================================
 echo.
 
 echo [1/3] Validating project configuration & linter...
@@ -28,22 +29,55 @@ if %errorlevel% neq 0 (
 )
 echo.
 
-echo ===================================================
-echo   READY TO BUILD PRODUCTION ANDROID AAB BUNDLE
-echo ===================================================
+echo ===================================================================
+echo   SELECT PLATFORM TO BUILD:
+echo ===================================================================
+echo   [1] Android Only   -- Build .aab for Google Play Store
+echo   [2] iOS Only       -- Build .ipa for Apple App Store
+echo   [3] Web Only       -- Export Web build for Vercel
+echo   [4] ALL PLATFORMS  -- Build Android + iOS + Web together
+echo ===================================================================
 echo.
-echo Press CTRL+C to cancel, or
-pause
+set /p CHOICE="Enter choice [1, 2, 3, or 4]: "
 
+if "%CHOICE%"=="1" goto BUILD_ANDROID
+if "%CHOICE%"=="2" goto BUILD_IOS
+if "%CHOICE%"=="3" goto BUILD_WEB
+if "%CHOICE%"=="4" goto BUILD_ALL
+
+echo Invalid choice. Defaulting to ALL.
+goto BUILD_ALL
+
+:BUILD_ANDROID
 echo.
-echo [3/3] Launching EAS Android Production Cloud Build...
+echo [3/3] Building Production Android AAB...
 call npx eas-cli build -p android --profile production
+goto FINISH
 
+:BUILD_IOS
 echo.
-echo ===================================================
-echo   BUILD SUBMITTED TO EXPO CLOUD!
+echo [3/3] Building Production iOS IPA...
+call npx eas-cli build -p ios --profile production
+goto FINISH
+
+:BUILD_WEB
+echo.
+echo [3/3] Exporting Web Bundle for Vercel...
+call npm run vercel-build
+goto FINISH
+
+:BUILD_ALL
+echo.
+echo [3/3] Building ALL Platforms (Android + iOS + Web)...
+call npm run launch:all
+goto FINISH
+
+:FINISH
+echo.
+echo ===================================================================
+echo   BUILD PROCESS COMPLETED / SUBMITTED TO EXPO CLOUD!
 echo   Track live progress at:
 echo   https://expo.dev/accounts/rvei/projects/alumninetwork/builds
-echo ===================================================
+echo ===================================================================
 echo.
 pause

@@ -15,7 +15,9 @@
     "build:all": "eas build -p all --profile production",
     "launch:check": "npx expo config --type public && expo lint",
     "launch:android": "eas build -p android --profile production",
-    "launch:ios": "eas build -p ios --profile production"
+    "launch:ios": "eas build -p ios --profile production",
+    "launch:web": "npm run vercel-build",
+    "launch:all": "eas build -p all --profile production && npm run vercel-build"
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",
