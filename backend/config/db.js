@@ -8,17 +8,19 @@ mongoose.connection.on('error', (err) => {
     connectionPromise = null; // Reset so next request tries to reconnect
 });
 
+// Always force process.env.MONGO_URI to target 'alumni_db'
+if (process.env.MONGO_URI && !process.env.MONGO_URI.includes('alumni_db')) {
+    process.env.MONGO_URI = process.env.MONGO_URI.replace('.mongodb.net/?', '.mongodb.net/alumni_db?');
+    if (!process.env.MONGO_URI.includes('alumni_db')) {
+        process.env.MONGO_URI = process.env.MONGO_URI.replace('.mongodb.net/', '.mongodb.net/alumni_db');
+    }
+}
+
 const connectDB = async () => {
+    const mongoUri = process.env.MONGO_URI || 'mongodb+srv://rveducational_db_user:Alumni%40123@cluster0.xk6n9j6.mongodb.net/alumni_db?appName=Cluster0';
+
     if (mongoose.connection.readyState === 1) {
         return mongoose.connection;
-    }
-
-    let mongoUri = process.env.MONGO_URI || 'mongodb+srv://rveducational_db_user:Alumni%40123@cluster0.xk6n9j6.mongodb.net/alumni_db?appName=Cluster0';
-    if (!mongoUri.includes('alumni_db')) {
-        mongoUri = mongoUri.replace('.mongodb.net/?', '.mongodb.net/alumni_db?');
-        if (!mongoUri.includes('alumni_db')) {
-            mongoUri = mongoUri.replace('.mongodb.net/', '.mongodb.net/alumni_db');
-        }
     }
     
     if (!connectionPromise || mongoose.connection.readyState === 0) {
