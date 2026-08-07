@@ -2,7 +2,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const FIREBASE_API_KEY = 'AIzaSyAqq3YEanICCnbifvSkwnuHH6jzPtW7c-g';
+const FIREBASE_API_KEY = process.env.EXPO_PUBLIC_FIREBASE_API_KEY || 'AIzaSyBeYSmgQ3zbqVl__gEszJpaPausQt2_Fc0';
 const FIREBASE_AUTH_BASE_URL = 'https://identitytoolkit.googleapis.com/v1/accounts';
 
 /**

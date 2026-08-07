@@ -2,7 +2,7 @@ const axios = require('axios');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 
-const FIREBASE_API_KEY = process.env.FCM_SERVER_KEY || 'AIzaSyAqq3YEanICCnbifvSkwnuHH6jzPtW7c-g';
+const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY || process.env.FCM_SERVER_KEY || 'AIzaSyBeYSmgQ3zbqVl__gEszJpaPausQt2_Fc0';
 
 // @desc    Verify Firebase ID Token & Synchronize MongoDB User Account
 // @route   POST /api/firebase-auth/verify-token

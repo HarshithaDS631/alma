@@ -32,7 +32,11 @@
         "APP_VARIANT": "production",
         "EXPO_PUBLIC_API_URL": "https://backend-pi-bice-97.vercel.app/api",
         "EXPO_PUBLIC_SUPABASE_URL": "https://hdqpmawlhhvnioxkxvpj.supabase.co",
-        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_iBN9uFB_xdemug-BLp85-g_qBHO8YJj"
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_iBN9uFB_xdemug-BLp85-g_qBHO8YJj",
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyBeYSmgQ3zbqVl__gEszJpaPausQt2_Fc0",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "alumni-app-956c6",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:768299462386:web:1008da97ccf4a0efd3ea6b",
+        "EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID": "G-5G5CH95JXH"
       },
       "android": {
         "buildType": "app-bundle"

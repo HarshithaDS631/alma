@@ -2,8 +2,8 @@
 import axios from 'axios';
 import { Platform } from 'react-native';
 
-const FIREBASE_API_KEY = 'AIzaSyAqq3YEanICCnbifvSkwnuHH6jzPtW7c-g';
-const MEASUREMENT_ID = 'G-768299462'; // Firebase Analytics Measurement ID
+const FIREBASE_API_KEY = process.env.EXPO_PUBLIC_FIREBASE_API_KEY || 'AIzaSyBeYSmgQ3zbqVl__gEszJpaPausQt2_Fc0';
+const MEASUREMENT_ID = process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID || 'G-5G5CH95JXH'; // Firebase Analytics Measurement ID
 
 /**
  * Log a custom event to Firebase Analytics
