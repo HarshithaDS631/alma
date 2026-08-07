@@ -638,7 +638,13 @@ const RegisterScreen = ({ navigation }) => {
                 {agreeEULA && <Ionicons name="checkmark" size={16} color={theme.primary} />}
               </View>
               <Text style={{ color: 'rgba(255, 255, 255, 0.9)', flex: 1, fontSize: 14, fontWeight: '500' }}>
-                I agree to the Terms of Service
+                I agree to the{' '}
+                <Text 
+                  style={{ color: '#FFD700', textDecorationLine: 'underline' }}
+                  onPress={() => navigation.navigate('Legal')}
+                >
+                  Terms & Privacy Policy
+                </Text>
               </Text>
             </TouchableOpacity>
 

@@ -54,6 +54,7 @@ import ChatScreen from './src/screens/ChatScreen';
 import NotificationsScreen from './src/screens/NotificationsScreen';
 import PostCreationScreen from './src/screens/PostCreationScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
+import LegalScreen from './src/screens/LegalScreen';
 
 // Admin Flow Screens
 import AdminLoginScreen from './src/screens/AdminLoginScreen';
@@ -443,6 +444,7 @@ function RootNavigator() {
         <Stack.Screen name="Profile" component={ProfileScreen} />
         <Stack.Screen name="AdminProfile" component={AdminProfileScreen} />
         <Stack.Screen name="AdminPlacementDetails" component={AdminPlacementDetailsScreen} />
+        <Stack.Screen name="Legal" component={LegalScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

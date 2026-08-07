@@ -237,10 +237,18 @@ const LoginScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>
 
-          <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 20, marginBottom: 40 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 20, marginBottom: 10 }}>
             <Text style={{ color: theme.textMuted }}>{"Don't have an account? "}</Text>
             <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
               <Text style={{ color: theme.primary, fontWeight: 'bold' }}>Sign Up</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 30 }}>
+            <TouchableOpacity onPress={() => navigation.navigate('Legal')}>
+              <Text style={{ color: theme.textMuted, fontSize: 12, textDecorationLine: 'underline' }}>
+                Terms of Service • Privacy Policy • Legal Rights
+              </Text>
             </TouchableOpacity>
           </View>
         </ScrollView>

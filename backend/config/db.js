@@ -19,7 +19,7 @@ const connectDB = async () => {
         return connectionPromise;
     }
 
-    const mongoUri = process.env.MONGO_URI || 'mongodb+srv://rveducational_db_user:Alumni%40123@cluster0.xk6n9j6.mongodb.net/?appName=Cluster0';
+    const mongoUri = process.env.MONGO_URI || 'mongodb+srv://rveducational_db_user:Alumni%40123@cluster0.xk6n9j6.mongodb.net/alumni_db?appName=Cluster0';
 
     connectionPromise = mongoose.connect(mongoUri, {
         serverSelectionTimeoutMS: 8000,  // Fail fast if Atlas is unreachable

@@ -21,10 +21,11 @@ const messageRoutes = require('./routes/messageRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const jobRoutes = require('./routes/jobRoutes');
 const firebaseAuthRoutes = require('./routes/firebaseAuthRoutes');
-const activityLogger = require('./middleware/activityLogger');
-const { apiLimiter } = require('./middleware/rateLimiter');
+const { initScheduler } = require('./utils/cronScheduler');
 
 dotenv.config();
+
+initScheduler();
 
 console.log(`[ENV CONFIG] SMTP Host: ${process.env.SMTP_HOST || 'Not Set'} | SMTP User: ${process.env.SMTP_USER || 'Not Set'}`);
 
