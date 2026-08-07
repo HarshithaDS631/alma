@@ -5,38 +5,30 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 import api from './api';
+import { initializeApp, getApps } from 'firebase/app';
+import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
-// ─── Firebase Web SDK Google Sign-In ─────────────────────────────
-let firebaseApp = null;
-let firebaseAuth = null;
+// ─── Firebase Initialization ─────────────────────────────────────
+let firebaseAuthInstance = null;
 
-const initFirebase = async () => {
-  if (firebaseApp) return { app: firebaseApp, auth: firebaseAuth };
-  try {
-    const { initializeApp, getApps } = await import('firebase/app');
-    const { getAuth } = await import('firebase/auth');
-    const { firebaseConfig } = await import('../config/firebaseWebConfig');
-
-    if (!getApps().length) {
-      firebaseApp = initializeApp(firebaseConfig);
-    } else {
-      firebaseApp = getApps()[0];
-    }
-    firebaseAuth = getAuth(firebaseApp);
-    return { app: firebaseApp, auth: firebaseAuth };
-  } catch (e) {
-    console.error('[Firebase Init]', e.message);
-    return null;
+const getFirebaseAuth = () => {
+  if (firebaseAuthInstance) return firebaseAuthInstance;
+  const { firebaseConfig } = require('../config/firebaseWebConfig');
+  let app;
+  if (!getApps().length) {
+    app = initializeApp(firebaseConfig);
+  } else {
+    app = getApps()[0];
   }
+  firebaseAuthInstance = getAuth(app);
+  return firebaseAuthInstance;
 };
 
 /**
  * Google Sign-In via Firebase Web popup (works on Web platform)
  */
 export const googleSignInWeb = async () => {
-  const { auth } = await initFirebase();
-  const { GoogleAuthProvider, signInWithPopup } = await import('firebase/auth');
-
+  const auth = getFirebaseAuth();
   const provider = new GoogleAuthProvider();
   provider.addScope('email');
   provider.addScope('profile');
@@ -57,7 +49,7 @@ export const googleSignInWeb = async () => {
  * Exchange Google ID token with our backend to get Alumni JWT
  */
 export const exchangeGoogleTokenWithBackend = async ({ idToken, email, name, photoURL }) => {
-  const { data } = await api.post('/auth/firebase-google', {
+  const { data } = await api.post('/auth/google', {
     idToken,
     email,
     name,
@@ -71,16 +63,11 @@ export const exchangeGoogleTokenWithBackend = async ({ idToken, email, name, pho
  * Full Google OAuth Login — handles web popup + saves session
  */
 export const handleGoogleLogin = async () => {
-  let googleUser = null;
-
-  if (Platform.OS === 'web') {
-    googleUser = await googleSignInWeb();
-  } else {
-    // Mobile: use expo-auth-session Google flow
-    const { makeRedirectUri } = await import('expo-auth-session');
-    const { useAuthRequest } = await import('expo-auth-session/providers/google');
-    throw new Error('Use useGoogleAuth hook in mobile component');
+  if (Platform.OS !== 'web') {
+    throw new Error('Google Sign-In via popup is only supported on web. Use expo-auth-session for mobile.');
   }
+
+  const googleUser = await googleSignInWeb();
 
   // Exchange with our backend
   const userData = await exchangeGoogleTokenWithBackend(googleUser);

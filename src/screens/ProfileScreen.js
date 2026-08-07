@@ -508,6 +508,7 @@ const DEFAULT_TAGGED_POSTS = [
   const [editBatch, setEditBatch] = useState(profileData.batch);
   const [editBio, setEditBio] = useState(profileData.bio);
   const [editLinkedin, setEditLinkedin] = useState(profileData.linkedin);
+  const [editAvatarUrl, setEditAvatarUrl] = useState(profileData.avatar_url || '');
   const [editDob, setEditDob] = useState(profileData.dateOfBirth ? (typeof profileData.dateOfBirth === 'string' ? profileData.dateOfBirth.substring(0, 10) : new Date(profileData.dateOfBirth).toISOString().substring(0, 10)) : '');
   const [branchModalVisible, setBranchModalVisible] = useState(false);
   const [batchModalVisible, setBatchModalVisible] = useState(false);

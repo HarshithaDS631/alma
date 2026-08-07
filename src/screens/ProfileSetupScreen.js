@@ -436,7 +436,7 @@ const ProfileSetupScreen = ({ navigation }) => {
                         >
                           <Ionicons name="add-circle" size={16} color="#003366" style={{ marginRight: 10 }} />
                           <Text style={{ fontSize: 14, color: '#003366', fontWeight: '600' }}>
-                            Use "{formData.location}"
+                            Use &quot;{formData.location}&quot;
                           </Text>
                         </TouchableOpacity>
                       ) : null}

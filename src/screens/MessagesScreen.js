@@ -136,7 +136,7 @@ const MessagesScreen = ({ navigation }) => {
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <TouchableOpacity 
-            style={{ padding: 6, zIndex: 999 }}
+            style={styles.backButton}
             hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
             activeOpacity={0.6}
             onPress={() => {
@@ -146,7 +146,6 @@ const MessagesScreen = ({ navigation }) => {
                 navigation.navigate('Main');
               }
             }} 
-            style={styles.backButton}
           >
             <Ionicons name="arrow-back" size={24} color="#002144" />
           </TouchableOpacity>
@@ -182,16 +181,6 @@ const MessagesScreen = ({ navigation }) => {
           <Text style={styles.emptyTitle}>No Chats Found</Text>
           <Text style={styles.emptySubtitle}>Start a conversation with fellow alumni and team members.</Text>
           <TouchableOpacity 
-            style={{
-              backgroundColor: '#003366',
-              paddingHorizontal: 20,
-              paddingVertical: 10,
-              borderRadius: 20,
-              marginTop: 16,
-              flexDirection: 'row',
-              alignItems: 'center',
-            }}
-            activeOpacity={0.8}
             onPress={() => setComposeModalVisible(true)}
           >
             <Ionicons name="create-outline" size={18} color="#FFFFFF" style={{ marginRight: 6 }} />

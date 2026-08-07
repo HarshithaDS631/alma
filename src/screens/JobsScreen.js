@@ -382,7 +382,7 @@ const JobsScreen = ({ navigation, route }) => {
                 keyExtractor={item => item._id || item.id}
                 renderItem={({ item }) => renderJobCard(item)}
                 ListEmptyComponent={() => (
-                  <Text style={st.emptyText}>You haven't saved any jobs yet.</Text>
+                  <Text style={st.emptyText}>You haven&apos;t saved any jobs yet.</Text>
                 )}
               />
             ) : (
@@ -391,7 +391,7 @@ const JobsScreen = ({ navigation, route }) => {
                 keyExtractor={item => item._id || item.id}
                 renderItem={({ item }) => renderJobCard(item, true)}
                 ListEmptyComponent={() => (
-                  <Text style={st.emptyText}>You haven't applied to any jobs yet.</Text>
+                  <Text style={st.emptyText}>You haven&apos;t applied to any jobs yet.</Text>
                 )}
               />
             )}

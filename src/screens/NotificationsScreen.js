@@ -233,7 +233,7 @@ const NotificationsScreen = ({ navigation }) => {
           <View style={styles.emptyState}>
             <Ionicons name="notifications-off-outline" size={64} color="#CBD5E1" />
             <Text style={styles.emptyTitle}>All caught up!</Text>
-            <Text style={styles.emptySubtitle}>You don't have any notifications at the moment.</Text>
+            <Text style={styles.emptySubtitle}>You don&apos;t have any notifications at the moment.</Text>
           </View>
         )}
       </ScrollView>

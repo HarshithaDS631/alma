@@ -1236,7 +1236,7 @@ const DashboardScreen = ({ navigation }) => {
                   <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 24, alignItems: 'center', marginVertical: 12, borderWidth: 1, borderColor: theme.border }}>
                     <Ionicons name="people-outline" size={48} color={theme.primary} style={{ marginBottom: 12 }} />
                     <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text, marginBottom: 6, textAlign: 'center' }}>No Followed Alumni Posts Yet</Text>
-                    <Text style={{ fontSize: 13, color: theme.textMuted, textAlign: 'center', lineHeight: 18, marginBottom: 16 }}>Follow alumni members from "People you may know" or the Directory to view their posts in your feed!</Text>
+                    <Text style={{ fontSize: 13, color: theme.textMuted, textAlign: 'center', lineHeight: 18, marginBottom: 16 }}>Follow alumni members from &quot;People you may know&quot; or the Directory to view their posts in your feed!</Text>
                     <TouchableOpacity 
                       style={{ backgroundColor: theme.primary, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20 }}
                       onPress={() => navigation.navigate('Engage', { tab: 'directory' })}

@@ -516,7 +516,7 @@ const ChatScreen = ({ route, navigation }) => {
                 <View style={{ height: 80, backgroundColor: isMe ? '#1E3A8A' : '#E2E8F0', justifyContent: 'center', alignItems: 'center', padding: 10 }}>
                   <Ionicons name="newspaper-outline" size={24} color={isMe ? '#93C5FD' : '#475569'} style={{ marginBottom: 4 }} />
                   <Text style={{ fontSize: 11, fontStyle: 'italic', color: isMe ? '#DBEAFE' : '#334155', textAlign: 'center' }} numberOfLines={2}>
-                    "{sharedPostData.content}"
+                    &quot;{sharedPostData.content}&quot;
                   </Text>
                 </View>
               )}
