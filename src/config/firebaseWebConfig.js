@@ -4,7 +4,7 @@
  */
 
 export const firebaseConfig = {
-  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY || "AIzaSyBeYSmgQ3zbqVl__gEszJpaPausQt2_Fc0",
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY || "AIzaSyAqQ3YEanICCnbifvSkwnuHH6jzPtW7c-g",
   authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN || "alumni-app-956c6.firebaseapp.com",
   projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID || "alumni-app-956c6",
   storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET || "alumni-app-956c6.firebasestorage.app",
