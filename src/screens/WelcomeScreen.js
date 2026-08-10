@@ -9,6 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { handleGoogleLogin } from '../services/googleAuthService';
 import { handleLinkedInLogin } from '../services/linkedinAuthService';
+import { handleFacebookLogin } from '../services/facebookAuthService';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -41,6 +42,8 @@ const WelcomeScreen = ({ navigation }) => {
         userData = await handleGoogleLogin();
       } else if (provider === 'linkedin') {
         userData = await handleLinkedInLogin();
+      } else if (provider === 'facebook') {
+        userData = await handleFacebookLogin();
       } else {
         alert(`${provider} sign-in is coming soon.`);
         return;
@@ -105,11 +108,14 @@ const WelcomeScreen = ({ navigation }) => {
           <TouchableOpacity style={styles.socialIcon} activeOpacity={0.7} onPress={() => handleOAuthLogin('google')}>
             <Ionicons name="logo-google" size={24} color="#DB4437" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.socialIcon} activeOpacity={0.7} onPress={() => handleOAuthLogin('apple')}>
-            <Ionicons name="logo-apple" size={24} color="#000000" />
-          </TouchableOpacity>
           <TouchableOpacity style={styles.socialIcon} activeOpacity={0.7} onPress={() => handleOAuthLogin('linkedin')}>
             <Ionicons name="logo-linkedin" size={24} color="#0077B5" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.socialIcon} activeOpacity={0.7} onPress={() => handleOAuthLogin('facebook')}>
+            <Ionicons name="logo-facebook" size={24} color="#1877F2" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.socialIcon} activeOpacity={0.7} onPress={() => handleOAuthLogin('apple')}>
+            <Ionicons name="logo-apple" size={24} color="#000000" />
           </TouchableOpacity>
         </View>
 

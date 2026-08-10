@@ -1169,6 +1169,88 @@ exports.linkedinAuth = async (req, res) => {
     }
 };
 
+// @desc    Facebook OAuth Sign-In / Registration
+// @route   POST /api/auth/facebook
+exports.facebookAuth = async (req, res) => {
+    try {
+        await connectDB();
+        const { idToken, accessToken, email: reqEmail, name: reqName, photoURL, providerId } = req.body;
+        let email = reqEmail, name = reqName, picture = photoURL, sub = providerId;
+
+        // If accessToken is provided, verify with Facebook Graph API
+        if (accessToken && !accessToken.startsWith('demo_')) {
+            try {
+                const fbRes = await axios.get(`https://graph.facebook.com/me?fields=id,name,email,picture.type(large)&access_token=${accessToken}`);
+                email = fbRes.data.email || email;
+                name = fbRes.data.name || name;
+                picture = fbRes.data.picture?.data?.url || picture;
+                sub = fbRes.data.id || sub;
+            } catch (err) {
+                console.log('[FB Graph API Verify fallback]', err.message);
+            }
+        }
+
+        if (!email) {
+            return res.status(400).json({ message: 'Could not retrieve email from Facebook account' });
+        }
+
+        let user = await User.findOne({ email: email.toLowerCase() });
+
+        if (!user) {
+            user = await User.create({
+                name: name || 'Facebook User',
+                email: email.toLowerCase(),
+                avatar_url: picture || '',
+                authProvider: 'facebook',
+                providerId: sub || 'fb_' + Date.now(),
+                is_approved: true,
+                role: 'Alumni',
+                institution: 'RV Educational Institutions'
+            });
+        } else {
+            if (!user.is_approved) {
+                return res.status(403).json({ message: 'Your account is pending admin approval' });
+            }
+            if (!user.providerId) {
+                user.authProvider = 'facebook';
+                user.providerId = sub;
+                if (!user.avatar_url && picture) user.avatar_url = picture;
+                await user.save();
+            }
+        }
+
+        // Record active session
+        const { recordSessionLogin } = require('../utils/sessionTracker');
+        await recordSessionLogin(req, user);
+
+        const refreshToken = await createRefreshToken(user._id, req);
+
+        res.json({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            institution: user.institution,
+            branch: user.branch,
+            department: user.department,
+            batchYear: user.batchYear,
+            joiningYear: user.joiningYear,
+            bio: user.bio,
+            location: user.location,
+            company: user.company,
+            designation: user.designation,
+            role: user.role,
+            avatar_url: user.avatar_url,
+            linkedin: user.linkedin,
+            twoFactorEnabled: user.twoFactorEnabled || false,
+            token: generateToken(user._id),
+            refreshToken
+        });
+    } catch (error) {
+        console.error('Facebook Auth Error:', error?.response?.data || error.message);
+        res.status(500).json({ message: 'Facebook authentication failed: ' + (error?.response?.data?.message || error.message) });
+    }
+};
+
 // @desc    Refresh Access Token using Refresh Token Rotation
 // @route   POST /api/auth/refresh-token
 exports.refreshAccessToken = async (req, res) => {

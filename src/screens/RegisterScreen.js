@@ -20,6 +20,7 @@ import * as Linking from 'expo-linking';
 import { register, checkEmailExists, sendOtp, verifyOtp } from '../services/authService';
 import { handleGoogleLogin } from '../services/googleAuthService';
 import { handleLinkedInLogin } from '../services/linkedinAuthService';
+import { handleFacebookLogin } from '../services/facebookAuthService';
 
 WebBrowser.maybeCompleteAuthSession();
 const institutions = [
@@ -224,6 +225,8 @@ const RegisterScreen = ({ navigation }) => {
         userData = await handleGoogleLogin();
       } else if (provider === 'linkedin') {
         userData = await handleLinkedInLogin();
+      } else if (provider === 'facebook') {
+        userData = await handleFacebookLogin();
       } else {
         alert(`${provider} sign-up is coming soon.`);
         return;
@@ -694,6 +697,25 @@ const RegisterScreen = ({ navigation }) => {
                 >
                   <Ionicons name="logo-linkedin" size={20} color="#FFFFFF" />
                   <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>Sign Up with LinkedIn</Text>
+                </TouchableOpacity>
+
+                {/* Facebook Button */}
+                <TouchableOpacity
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: '#1877F2',
+                    borderRadius: 12,
+                    height: 50,
+                    gap: 10,
+                  }}
+                  onPress={() => handleOAuthSignUp('facebook')}
+                  disabled={loading}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="logo-facebook" size={20} color="#FFFFFF" />
+                  <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>Sign Up with Facebook</Text>
                 </TouchableOpacity>
               </View>
             </View>

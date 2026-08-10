@@ -7,6 +7,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { login, loginVerify2FA } from '../services/authService';
 import { handleGoogleLogin } from '../services/googleAuthService';
 import { handleLinkedInLogin } from '../services/linkedinAuthService';
+import { handleFacebookLogin } from '../services/facebookAuthService';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -23,6 +24,7 @@ const LoginScreen = ({ navigation }) => {
   // 2FA Challenge States
   const [googleLoading, setGoogleLoading] = useState(false);
   const [linkedinLoading, setLinkedinLoading] = useState(false);
+  const [facebookLoading, setFacebookLoading] = useState(false);
   const [show2FAModal, setShow2FAModal] = useState(false);
   const [twoFactorToken, setTwoFactorToken] = useState('');
   const [twoFactorCode, setTwoFactorCode] = useState('');
@@ -77,6 +79,25 @@ const LoginScreen = ({ navigation }) => {
       alert(error.message || 'LinkedIn Sign-In failed. Please try again.');
     } finally {
       setLinkedinLoading(false);
+    }
+  };
+
+  const handleFacebookSignIn = async () => {
+    setFacebookLoading(true);
+    try {
+      const userData = await handleFacebookLogin();
+      const userRole = (userData.role || '').trim().toLowerCase();
+      if (userRole === 'super admin' || userRole === 'superadmin') {
+        navigation.navigate('SuperAdminMain');
+      } else if (userRole === 'admin' || userRole === 'institution admin') {
+        navigation.navigate('AdminMain');
+      } else {
+        navigation.navigate('Main');
+      }
+    } catch (error) {
+      alert(error.message || 'Facebook Sign-In failed. Please try again.');
+    } finally {
+      setFacebookLoading(false);
     }
   };
 
@@ -341,7 +362,7 @@ const LoginScreen = ({ navigation }) => {
                   elevation: 2,
                 }}
                 onPress={handleLinkedInSignIn}
-                disabled={googleLoading || linkedinLoading}
+                disabled={googleLoading || linkedinLoading || facebookLoading}
                 activeOpacity={0.8}
               >
                 {linkedinLoading ? (
@@ -350,6 +371,37 @@ const LoginScreen = ({ navigation }) => {
                   <>
                     <Ionicons name="logo-linkedin" size={20} color="#FFFFFF" />
                     <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>Continue with LinkedIn</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+
+              {/* Facebook Button */}
+              <TouchableOpacity
+                id="facebook-signin-btn"
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: '#1877F2',
+                  borderRadius: 12,
+                  height: 50,
+                  gap: 10,
+                  shadowColor: '#1877F2',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.2,
+                  shadowRadius: 4,
+                  elevation: 2,
+                }}
+                onPress={handleFacebookSignIn}
+                disabled={googleLoading || linkedinLoading || facebookLoading}
+                activeOpacity={0.8}
+              >
+                {facebookLoading ? (
+                  <ActivityIndicator color="#FFFFFF" size="small" />
+                ) : (
+                  <>
+                    <Ionicons name="logo-facebook" size={20} color="#FFFFFF" />
+                    <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>Continue with Facebook</Text>
                   </>
                 )}
               </TouchableOpacity>
