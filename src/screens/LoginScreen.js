@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as WebBrowser from 'expo-web-browser';
 import { login, loginVerify2FA } from '../services/authService';
 import { handleGoogleLogin } from '../services/googleAuthService';
+import { handleLinkedInLogin } from '../services/linkedinAuthService';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -21,6 +22,7 @@ const LoginScreen = ({ navigation }) => {
 
   // 2FA Challenge States
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [linkedinLoading, setLinkedinLoading] = useState(false);
   const [show2FAModal, setShow2FAModal] = useState(false);
   const [twoFactorToken, setTwoFactorToken] = useState('');
   const [twoFactorCode, setTwoFactorCode] = useState('');
@@ -56,6 +58,25 @@ const LoginScreen = ({ navigation }) => {
       alert(error.message || 'Google Sign-In failed. Please try again.');
     } finally {
       setGoogleLoading(false);
+    }
+  };
+
+  const handleLinkedInSignIn = async () => {
+    setLinkedinLoading(true);
+    try {
+      const userData = await handleLinkedInLogin();
+      const userRole = (userData.role || '').trim().toLowerCase();
+      if (userRole === 'super admin' || userRole === 'superadmin') {
+        navigation.navigate('SuperAdminMain');
+      } else if (userRole === 'admin' || userRole === 'institution admin') {
+        navigation.navigate('AdminMain');
+      } else {
+        navigation.navigate('Main');
+      }
+    } catch (error) {
+      alert(error.message || 'LinkedIn Sign-In failed. Please try again.');
+    } finally {
+      setLinkedinLoading(false);
     }
   };
 
@@ -258,7 +279,7 @@ const LoginScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>
 
-          {/* ── Google Sign-In Button ── */}
+          {/* ── Social OAuth Sign-In Buttons ── */}
           <View style={{ marginBottom: 16 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
               <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
@@ -266,40 +287,73 @@ const LoginScreen = ({ navigation }) => {
               <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
             </View>
 
-            <TouchableOpacity
-              id="google-signin-btn"
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: '#FFFFFF',
-                borderWidth: 1.5,
-                borderColor: '#E2E8F0',
-                borderRadius: 12,
-                height: 52,
-                gap: 10,
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 1 },
-                shadowOpacity: 0.06,
-                shadowRadius: 3,
-                elevation: 2,
-              }}
-              onPress={handleGoogleSignIn}
-              disabled={googleLoading}
-              activeOpacity={0.8}
-            >
-              {googleLoading ? (
-                <ActivityIndicator color="#4285F4" size="small" />
-              ) : (
-                <>
-                  {/* Google G logo SVG-style using text */}
-                  <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: '#4285F4', justifyContent: 'center', alignItems: 'center' }}>
-                    <Text style={{ color: '#fff', fontWeight: '900', fontSize: 13, lineHeight: 22 }}>G</Text>
-                  </View>
-                  <Text style={{ fontSize: 15, fontWeight: '700', color: '#1E293B' }}>Continue with Google</Text>
-                </>
-              )}
-            </TouchableOpacity>
+            <View style={{ gap: 10 }}>
+              {/* Google Button */}
+              <TouchableOpacity
+                id="google-signin-btn"
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: '#FFFFFF',
+                  borderWidth: 1.5,
+                  borderColor: '#E2E8F0',
+                  borderRadius: 12,
+                  height: 50,
+                  gap: 10,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 1 },
+                  shadowOpacity: 0.06,
+                  shadowRadius: 3,
+                  elevation: 2,
+                }}
+                onPress={handleGoogleSignIn}
+                disabled={googleLoading || linkedinLoading}
+                activeOpacity={0.8}
+              >
+                {googleLoading ? (
+                  <ActivityIndicator color="#4285F4" size="small" />
+                ) : (
+                  <>
+                    <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: '#4285F4', justifyContent: 'center', alignItems: 'center' }}>
+                      <Text style={{ color: '#fff', fontWeight: '900', fontSize: 13, lineHeight: 22 }}>G</Text>
+                    </View>
+                    <Text style={{ fontSize: 15, fontWeight: '700', color: '#1E293B' }}>Continue with Google</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+
+              {/* LinkedIn Button */}
+              <TouchableOpacity
+                id="linkedin-signin-btn"
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: '#0A66C2',
+                  borderRadius: 12,
+                  height: 50,
+                  gap: 10,
+                  shadowColor: '#0A66C2',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.2,
+                  shadowRadius: 4,
+                  elevation: 2,
+                }}
+                onPress={handleLinkedInSignIn}
+                disabled={googleLoading || linkedinLoading}
+                activeOpacity={0.8}
+              >
+                {linkedinLoading ? (
+                  <ActivityIndicator color="#FFFFFF" size="small" />
+                ) : (
+                  <>
+                    <Ionicons name="logo-linkedin" size={20} color="#FFFFFF" />
+                    <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>Continue with LinkedIn</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
           </View>
 
           <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 20, marginBottom: 10 }}>

@@ -17,9 +17,9 @@ import { useTheme } from '../theme/ThemeContext';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
-import api, { API_URL } from '../services/api';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { register, checkEmailExists, sendOtp, verifyOtp } from '../services/authService';
+import { handleGoogleLogin } from '../services/googleAuthService';
+import { handleLinkedInLogin } from '../services/linkedinAuthService';
 
 WebBrowser.maybeCompleteAuthSession();
 const institutions = [
@@ -216,39 +216,30 @@ const RegisterScreen = ({ navigation }) => {
     }
   };
 
-  const handleOAuthLogin = (provider) => {
-    alert(`OAuth signup for ${provider} requires Client IDs setup.`);
-  };
-
-  const handleLinkedInLogin = async () => {
+  const handleOAuthSignUp = async (provider) => {
     setLoading(true);
     try {
-      const redirectUrl = Linking.createURL('oauth-callback');
-      const stateObj = { redirectUrl };
-      const state = encodeURIComponent(JSON.stringify(stateObj));
-      
-      const backendAuthUrl = `${API_URL}/auth/linkedin/callback`;
-      const clientId = 'your_linkedin_client_id'; 
-      const authUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(backendAuthUrl)}&state=${state}&scope=openid%20profile%20email`;
+      let userData;
+      if (provider === 'google') {
+        userData = await handleGoogleLogin();
+      } else if (provider === 'linkedin') {
+        userData = await handleLinkedInLogin();
+      } else {
+        alert(`${provider} sign-up is coming soon.`);
+        return;
+      }
 
-      const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUrl);
-
-      if (result.type === 'success' && result.url) {
-        const parsed = Linking.parse(result.url);
-        const { token, user } = parsed.queryParams;
-
-        if (token && user) {
-          const userInfo = JSON.parse(decodeURIComponent(user));
-          userInfo.token = token;
-          await AsyncStorage.setItem('userInfo', JSON.stringify(userInfo));
-          navigation.navigate('Main');
-        } else {
-          alert('LinkedIn login failed: Invalid response from server');
-        }
+      const userRole = (userData.role || '').trim().toLowerCase();
+      if (userRole === 'super admin' || userRole === 'superadmin') {
+        navigation.navigate('SuperAdminMain');
+      } else if (userRole === 'admin' || userRole === 'institution admin') {
+        navigation.navigate('AdminMain');
+      } else {
+        navigation.navigate('Main');
       }
     } catch (error) {
-      console.error('LinkedIn Login Error:', error);
-      alert('LinkedIn Login Error: ' + error.message);
+      console.error(`${provider} Sign-Up Error:`, error);
+      alert(`${provider.charAt(0).toUpperCase() + provider.slice(1)} Sign-Up Error: ` + error.message);
     } finally {
       setLoading(false);
     }
@@ -655,6 +646,57 @@ const RegisterScreen = ({ navigation }) => {
             >
               <Text style={styles.primaryButtonText}>{loading ? 'Creating Account...' : 'Create Account'}</Text>
             </TouchableOpacity>
+
+            {/* ── Social Sign-Up Buttons ── */}
+            <View style={{ marginTop: 24, marginBottom: 8 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+                <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255, 255, 255, 0.2)' }} />
+                <Text style={{ marginHorizontal: 12, color: 'rgba(255, 255, 255, 0.7)', fontSize: 13, fontWeight: '500' }}>or sign up with</Text>
+                <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255, 255, 255, 0.2)' }} />
+              </View>
+
+              <View style={{ gap: 10 }}>
+                {/* Google Button */}
+                <TouchableOpacity
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: '#FFFFFF',
+                    borderRadius: 12,
+                    height: 50,
+                    gap: 10,
+                  }}
+                  onPress={() => handleOAuthSignUp('google')}
+                  disabled={loading}
+                  activeOpacity={0.8}
+                >
+                  <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: '#4285F4', justifyContent: 'center', alignItems: 'center' }}>
+                    <Text style={{ color: '#fff', fontWeight: '900', fontSize: 13, lineHeight: 22 }}>G</Text>
+                  </View>
+                  <Text style={{ fontSize: 15, fontWeight: '700', color: '#1E293B' }}>Sign Up with Google</Text>
+                </TouchableOpacity>
+
+                {/* LinkedIn Button */}
+                <TouchableOpacity
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: '#0A66C2',
+                    borderRadius: 12,
+                    height: 50,
+                    gap: 10,
+                  }}
+                  onPress={() => handleOAuthSignUp('linkedin')}
+                  disabled={loading}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="logo-linkedin" size={20} color="#FFFFFF" />
+                  <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>Sign Up with LinkedIn</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
 
           <View style={styles.footer}>

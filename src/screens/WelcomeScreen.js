@@ -7,6 +7,9 @@ import * as Linking from 'expo-linking';
 import { API_URL } from '../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { handleGoogleLogin } from '../services/googleAuthService';
+import { handleLinkedInLogin } from '../services/linkedinAuthService';
+
 WebBrowser.maybeCompleteAuthSession();
 
 const WelcomeScreen = ({ navigation }) => {
@@ -14,6 +17,7 @@ const WelcomeScreen = ({ navigation }) => {
   const styles = getStyles(theme);
 
   const [portal, setPortal] = useState(null);
+  const [socialLoading, setSocialLoading] = useState(false);
 
   useEffect(() => {
     const fetchPortal = async () => {
@@ -30,37 +34,31 @@ const WelcomeScreen = ({ navigation }) => {
   }, []);
 
   const handleOAuthLogin = async (provider) => {
-    if (provider === 'linkedin') {
-      try {
-        const redirectUrl = Linking.createURL('oauth-callback');
-        const stateObj = { redirectUrl };
-        const state = encodeURIComponent(JSON.stringify(stateObj));
-        
-        const backendAuthUrl = `${API_URL}/auth/linkedin/callback`;
-        const clientId = 'your_linkedin_client_id'; 
-        const authUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(backendAuthUrl)}&state=${state}&scope=openid%20profile%20email`;
-
-        const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUrl);
-
-        if (result.type === 'success' && result.url) {
-          const parsed = Linking.parse(result.url);
-          const { token, user } = parsed.queryParams;
-
-          if (token && user) {
-            const userInfo = JSON.parse(decodeURIComponent(user));
-            userInfo.token = token;
-            await AsyncStorage.setItem('userInfo', JSON.stringify(userInfo));
-            navigation.navigate('Main');
-          } else {
-            alert('LinkedIn login failed: Invalid response from server');
-          }
-        }
-      } catch (error) {
-        console.error('LinkedIn Login Error:', error);
-        alert('LinkedIn Login Error: ' + error.message);
+    setSocialLoading(true);
+    try {
+      let userData;
+      if (provider === 'google') {
+        userData = await handleGoogleLogin();
+      } else if (provider === 'linkedin') {
+        userData = await handleLinkedInLogin();
+      } else {
+        alert(`${provider} sign-in is coming soon.`);
+        return;
       }
-    } else {
-      alert(`OAuth login for ${provider} requires Client IDs setup.`);
+
+      const userRole = (userData.role || '').trim().toLowerCase();
+      if (userRole === 'super admin' || userRole === 'superadmin') {
+        navigation.navigate('SuperAdminMain');
+      } else if (userRole === 'admin' || userRole === 'institution admin') {
+        navigation.navigate('AdminMain');
+      } else {
+        navigation.navigate('Main');
+      }
+    } catch (error) {
+      console.error(`${provider} Login Error:`, error);
+      alert(`${provider.charAt(0).toUpperCase() + provider.slice(1)} Login Error: ` + error.message);
+    } finally {
+      setSocialLoading(false);
     }
   };
 
