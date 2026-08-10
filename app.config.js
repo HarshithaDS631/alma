@@ -51,6 +51,11 @@ export default {
         process.env.GOOGLE_SERVICES_PLIST ?? './GoogleService-Info.plist',
       config: {
         usesNonExemptEncryption: false,
+        googleSignIn: {
+          // iOS Client ID from Google Cloud Console (alumni-app-956c6)
+          reservedClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID ||
+            '768299462386-th9t5pb5r2fbvt46o1b0iadcr8tva9fd.apps.googleusercontent.com',
+        },
       },
       infoPlist: {
         NSPhotoLibraryUsageDescription:
@@ -64,6 +69,14 @@ export default {
         NSUserNotificationsUsageDescription:
           'Allow Alumni Network to send you notifications for messages, events, and job updates.',
         ITSAppUsesNonExemptEncryption: false,
+        CFBundleURLTypes: [
+          {
+            CFBundleURLSchemes: [
+              // Reversed iOS Client ID for Google OAuth callback
+              'com.googleusercontent.apps.768299462386-th9t5pb5r2fbvt46o1b0iadcr8tva9fd',
+            ],
+          },
+        ],
       },
       entitlements: {
         'aps-environment': IS_DEV ? 'development' : 'production',

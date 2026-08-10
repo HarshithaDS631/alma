@@ -12,7 +12,20 @@
           "package_name": "com.mediacell.alumni"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "768299462386-vacrklnip0qim7nuhto5lo6asr6a36b3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mediacell.alumni",
+            "certificate_hash": "0f51950dcf6ea1c9b6b77df3c961e0bbd34208a0"
+          }
+        },
+        {
+          "client_id": "768299462386-msp42kcf0lsbk83ao6fnu5ns8h0mnajk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBeYSmgQ3zbqVl__gEszJpaPausQt2_Fc0"

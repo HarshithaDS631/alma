@@ -13,4 +13,11 @@ export const firebaseConfig = {
   measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID || "G-5G5CH95JXH"
 };
 
+// Google OAuth Web Client ID — from Google Cloud Console (alumni-app-956c6)
+// Used by Firebase Auth for Google Sign-In popup on Web
+export const GOOGLE_WEB_CLIENT_ID =
+  process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ||
+  '768299462386-msp42kcf0lsbk83ao6fnu5ns8h0mnajk.apps.googleusercontent.com';
+
 export default firebaseConfig;
+

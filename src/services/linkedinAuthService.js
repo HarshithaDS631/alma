@@ -33,51 +33,11 @@ export const handleLinkedInLogin = async () => {
 
     const state = Math.random().toString(36).substring(7);
 
-    // If client ID is placeholder, allow demo / simulated LinkedIn flow or real OAuth
+    // If client ID is not configured, show a clear error instead of creating a fake account
     if (!LINKEDIN_CLIENT_ID || LINKEDIN_CLIENT_ID.startsWith('77xxx')) {
-      // Prompt user or simulate sign-in with dummy token for demonstration if credentials are not yet entered
-      const mockEmail = `linkedin.alumni.${Date.now().toString().slice(-4)}@linkedin-demo.com`;
-      const res = await api.post('/auth/linkedin', {
-        accessToken: 'demo_linkedin_token_' + Date.now(),
-        mockUser: {
-          name: 'LinkedIn Alumni Member',
-          email: mockEmail,
-          picture: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-          sub: 'linkedin_sub_' + Date.now()
-        }
-      }).catch(async () => {
-        // Fallback to direct demo user session if backend has strict check
-        return {
-          data: {
-            name: 'LinkedIn Alumni',
-            email: mockEmail,
-            role: 'Alumni',
-            institution: 'RV Educational Institutions',
-            avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-            token: 'demo_jwt_token_linkedin'
-          }
-        };
-      });
-
-      const userData = res.data;
-      if (userData?.token) {
-        await AsyncStorage.setItem('userInfo', JSON.stringify({
-          _id: userData._id || userData.id,
-          id: userData._id || userData.id,
-          token: userData.token,
-          refreshToken: userData.refreshToken,
-          name: userData.name || 'LinkedIn User',
-          email: userData.email,
-          institution: userData.institution || 'RV Educational Institutions',
-          department: userData.department,
-          branch: userData.branch,
-          batchYear: userData.batchYear,
-          avatar_url: userData.avatar_url,
-          role: userData.role || 'Alumni',
-          authProvider: 'linkedin',
-        }));
-        return userData;
-      }
+      throw new Error(
+        'LinkedIn Sign-In is not configured yet. Please contact the administrator or use another sign-in method.'
+      );
     }
 
     const authUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${LINKEDIN_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUrl)}&state=${state}&scope=openid%20profile%20email`;
