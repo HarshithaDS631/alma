@@ -21,6 +21,7 @@ import { register, checkEmailExists, sendOtp, verifyOtp } from '../services/auth
 import { handleGoogleLogin } from '../services/googleAuthService';
 import { handleLinkedInLogin } from '../services/linkedinAuthService';
 import { handleFacebookLogin } from '../services/facebookAuthService';
+import { handleAppleLogin } from '../services/appleAuthService';
 
 WebBrowser.maybeCompleteAuthSession();
 const institutions = [
@@ -227,6 +228,8 @@ const RegisterScreen = ({ navigation }) => {
         userData = await handleLinkedInLogin();
       } else if (provider === 'facebook') {
         userData = await handleFacebookLogin();
+      } else if (provider === 'apple') {
+        userData = await handleAppleLogin();
       } else {
         alert(`${provider} sign-up is coming soon.`);
         return;
@@ -716,6 +719,25 @@ const RegisterScreen = ({ navigation }) => {
                 >
                   <Ionicons name="logo-facebook" size={20} color="#FFFFFF" />
                   <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>Sign Up with Facebook</Text>
+                </TouchableOpacity>
+
+                {/* Apple Button */}
+                <TouchableOpacity
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: '#000000',
+                    borderRadius: 12,
+                    height: 50,
+                    gap: 10,
+                  }}
+                  onPress={() => handleOAuthSignUp('apple')}
+                  disabled={loading}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="logo-apple" size={22} color="#FFFFFF" />
+                  <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>Sign Up with Apple</Text>
                 </TouchableOpacity>
               </View>
             </View>

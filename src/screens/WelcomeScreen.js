@@ -10,6 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { handleGoogleLogin } from '../services/googleAuthService';
 import { handleLinkedInLogin } from '../services/linkedinAuthService';
 import { handleFacebookLogin } from '../services/facebookAuthService';
+import { handleAppleLogin } from '../services/appleAuthService';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -44,6 +45,8 @@ const WelcomeScreen = ({ navigation }) => {
         userData = await handleLinkedInLogin();
       } else if (provider === 'facebook') {
         userData = await handleFacebookLogin();
+      } else if (provider === 'apple') {
+        userData = await handleAppleLogin();
       } else {
         alert(`${provider} sign-in is coming soon.`);
         return;

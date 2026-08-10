@@ -28,36 +28,21 @@ const getFirebaseAuth = () => {
  * Facebook Sign-In via Firebase Web popup
  */
 export const facebookSignInWeb = async () => {
-  try {
-    const auth = getFirebaseAuth();
-    const provider = new FacebookAuthProvider();
-    provider.addScope('email');
-    provider.addScope('public_profile');
+  const auth = getFirebaseAuth();
+  const provider = new FacebookAuthProvider();
+  provider.addScope('email');
+  provider.addScope('public_profile');
 
-    const result = await signInWithPopup(auth, provider);
-    const idToken = await result.user.getIdToken();
+  const result = await signInWithPopup(auth, provider);
+  const idToken = await result.user.getIdToken();
 
-    return {
-      idToken,
-      email: result.user.email,
-      name: result.user.displayName,
-      photoURL: result.user.photoURL,
-      uid: result.user.uid,
-    };
-  } catch (error) {
-    // If Facebook provider is not yet enabled in Firebase Console, provide demo fallback
-    if (error.code === 'auth/operation-not-allowed' || error.code === 'auth/configuration-not-found') {
-      const mockEmail = `facebook.alumni.${Date.now().toString().slice(-4)}@facebook-demo.com`;
-      return {
-        idToken: 'demo_fb_token_' + Date.now(),
-        email: mockEmail,
-        name: 'Facebook Alumni Member',
-        photoURL: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
-        uid: 'fb_' + Date.now(),
-      };
-    }
-    throw error;
-  }
+  return {
+    idToken,
+    email: result.user.email,
+    name: result.user.displayName,
+    photoURL: result.user.photoURL,
+    uid: result.user.uid,
+  };
 };
 
 /**

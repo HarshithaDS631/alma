@@ -25,6 +25,7 @@ const {
     googleAuth,
     linkedinAuth,
     facebookAuth,
+    appleAuth,
     refreshAccessToken,
     setup2FA,
     verify2FA,
@@ -51,6 +52,7 @@ router.post('/logout', protect, logoutUser);
 router.post('/google', googleAuth);
 router.post('/linkedin', linkedinAuth);
 router.post('/facebook', facebookAuth);
+router.post('/apple', appleAuth);
 router.post('/refresh-token', refreshAccessToken);
 router.post('/oauth', oauthLogin);
 router.get('/linkedin/callback', linkedinAuthCallback);

@@ -1,12 +1,11 @@
 /**
- * Google OAuth Service — Unified for Web (Firebase SDK) + Mobile (expo-auth-session)
- * Supports: Web popup, iOS/Android redirect
+ * Apple OAuth Service — Official Firebase Web SDK & Apple Authentication
  */
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 import api from './api';
 import { initializeApp, getApps } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { getAuth, OAuthProvider, signInWithPopup } from 'firebase/auth';
 
 // ─── Firebase Initialization ─────────────────────────────────────
 let firebaseAuthInstance = null;
@@ -25,14 +24,13 @@ const getFirebaseAuth = () => {
 };
 
 /**
- * Google Sign-In via Firebase Web popup (works on Web platform)
+ * Apple Sign-In via Firebase Web popup (Official SDK)
  */
-export const googleSignInWeb = async () => {
+export const appleSignInWeb = async () => {
   const auth = getFirebaseAuth();
-  const provider = new GoogleAuthProvider();
+  const provider = new OAuthProvider('apple.com');
   provider.addScope('email');
-  provider.addScope('profile');
-  provider.setCustomParameters({ prompt: 'select_account' });
+  provider.addScope('name');
 
   const result = await signInWithPopup(auth, provider);
   const idToken = await result.user.getIdToken();
@@ -40,54 +38,52 @@ export const googleSignInWeb = async () => {
   return {
     idToken,
     email: result.user.email,
-    name: result.user.displayName,
-    photoURL: result.user.photoURL,
+    name: result.user.displayName || 'Apple User',
+    photoURL: result.user.photoURL || '',
     uid: result.user.uid,
   };
 };
 
 /**
- * Exchange Google ID token with our backend to get Alumni JWT
+ * Exchange Apple ID Token with Backend
  */
-export const exchangeGoogleTokenWithBackend = async ({ idToken, email, name, photoURL }) => {
-  const { data } = await api.post('/auth/google', {
+export const exchangeAppleTokenWithBackend = async ({ idToken, email, name, photoURL, uid }) => {
+  const { data } = await api.post('/auth/apple', {
     idToken,
     email,
     name,
     photoURL,
-    provider: 'google',
+    providerId: uid,
+    provider: 'apple',
   });
   return data;
 };
 
 /**
- * Full Google OAuth Login — handles web popup + saves session
+ * Full Apple OAuth Login (Official SDK)
  */
-export const handleGoogleLogin = async () => {
+export const handleAppleLogin = async () => {
   if (Platform.OS !== 'web') {
-    throw new Error('Google Sign-In via popup is only supported on web. Use expo-auth-session for mobile.');
+    throw new Error('Apple Sign-In is configured via Web SDK.');
   }
 
-  const googleUser = await googleSignInWeb();
+  const appleUser = await appleSignInWeb();
+  const userData = await exchangeAppleTokenWithBackend(appleUser);
 
-  // Exchange with our backend
-  const userData = await exchangeGoogleTokenWithBackend(googleUser);
-
-  // Save session
   await AsyncStorage.setItem('userInfo', JSON.stringify({
     _id: userData._id || userData.id,
     id: userData._id || userData.id,
     token: userData.token,
     refreshToken: userData.refreshToken,
-    name: userData.name || googleUser.name || 'User',
-    email: userData.email || googleUser.email,
-    institution: userData.institution || 'Institution',
+    name: userData.name || appleUser.name || 'Apple User',
+    email: userData.email || appleUser.email,
+    institution: userData.institution || 'RV Educational Institutions',
     department: userData.department,
     branch: userData.branch,
     batchYear: userData.batchYear,
-    avatar_url: userData.avatar_url || googleUser.photoURL,
-    role: userData.role,
-    authProvider: 'google',
+    avatar_url: userData.avatar_url || appleUser.photoURL,
+    role: userData.role || 'Alumni',
+    authProvider: 'apple',
   }));
 
   return userData;

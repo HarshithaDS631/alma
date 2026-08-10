@@ -1285,6 +1285,74 @@ exports.facebookAuth = async (req, res) => {
     }
 };
 
+// @desc    Apple OAuth Sign-In / Registration
+// @route   POST /api/auth/apple
+exports.appleAuth = async (req, res) => {
+    try {
+        await connectDB();
+        const { idToken, email: reqEmail, name: reqName, photoURL, providerId } = req.body;
+        let email = reqEmail, name = reqName, picture = photoURL, sub = providerId;
+
+        if (!email) {
+            return res.status(400).json({ message: 'Could not retrieve email from Apple account' });
+        }
+
+        let user = await User.findOne({ email: email.toLowerCase() });
+
+        if (!user) {
+            user = await User.create({
+                name: name || 'Apple User',
+                email: email.toLowerCase(),
+                avatar_url: picture || '',
+                authProvider: 'apple',
+                providerId: sub || 'apple_' + Date.now(),
+                is_approved: true,
+                role: 'Alumni',
+                institution: 'RV Educational Institutions'
+            });
+        } else {
+            if (!user.is_approved) {
+                return res.status(403).json({ message: 'Your account is pending admin approval' });
+            }
+            if (!user.providerId) {
+                user.authProvider = 'apple';
+                user.providerId = sub;
+                await user.save();
+            }
+        }
+
+        // Record active session
+        const { recordSessionLogin } = require('../utils/sessionTracker');
+        await recordSessionLogin(req, user);
+
+        const refreshToken = await createRefreshToken(user._id, req);
+
+        res.json({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            institution: user.institution,
+            branch: user.branch,
+            department: user.department,
+            batchYear: user.batchYear,
+            joiningYear: user.joiningYear,
+            bio: user.bio,
+            location: user.location,
+            company: user.company,
+            designation: user.designation,
+            role: user.role,
+            avatar_url: user.avatar_url,
+            linkedin: user.linkedin,
+            twoFactorEnabled: user.twoFactorEnabled || false,
+            token: generateToken(user._id),
+            refreshToken
+        });
+    } catch (error) {
+        console.error('Apple Auth Error:', error?.response?.data || error.message);
+        res.status(500).json({ message: 'Apple authentication failed: ' + (error?.response?.data?.message || error.message) });
+    }
+};
+
 // @desc    Refresh Access Token using Refresh Token Rotation
 // @route   POST /api/auth/refresh-token
 exports.refreshAccessToken = async (req, res) => {

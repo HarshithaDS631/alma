@@ -8,6 +8,7 @@ import { login, loginVerify2FA } from '../services/authService';
 import { handleGoogleLogin } from '../services/googleAuthService';
 import { handleLinkedInLogin } from '../services/linkedinAuthService';
 import { handleFacebookLogin } from '../services/facebookAuthService';
+import { handleAppleLogin } from '../services/appleAuthService';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -25,6 +26,7 @@ const LoginScreen = ({ navigation }) => {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [linkedinLoading, setLinkedinLoading] = useState(false);
   const [facebookLoading, setFacebookLoading] = useState(false);
+  const [appleLoading, setAppleLoading] = useState(false);
   const [show2FAModal, setShow2FAModal] = useState(false);
   const [twoFactorToken, setTwoFactorToken] = useState('');
   const [twoFactorCode, setTwoFactorCode] = useState('');
@@ -98,6 +100,25 @@ const LoginScreen = ({ navigation }) => {
       alert(error.message || 'Facebook Sign-In failed. Please try again.');
     } finally {
       setFacebookLoading(false);
+    }
+  };
+
+  const handleAppleSignIn = async () => {
+    setAppleLoading(true);
+    try {
+      const userData = await handleAppleLogin();
+      const userRole = (userData.role || '').trim().toLowerCase();
+      if (userRole === 'super admin' || userRole === 'superadmin') {
+        navigation.navigate('SuperAdminMain');
+      } else if (userRole === 'admin' || userRole === 'institution admin') {
+        navigation.navigate('AdminMain');
+      } else {
+        navigation.navigate('Main');
+      }
+    } catch (error) {
+      alert(error.message || 'Apple Sign-In failed. Please try again.');
+    } finally {
+      setAppleLoading(false);
     }
   };
 
@@ -393,7 +414,7 @@ const LoginScreen = ({ navigation }) => {
                   elevation: 2,
                 }}
                 onPress={handleFacebookSignIn}
-                disabled={googleLoading || linkedinLoading || facebookLoading}
+                disabled={googleLoading || linkedinLoading || facebookLoading || appleLoading}
                 activeOpacity={0.8}
               >
                 {facebookLoading ? (
@@ -402,6 +423,37 @@ const LoginScreen = ({ navigation }) => {
                   <>
                     <Ionicons name="logo-facebook" size={20} color="#FFFFFF" />
                     <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>Continue with Facebook</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+
+              {/* Apple Button */}
+              <TouchableOpacity
+                id="apple-signin-btn"
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: '#000000',
+                  borderRadius: 12,
+                  height: 50,
+                  gap: 10,
+                  shadowColor: '#000000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.2,
+                  shadowRadius: 4,
+                  elevation: 2,
+                }}
+                onPress={handleAppleSignIn}
+                disabled={googleLoading || linkedinLoading || facebookLoading || appleLoading}
+                activeOpacity={0.8}
+              >
+                {appleLoading ? (
+                  <ActivityIndicator color="#FFFFFF" size="small" />
+                ) : (
+                  <>
+                    <Ionicons name="logo-apple" size={22} color="#FFFFFF" />
+                    <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>Continue with Apple</Text>
                   </>
                 )}
               </TouchableOpacity>
