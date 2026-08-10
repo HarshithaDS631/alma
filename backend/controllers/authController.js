@@ -1034,19 +1034,29 @@ exports.googleAuth = async (req, res) => {
         let user = await User.findOne({ email: email.toLowerCase() });
 
         if (!user) {
-            // Auto-create user via Google OAuth (defaulting to approved for verified Google domain if configured)
+            // Register user in database as pending admin approval
             user = await User.create({
                 name: name || 'Google User',
                 email: email.toLowerCase(),
                 avatar_url: picture,
                 authProvider: 'google',
                 providerId: sub,
-                is_approved: true, // OAuth signups are pre-verified via Google
-                role: 'Alumni'
+                is_approved: false, // Default to false -> Requires Admin Approval
+                role: 'Alumni',
+                institution: req.body.institution || 'RV Educational Institutions'
+            });
+
+            return res.status(403).json({
+                message: 'Your Google account has been registered in the database and is pending administrator approval. You will be able to log in once approved by the admin.',
+                status: 'PENDING_APPROVAL'
             });
         } else {
-            if (!user.is_approved) {
-                return res.status(403).json({ message: 'Your account is pending admin approval' });
+            const isAdminOrSuper = ['admin', 'super admin', 'superadmin', 'institution admin'].includes((user.role || '').toLowerCase());
+            if (!isAdminOrSuper && !user.is_approved) {
+                return res.status(403).json({
+                    message: 'Your account is pending administrator approval. You can log in once the admin approves your account.',
+                    status: 'PENDING_APPROVAL'
+                });
             }
             if (!user.providerId) {
                 user.authProvider = 'google';
@@ -1156,12 +1166,22 @@ exports.linkedinAuth = async (req, res) => {
                 avatar_url: picture || '',
                 authProvider: 'linkedin',
                 providerId: sub,
-                is_approved: true, // OAuth signups pre-verified via LinkedIn
-                role: 'Alumni'
+                is_approved: false, // Default to false -> Requires Admin Approval
+                role: 'Alumni',
+                institution: req.body.institution || 'RV Educational Institutions'
+            });
+
+            return res.status(403).json({
+                message: 'Your LinkedIn account has been registered in the database and is pending administrator approval. You will be able to log in once approved by the admin.',
+                status: 'PENDING_APPROVAL'
             });
         } else {
-            if (!user.is_approved) {
-                return res.status(403).json({ message: 'Your account is pending admin approval' });
+            const isAdminOrSuper = ['admin', 'super admin', 'superadmin', 'institution admin'].includes((user.role || '').toLowerCase());
+            if (!isAdminOrSuper && !user.is_approved) {
+                return res.status(403).json({
+                    message: 'Your account is pending administrator approval. You can log in once the admin approves your account.',
+                    status: 'PENDING_APPROVAL'
+                });
             }
             if (!user.providerId) {
                 user.authProvider = 'linkedin';
@@ -1237,13 +1257,22 @@ exports.facebookAuth = async (req, res) => {
                 avatar_url: picture || '',
                 authProvider: 'facebook',
                 providerId: sub || 'fb_' + Date.now(),
-                is_approved: true,
+                is_approved: false, // Default to false -> Requires Admin Approval
                 role: 'Alumni',
-                institution: 'RV Educational Institutions'
+                institution: req.body.institution || 'RV Educational Institutions'
+            });
+
+            return res.status(403).json({
+                message: 'Your Facebook account has been registered in the database and is pending administrator approval. You will be able to log in once approved by the admin.',
+                status: 'PENDING_APPROVAL'
             });
         } else {
-            if (!user.is_approved) {
-                return res.status(403).json({ message: 'Your account is pending admin approval' });
+            const isAdminOrSuper = ['admin', 'super admin', 'superadmin', 'institution admin'].includes((user.role || '').toLowerCase());
+            if (!isAdminOrSuper && !user.is_approved) {
+                return res.status(403).json({
+                    message: 'Your account is pending administrator approval. You can log in once the admin approves your account.',
+                    status: 'PENDING_APPROVAL'
+                });
             }
             if (!user.providerId) {
                 user.authProvider = 'facebook';
@@ -1306,17 +1335,27 @@ exports.appleAuth = async (req, res) => {
                 avatar_url: picture || '',
                 authProvider: 'apple',
                 providerId: sub || 'apple_' + Date.now(),
-                is_approved: true,
+                is_approved: false, // Default to false -> Requires Admin Approval
                 role: 'Alumni',
-                institution: 'RV Educational Institutions'
+                institution: req.body.institution || 'RV Educational Institutions'
+            });
+
+            return res.status(403).json({
+                message: 'Your Apple account has been registered in the database and is pending administrator approval. You will be able to log in once approved by the admin.',
+                status: 'PENDING_APPROVAL'
             });
         } else {
-            if (!user.is_approved) {
-                return res.status(403).json({ message: 'Your account is pending admin approval' });
+            const isAdminOrSuper = ['admin', 'super admin', 'superadmin', 'institution admin'].includes((user.role || '').toLowerCase());
+            if (!isAdminOrSuper && !user.is_approved) {
+                return res.status(403).json({
+                    message: 'Your account is pending administrator approval. You can log in once the admin approves your account.',
+                    status: 'PENDING_APPROVAL'
+                });
             }
             if (!user.providerId) {
                 user.authProvider = 'apple';
                 user.providerId = sub;
+                if (!user.avatar_url && picture) user.avatar_url = picture;
                 await user.save();
             }
         }

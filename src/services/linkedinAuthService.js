@@ -57,7 +57,13 @@ export const handleLinkedInLogin = async () => {
 
     throw new Error('LinkedIn login was cancelled or failed.');
   } catch (error) {
-    console.error('[LinkedIn Login Error]:', error.message);
-    throw error;
+    const errorMsg =
+      error.response?.data?.message ||
+      error.message ||
+      'LinkedIn login failed.';
+    console.error('[LinkedIn Login Error]:', errorMsg);
+    const err = new Error(errorMsg);
+    err.response = error.response;
+    throw err;
   }
 };

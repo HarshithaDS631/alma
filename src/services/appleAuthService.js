@@ -63,28 +63,39 @@ export const exchangeAppleTokenWithBackend = async ({ idToken, email, name, phot
  * Full Apple OAuth Login (Official SDK)
  */
 export const handleAppleLogin = async () => {
-  if (Platform.OS !== 'web') {
-    throw new Error('Apple Sign-In is configured via Web SDK.');
+  try {
+    if (Platform.OS !== 'web') {
+      throw new Error('Apple Sign-In is configured via Web SDK.');
+    }
+
+    const appleUser = await appleSignInWeb();
+    const userData = await exchangeAppleTokenWithBackend(appleUser);
+
+    await AsyncStorage.setItem('userInfo', JSON.stringify({
+      _id: userData._id || userData.id,
+      id: userData._id || userData.id,
+      token: userData.token,
+      refreshToken: userData.refreshToken,
+      name: userData.name || appleUser.name || 'Apple User',
+      email: userData.email || appleUser.email,
+      institution: userData.institution || 'RV Educational Institutions',
+      department: userData.department,
+      branch: userData.branch,
+      batchYear: userData.batchYear,
+      avatar_url: userData.avatar_url || appleUser.photoURL,
+      role: userData.role || 'Alumni',
+      authProvider: 'apple',
+    }));
+
+    return userData;
+  } catch (error) {
+    const errorMsg =
+      error.response?.data?.message ||
+      error.message ||
+      'Apple Sign-In failed. Please try again.';
+    console.error('[Apple Login Error]:', errorMsg);
+    const err = new Error(errorMsg);
+    err.response = error.response;
+    throw err;
   }
-
-  const appleUser = await appleSignInWeb();
-  const userData = await exchangeAppleTokenWithBackend(appleUser);
-
-  await AsyncStorage.setItem('userInfo', JSON.stringify({
-    _id: userData._id || userData.id,
-    id: userData._id || userData.id,
-    token: userData.token,
-    refreshToken: userData.refreshToken,
-    name: userData.name || appleUser.name || 'Apple User',
-    email: userData.email || appleUser.email,
-    institution: userData.institution || 'RV Educational Institutions',
-    department: userData.department,
-    branch: userData.branch,
-    batchYear: userData.batchYear,
-    avatar_url: userData.avatar_url || appleUser.photoURL,
-    role: userData.role || 'Alumni',
-    authProvider: 'apple',
-  }));
-
-  return userData;
 };

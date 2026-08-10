@@ -65,31 +65,42 @@ export const exchangeFacebookTokenWithBackend = async ({ idToken, accessToken, e
  * Full Facebook OAuth Login — handles popup + saves session
  */
 export const handleFacebookLogin = async () => {
-  if (Platform.OS !== 'web') {
-    throw new Error('Facebook Sign-In is currently optimized for Web platform.');
+  try {
+    if (Platform.OS !== 'web') {
+      throw new Error('Facebook Sign-In is currently optimized for Web platform.');
+    }
+
+    const fbUser = await facebookSignInWeb();
+
+    // Exchange with our backend
+    const userData = await exchangeFacebookTokenWithBackend(fbUser);
+
+    // Save session
+    await AsyncStorage.setItem('userInfo', JSON.stringify({
+      _id: userData._id || userData.id,
+      id: userData._id || userData.id,
+      token: userData.token,
+      refreshToken: userData.refreshToken,
+      name: userData.name || fbUser.name || 'Facebook User',
+      email: userData.email || fbUser.email,
+      institution: userData.institution || 'RV Educational Institutions',
+      department: userData.department,
+      branch: userData.branch,
+      batchYear: userData.batchYear,
+      avatar_url: userData.avatar_url || fbUser.photoURL,
+      role: userData.role || 'Alumni',
+      authProvider: 'facebook',
+    }));
+
+    return userData;
+  } catch (error) {
+    const errorMsg =
+      error.response?.data?.message ||
+      error.message ||
+      'Facebook Sign-In failed. Please try again.';
+    console.error('[Facebook Login Error]:', errorMsg);
+    const err = new Error(errorMsg);
+    err.response = error.response;
+    throw err;
   }
-
-  const fbUser = await facebookSignInWeb();
-
-  // Exchange with our backend
-  const userData = await exchangeFacebookTokenWithBackend(fbUser);
-
-  // Save session
-  await AsyncStorage.setItem('userInfo', JSON.stringify({
-    _id: userData._id || userData.id,
-    id: userData._id || userData.id,
-    token: userData.token,
-    refreshToken: userData.refreshToken,
-    name: userData.name || fbUser.name || 'Facebook User',
-    email: userData.email || fbUser.email,
-    institution: userData.institution || 'RV Educational Institutions',
-    department: userData.department,
-    branch: userData.branch,
-    batchYear: userData.batchYear,
-    avatar_url: userData.avatar_url || fbUser.photoURL,
-    role: userData.role || 'Alumni',
-    authProvider: 'facebook',
-  }));
-
-  return userData;
 };

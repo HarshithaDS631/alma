@@ -35,11 +35,22 @@ exports.verifyFirebaseToken = async (req, res) => {
                 authProvider: 'firebase',
                 providerId: localId,
                 role: role || 'Alumni',
-                institution: institution || 'RV College of Engineering',
+                institution: institution || 'RV Educational Institutions',
                 verified: Boolean(emailVerified),
-                is_approved: true
+                is_approved: false
+            });
+            return res.status(403).json({
+                message: 'Your account has been registered and is pending administrator approval. You can log in once approved by the admin.',
+                status: 'PENDING_APPROVAL'
             });
         } else {
+            const isAdminOrSuper = ['admin', 'super admin', 'superadmin', 'institution admin'].includes((user.role || '').toLowerCase());
+            if (!isAdminOrSuper && !user.is_approved) {
+                return res.status(403).json({
+                    message: 'Your account is pending administrator approval. You can log in once the admin approves your account.',
+                    status: 'PENDING_APPROVAL'
+                });
+            }
             user.providerId = localId;
             user.authProvider = 'firebase';
             if (emailVerified) user.verified = true;

@@ -187,7 +187,13 @@ export const handleGoogleLogin = async () => {
 
     return userData;
   } catch (error) {
-    console.error('[Google Login Error]:', error.message);
-    throw error;
+    const errorMsg =
+      error.response?.data?.message ||
+      error.message ||
+      'Google Sign-In failed. Please try again.';
+    console.error('[Google Login Error]:', errorMsg);
+    const err = new Error(errorMsg);
+    err.response = error.response;
+    throw err;
   }
 };
