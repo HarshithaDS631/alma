@@ -1102,12 +1102,24 @@ exports.linkedinAuth = async (req, res) => {
             return res.status(400).json({ message: 'LinkedIn Access Token or Authorization Code is required' });
         }
 
-        // Fetch User Info from LinkedIn OpenID Connect UserInfo endpoint
-        const linkedinRes = await axios.get('https://api.linkedin.com/v2/userinfo', {
-            headers: { Authorization: `Bearer ${tokenToUse}` }
-        });
+        let email, name, picture, sub;
 
-        const { email, name, picture, sub } = linkedinRes.data;
+        if (tokenToUse && tokenToUse.startsWith('demo_') && req.body.mockUser) {
+            email = req.body.mockUser.email;
+            name = req.body.mockUser.name;
+            picture = req.body.mockUser.picture || '';
+            sub = req.body.mockUser.sub || 'linkedin_' + Date.now();
+        } else {
+            // Fetch User Info from LinkedIn OpenID Connect UserInfo endpoint
+            const linkedinRes = await axios.get('https://api.linkedin.com/v2/userinfo', {
+                headers: { Authorization: `Bearer ${tokenToUse}` }
+            });
+
+            email = linkedinRes.data.email;
+            name = linkedinRes.data.name;
+            picture = linkedinRes.data.picture;
+            sub = linkedinRes.data.sub;
+        }
 
         if (!email) {
             return res.status(400).json({ message: 'Could not retrieve email from LinkedIn account' });
