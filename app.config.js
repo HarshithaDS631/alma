@@ -46,7 +46,7 @@ export default {
       bundleIdentifier: BUNDLE_ID,
       buildNumber: '1.0.0',
       requireFullScreen: false,
-      usesAppleSignIn: false,
+      usesAppleSignIn: true,
       googleServicesFile:
         process.env.GOOGLE_SERVICES_PLIST ?? './GoogleService-Info.plist',
       config: {
@@ -74,12 +74,16 @@ export default {
             CFBundleURLSchemes: [
               // Reversed iOS Client ID for Google OAuth callback
               'com.googleusercontent.apps.768299462386-th9t5pb5r2fbvt46o1b0iadcr8tva9fd',
+              // Facebook OAuth callback (fb + App ID)
+              `fb${process.env.EXPO_PUBLIC_FACEBOOK_APP_ID || ''}`,
             ],
           },
         ],
       },
       entitlements: {
         'aps-environment': IS_DEV ? 'development' : 'production',
+        // Required for native Apple Sign-In on iOS
+        'com.apple.developer.applesignin': ['Default'],
       },
     },
 
@@ -148,6 +152,8 @@ export default {
           username: 'mediacell',
         },
       ],
+      // Native Apple Sign-In for iOS
+      'expo-apple-authentication',
     ],
 
     updates: {

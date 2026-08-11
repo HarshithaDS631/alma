@@ -1228,13 +1228,32 @@ exports.linkedinAuth = async (req, res) => {
 exports.facebookAuth = async (req, res) => {
     try {
         await connectDB();
-        const { idToken, accessToken, email: reqEmail, name: reqName, photoURL, providerId } = req.body;
+        const { idToken, accessToken, code, redirectUri, email: reqEmail, name: reqName, photoURL, providerId } = req.body;
         let email = reqEmail, name = reqName, picture = photoURL, sub = providerId;
+        let tokenToUse = accessToken;
+
+        // If authorization code is provided (from mobile expo-auth-session), exchange for access token
+        if (!tokenToUse && code) {
+            try {
+                const tokenRes = await axios.get('https://graph.facebook.com/v19.0/oauth/access_token', {
+                    params: {
+                        client_id: process.env.FACEBOOK_APP_ID,
+                        client_secret: process.env.FACEBOOK_APP_SECRET,
+                        code,
+                        redirect_uri: redirectUri,
+                    }
+                });
+                tokenToUse = tokenRes.data.access_token;
+            } catch (err) {
+                console.error('[FB Code Exchange Error]', err?.response?.data || err.message);
+                return res.status(400).json({ message: 'Failed to exchange Facebook authorization code for access token.' });
+            }
+        }
 
         // If accessToken is provided, verify with Facebook Graph API
-        if (accessToken && !accessToken.startsWith('demo_')) {
+        if (tokenToUse && !tokenToUse.startsWith('demo_')) {
             try {
-                const fbRes = await axios.get(`https://graph.facebook.com/me?fields=id,name,email,picture.type(large)&access_token=${accessToken}`);
+                const fbRes = await axios.get(`https://graph.facebook.com/me?fields=id,name,email,picture.type(large)&access_token=${tokenToUse}`);
                 email = fbRes.data.email || email;
                 name = fbRes.data.name || name;
                 picture = fbRes.data.picture?.data?.url || picture;
@@ -1243,6 +1262,7 @@ exports.facebookAuth = async (req, res) => {
                 console.log('[FB Graph API Verify fallback]', err.message);
             }
         }
+
 
         if (!email) {
             return res.status(400).json({ message: 'Could not retrieve email from Facebook account' });
