@@ -107,19 +107,100 @@ const WelcomeScreen = ({ navigation }) => {
         </View>
 
         {/* Social Login Icons */}
-        <View style={styles.socialContainer}>
-          <TouchableOpacity style={styles.socialIcon} activeOpacity={0.7} onPress={() => handleOAuthLogin('google')}>
-            <Ionicons name="logo-google" size={24} color="#DB4437" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.socialIcon} activeOpacity={0.7} onPress={() => handleOAuthLogin('linkedin')}>
-            <Ionicons name="logo-linkedin" size={24} color="#0077B5" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.socialIcon} activeOpacity={0.7} onPress={() => handleOAuthLogin('facebook')}>
-            <Ionicons name="logo-facebook" size={24} color="#1877F2" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.socialIcon} activeOpacity={0.7} onPress={() => handleOAuthLogin('apple')}>
-            <Ionicons name="logo-apple" size={24} color="#000000" />
-          </TouchableOpacity>
+        <View style={{ marginBottom: 10 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
+            <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
+            <Text style={{ marginHorizontal: 12, color: theme.textSecondary, fontSize: 13, fontWeight: '500' }}>or continue with</Text>
+            <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
+          </View>
+
+          <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 18 }}>
+            <TouchableOpacity 
+              style={{
+                width: 52,
+                height: 52,
+                borderRadius: 26,
+                backgroundColor: isDarkMode ? '#1E293B' : '#FFFFFF',
+                justifyContent: 'center',
+                alignItems: 'center',
+                borderWidth: 1.5,
+                borderColor: isDarkMode ? '#334155' : '#E2E8F0',
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.08,
+                shadowRadius: 4,
+                elevation: 3,
+              }} 
+              activeOpacity={0.7} 
+              onPress={() => handleOAuthLogin('google')}
+              disabled={socialLoading}
+            >
+              <Ionicons name="logo-google" size={24} color="#EA4335" />
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={{
+                width: 52,
+                height: 52,
+                borderRadius: 26,
+                backgroundColor: '#0A66C2',
+                justifyContent: 'center',
+                alignItems: 'center',
+                shadowColor: '#0A66C2',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.25,
+                shadowRadius: 4,
+                elevation: 3,
+              }} 
+              activeOpacity={0.7} 
+              onPress={() => handleOAuthLogin('linkedin')}
+              disabled={socialLoading}
+            >
+              <Ionicons name="logo-linkedin" size={24} color="#FFFFFF" />
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={{
+                width: 52,
+                height: 52,
+                borderRadius: 26,
+                backgroundColor: '#1877F2',
+                justifyContent: 'center',
+                alignItems: 'center',
+                shadowColor: '#1877F2',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.25,
+                shadowRadius: 4,
+                elevation: 3,
+              }} 
+              activeOpacity={0.7} 
+              onPress={() => handleOAuthLogin('facebook')}
+              disabled={socialLoading}
+            >
+              <Ionicons name="logo-facebook" size={24} color="#FFFFFF" />
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={{
+                width: 52,
+                height: 52,
+                borderRadius: 26,
+                backgroundColor: isDarkMode ? '#FFFFFF' : '#000000',
+                justifyContent: 'center',
+                alignItems: 'center',
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.25,
+                shadowRadius: 4,
+                elevation: 3,
+              }} 
+              activeOpacity={0.7} 
+              onPress={() => handleOAuthLogin('apple')}
+              disabled={socialLoading}
+            >
+              <Ionicons name="logo-apple" size={24} color={isDarkMode ? '#000000' : '#FFFFFF'} />
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
       </View>

@@ -321,140 +321,122 @@ const LoginScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>
 
-          {/* ── Social OAuth Sign-In Buttons ── */}
+          {/* ── Social OAuth Sign-In Icons Row ── */}
           <View style={{ marginBottom: 16 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
               <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
               <Text style={{ marginHorizontal: 12, color: theme.textMuted, fontSize: 13, fontWeight: '500' }}>or continue with</Text>
               <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
             </View>
 
-            <View style={{ gap: 10 }}>
-              {/* Google Button */}
+            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 18 }}>
+              {/* Google Icon */}
               <TouchableOpacity
                 id="google-signin-btn"
                 style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
+                  width: 52,
+                  height: 52,
+                  borderRadius: 26,
+                  backgroundColor: isDarkMode ? '#1E293B' : '#FFFFFF',
                   justifyContent: 'center',
-                  backgroundColor: '#FFFFFF',
+                  alignItems: 'center',
                   borderWidth: 1.5,
-                  borderColor: '#E2E8F0',
-                  borderRadius: 12,
-                  height: 50,
-                  gap: 10,
+                  borderColor: isDarkMode ? '#334155' : '#E2E8F0',
                   shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 1 },
-                  shadowOpacity: 0.06,
-                  shadowRadius: 3,
-                  elevation: 2,
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.08,
+                  shadowRadius: 4,
+                  elevation: 3,
                 }}
                 onPress={handleGoogleSignIn}
-                disabled={googleLoading || linkedinLoading}
-                activeOpacity={0.8}
+                disabled={googleLoading || linkedinLoading || facebookLoading || appleLoading}
+                activeOpacity={0.7}
               >
                 {googleLoading ? (
                   <ActivityIndicator color="#4285F4" size="small" />
                 ) : (
-                  <>
-                    <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: '#4285F4', justifyContent: 'center', alignItems: 'center' }}>
-                      <Text style={{ color: '#fff', fontWeight: '900', fontSize: 13, lineHeight: 22 }}>G</Text>
-                    </View>
-                    <Text style={{ fontSize: 15, fontWeight: '700', color: '#1E293B' }}>Continue with Google</Text>
-                  </>
+                  <Ionicons name="logo-google" size={24} color="#EA4335" />
                 )}
               </TouchableOpacity>
 
-              {/* LinkedIn Button */}
+              {/* LinkedIn Icon */}
               <TouchableOpacity
                 id="linkedin-signin-btn"
                 style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  width: 52,
+                  height: 52,
+                  borderRadius: 26,
                   backgroundColor: '#0A66C2',
-                  borderRadius: 12,
-                  height: 50,
-                  gap: 10,
+                  justifyContent: 'center',
+                  alignItems: 'center',
                   shadowColor: '#0A66C2',
                   shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.2,
+                  shadowOpacity: 0.25,
                   shadowRadius: 4,
-                  elevation: 2,
+                  elevation: 3,
                 }}
                 onPress={handleLinkedInSignIn}
-                disabled={googleLoading || linkedinLoading || facebookLoading}
-                activeOpacity={0.8}
+                disabled={googleLoading || linkedinLoading || facebookLoading || appleLoading}
+                activeOpacity={0.7}
               >
                 {linkedinLoading ? (
                   <ActivityIndicator color="#FFFFFF" size="small" />
                 ) : (
-                  <>
-                    <Ionicons name="logo-linkedin" size={20} color="#FFFFFF" />
-                    <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>Continue with LinkedIn</Text>
-                  </>
+                  <Ionicons name="logo-linkedin" size={24} color="#FFFFFF" />
                 )}
               </TouchableOpacity>
 
-              {/* Facebook Button */}
+              {/* Facebook Icon */}
               <TouchableOpacity
                 id="facebook-signin-btn"
                 style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  width: 52,
+                  height: 52,
+                  borderRadius: 26,
                   backgroundColor: '#1877F2',
-                  borderRadius: 12,
-                  height: 50,
-                  gap: 10,
+                  justifyContent: 'center',
+                  alignItems: 'center',
                   shadowColor: '#1877F2',
                   shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.2,
+                  shadowOpacity: 0.25,
                   shadowRadius: 4,
-                  elevation: 2,
+                  elevation: 3,
                 }}
                 onPress={handleFacebookSignIn}
                 disabled={googleLoading || linkedinLoading || facebookLoading || appleLoading}
-                activeOpacity={0.8}
+                activeOpacity={0.7}
               >
                 {facebookLoading ? (
                   <ActivityIndicator color="#FFFFFF" size="small" />
                 ) : (
-                  <>
-                    <Ionicons name="logo-facebook" size={20} color="#FFFFFF" />
-                    <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>Continue with Facebook</Text>
-                  </>
+                  <Ionicons name="logo-facebook" size={24} color="#FFFFFF" />
                 )}
               </TouchableOpacity>
 
-              {/* Apple Button */}
+              {/* Apple Icon */}
               <TouchableOpacity
                 id="apple-signin-btn"
                 style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
+                  width: 52,
+                  height: 52,
+                  borderRadius: 26,
+                  backgroundColor: isDarkMode ? '#FFFFFF' : '#000000',
                   justifyContent: 'center',
-                  backgroundColor: '#000000',
-                  borderRadius: 12,
-                  height: 50,
-                  gap: 10,
-                  shadowColor: '#000000',
+                  alignItems: 'center',
+                  shadowColor: '#000',
                   shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.2,
+                  shadowOpacity: 0.25,
                   shadowRadius: 4,
-                  elevation: 2,
+                  elevation: 3,
                 }}
                 onPress={handleAppleSignIn}
                 disabled={googleLoading || linkedinLoading || facebookLoading || appleLoading}
-                activeOpacity={0.8}
+                activeOpacity={0.7}
               >
                 {appleLoading ? (
-                  <ActivityIndicator color="#FFFFFF" size="small" />
+                  <ActivityIndicator color={isDarkMode ? '#000000' : '#FFFFFF'} size="small" />
                 ) : (
-                  <>
-                    <Ionicons name="logo-apple" size={22} color="#FFFFFF" />
-                    <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>Continue with Apple</Text>
-                  </>
+                  <Ionicons name="logo-apple" size={24} color={isDarkMode ? '#000000' : '#FFFFFF'} />
                 )}
               </TouchableOpacity>
             </View>
