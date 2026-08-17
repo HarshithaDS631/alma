@@ -238,12 +238,12 @@ exports.loginUser = async (req, res) => {
                 _id: '6a59f32a6f76e181ca88b77a',
                 name: 'Harshitha D S',
                 email: 'harshithads2001@gmail.com',
-                institution: 'RV Educational Institutions',
+                institution: 'RV College of Engineering',
                 branch: 'Computer Science and Engineering',
                 department: 'Computer Science and Engineering',
                 batchYear: '2026',
                 joiningYear: '2022',
-                role: 'Super Admin',
+                role: 'Alumni',
                 avatar_url: '',
                 is_approved: true
             }

@@ -154,15 +154,15 @@ const LoginScreen = ({ navigation }) => {
         id: '6a59f32a6f76e181ca88b77a',
         name: 'Harshitha D S', 
         email: 'harshithads2001@gmail.com',
-        role: 'Super Admin',
-        institution: 'RV Educational Institutions',
+        role: 'Alumni',
+        institution: 'RV College of Engineering',
         department: 'Computer Science and Engineering',
         branch: 'Computer Science and Engineering',
         batchYear: '2026',
         token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNTlmMzJhNmY3NmUxODFjYTg4Yjc3YSIsImlhdCI6MTc4NDI4MTE2MiwiZXhwIjoxNzg2ODczMTYyfQ.tCgKkvSUnJLcK_lenejGRYAqhXJik2HxglqrydpafBI'
       }));
       setLoading(false);
-      navigation.navigate('SuperAdminMain');
+      navigation.navigate('Main');
       return;
     }
 
