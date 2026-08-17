@@ -23,54 +23,51 @@ exports.getPosts = async (req, res) => {
 
         // Fetch current user details including following list, role, and institution
         const currentUser = await User.findById(req.user._id).select('following role institution');
+        const userInstitution = currentUser?.institution || req.user.institution;
 
         let query = { user: { $nin: blockedUserIds } };
 
-        // For Alumni and Student roles: display posts from followed users, own posts, official announcements, and all content under Media Cell Institution
-        if (currentUser && currentUser.role !== 'Super Admin' && currentUser.role !== 'Admin') {
+        // For Alumni, Student, and Institution Admin roles: enforce strict institution filtering
+        if (currentUser && currentUser.role !== 'Super Admin') {
             const followedUserIds = (currentUser.following || []).map(id => id.toString());
             
-            // Include Admin and Super Admin user IDs so official announcements remain visible
-            const adminUsers = await User.find({ role: { $in: ['Admin', 'Super Admin'] } }).select('_id');
-            const adminUserIds = adminUsers.map(a => a._id.toString());
-
-            // Fetch ALL users belonging to Media Cell Institution so institution posts are displayed
-            const mediaCellUsers = await User.find({
-                $or: [
-                    { institution: /media\s*cell/i },
-                    { institution: currentUser.institution ? new RegExp(currentUser.institution.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') : /media/i }
-                ]
+            // Find users strictly belonging to the same institution
+            const institutionUsers = await User.find({
+                institution: userInstitution ? new RegExp(`^${userInstitution.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') : { $exists: true }
             }).select('_id');
-            const mediaCellUserIds = mediaCellUsers.map(u => u._id.toString());
+            const institutionUserIds = institutionUsers.map(u => u._id.toString());
 
-            let allowedCreatorIds;
+            // Also find Super Admins for global announcements
+            const superAdmins = await User.find({ role: 'Super Admin' }).select('_id');
+            const superAdminIds = superAdmins.map(s => s._id.toString());
 
-            if (followedUserIds.length === 0) {
-                // User hasn't followed anyone yet — show ALL posts from institution + admins
-                // so the feed is never empty on first login
-                allowedCreatorIds = Array.from(new Set([
-                    req.user._id.toString(),
-                    ...adminUserIds,
-                    ...mediaCellUserIds
-                ]));
+            const allowedCreatorIds = Array.from(new Set([
+                req.user._id.toString(),
+                ...institutionUserIds,
+                ...superAdminIds
+            ]));
 
-                // If still very few posts would show, fetch all users (open feed for new users)
-                if (allowedCreatorIds.length < 3) {
-                    // Return all posts (no user filter, just block filter)
-                    query.user = { $nin: blockedUserIds };
-                } else {
-                    query.user = { $in: allowedCreatorIds, $nin: blockedUserIds };
-                }
-            } else {
-                // User follows people — show their feed + own posts + admins + institution
-                allowedCreatorIds = Array.from(new Set([
-                    req.user._id.toString(),
-                    ...followedUserIds,
-                    ...adminUserIds,
-                    ...mediaCellUserIds
-                ]));
+            query.$or = [
+                { institution: userInstitution ? new RegExp(`^${userInstitution.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') : undefined },
+                { user: { $in: allowedCreatorIds, $nin: blockedUserIds } }
+            ].filter(cond => cond.institution !== undefined || cond.user);
+
+            if (query.$or.length === 0) {
                 query.user = { $in: allowedCreatorIds, $nin: blockedUserIds };
+                delete query.$or;
             }
+        } else if (req.query.institution && req.query.institution !== 'All') {
+            // Super Admin filtering by specific institution
+            const targetInst = req.query.institution;
+            const instUsers = await User.find({
+                institution: new RegExp(`^${targetInst.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i')
+            }).select('_id');
+            const instUserIds = instUsers.map(u => u._id.toString());
+
+            query.$or = [
+                { institution: new RegExp(`^${targetInst.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') },
+                { user: { $in: instUserIds, $nin: blockedUserIds } }
+            ];
         }
 
         const posts = await Post.find(query)
@@ -97,8 +94,12 @@ exports.createPost = async (req, res) => {
     const { content, image, fileType, fileName, tags } = req.body;
 
     try {
+        const userDoc = await User.findById(req.user._id).select('institution name');
+        const userInstitution = req.user.institution || userDoc?.institution;
+
         const post = await Post.create({
             user: req.user._id,
+            institution: userInstitution,
             content,
             image,
             fileType,
@@ -107,7 +108,7 @@ exports.createPost = async (req, res) => {
         });
 
         const fullPost = await post.populate([
-            { path: 'user', select: 'name branch department batchYear avatar_url username' },
+            { path: 'user', select: 'name branch department batchYear avatar_url username institution role' },
             { path: 'tags', select: 'name username avatar_url' }
         ]);
 

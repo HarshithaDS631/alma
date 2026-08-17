@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -8,11 +8,12 @@ import {
   SafeAreaView, 
   KeyboardAvoidingView, 
   Platform, 
-  ScrollView,
-  Modal,
-  FlatList,
-  ActivityIndicator
+  ScrollView, 
+  Modal, 
+  FlatList, 
+  ActivityIndicator 
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../theme/ThemeContext';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
@@ -69,11 +70,25 @@ const RegisterScreen = ({ navigation }) => {
     name: '',
     email: '',
     password: '',
-    institution: '',
+    institution: global.selectedInstitution || '',
     branch: '',
     batchYear: '',
     joiningYear: ''
   });
+
+  useEffect(() => {
+    const loadStoredInstitution = async () => {
+      try {
+        const stored = await AsyncStorage.getItem('selectedInstitution');
+        if (stored && !formData.institution) {
+          setFormData(prev => ({ ...prev, institution: stored }));
+        }
+      } catch (e) {
+        console.log('Error reading stored institution:', e);
+      }
+    };
+    loadStoredInstitution();
+  }, []);
   const [agreeEULA, setAgreeEULA] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);

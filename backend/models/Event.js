@@ -10,6 +10,7 @@ const eventSchema = new mongoose.Schema({
         enum: ['reunion', 'webinar', 'workshop', 'meetup'], 
         required: true 
     },
+    institution: { type: String, required: true, default: 'RV College of Engineering' },
     image: { type: String },
     organizer: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     attendees: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
@@ -17,4 +18,7 @@ const eventSchema = new mongoose.Schema({
     price: { type: Number, default: 0 }
 }, { timestamps: true });
 
+eventSchema.index({ institution: 1, date: 1 });
+
 module.exports = mongoose.model('Event', eventSchema);
+

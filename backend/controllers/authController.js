@@ -598,26 +598,17 @@ exports.getSuggestions = async (req, res) => {
         const query = {
             _id: { $ne: req.user._id, $nin: followedIds },
             is_approved: true,
+            role: { $nin: ['Admin', 'Super Admin'] }
         };
 
         if (currentUser && currentUser.institution) {
             const instStr = currentUser.institution.trim();
-            if (instStr.toLowerCase().includes('media') || instStr.toLowerCase().includes('mci')) {
-                query.institution = { $regex: 'media|mci', $options: 'i' };
-            } else {
-                query.institution = { $regex: instStr, $options: 'i' };
-            }
+            query.institution = new RegExp(`^${instStr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');
         }
 
-        let suggestions = await User.find(query)
+        const suggestions = await User.find(query)
             .select('name email institution department degree batchYear company designation avatar_url role')
-            .limit(100);
-
-        if (suggestions.length === 0) {
-            suggestions = await User.find({ _id: { $ne: req.user._id, $nin: followedIds }, is_approved: true })
-                .select('name email institution department degree batchYear company designation avatar_url role')
-                .limit(100);
-        }
+            .limit(50);
 
         res.json(suggestions);
     } catch (error) {

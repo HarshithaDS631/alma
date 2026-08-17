@@ -1,5 +1,6 @@
 const Job = require('../models/Job');
 const JobPreference = require('../models/JobPreference');
+const User = require('../models/User');
 
 // @desc    Get all jobs with filters & search
 // @route   GET /api/jobs
@@ -8,12 +9,38 @@ exports.getJobs = async (req, res) => {
         const { search, workplaceType, jobType, location } = req.query;
         let query = { isActive: true };
 
+        // Non-super-admins only see jobs targeted to their institution or posted for all
+        if (req.user && req.user.role !== 'Super Admin') {
+            const userDoc = await User.findById(req.user._id).select('institution');
+            const userInstitution = req.user.institution || userDoc?.institution;
+            if (userInstitution) {
+                query.$or = [
+                    { institution: new RegExp(`^${userInstitution.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') },
+                    { institution: 'All Institutions' },
+                    { institution: { $exists: false } }
+                ];
+            }
+        } else if (req.query.institution && req.query.institution !== 'All') {
+            query.institution = new RegExp(`^${req.query.institution.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');
+        }
+
         if (search) {
-            query.$or = [
-                { title: { $regex: search, $options: 'i' } },
-                { company: { $regex: search, $options: 'i' } },
-                { description: { $regex: search, $options: 'i' } }
-            ];
+            query.$or = (query.$or || []).length > 0 
+                ? [
+                    { $and: [
+                        { $or: query.$or },
+                        { $or: [
+                            { title: { $regex: search, $options: 'i' } },
+                            { company: { $regex: search, $options: 'i' } },
+                            { description: { $regex: search, $options: 'i' } }
+                        ]}
+                    ]}
+                ]
+                : [
+                    { title: { $regex: search, $options: 'i' } },
+                    { company: { $regex: search, $options: 'i' } },
+                    { description: { $regex: search, $options: 'i' } }
+                ];
         }
 
         if (workplaceType) query.workplaceType = workplaceType;
@@ -21,7 +48,7 @@ exports.getJobs = async (req, res) => {
         if (location) query.location = { $regex: location, $options: 'i' };
 
         const jobs = await Job.find(query)
-            .populate('postedBy', 'name profilePicture role company designation')
+            .populate('postedBy', 'name profilePicture role company designation institution')
             .sort({ createdAt: -1 });
 
         res.json(jobs);
@@ -34,12 +61,16 @@ exports.getJobs = async (req, res) => {
 // @route   POST /api/jobs
 exports.createJob = async (req, res) => {
     try {
-        const { title, company, location, workplaceType, jobType, experienceLevel, salaryRange, description, requirements } = req.body;
+        const { title, company, location, workplaceType, jobType, experienceLevel, salaryRange, description, requirements, institution } = req.body;
+
+        const userDoc = await User.findById(req.user._id).select('institution');
+        const jobInstitution = institution || req.user.institution || userDoc?.institution || 'All Institutions';
 
         const job = await Job.create({
             title,
             company,
             location,
+            institution: jobInstitution,
             workplaceType: workplaceType || 'On-site',
             jobType: jobType || 'Full-time',
             experienceLevel: experienceLevel || 'Mid-Senior',

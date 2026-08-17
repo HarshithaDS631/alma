@@ -18,18 +18,23 @@ exports.getStats = async (req, res) => {
         const userFilter = {};
         const pendingUserFilter = { is_approved: false };
         const activeAlumniFilter = { is_approved: true, role: 'Alumni' };
+        const postFilter = {};
+        const eventFilter = {};
 
         if (effectiveInstitution && effectiveInstitution !== 'All') {
-            userFilter.institution = effectiveInstitution;
-            pendingUserFilter.institution = effectiveInstitution;
-            activeAlumniFilter.institution = effectiveInstitution;
+            const regex = new RegExp(`^${effectiveInstitution.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');
+            userFilter.institution = regex;
+            pendingUserFilter.institution = regex;
+            activeAlumniFilter.institution = regex;
+            postFilter.institution = regex;
+            eventFilter.institution = { $in: [regex, 'All Institutions'] };
         }
 
         const totalUsers = await User.countDocuments(userFilter);
         const pendingUsers = await User.countDocuments(pendingUserFilter);
         const totalAlumni = await User.countDocuments(activeAlumniFilter);
-        const totalPosts = await Post.countDocuments();
-        const totalEvents = await Event.countDocuments();
+        const totalPosts = await Post.countDocuments(postFilter);
+        const totalEvents = await Event.countDocuments(eventFilter);
         const pendingReports = await Report.countDocuments({ status: 'pending' });
 
         res.json({
@@ -38,7 +43,8 @@ exports.getStats = async (req, res) => {
             totalAlumni,
             totalPosts,
             totalEvents,
-            pendingReports
+            pendingReports,
+            institution: effectiveInstitution || 'All'
         });
     } catch (error) {
         res.status(500).json({ message: error.message });

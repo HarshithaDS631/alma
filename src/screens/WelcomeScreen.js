@@ -121,26 +121,6 @@ const WelcomeScreen = ({ navigation }) => {
             <Ionicons name="logo-apple" size={24} color="#000000" />
           </TouchableOpacity>
         </View>
-
-        {/* Admin Login Link */}
-        <TouchableOpacity 
-          style={styles.adminLoginLink} 
-          onPress={() => navigation.navigate('Login')}
-          activeOpacity={0.7}
-        >
-          <Ionicons name="shield-checkmark-outline" size={16} color="#94A3B8" style={{ marginRight: 6 }} />
-          <Text style={styles.adminLoginText}>Admin Login</Text>
-        </TouchableOpacity>
-
-        {/* Super Admin Login Link */}
-        <TouchableOpacity 
-          style={styles.superAdminLoginLink} 
-          onPress={() => navigation.navigate('Login')}
-          activeOpacity={0.7}
-        >
-          <Ionicons name="star" size={16} color="#D97706" style={{ marginRight: 6 }} />
-          <Text style={styles.superAdminLoginText}>Super Admin</Text>
-        </TouchableOpacity>
       </View>
       </View>
     </SafeAreaView>

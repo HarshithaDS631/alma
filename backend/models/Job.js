@@ -4,6 +4,7 @@ const jobSchema = new mongoose.Schema({
     title: { type: String, required: true },
     company: { type: String, required: true },
     location: { type: String, required: true },
+    institution: { type: String, default: 'All Institutions' },
     workplaceType: { 
         type: String, 
         enum: ['On-site', 'Hybrid', 'Remote'], 
@@ -35,7 +36,9 @@ const jobSchema = new mongoose.Schema({
     isActive: { type: Boolean, default: true }
 }, { timestamps: true });
 
+jobSchema.index({ institution: 1, createdAt: -1 });
 jobSchema.index({ title: 'text', company: 'text', location: 'text' });
 jobSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model('Job', jobSchema);
+

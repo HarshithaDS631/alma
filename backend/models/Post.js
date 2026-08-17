@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const postSchema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    institution: { type: String },
     content: { 
         type: String, 
         required: function() { return !this.image; } 
@@ -30,8 +31,10 @@ const postSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Indexes for fast timeline feed sorting & user post lookups
+postSchema.index({ institution: 1, createdAt: -1 });
 postSchema.index({ user: 1, createdAt: -1 });
 postSchema.index({ createdAt: -1 });
 postSchema.index({ likes: 1 });
 
 module.exports = mongoose.model('Post', postSchema);
+
