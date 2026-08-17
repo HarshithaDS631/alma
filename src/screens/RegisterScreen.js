@@ -24,21 +24,7 @@ import { handleLinkedInLogin } from '../services/linkedinAuthService';
 import { handleFacebookLogin } from '../services/facebookAuthService';
 import { handleAppleLogin } from '../services/appleAuthService';
 
-WebBrowser.maybeCompleteAuthSession();
-const institutions = [
-  'RV School', 'RV Girls High School', 'RV Public School', 'RV Learning Hub', 
-  'SSMRV PU College', 'NMKRV PU College', 'RV PU College Jayanagar', 
-  'RV PU College North', 'RV PU College South', 'RV PU College, E-City', 
-  'RV PU College, Harohalli', 'RV PU College, Mysuru', 'RV College of Engineering', 
-  'RV Institute of Technology and Management', 'RV-Skills', 'RV College of Architecture', 
-  'RV Institute of Management', 'MKPM RV Institute of Legal Studies', 
-  'RV Teachers College', 'D.A. Pandu Memorial RV Dental College', 
-  'RV College of Physiotherapy', 'RV College of Nursing', 'NMKRV College', 
-  'SSMRV College', 'RV University, Bengaluru Campus', 'RV University, Mysuru Campus',
-  'Media Cell Institution'
-];
-
-import { institutionDepartments, defaultDepartments } from '../constants/institutionDepartments';
+import { institutionsList as institutions, institutionDepartments, defaultDepartments } from '../constants/institutionDepartments';
 
 const currentYear = new Date().getFullYear();
 const batchYears = Array.from({ length: currentYear - 1963 + 1 }, (_, i) => (currentYear - i).toString());
@@ -102,18 +88,6 @@ const RegisterScreen = ({ navigation }) => {
   const [sendingOtpLoading, setSendingOtpLoading] = useState(false);
   const [verifyingOtpLoading, setVerifyingOtpLoading] = useState(false);
   const otpRefs = useRef([]);
-  // Security Captcha Challenge (Bot Protection)
-  const [captcha, setCaptcha] = useState({ num1: Math.floor(Math.random() * 9) + 1, num2: Math.floor(Math.random() * 9) + 1, userAnswer: '' });
-  const [captchaVerified, setCaptchaVerified] = useState(false);
-
-  const refreshCaptcha = () => {
-    setCaptcha({
-      num1: Math.floor(Math.random() * 9) + 1,
-      num2: Math.floor(Math.random() * 9) + 1,
-      userAnswer: ''
-    });
-    setCaptchaVerified(false);
-  };
 
   const handleSendInlineOtp = async () => {
     const emailClean = formData.email.trim().toLowerCase();
@@ -122,13 +96,6 @@ const RegisterScreen = ({ navigation }) => {
       setOtpError('Please enter a valid email address');
       return;
     }
-
-    const expectedSum = captcha.num1 + captcha.num2;
-    if (parseInt(captcha.userAnswer, 10) !== expectedSum) {
-      setOtpError(`Security Check Failed: Please answer ${captcha.num1} + ${captcha.num2} correctly.`);
-      return;
-    }
-    setCaptchaVerified(true);
 
     setSendingOtpLoading(true);
     setOtpError('');
@@ -274,9 +241,7 @@ const RegisterScreen = ({ navigation }) => {
   };
 
   const selectItem = (item) => {
-    if (modalType === 'role') {
-      setFormData({ ...formData, role: item });
-    } else if (modalType === 'institution') {
+    if (modalType === 'institution') {
       setFormData({ ...formData, institution: item, branch: '' });
     } else if (modalType === 'branch') {
       setFormData({ ...formData, branch: item });
@@ -382,47 +347,7 @@ const RegisterScreen = ({ navigation }) => {
                 )}
               </View>
 
-              {/* Anti-Bot Security Captcha Challenge */}
-              {emailState !== 'verified' && (
-                <View style={{
-                  marginTop: 10,
-                  padding: 12,
-                  backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
-                  borderRadius: 10,
-                  borderWidth: 1,
-                  borderColor: isDarkMode ? '#334155' : '#E2E8F0',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between'
-                }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Ionicons name="shield-checkmark" size={18} color={theme.primary} style={{ marginRight: 8 }} />
-                    <Text style={{ fontSize: 13, fontWeight: '600', color: theme.text }}>
-                      Security Verification: {captcha.num1} + {captcha.num2} =
-                    </Text>
-                  </View>
-                  <TextInput
-                    style={{
-                      width: 50,
-                      height: 36,
-                      borderWidth: 1,
-                      borderColor: captchaVerified ? '#10B981' : (isDarkMode ? '#475569' : '#CBD5E1'),
-                      borderRadius: 6,
-                      textAlign: 'center',
-                      fontSize: 14,
-                      fontWeight: '700',
-                      color: theme.text,
-                      backgroundColor: isDarkMode ? '#0F172A' : '#FFFFFF'
-                    }}
-                    placeholder="?"
-                    placeholderTextColor="#94A3B8"
-                    keyboardType="number-pad"
-                    value={captcha.userAnswer}
-                    onChangeText={(text) => setCaptcha({ ...captcha, userAnswer: text })}
-                    maxLength={3}
-                  />
-                </View>
-              )}
+
 
               {/* Validation Error Banner */}
               {otpError ? (
@@ -554,19 +479,6 @@ const RegisterScreen = ({ navigation }) => {
             </View>
 
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Select Role</Text>
-              <TouchableOpacity 
-                style={styles.selector} 
-                onPress={() => openPicker('role')}
-              >
-                <Text style={[styles.selectorText, !formData.role && { color: theme.textMuted }]}>
-                  {formData.role || 'Select Role (e.g. Alumni, Student, Admin)'}
-                </Text>
-                <Text style={styles.arrow}>▼</Text>
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.inputContainer}>
               <Text style={styles.label}>Institution</Text>
               <TouchableOpacity 
                 style={styles.selector} 
@@ -630,29 +542,34 @@ const RegisterScreen = ({ navigation }) => {
               <Text style={styles.label}>Password</Text>
               <View style={{ position: 'relative', justifyContent: 'center' }}>
                 <TextInput 
-                  style={[styles.input, { paddingRight: 45 }]}
+                  style={[styles.input, { paddingRight: 50, color: '#FFFFFF' }]}
                   placeholder="Create a strong password"
                   placeholderTextColor="#94A3B8"
                   value={formData.password}
-                  onChangeText={(text) => setFormData({ ...formData, password: text })}
+                  onChangeText={(text) => setFormData(prev => ({ ...prev, password: text }))}
                   secureTextEntry={!showPassword}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  autoComplete="new-password"
                 />
                 <TouchableOpacity
                   style={{
                     position: 'absolute',
-                    right: 14,
-                    height: '100%',
+                    right: 0,
+                    top: 0,
+                    bottom: 0,
+                    width: 50,
                     justifyContent: 'center',
                     alignItems: 'center',
-                    padding: 4
+                    zIndex: 10
                   }}
                   onPress={() => setShowPassword(!showPassword)}
                   activeOpacity={0.7}
                 >
                   <Ionicons 
-                    name={showPassword ? "eye-outline" : "eye-off-outline"} 
+                    name={showPassword ? "eye" : "eye-off"} 
                     size={22} 
-                    color="rgba(255, 255, 255, 0.7)" 
+                    color="#FFD700" 
                   />
                 </TouchableOpacity>
               </View>
@@ -811,7 +728,7 @@ const RegisterScreen = ({ navigation }) => {
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>
-                Select {modalType === 'role' ? 'Role' : modalType === 'institution' ? 'Institution' : modalType === 'branch' ? 'Department' : modalType === 'joining' ? 'Joining Year' : 'Graduation Year'}
+                Select {modalType === 'institution' ? 'Institution' : modalType === 'branch' ? 'Department' : modalType === 'joining' ? 'Joining Year' : 'Graduation Year'}
               </Text>
               <TouchableOpacity onPress={() => setModalVisible(false)}>
                 <Text style={styles.closeButton}>Close</Text>
@@ -819,13 +736,11 @@ const RegisterScreen = ({ navigation }) => {
             </View>
             <FlatList
               data={
-                modalType === 'role'
-                  ? ['Alumni', 'Student', 'Faculty / Staff', 'Admin', 'Super Admin']
-                  : modalType === 'institution' 
-                    ? institutions 
-                    : modalType === 'branch' 
-                      ? (institutionDepartments[formData.institution] || defaultDepartments) 
-                      : batchYears
+                modalType === 'institution' 
+                  ? institutions 
+                  : modalType === 'branch' 
+                    ? (institutionDepartments[formData.institution] || defaultDepartments) 
+                    : batchYears
               }
               keyExtractor={(item) => item}
               renderItem={({ item }) => (

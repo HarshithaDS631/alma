@@ -307,16 +307,22 @@ const LoginScreen = ({ navigation }) => {
             <View style={styles.inputContainer}>
               <View style={styles.inputWrapper}>
                 <TextInput 
-                  style={[styles.input, { flex: 1 }]}
+                  style={[styles.input, { flex: 1, paddingRight: 10 }]}
                   placeholder="Enter Password"
                   placeholderTextColor="#94A3B8"
                   value={password}
                   onChangeText={setPassword}
                   autoCapitalize="none"
+                  autoCorrect={false}
+                  autoComplete="current-password"
                   secureTextEntry={!showPassword}
                 />
-                <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={{ padding: 4 }}>
-                  <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color="#94A3B8" />
+                <TouchableOpacity 
+                  onPress={() => setShowPassword(!showPassword)} 
+                  style={{ padding: 8, justifyContent: 'center', alignItems: 'center' }}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name={showPassword ? "eye" : "eye-off"} size={22} color="#0F2744" />
                 </TouchableOpacity>
               </View>
             </View>

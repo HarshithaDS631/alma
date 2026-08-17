@@ -5,14 +5,18 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const institutions = [
-  { id: 'Media Cell Institution', name: 'MCI', fullName: 'Media Cell Institution ⭐ (Target Tenant)', icon: 'camera', featured: true },
-  { id: 'RV Institute of Technology and Management', name: 'RVITM', fullName: 'RV Institute of Technology and Management', icon: 'code-working' },
   { id: 'RV College of Engineering', name: 'RVCE', fullName: 'RV College of Engineering', icon: 'build' },
-  { id: 'RV University, Bengaluru Campus', name: 'RVU_BLR', fullName: 'RV University, Bengaluru Campus', icon: 'ribbon' },
-  { id: 'RV School', name: 'RVS', fullName: 'RV School', icon: 'school' },
-  { id: 'RV Girls High School', name: 'RVGHS', fullName: 'RV Girls High School', icon: 'school' },
-  { id: 'RV Public School', name: 'RVPS', fullName: 'RV Public School', icon: 'school' },
-  { id: 'RV Learning Hub', name: 'RVLH', fullName: 'RV Learning Hub', icon: 'book' },
+  { id: 'RV Institute of Technology and Management', name: 'RVITM', fullName: 'RV Institute of Technology and Management', icon: 'code-working' },
+  { id: 'RV College of Architecture', name: 'RVCA', fullName: 'RV College of Architecture', icon: 'color-palette' },
+  { id: 'RV Institute of Management', name: 'RVIM', fullName: 'RV Institute of Management', icon: 'trending-up' },
+  { id: 'MKPM RV Institute of Legal Studies', name: 'RVILS', fullName: 'MKPM RV Institute of Legal Studies', icon: 'briefcase' },
+  { id: 'D.A. Pandu Memorial RV Dental College', name: 'DAPMRV', fullName: 'D.A. Pandu Memorial RV Dental College', icon: 'medkit' },
+  { id: 'RV College of Physiotherapy', name: 'RVCP', fullName: 'RV College of Physiotherapy', icon: 'fitness' },
+  { id: 'RV College of Nursing', name: 'RVCN', fullName: 'RV College of Nursing', icon: 'pulse' },
+  { id: 'RV Teachers College', name: 'RVTC', fullName: 'RV Teachers College', icon: 'people' },
+  { id: 'NMKRV College for Women', name: 'NMKRV', fullName: 'NMKRV College for Women', icon: 'grid' },
+  { id: 'SSMRV College', name: 'SSMRV', fullName: 'SSMRV College', icon: 'grid' },
+  { id: 'RV-Skills', name: 'RVSK', fullName: 'RV-Skills', icon: 'laptop' },
   { id: 'SSMRV PU College', name: 'SSMRVPU', fullName: 'SSMRV PU College', icon: 'book' },
   { id: 'NMKRV PU College', name: 'NMKRVPU', fullName: 'NMKRV PU College', icon: 'book' },
   { id: 'RV PU College Jayanagar', name: 'RVPU_JAY', fullName: 'RV PU College Jayanagar', icon: 'book' },
@@ -21,17 +25,11 @@ const institutions = [
   { id: 'RV PU College, E-City', name: 'RVPU_ECI', fullName: 'RV PU College, E-City', icon: 'book' },
   { id: 'RV PU College, Harohalli', name: 'RVPU_HAR', fullName: 'RV PU College, Harohalli', icon: 'book' },
   { id: 'RV PU College, Mysuru', name: 'RVPU_MYS', fullName: 'RV PU College, Mysuru', icon: 'book' },
-  { id: 'RV-Skills', name: 'RVSK', fullName: 'RV-Skills', icon: 'laptop' },
-  { id: 'RV College of Architecture', name: 'RVCA', fullName: 'RV College of Architecture', icon: 'color-palette' },
-  { id: 'RV Institute of Management', name: 'RVIM', fullName: 'RV Institute of Management', icon: 'trending-up' },
-  { id: 'MKPM RV Institute of Legal Studies', name: 'RVILS', fullName: 'MKPM RV Institute of Legal Studies', icon: 'briefcase' },
-  { id: 'RV Teachers College', name: 'RVTC', fullName: 'RV Teachers College', icon: 'people' },
-  { id: 'D.A. Pandu Memorial RV Dental College', name: 'DAPMRV', fullName: 'D.A. Pandu Memorial RV Dental College', icon: 'medkit' },
-  { id: 'RV College of Physiotherapy', name: 'RVCP', fullName: 'RV College of Physiotherapy', icon: 'fitness' },
-  { id: 'RV College of Nursing', name: 'RVCN', fullName: 'RV College of Nursing', icon: 'pulse' },
-  { id: 'NMKRV College', name: 'NMKRV', fullName: 'NMKRV College', icon: 'grid' },
-  { id: 'SSMRV College', name: 'SSMRV', fullName: 'SSMRV College', icon: 'grid' },
-  { id: 'RV University, Mysuru Campus', name: 'RVU_MYS', fullName: 'RV University, Mysuru Campus', icon: 'ribbon' },
+  { id: 'RV Public School', name: 'RVPS', fullName: 'RV Public School', icon: 'school' },
+  { id: 'RV Girls High School', name: 'RVGHS', fullName: 'RV Girls High School', icon: 'school' },
+  { id: 'RV High School', name: 'RVHS', fullName: 'RV High School', icon: 'school' },
+  { id: 'RV Learning Hub', name: 'RVLH', fullName: 'RV Learning Hub', icon: 'book' },
+  { id: 'RV Training Academy', name: 'RVTA', fullName: 'RV Training Academy', icon: 'school' }
 ];
 
 const SelectInstitutionScreen = ({ navigation }) => {
