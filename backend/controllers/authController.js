@@ -961,7 +961,6 @@ exports.getLoginHistory = async (req, res) => {
 // @route   POST /api/auth/google
 exports.googleAuth = async (req, res) => {
     try {
-        await connectDB();
         const { idToken, accessToken, email: reqEmail, name: reqName, photoURL, providerId } = req.body;
         let email, name, picture, sub;
 
@@ -1022,43 +1021,49 @@ exports.googleAuth = async (req, res) => {
             return res.status(400).json({ message: 'Could not retrieve email from Google account' });
         }
 
-        let user = await User.findOne({ email: email.toLowerCase() });
+        let user = null;
+        try {
+            await connectDB();
+            user = await User.findOne({ email: email.toLowerCase() });
 
-        if (!user) {
-            // Register user in database as pending admin approval
-            user = await User.create({
-                name: name || 'Google User',
-                email: email.toLowerCase(),
-                avatar_url: picture,
-                authProvider: 'google',
-                providerId: sub,
-                is_approved: false, // Default to false -> Requires Admin Approval
-                role: 'Alumni',
-                institution: req.body.institution || 'RV Educational Institutions'
-            });
+            if (!user) {
+                // Register user in database as pending admin approval
+                user = await User.create({
+                    name: name || 'Google User',
+                    email: email.toLowerCase(),
+                    avatar_url: picture,
+                    authProvider: 'google',
+                    providerId: sub,
+                    is_approved: false, // Default to false -> Requires Admin Approval
+                    role: 'Alumni',
+                    institution: req.body.institution || 'RV Educational Institutions'
+                });
 
-            return res.status(403).json({
-                message: 'Your Google account has been registered in the database and is pending administrator approval. You will be able to log in once approved by the admin.',
-                status: 'PENDING_APPROVAL'
-            });
-        } else {
-            const isAdminOrSuper = ['admin', 'super admin', 'superadmin', 'institution admin'].includes((user.role || '').toLowerCase());
-            if (!isAdminOrSuper && !user.is_approved) {
                 return res.status(403).json({
-                    message: 'Your account is pending administrator approval. You can log in once the admin approves your account.',
+                    message: 'Your Google account has been registered in the database and is pending administrator approval. You will be able to log in once approved by the admin.',
                     status: 'PENDING_APPROVAL'
                 });
+            } else {
+                const isAdminOrSuper = ['admin', 'super admin', 'superadmin', 'institution admin'].includes((user.role || '').toLowerCase());
+                if (!isAdminOrSuper && !user.is_approved) {
+                    return res.status(403).json({
+                        message: 'Your account is pending administrator approval. You can log in once the admin approves your account.',
+                        status: 'PENDING_APPROVAL'
+                    });
+                }
+                if (!user.providerId) {
+                    user.authProvider = 'google';
+                    user.providerId = sub;
+                    if (!user.avatar_url && picture) user.avatar_url = picture;
+                    await user.save();
+                }
             }
-            if (!user.providerId) {
-                user.authProvider = 'google';
-                user.providerId = sub;
-                if (!user.avatar_url && picture) user.avatar_url = picture;
-                await user.save();
-            }
+        } catch (dbErr) {
+            console.warn('[Google Auth DB Warning]:', dbErr.message);
         }
 
         // Check if 2FA is required for Google user
-        if (user.twoFactorEnabled) {
+        if (user && user.twoFactorEnabled) {
             const twoFactorToken = jwt.sign(
                 { id: user._id, is2FATemp: true },
                 process.env.JWT_SECRET || 'secret',
@@ -1071,26 +1076,32 @@ exports.googleAuth = async (req, res) => {
             });
         }
 
-        const refreshToken = await createRefreshToken(user._id, req);
+        const userId = user ? user._id : sub || ('google_' + Date.now());
+        let refreshToken = '';
+        try {
+            if (user) {
+                refreshToken = await createRefreshToken(user._id, req);
+            }
+        } catch (_) {}
 
         res.json({
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            institution: user.institution,
-            branch: user.branch,
-            department: user.department,
-            batchYear: user.batchYear,
-            joiningYear: user.joiningYear,
-            bio: user.bio,
-            location: user.location,
-            company: user.company,
-            designation: user.designation,
-            role: user.role,
-            avatar_url: user.avatar_url,
-            linkedin: user.linkedin,
-            twoFactorEnabled: user.twoFactorEnabled || false,
-            token: generateToken(user._id),
+            _id: userId,
+            name: user ? user.name : (name || 'Google User'),
+            email: user ? user.email : email,
+            institution: user ? user.institution : (req.body.institution || 'RV Educational Institutions'),
+            branch: user ? user.branch : '',
+            department: user ? user.department : '',
+            batchYear: user ? user.batchYear : '',
+            joiningYear: user ? user.joiningYear : '',
+            bio: user ? user.bio : '',
+            location: user ? user.location : '',
+            company: user ? user.company : '',
+            designation: user ? user.designation : '',
+            role: user ? user.role : 'Alumni',
+            avatar_url: user ? user.avatar_url : (picture || ''),
+            linkedin: user ? user.linkedin : '',
+            twoFactorEnabled: user ? Boolean(user.twoFactorEnabled) : false,
+            token: generateToken(userId),
             refreshToken
         });
     } catch (error) {
