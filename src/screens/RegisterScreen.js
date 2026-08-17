@@ -69,6 +69,7 @@ const RegisterScreen = ({ navigation }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    role: 'Alumni',
     password: '',
     institution: global.selectedInstitution || '',
     branch: '',
@@ -207,6 +208,7 @@ const RegisterScreen = ({ navigation }) => {
       await register({
         name,
         email: emailClean,
+        role: formData.role || 'Alumni',
         password,
         institution,
         branch: branch,
@@ -272,7 +274,9 @@ const RegisterScreen = ({ navigation }) => {
   };
 
   const selectItem = (item) => {
-    if (modalType === 'institution') {
+    if (modalType === 'role') {
+      setFormData({ ...formData, role: item });
+    } else if (modalType === 'institution') {
       setFormData({ ...formData, institution: item, branch: '' });
     } else if (modalType === 'branch') {
       setFormData({ ...formData, branch: item });
@@ -550,6 +554,19 @@ const RegisterScreen = ({ navigation }) => {
             </View>
 
             <View style={styles.inputContainer}>
+              <Text style={styles.label}>Select Role</Text>
+              <TouchableOpacity 
+                style={styles.selector} 
+                onPress={() => openPicker('role')}
+              >
+                <Text style={[styles.selectorText, !formData.role && { color: theme.textMuted }]}>
+                  {formData.role || 'Select Role (e.g. Alumni, Student, Admin)'}
+                </Text>
+                <Text style={styles.arrow}>▼</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.inputContainer}>
               <Text style={styles.label}>Institution</Text>
               <TouchableOpacity 
                 style={styles.selector} 
@@ -793,18 +810,22 @@ const RegisterScreen = ({ navigation }) => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select {modalType === 'institution' ? 'Institution' : modalType === 'branch' ? 'Department' : modalType === 'joining' ? 'Joining Year' : 'Graduation Year'}</Text>
+              <Text style={styles.modalTitle}>
+                Select {modalType === 'role' ? 'Role' : modalType === 'institution' ? 'Institution' : modalType === 'branch' ? 'Department' : modalType === 'joining' ? 'Joining Year' : 'Graduation Year'}
+              </Text>
               <TouchableOpacity onPress={() => setModalVisible(false)}>
                 <Text style={styles.closeButton}>Close</Text>
               </TouchableOpacity>
             </View>
             <FlatList
               data={
-                modalType === 'institution' 
-                  ? institutions 
-                  : modalType === 'branch' 
-                    ? (institutionDepartments[formData.institution] || defaultDepartments) 
-                    : batchYears
+                modalType === 'role'
+                  ? ['Alumni', 'Student', 'Faculty / Staff', 'Admin', 'Super Admin']
+                  : modalType === 'institution' 
+                    ? institutions 
+                    : modalType === 'branch' 
+                      ? (institutionDepartments[formData.institution] || defaultDepartments) 
+                      : batchYears
               }
               keyExtractor={(item) => item}
               renderItem={({ item }) => (
