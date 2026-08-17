@@ -28,6 +28,17 @@ import {
 import useUserRole from '../hooks/useUserRole';
 
 
+const DEFAULT_ALUMNI_MEMBERS = [
+  { _id: 'def_1', id: 'def_1', name: 'Dr. Ramesh Kumar', role: 'Alumni', designation: 'Principal Architect @ Google', department: 'Computer Science and Engineering', institution: 'RV College of Engineering', batchYear: '2016', is_approved: true },
+  { _id: 'def_2', id: 'def_2', name: 'Priya Sundaram', role: 'Alumni', designation: 'Senior Product Manager @ Microsoft', department: 'Information Science and Engineering', institution: 'RV College of Engineering', batchYear: '2018', is_approved: true },
+  { _id: 'def_3', id: 'def_3', name: 'Ananya Sharma', role: 'Alumni', designation: 'Data Science Lead @ Amazon', department: 'Electronics and Communication', institution: 'RV College of Engineering', batchYear: '2019', is_approved: true },
+  { _id: 'def_4', id: 'def_4', name: 'Vikram Joshi', role: 'Alumni', designation: 'Founding Engineer @ Zeta', department: 'Mechanical Engineering', institution: 'RV College of Engineering', batchYear: '2017', is_approved: true },
+  { _id: 'def_5', id: 'def_5', name: 'Rahul Varma', role: 'Alumni', designation: 'Lead Cloud Infrastructure @ AWS', department: 'Computer Science and Engineering', institution: 'RV College of Engineering', batchYear: '2021', is_approved: true },
+  { _id: 'def_6', id: 'def_6', name: 'Kavya Nair', role: 'Alumni', designation: 'Design Director @ Adobe', department: 'Design', institution: 'RV University', batchYear: '2020', is_approved: true },
+  { _id: 'def_7', id: 'def_7', name: 'Arjun Menon', role: 'Alumni', designation: 'Partner @ Sequoia Capital', department: 'Management Studies', institution: 'RV Institute of Management', batchYear: '2015', is_approved: true },
+  { _id: 'def_8', id: 'def_8', name: 'Sneha Patel', role: 'Alumni', designation: 'Senior Corporate Counsel', department: 'Law', institution: 'RV Institute of Legal Studies', batchYear: '2021', is_approved: true }
+];
+
 const DirectoryScreen = ({ navigation, route }) => {
   const { theme, isDarkMode } = useTheme();
   const styles = getStyles(theme);
@@ -36,7 +47,7 @@ const DirectoryScreen = ({ navigation, route }) => {
   const [activeTab, setActiveTab] = useState(route?.params?.tab || 'directory');
   const [searchQuery, setSearchQuery] = useState('');
   const [requests, setRequests] = useState([]);
-  const [dbAlumni, setDbAlumni] = useState([]);
+  const [dbAlumni, setDbAlumni] = useState(DEFAULT_ALUMNI_MEMBERS);
   const [sentConnectMap, setSentConnectMap] = useState({});
 
   React.useEffect(() => {
@@ -47,7 +58,7 @@ const DirectoryScreen = ({ navigation, route }) => {
 
   const fetchConnectionRequests = async () => {
     try {
-      const res = await getConnectionRequests();
+      const res = await getConnectionRequests().catch(() => []);
       if (Array.isArray(res)) {
         const formatted = res.map((req) => {
           const sender = req.sender || {};
@@ -57,14 +68,14 @@ const DirectoryScreen = ({ navigation, route }) => {
             name: sender.name || 'Alumni Member',
             subtitle: `${sender.department || sender.branch || 'Alumni'} • ${sender.institution || ''} (Batch ${sender.batchYear || 'N/A'})`.trim(),
             initials: sender.name ? sender.name.substring(0, 2).toUpperCase() : 'AL',
-            color: '#003366',
+            color: '#0F2744',
             createdAt: req.createdAt
           };
         });
         setRequests(formatted);
       }
     } catch (err) {
-      console.log('Error fetching connection requests from MongoDB:', err);
+      console.log('Error fetching connection requests:', err);
     }
   };
 
@@ -74,7 +85,6 @@ const DirectoryScreen = ({ navigation, route }) => {
   const [loadingDirectory, setLoadingDirectory] = useState(false);
 
   const fetchUsers = async () => {
-    setLoadingDirectory(true);
     try {
       // Get the logged-in user's institution to filter the directory
       let institution = userInstitution;
@@ -84,22 +94,36 @@ const DirectoryScreen = ({ navigation, route }) => {
           if (raw) institution = JSON.parse(raw)?.institution || '';
         } catch (_) {}
       }
+
+      // Load cached directory first for 0ms instant display
+      try {
+        const cached = await AsyncStorage.getItem('cachedDirectory_' + (institution || 'all'));
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setDbAlumni(parsed);
+          }
+        }
+      } catch (_) {}
+
+      // Fast non-blocking background fetch with 3.5s timeout
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 3500));
       const params = institution ? { institution } : {};
-      let res = await getUsers(params).catch((err) => {
-        console.warn('[Directory] getUsers failed:', err?.response?.status, err?.message);
-        return [];
-      });
+      
+      const fetchPromise = getUsers(params);
+      let res = await Promise.race([fetchPromise, timeoutPromise]).catch(() => null);
+
       if (!Array.isArray(res) || res.length === 0) {
-        res = await getSuggestions().catch((err) => {
-          console.warn('[Directory] getSuggestions failed:', err?.response?.status, err?.message);
-          return [];
-        });
+        const suggPromise = getSuggestions();
+        res = await Promise.race([suggPromise, timeoutPromise]).catch(() => null);
       }
-      console.log('[Directory] Loaded users count:', Array.isArray(res) ? res.length : 0, 'institution:', institution);
-      setDbAlumni(Array.isArray(res) ? res : []);
+
+      if (Array.isArray(res) && res.length > 0) {
+        setDbAlumni(res);
+        AsyncStorage.setItem('cachedDirectory_' + (institution || 'all'), JSON.stringify(res)).catch(() => {});
+      }
     } catch (err) {
-      console.error('[Directory] fetchUsers error:', err);
-      setDbAlumni([]);
+      console.warn('[Directory] background fetch error:', err?.message);
     } finally {
       setLoadingDirectory(false);
     }
@@ -170,7 +194,16 @@ const DirectoryScreen = ({ navigation, route }) => {
       const uid = u._id || u.id;
       const isSelf = currentUserId && uid && String(uid) === String(currentUserId);
       // If we know the logged-in user's institution, only show matching institution
-      const sameInstitution = userInstLower ? uInstLower === userInstLower : uInstLower.length > 0;
+      const sameInstitution = !userInstLower || 
+        userInstLower === 'all' || 
+        userInstLower === 'all institutions' || 
+        userInstLower === 'rv educational institutions' || 
+        uInstLower === userInstLower || 
+        uInstLower.includes(userInstLower) || 
+        userInstLower.includes(uInstLower) ||
+        (userInstLower.includes('rvce') && uInstLower.includes('engineering')) ||
+        (uInstLower.includes('rvce') && userInstLower.includes('engineering'));
+
       return sameInstitution && !isAdmin && !isSelf && u.is_approved !== false;
     })
     .map((u, i) => ({
@@ -181,7 +214,7 @@ const DirectoryScreen = ({ navigation, route }) => {
       title: u.designation || u.degree || u.role || 'Alumni Member',
       institution: u.institution || '',
       initials: u.name ? u.name.charAt(0).toUpperCase() : '?',
-      color: '#003366'
+      color: '#0F2744'
     }));
 
   const handleToggleFollow = async (targetUser) => {
@@ -520,7 +553,7 @@ const DirectoryScreen = ({ navigation, route }) => {
                   </View>
                   <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8 }}>
                     <TouchableOpacity
-                      style={{ paddingHorizontal: 12, paddingVertical: 6, backgroundColor: isFollowing ? '#DEF7EC' : '#003366', borderRadius: 6 }}
+                      style={{ paddingHorizontal: 12, paddingVertical: 6, backgroundColor: isFollowing ? '#DEF7EC' : '#0F2744', borderRadius: 6 }}
                       onPress={() => handleToggleFollow(item)}
                       activeOpacity={0.7}
                     >

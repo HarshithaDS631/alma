@@ -1250,21 +1250,6 @@ const DashboardScreen = ({ navigation }) => {
 
             {/* 3. Right Column: Widgets */}
             <View style={{ flex: 3.5 }}>
-              {/* AI Smart Match & Insights Widget */}
-              <TouchableOpacity 
-                style={{ backgroundColor: '#002144', borderRadius: 12, padding: 16, marginBottom: 20, elevation: 3 }}
-                onPress={() => navigation.navigate('CareerInsights')}
-                activeOpacity={0.85}
-              >
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                  <Ionicons name="sparkles" size={24} color="#F59E0B" />
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 15 }}>AI Smart Match & Insights</Text>
-                    <Text style={{ color: '#93C5FD', fontSize: 12, marginTop: 2 }}>Explore mentor recommendations, top hiring companies & salary benchmarks</Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={18} color="#FFFFFF" />
-                </View>
-              </TouchableOpacity>
 
               {/* Suggestions Widget */}
               <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 16, marginBottom: 24, elevation: 2, borderWidth: 1, borderColor: theme.border }}>
