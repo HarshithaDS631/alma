@@ -4,13 +4,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import useUserRole from '../hooks/useUserRole';
+import getInitials from '../lib/getInitials';
 
 const ContributeScreen = ({ navigation }) => {
   const { theme, isDarkMode } = useTheme();
   const styles = getStyles(theme);
   const { isAlumni, isAdmin, isSuperAdmin, isAdminOrSuper, userRole } = useUserRole();
 
-  const [userInitials, setUserInitials] = useState('ME');
+  const [userInitials, setUserInitials] = useState('MA');
 
   useEffect(() => {
     const loadUser = async () => {
@@ -19,12 +20,7 @@ const ContributeScreen = ({ navigation }) => {
         if (userInfoStr) {
           const u = JSON.parse(userInfoStr);
           if (u?.name) {
-            const parts = u.name.trim().split(/\s+/).filter(Boolean);
-            setUserInitials(
-              parts.length >= 2
-                ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
-                : u.name.substring(0, 2).toUpperCase()
-            );
+            setUserInitials(getInitials(u.name));
           }
         }
       } catch (e) {}

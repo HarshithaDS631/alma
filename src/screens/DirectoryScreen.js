@@ -26,6 +26,7 @@ import {
   getFollowing 
 } from '../services/authService';
 import useUserRole from '../hooks/useUserRole';
+import getInitials from '../lib/getInitials';
 
 
 const DEFAULT_ALUMNI_MEMBERS = [];
@@ -58,7 +59,7 @@ const DirectoryScreen = ({ navigation, route }) => {
             senderId: sender._id,
             name: sender.name || 'Alumni Member',
             subtitle: `${sender.department || sender.branch || 'Alumni'} • ${sender.institution || ''} (Batch ${sender.batchYear || 'N/A'})`.trim(),
-            initials: sender.name ? sender.name.substring(0, 2).toUpperCase() : 'AL',
+            initials: getInitials(sender.name),
             color: '#0F2744',
             createdAt: req.createdAt
           };
@@ -230,7 +231,7 @@ const DirectoryScreen = ({ navigation, route }) => {
           _id: userId,
           name: targetUser.name,
           title: targetUser.title || (targetUser.branch ? `${targetUser.branch} Alumni` : 'Alumni Member'),
-          avatar: targetUser.initials || (targetUser.name ? targetUser.name.substring(0, 2).toUpperCase() : 'AL'),
+          avatar: targetUser.initials || getInitials(targetUser.name),
           avatar_url: ''
         };
         const newList = [...currentList, newItem];

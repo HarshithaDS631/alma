@@ -4,6 +4,7 @@ import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { getNotifications, markNotificationsRead } from '../services/authService';
 import { useFocusEffect } from '@react-navigation/native';
+import getInitials from '../lib/getInitials';
 
 const NotificationsScreen = ({ navigation }) => {
   const { theme, isDarkMode } = useTheme();
@@ -72,7 +73,7 @@ const NotificationsScreen = ({ navigation }) => {
         user: {
           id: item.sender._id || item.sender.id,
           name: item.sender.name || 'Alumni Member',
-          initials: item.sender.name ? item.sender.name.substring(0, 2).toUpperCase() : 'AL'
+          initials: getInitials(item.sender.name)
         }
       });
     } else {

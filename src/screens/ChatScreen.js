@@ -7,6 +7,7 @@ import { getConversation, sendMessage as sendApiMessage, reactMessage as apiReac
 import { getSuggestions } from '../services/authService';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
+import getInitials from '../lib/getInitials';
 
 const ChatScreen = ({ route, navigation }) => {
   const { theme, isDarkMode } = useTheme();
@@ -450,7 +451,7 @@ const ChatScreen = ({ route, navigation }) => {
         id: item._id || Date.now().toString(),
         user: user || 'Alumni Member',
         role: 'Institution Alumni',
-        avatar: user ? user.substring(0, 2).toUpperCase() : 'AL',
+        avatar: getInitials(user),
         content: content || 'Shared Alumni Post',
         image: item.attachment?.url || null,
         likes: item.likes || 14,
@@ -945,7 +946,7 @@ const ChatScreen = ({ route, navigation }) => {
                 <View style={{ flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: theme.border }}>
                   <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
                     <Text style={{ color: '#FFF', fontWeight: '700', fontSize: 16 }}>
-                      {selectedPostModal?.avatar || (selectedPostModal?.user ? selectedPostModal.user.substring(0, 2).toUpperCase() : 'AL')}
+                      {selectedPostModal?.avatar || getInitials(selectedPostModal?.user)}
                     </Text>
                   </View>
                   <View style={{ flex: 1 }}>

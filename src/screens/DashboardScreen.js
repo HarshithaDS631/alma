@@ -30,6 +30,7 @@ import { sendMessage } from '../services/messageService';
 import { fetchJobs } from '../services/jobService';
 import useUserRole from '../hooks/useUserRole';
 import { initSocket, getSocket } from '../services/socketService';
+import getInitials from '../lib/getInitials';
 
 
 // Pool of all known posts across all users — used as offline fallback
@@ -482,7 +483,7 @@ const DashboardScreen = ({ navigation }) => {
                   user: p.user?.name || 'Alumni',
                   authorId: p.user?._id || null,
                   role: p.user?.department ? `${p.user.department} • Batch ${p.user.batchYear || ''}` : (p.user?.institution ? `${p.user.institution} Alumni` : 'Alumni Member'),
-                  avatar: p.user?.profilePicture || p.user?.avatar_url ? getImageUrl(p.user?.profilePicture || p.user?.avatar_url) : (p.user?.name ? p.user.name.substring(0, 2).toUpperCase() : 'AL'),
+                  avatar: p.user?.profilePicture || p.user?.avatar_url ? getImageUrl(p.user?.profilePicture || p.user?.avatar_url) : (getInitials(p.user?.name)),
                   isAvatarUrl: !!(p.user?.profilePicture || p.user?.avatar_url),
                   content: p.content,
                   image: getImageUrl(p.image),
@@ -529,7 +530,7 @@ const DashboardScreen = ({ navigation }) => {
             const formatted = suggestionsRes.value.map(s => ({
               id: s._id,
               name: s.name,
-              avatar: s.profilePicture || s.avatar_url ? getImageUrl(s.profilePicture || s.avatar_url) : (s.name ? s.name.substring(0, 2).toUpperCase() : '??'),
+              avatar: s.profilePicture || s.avatar_url ? getImageUrl(s.profilePicture || s.avatar_url) : (getInitials(s.name, '??')),
               isAvatarUrl: !!(s.profilePicture || s.avatar_url),
               subtitle: s.company ? `${s.designation || ''} @ ${s.company}`.trim() : `Batch of ${s.batchYear || ''} • ${s.department || s.institution || ''}`.trim(),
             }));
@@ -735,7 +736,7 @@ const DashboardScreen = ({ navigation }) => {
           user: p.user?.name || 'Alumni',
           authorId: p.user?._id || null,
           role: p.user?.department ? `${p.user.department} • Batch ${p.user.batchYear || ''}` : 'Alumni Member',
-          avatar: p.user?.name ? p.user.name.substring(0, 2).toUpperCase() : 'AL',
+          avatar: getInitials(p.user?.name),
           content: p.content,
           image: getImageUrl(p.image),
           likes: p.likes?.length || 0,
@@ -927,7 +928,7 @@ const DashboardScreen = ({ navigation }) => {
           <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10, borderBottomWidth: 1, borderBottomColor: theme.border }}>
             <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', marginRight: 8 }}>
               <Text style={{ fontSize: 11, fontWeight: '700', color: '#FFF' }}>
-                {(post.originalPost.user || post.originalAuthorName || 'AL').substring(0, 2).toUpperCase()}
+                {getInitials(post.originalPost.user || post.originalAuthorName)}
               </Text>
             </View>
             <View style={{ flex: 1 }}>
@@ -1014,7 +1015,7 @@ const DashboardScreen = ({ navigation }) => {
                 {userAvatarUrl ? (
                   <Image source={{ uri: userAvatarUrl }} style={{ width: 58, height: 58, borderRadius: 29 }} />
                 ) : (
-                  <Text style={{ fontSize: 18, fontWeight: '700', color: theme.primary }}>{userName ? userName.substring(0, 2).toUpperCase() : 'ME'}</Text>
+                  <Text style={{ fontSize: 18, fontWeight: '700', color: theme.primary }}>{getInitials(userName)}</Text>
                 )}
               </View>
               <View style={{ position: 'absolute', bottom: -2, right: -2, width: 20, height: 20, borderRadius: 10, backgroundColor: '#0095F6', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: theme.card }}>
@@ -1072,7 +1073,7 @@ const DashboardScreen = ({ navigation }) => {
             {userAvatarUrl ? (
               <Image source={{ uri: userAvatarUrl }} style={{ width: '100%', height: '100%', borderRadius: 16 }} />
             ) : (
-              <Text style={{ fontSize: 13, fontWeight: '700', color: '#FFFFFF' }}>{userName ? userName.substring(0, 2).toUpperCase() : 'HA'}</Text>
+              <Text style={{ fontSize: 13, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(userName)}</Text>
             )}
           </TouchableOpacity>
 
@@ -1144,7 +1145,7 @@ const DashboardScreen = ({ navigation }) => {
                   {userAvatarUrl ? (
                     <Image source={{ uri: userAvatarUrl }} style={{ width: 72, height: 72, borderRadius: 36 }} />
                   ) : (
-                    <Text style={{ fontSize: 24, fontWeight: '700', color: '#FFFFFF' }}>{userName ? userName.substring(0, 2).toUpperCase() : 'HA'}</Text>
+                    <Text style={{ fontSize: 24, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(userName)}</Text>
                   )}
                 </TouchableOpacity>
                 <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>{userName || 'Alumni Member'}</Text>
@@ -1180,7 +1181,7 @@ const DashboardScreen = ({ navigation }) => {
                   {userAvatarUrl ? (
                     <Image source={{ uri: userAvatarUrl }} style={{ width: 44, height: 44, borderRadius: 22 }} />
                   ) : (
-                    <Text style={{ fontSize: 14, fontWeight: '700', color: '#FFFFFF' }}>{userName ? userName.substring(0, 2).toUpperCase() : 'HA'}</Text>
+                    <Text style={{ fontSize: 14, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(userName)}</Text>
                   )}
                 </TouchableOpacity>
                 <TouchableOpacity 
@@ -1225,7 +1226,7 @@ const DashboardScreen = ({ navigation }) => {
                     {userAvatarUrl ? (
                       <Image source={{ uri: userAvatarUrl }} style={{ width: 44, height: 44, borderRadius: 22 }} />
                     ) : (
-                      <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>{userName ? userName.substring(0, 2).toUpperCase() : 'ME'}</Text>
+                      <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(userName)}</Text>
                     )}
                   </View>
                   <View style={{ flex: 1 }}>
@@ -1296,7 +1297,7 @@ const DashboardScreen = ({ navigation }) => {
                 {userAvatarUrl ? (
                   <Image source={{ uri: userAvatarUrl }} style={{ width: 36, height: 36, borderRadius: 18 }} />
                 ) : (
-                  <Text style={{ fontSize: 13, fontWeight: '700', color: theme.card }}>{userName ? userName.substring(0, 2).toUpperCase() : 'HA'}</Text>
+                  <Text style={{ fontSize: 13, fontWeight: '700', color: theme.card }}>{getInitials(userName)}</Text>
                 )}
               </TouchableOpacity>
               <TouchableOpacity 
@@ -1423,7 +1424,7 @@ const DashboardScreen = ({ navigation }) => {
                   <View key={item._id || index} style={{ flexDirection: 'row', marginBottom: 12, alignItems: 'flex-start' }}>
                     <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center', marginRight: 10, marginTop: 2 }}>
                       <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 11 }}>
-                        {item.user?.name ? item.user.name.substring(0, 2).toUpperCase() : (typeof item.user === 'string' ? item.user.substring(0, 2).toUpperCase() : 'AL')}
+                        {getInitials(item.user?.name || (typeof item.user === 'string' ? item.user : null))}
                       </Text>
                     </View>
                     <View style={{ flex: 1, backgroundColor: 'rgba(0, 33, 68, 0.04)', borderRadius: 12, padding: 10 }}>
@@ -1532,7 +1533,7 @@ const DashboardScreen = ({ navigation }) => {
                       const itemId = item._id || item.id || index.toString();
                       const isSent = Boolean(sentShareMap[itemId]);
                       const avatarUrl = item.profilePicture || item.avatar_url ? getImageUrl(item.profilePicture || item.avatar_url) : null;
-                      const initials = item.name ? item.name.substring(0, 2).toUpperCase() : 'AL';
+                      const initials = getInitials(item.name);
 
                       return (
                         <TouchableOpacity
@@ -1636,7 +1637,7 @@ const DashboardScreen = ({ navigation }) => {
                 {/* ── Your caption input (top, like Instagram) ── */}
                 <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 14 }}>
                   <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', marginRight: 10, marginTop: 2 }}>
-                    <Text style={{ fontSize: 12, fontWeight: '700', color: '#FFF' }}>{userName ? userName.substring(0, 2).toUpperCase() : 'HA'}</Text>
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: '#FFF' }}>{getInitials(userName)}</Text>
                   </View>
                   <TextInput
                     style={{
@@ -1667,7 +1668,7 @@ const DashboardScreen = ({ navigation }) => {
                   <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10 }}>
                     <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', marginRight: 8 }}>
                       <Text style={{ fontSize: 11, fontWeight: '700', color: '#FFF' }}>
-                        {(selectedPost.user?.name || selectedPost.user || 'AL').substring(0, 2).toUpperCase()}
+                        {getInitials(selectedPost.user?.name || selectedPost.user)}
                       </Text>
                     </View>
                     <View style={{ flex: 1 }}>
@@ -1735,7 +1736,7 @@ const DashboardScreen = ({ navigation }) => {
                         user: userName || 'You',
                         authorId: currentUser?._id || currentUser?.id,
                         role: (currentUser?.department || currentUser?.branch || 'Alumni') + (currentUser?.batchYear ? ` • Batch ${currentUser.batchYear}` : ''),
-                        avatar: userName ? userName.substring(0, 2).toUpperCase() : 'HA',
+                        avatar: getInitials(userName),
                         isAvatarUrl: false,
                         content: reshareNote || '',
                         image: null,
@@ -1764,7 +1765,7 @@ const DashboardScreen = ({ navigation }) => {
                           id: p._id,
                           _id: p._id,
                           user: p.user?.name || 'Alumni',
-                          avatar: p.user?.name ? p.user.name.substring(0, 2).toUpperCase() : 'AL',
+                          avatar: getInitials(p.user?.name),
                           role: `${p.user?.branch || p.user?.department || 'Alumni'} ${p.user?.batchYear ? '• Batch ' + p.user.batchYear : ''}`,
                           time: getTimeAgo(p.createdAt),
                           content: p.content,
@@ -1821,7 +1822,7 @@ const DashboardScreen = ({ navigation }) => {
             {/* Target User Avatar */}
             <View style={{ width: 68, height: 68, borderRadius: 34, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', marginBottom: 16 }}>
               <Text style={{ fontSize: 24, fontWeight: '700', color: '#FFFFFF' }}>
-                {unfollowTarget?.avatar || (unfollowTarget?.name ? unfollowTarget.name.substring(0, 2).toUpperCase() : 'AL')}
+                {unfollowTarget?.avatar || (getInitials(unfollowTarget?.name))}
               </Text>
             </View>
 

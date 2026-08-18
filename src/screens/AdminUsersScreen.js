@@ -20,6 +20,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { getPendingUsers, approveUser, rejectUser } from '../services/adminService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sendWelcomeEmail } from '../lib/sendgrid';
+import getInitials from '../lib/getInitials';
 
 const RVCE_VERIFICATION_DB = [];
 
@@ -397,7 +398,7 @@ const AdminUsersScreen = ({ navigation, route }) => {
     return (
       <View style={styles.friendCard}>
         <View style={[styles.friendAvatar, { backgroundColor: theme.warning }]}>
-          <Text style={styles.friendAvatarText}>{item.name ? item.name.substring(0,2).toUpperCase() : 'UU'}</Text>
+          <Text style={styles.friendAvatarText}>{getInitials(item.name)}</Text>
         </View>
         <View style={styles.friendInfo}>
           <Text style={styles.friendName}>{item.name || 'Unknown'}</Text>

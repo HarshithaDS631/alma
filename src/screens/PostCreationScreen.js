@@ -7,20 +7,9 @@ import * as DocumentPicker from 'expo-document-picker';
 import { uploadFile } from '../services/uploadService';
 import { createPost } from '../services/postService';
 import { getFollowers, getFollowing } from '../services/authService';
+import getInitials from '../lib/getInitials';
 
 const hashtags = ['#Institution', '#AlumniMeet', '#Mentorship', '#TechTalk', '#Careers', '#ClassOf2024'];
-
-const getInitials = (name, fallback = 'MA') => {
-  if (!name || typeof name !== 'string') return fallback;
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length >= 2) {
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-  }
-  if (name.length >= 2) {
-    return name.substring(0, 2).toUpperCase();
-  }
-  return name.toUpperCase() || fallback;
-};
 
 const PostCreationScreen = ({ navigation }) => {
   const { theme, isDarkMode } = useTheme();
@@ -366,7 +355,7 @@ const PostCreationScreen = ({ navigation }) => {
                       {item.avatar_url ? (
                         <Image source={{uri: item.avatar_url}} style={{width: '100%', height: '100%'}} />
                       ) : (
-                        <Text style={{color: '#64748B', fontWeight: 'bold'}}>{item.name ? item.name.substring(0,2).toUpperCase() : 'U'}</Text>
+                        <Text style={{color: '#64748B', fontWeight: 'bold'}}>{getInitials(item.name)}</Text>
                       )}
                     </View>
                     <Text style={{flex: 1, fontSize: 16, color: '#1E293B', fontWeight: '500'}}>{item.name}</Text>

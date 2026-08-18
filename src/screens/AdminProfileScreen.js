@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { changePassword, updateProfile } from '../services/authService';
 import * as ImagePicker from 'expo-image-picker';
 import { uploadFile } from '../services/uploadService';
+import getInitials from '../lib/getInitials';
 
 // Seed Data for Profile Campus Info Tab
 const INSTITUTIONS = [
@@ -488,7 +489,7 @@ const AdminProfileScreen = ({ navigation }) => {
                     <Image source={{ uri: profileData.avatar_url }} style={{ width: '100%', height: '100%' }} />
                   ) : (
                     <Text style={{ fontSize: 26, fontWeight: '800', color: '#FFFFFF' }}>
-                      {profileData.name ? profileData.name.substring(0, 2).toUpperCase() : 'ME'}
+                      {getInitials(profileData.name)}
                     </Text>
                   )}
                 </View>
@@ -745,7 +746,7 @@ const AdminProfileScreen = ({ navigation }) => {
                           {profileData.avatar_url ? (
                             <Image source={{ uri: profileData.avatar_url }} style={{ width: '100%', height: '100%' }} />
                           ) : (
-                            <Text style={{ fontSize: 28, fontWeight: '800', color: '#FFFFFF' }}>{profileData.name ? profileData.name.substring(0, 2).toUpperCase() : 'AD'}</Text>
+                            <Text style={{ fontSize: 28, fontWeight: '800', color: '#FFFFFF' }}>{getInitials(profileData.name)}</Text>
                           )}
                         </View>
                         <Text style={{ color: '#0A66C2', fontSize: 13, fontWeight: '700', marginTop: 8 }}>Change Profile Photo</Text>

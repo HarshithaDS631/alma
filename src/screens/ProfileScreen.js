@@ -10,6 +10,7 @@ import { uploadFile, getImageUrl } from '../services/uploadService';
 import { addComment, deletePost, toggleSavePost, updatePostSettings, editPost, getSavedPosts, getUserPosts } from '../services/postService';
 import * as ImagePicker from 'expo-image-picker';
 import { institutionDepartments, defaultDepartments } from '../constants/institutionDepartments';
+import getInitials from '../lib/getInitials';
 
 const validatePasswordStrength = (password) => {
   if (password.length < 8) {
@@ -120,7 +121,7 @@ const DEFAULT_CONNECTIONS = [];
             posts: cachedProfile.posts || prev.posts || '0',
             followers: cachedProfile.followers || prev.followers || '0',
             following: cachedProfile.following || prev.following || '0',
-            avatar: uName ? uName.substring(0, 2).toUpperCase() : 'AL',
+            avatar: getInitials(uName),
             avatar_url: rawAvatar ? getImageUrl(rawAvatar) : ''
           }));
 
@@ -229,7 +230,7 @@ const DEFAULT_TAGGED_POSTS = [];
               batch: activeUser.batchYear || activeUser.batch_year || '',
               bio: activeUser.bio || '',
               linkedin: activeUser.linkedin || '',
-              avatar: uName ? uName.substring(0, 2).toUpperCase() : 'AL',
+              avatar: getInitials(uName),
               avatar_url: fullAvatarUrl
             }));
 
@@ -256,7 +257,7 @@ const DEFAULT_TAGGED_POSTS = [];
                   id: sId,
                   name: sName,
                   title: sTitle,
-                  avatar: sName ? sName.substring(0, 2).toUpperCase() : 'AL',
+                  avatar: getInitials(sName),
                   avatar_url: sAvatarUrl ? getImageUrl(sAvatarUrl) : ''
                 };
               });
@@ -280,7 +281,7 @@ const DEFAULT_TAGGED_POSTS = [];
                   id: sId,
                   name: sName,
                   title: sTitle,
-                  avatar: sName ? sName.substring(0, 2).toUpperCase() : 'AL',
+                  avatar: getInitials(sName),
                   avatar_url: sAvatarUrl ? getImageUrl(sAvatarUrl) : ''
                 };
               });
@@ -568,7 +569,7 @@ const DEFAULT_TAGGED_POSTS = [];
         batch: editBatch,
         linkedin: editLinkedin.trim(),
         avatar_url: editAvatarUrl,
-        avatar: editName.trim().substring(0, 2).toUpperCase()
+        avatar: getInitials(editName)
       }));
 
       setEditProfileModalVisible(false);
@@ -1123,7 +1124,7 @@ const DEFAULT_TAGGED_POSTS = [];
                       linkedin: editLinkedin,
                       avatar_url: editAvatarUrl,
                       dateOfBirth: editDob,
-                      avatar: editName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'AJ'
+                      avatar: getInitials(editName)
                     });
 
                     const submitProfileUpdate = async () => {
@@ -1492,7 +1493,7 @@ const DEFAULT_TAGGED_POSTS = [];
             {/* Target User Avatar */}
             <View style={{ width: 68, height: 68, borderRadius: 34, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', marginBottom: 16 }}>
               <Text style={{ fontSize: 24, fontWeight: '700', color: '#FFFFFF' }}>
-                {unfollowTarget?.avatar || (unfollowTarget?.name ? unfollowTarget.name.substring(0, 2).toUpperCase() : 'AL')}
+                {unfollowTarget?.avatar || (getInitials(unfollowTarget?.name))}
               </Text>
             </View>
 
@@ -1651,7 +1652,7 @@ const DEFAULT_TAGGED_POSTS = [];
                     <View key={comment._id || idx} style={{ flexDirection: 'row', marginBottom: 12, alignItems: 'flex-start' }}>
                       <View style={{ width: 30, height: 30, borderRadius: 15, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center', marginRight: 10, marginTop: 2 }}>
                         <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 11 }}>
-                          {comment.user?.name ? comment.user.name.substring(0, 2).toUpperCase() : (typeof comment.user === 'string' ? comment.user.substring(0, 2).toUpperCase() : 'AL')}
+                          {getInitials(comment.user?.name || (typeof comment.user === 'string' ? comment.user : null))}
                         </Text>
                       </View>
                       <View style={{ flex: 1, backgroundColor: 'rgba(0, 33, 68, 0.04)', borderRadius: 12, padding: 10 }}>
@@ -2305,7 +2306,7 @@ const DEFAULT_TAGGED_POSTS = [];
                   {editAvatarUrl ? (
                     <Image source={{ uri: editAvatarUrl }} style={{ width: '100%', height: '100%' }} />
                   ) : (
-                    <Text style={{ fontSize: 22, fontWeight: '800', color: '#FFFFFF' }}>{editName ? editName.substring(0, 2).toUpperCase() : 'AL'}</Text>
+                    <Text style={{ fontSize: 22, fontWeight: '800', color: '#FFFFFF' }}>{getInitials(editName)}</Text>
                   )}
                 </View>
                 <View style={{ flex: 1 }}>

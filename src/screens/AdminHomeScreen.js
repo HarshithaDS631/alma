@@ -23,6 +23,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { getPosts, createPost, likePost, deletePost } from '../services/postService';
 import { uploadFile } from '../services/uploadService';
+import getInitials from '../lib/getInitials';
 
 const AdminHomeScreen = ({ navigation }) => {
   const { theme, isDarkMode } = useTheme();
@@ -45,17 +46,6 @@ const AdminHomeScreen = ({ navigation }) => {
   const [userDepartment, setUserDepartment] = useState('Administration');
   const [userInitials, setUserInitials] = useState('MA');
 
-  const getInitials = (name, fallback = 'MA') => {
-    if (!name || typeof name !== 'string') return fallback;
-    const parts = name.trim().split(/\s+/).filter(Boolean);
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-    }
-    if (name.length >= 2) {
-      return name.substring(0, 2).toUpperCase();
-    }
-    return name.toUpperCase() || fallback;
-  };
 
   // Modal States
   const [activeModal, setActiveModal] = useState(null);
