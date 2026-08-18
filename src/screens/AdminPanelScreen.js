@@ -15,8 +15,9 @@ import {
   useWindowDimensions, Platform} from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import AdminMetricsScreen from './AdminMetricsScreen';
-import { getActivityLogs } from '../services/adminService';
+import { getActivityLogs, getEmailStats } from '../services/adminService';
 
 // ==========================================
 // DUMMY DATA FOR THE NEW MODULES
@@ -52,6 +53,10 @@ export default function AdminPanelScreen({ navigation }) {
   // Navigation & View Control
   const [activeModule, setActiveModule] = useState(null);
 
+  // Admin User Info
+  const [adminEmail, setAdminEmail] = useState('web.rsst@rvei.edu.in');
+  const [adminInstitution, setAdminInstitution] = useState('Mediacell');
+
   // Module States
   const [spamReports, setSpamReports] = useState(INITIAL_SPAM_REPORTS);
   const [alumniMaster, setAlumniMaster] = useState(INITIAL_ALUMNI_MASTER);
@@ -67,9 +72,9 @@ export default function AdminPanelScreen({ navigation }) {
   const [locationFilter, setLocationFilter] = useState('');
 
   // Welcome Mail States
-  const [mailSubject, setMailSubject] = useState('Welcome to the Institution Alumni Community!');
+  const [mailSubject, setMailSubject] = useState('Welcome to the Mediacell Alumni Community!');
   const [mailBody, setMailBody] = useState(
-    'Hi {alumni_name},\n\nWelcome to the official alumni platform of Institution! We are thrilled to have you join us. Stay connected with fellow batchmates, share job opportunities, and engage in mentorship programs.\n\nWarm regards,\nInstitution Alumni Association'
+    'Hi {alumni_name},\n\nWelcome to the official alumni platform of Mediacell! We are thrilled to have you join us. Stay connected with fellow batchmates, share job opportunities, and engage in mentorship programs.\n\nWarm regards,\nMediacell Alumni Association'
   );
   const [autoSend, setAutoSend] = useState(true);
 
@@ -81,9 +86,10 @@ export default function AdminPanelScreen({ navigation }) {
 
   // Email Stats States
   const [emailTab, setEmailTab] = useState('invitation'); // 'invitation' | 'custom'
-  const [startDate, setStartDate] = useState('11/06/2026');
-  const [endDate, setEndDate] = useState('11/06/2026');
-  const [emailStats, setEmailStats] = useState({ sent: 148, opened: 115, clicked: 78 });
+  const [startDate, setStartDate] = useState(new Date().toISOString().substring(0, 10));
+  const [endDate, setEndDate] = useState(new Date().toISOString().substring(0, 10));
+  const [emailStats, setEmailStats] = useState({ sent: 0, opened: 0, clicked: 0, openRate: 0, clickRate: 0 });
+  const [loadingEmailStats, setLoadingEmailStats] = useState(false);
 
   // Admin Activities States
   const [activityTab, setActivityTab] = useState('past'); // 'past' | 'due'
@@ -96,10 +102,56 @@ export default function AdminPanelScreen({ navigation }) {
   const [mongoLogSearch, setMongoLogSearch] = useState('');
 
   useEffect(() => {
+    const loadAdminDetails = async () => {
+      try {
+        const userInfoStr = await AsyncStorage.getItem('userInfo');
+        if (userInfoStr) {
+          const parsed = JSON.parse(userInfoStr);
+          const email = parsed.email || 'web.rsst@rvei.edu.in';
+          const inst = parsed.institution || 
+            (email.toLowerCase().includes('mediacell') || email.toLowerCase().includes('web.rsst') ? 'Mediacell' : 'Mediacell');
+          setAdminEmail(email);
+          setAdminInstitution(inst);
+          setMailSubject(`Welcome to the ${inst} Alumni Community!`);
+          setMailBody(`Hi {alumni_name},\n\nWelcome to the official alumni platform of ${inst}! We are thrilled to have you join us. Stay connected with fellow batchmates, share job opportunities, and engage in mentorship programs.\n\nWarm regards,\n${inst} Alumni Association`);
+        }
+      } catch (e) {}
+    };
+    loadAdminDetails();
+  }, []);
+
+  const fetchRealEmailStats = async (tab = emailTab, start = startDate, end = endDate) => {
+    setLoadingEmailStats(true);
+    try {
+      const res = await getEmailStats({
+        institution: adminInstitution,
+        type: tab,
+        startDate: start,
+        endDate: end,
+      });
+      if (res) {
+        setEmailStats({
+          sent: res.sent || 0,
+          opened: res.opened || 0,
+          clicked: res.clicked || 0,
+          openRate: res.openRate || 0,
+          clickRate: res.clickRate || 0,
+        });
+      }
+    } catch (err) {
+      console.log('[EMAIL STATS FETCH NOTE]:', err.message);
+    } finally {
+      setLoadingEmailStats(false);
+    }
+  };
+
+  useEffect(() => {
     if (activeModule === 'admin_activities') {
       fetchMongoLogs();
+    } else if (activeModule === 'email_stats') {
+      fetchRealEmailStats(emailTab);
     }
-  }, [activeModule]);
+  }, [activeModule, adminInstitution]);
 
   const fetchMongoLogs = async (searchStr = '') => {
     setMongoLogsLoading(true);
@@ -274,13 +326,13 @@ export default function AdminPanelScreen({ navigation }) {
   const renderWelcomeMail = () => (
     <ScrollView style={styles.moduleContainer} contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
       <Text style={styles.moduleHeading}>Welcome Email Automation</Text>
-      <Text style={styles.moduleSubheading}>Automatically welcome and onboard new verified alumni of Institution</Text>
+      <Text style={styles.moduleSubheading}>Automatically welcome and onboard new verified alumni of {adminInstitution}</Text>
       
       <View style={styles.formSection}>
         <Text style={styles.inputLabel}>Sender Email (From)</Text>
         <TextInput
           style={[styles.textInput, { backgroundColor: '#F1F5F9', color: theme.textSecondary }]}
-          value="harshithads.rsst@rvei.edu.in"
+          value={adminEmail}
           editable={false}
         />
 
@@ -330,9 +382,9 @@ export default function AdminPanelScreen({ navigation }) {
           <Text style={styles.previewMailSub}><Text style={{ fontWeight: '700' }}>Subject:</Text> {mailSubject}</Text>
           <Text style={styles.previewMailBody}>
             {mailBody
-              .replace('{alumni_name}', 'Karthik Nagaraju')
-              .replace('{graduation_year}', '2018')
-              .replace('{institution}', 'RVITM')}
+              .replace('{alumni_name}', 'Alumni Member')
+              .replace('{graduation_year}', '2026')
+              .replace('{institution}', adminInstitution)}
           </Text>
         </View>
       </View>
@@ -572,88 +624,100 @@ export default function AdminPanelScreen({ navigation }) {
   );
 
   // 6. DYNAMIC EMAIL STATS
-  const renderEmailStats = () => (
-    <View style={styles.moduleContainer}>
-      <Text style={styles.moduleHeading}>DYNAMIC EMAIL STATS</Text>
-      
-      {/* Stats Tabs */}
-      <View style={styles.statsTabs}>
-        <TouchableOpacity 
-          style={[styles.statsTabBtn, emailTab === 'invitation' && styles.statsTabBtnActive]} 
-          onPress={() => {
-            setEmailTab('invitation');
-            setEmailStats({ sent: 148, opened: 115, clicked: 78 });
-          }}
-        >
-          <Text style={[styles.statsTabText, emailTab === 'invitation' && styles.statsTabTextActive]}>Invitation Email Stats</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={[styles.statsTabBtn, emailTab === 'custom' && styles.statsTabBtnActive]} 
-          onPress={() => {
-            setEmailTab('custom');
-            setEmailStats({ sent: 340, opened: 212, clicked: 95 });
-          }}
-        >
-          <Text style={[styles.statsTabText, emailTab === 'custom' && styles.statsTabTextActive]}>Custom Email Stats</Text>
-        </TouchableOpacity>
-      </View>
+  const renderEmailStats = () => {
+    const openRatePercent = emailStats.sent > 0 ? Math.round((emailStats.opened / emailStats.sent) * 100) : 0;
+    const clickRatePercent = emailStats.sent > 0 ? Math.round((emailStats.clicked / emailStats.sent) * 100) : 0;
 
-      {/* Date Range Selectors */}
-      <View style={styles.dateSelectorRow}>
-        <TextInput
-          style={styles.dateInput}
-          value={startDate}
-          onChangeText={setStartDate}
-          placeholder="Start Date"
-        />
-        <TextInput
-          style={styles.dateInput}
-          value={endDate}
-          onChangeText={setEndDate}
-          placeholder="End Date"
-        />
-        <TouchableOpacity 
-          style={styles.applyStatsBtn}
-          onPress={() => {
-            Alert.alert('Applied Filter', `Stats displayed for range: ${startDate} to ${endDate}`);
-          }}
-        >
-          <Text style={styles.applyStatsBtnText}>APPLY</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Stats Table */}
-      <View style={styles.tableCard}>
-        <View style={styles.tableHeaderRow}>
-          <View style={styles.tableCol}><Text style={styles.tableHeaderTitle}>Mail sent</Text></View>
-          <View style={styles.tableCol}><Text style={styles.tableHeaderTitle}>Mail Opened</Text></View>
-          <View style={styles.tableCol}><Text style={styles.tableHeaderTitle}>Mail Clicked</Text></View>
+    return (
+      <View style={styles.moduleContainer}>
+        <Text style={styles.moduleHeading}>DYNAMIC EMAIL STATS</Text>
+        
+        {/* Stats Tabs */}
+        <View style={styles.statsTabs}>
+          <TouchableOpacity 
+            style={[styles.statsTabBtn, emailTab === 'invitation' && styles.statsTabBtnActive]} 
+            onPress={() => {
+              setEmailTab('invitation');
+              fetchRealEmailStats('invitation', startDate, endDate);
+            }}
+          >
+            <Text style={[styles.statsTabText, emailTab === 'invitation' && styles.statsTabTextActive]}>Invitation Email Stats</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.statsTabBtn, emailTab === 'custom' && styles.statsTabBtnActive]} 
+            onPress={() => {
+              setEmailTab('custom');
+              fetchRealEmailStats('custom', startDate, endDate);
+            }}
+          >
+            <Text style={[styles.statsTabText, emailTab === 'custom' && styles.statsTabTextActive]}>Custom Email Stats</Text>
+          </TouchableOpacity>
         </View>
-        <View style={styles.tableDataRow}>
-          <View style={styles.tableCol}><Text style={styles.tableDataVal}>{emailStats.sent}</Text></View>
-          <View style={styles.tableCol}><Text style={styles.tableDataVal}>{emailStats.opened}</Text></View>
-          <View style={styles.tableCol}><Text style={styles.tableDataVal}>{emailStats.clicked}</Text></View>
-        </View>
-      </View>
 
-      {/* Interactive Chart simulation */}
-      <View style={styles.chartSimulationBox}>
-        <Text style={styles.chartTitle}>Open & Click Performance</Text>
-        <View style={styles.chartBarRow}>
-          <Text style={styles.chartLabel}>Open Rate ({(emailStats.opened / emailStats.sent * 100).toFixed(0)}%)</Text>
-          <View style={styles.chartTrack}>
-            <View style={[styles.chartFill, { width: `${(emailStats.opened / emailStats.sent * 100).toFixed(0)}%`, backgroundColor: theme.success }]} />
+        {/* Date Range Selectors */}
+        <View style={styles.dateSelectorRow}>
+          <TextInput
+            style={styles.dateInput}
+            value={startDate}
+            onChangeText={setStartDate}
+            placeholder="YYYY-MM-DD"
+            placeholderTextColor="#94A3B8"
+          />
+          <TextInput
+            style={styles.dateInput}
+            value={endDate}
+            onChangeText={setEndDate}
+            placeholder="YYYY-MM-DD"
+            placeholderTextColor="#94A3B8"
+          />
+          <TouchableOpacity 
+            style={styles.applyStatsBtn}
+            onPress={() => {
+              fetchRealEmailStats(emailTab, startDate, endDate);
+            }}
+            disabled={loadingEmailStats}
+          >
+            {loadingEmailStats ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <Text style={styles.applyStatsBtnText}>APPLY</Text>
+            )}
+          </TouchableOpacity>
+        </View>
+
+        {/* Stats Table */}
+        <View style={styles.tableCard}>
+          <View style={styles.tableHeaderRow}>
+            <View style={styles.tableCol}><Text style={styles.tableHeaderTitle}>Mail sent</Text></View>
+            <View style={styles.tableCol}><Text style={styles.tableHeaderTitle}>Mail Opened</Text></View>
+            <View style={styles.tableCol}><Text style={styles.tableHeaderTitle}>Mail Clicked</Text></View>
+          </View>
+          <View style={styles.tableDataRow}>
+            <View style={styles.tableCol}><Text style={styles.tableDataVal}>{emailStats.sent}</Text></View>
+            <View style={styles.tableCol}><Text style={styles.tableDataVal}>{emailStats.opened}</Text></View>
+            <View style={styles.tableCol}><Text style={styles.tableDataVal}>{emailStats.clicked}</Text></View>
           </View>
         </View>
-        <View style={styles.chartBarRow}>
-          <Text style={styles.chartLabel}>Click Rate ({(emailStats.clicked / emailStats.sent * 100).toFixed(0)}%)</Text>
-          <View style={styles.chartTrack}>
-            <View style={[styles.chartFill, { width: `${(emailStats.clicked / emailStats.sent * 100).toFixed(0)}%`, backgroundColor: '#3B82F6' }]} />
+
+        {/* Interactive Chart simulation */}
+        <View style={styles.chartSimulationBox}>
+          <Text style={styles.chartTitle}>Open & Click Performance</Text>
+          <View style={styles.chartBarRow}>
+            <Text style={styles.chartLabel}>Open Rate ({openRatePercent}%)</Text>
+            <View style={styles.chartTrack}>
+              <View style={[styles.chartFill, { width: `${openRatePercent}%`, backgroundColor: theme.success }]} />
+            </View>
+          </View>
+          <View style={styles.chartBarRow}>
+            <Text style={styles.chartLabel}>Click Rate ({clickRatePercent}%)</Text>
+            <View style={styles.chartTrack}>
+              <View style={[styles.chartFill, { width: `${clickRatePercent}%`, backgroundColor: '#3B82F6' }]} />
+            </View>
           </View>
         </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   // 7. MENTOR APPLICATION
   const renderMentorApplications = () => (

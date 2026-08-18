@@ -50,6 +50,19 @@ export const getAllUsers = async () => {
     return data;
 };
 
+export const getEmailStats = async (params = {}) => {
+    const { institution, startDate, endDate, type } = params;
+    const query = new URLSearchParams();
+    if (institution && institution !== 'All') query.append('institution', institution);
+    if (startDate) query.append('startDate', startDate);
+    if (endDate) query.append('endDate', endDate);
+    if (type) query.append('type', type);
+
+    const qs = query.toString();
+    const { data } = await api.get(`/admin/email-stats${qs ? `?${qs}` : ''}`);
+    return data;
+};
+
 export const checkMatch = async (userId) => {
     const { data } = await api.get(`/admin/users/${userId}/check-match`);
     return data;

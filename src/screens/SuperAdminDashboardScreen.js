@@ -22,6 +22,7 @@ import {
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { getPosts, getEvents } from '../services/authService';
+import { getEmailStats } from '../services/adminService';
 
 // ==========================================
 // DUMMY DATABASE / SEED DATA
@@ -177,21 +178,29 @@ const SuperAdminDashboardScreen = ({ navigation, route }) => {
   const [imports, setImports] = useState(INITIAL_IMPORTS);
   const [networkSettings, setNetworkSettings] = useState(INITIAL_NETWORK_SETTINGS);
   const [actualStats, setActualStats] = useState({ posts: 0, events: 0 });
+  const [emailStats, setEmailStats] = useState({ sent: 0, opened: 0, clicked: 0, openRate: 0, clickRate: 0 });
 
   useEffect(() => {
     const fetchSuperAdminData = async () => {
       try {
-        const [postsData, eventsData] = await Promise.allSettled([getPosts(), getEvents()]);
+        const [postsData, eventsData, statsData] = await Promise.allSettled([
+          getPosts(),
+          getEvents(),
+          getEmailStats({ institution: selectedInstitution })
+        ]);
         setActualStats({
           posts: postsData.status === 'fulfilled' && postsData.value ? postsData.value.length : 0,
           events: eventsData.status === 'fulfilled' && eventsData.value ? eventsData.value.length : 0,
         });
+        if (statsData.status === 'fulfilled' && statsData.value) {
+          setEmailStats(statsData.value);
+        }
       } catch (err) {
         console.error(err);
       }
     };
     fetchSuperAdminData();
-  }, []);
+  }, [selectedInstitution]);
 
   // News Feed & Dropdown States
   const [postsList, setPostsList] = useState(MOCK_POSTS);
@@ -2311,23 +2320,23 @@ const SuperAdminDashboardScreen = ({ navigation, route }) => {
             <Text style={styles.cardHeading}>Email Performance Analytics</Text>
 
             <View style={styles.progressStatRow}>
-              <Text style={styles.progressLabel}>Total Sent emails: 1,480</Text>
+              <Text style={styles.progressLabel}>Total Sent emails: {emailStats.sent}</Text>
               <View style={styles.progressBarBg}>
-                <View style={[styles.progressBarFill, { width: '100%', backgroundColor: theme.primary }]} />
+                <View style={[styles.progressBarFill, { width: `${emailStats.sent > 0 ? 100 : 0}%`, backgroundColor: theme.primary }]} />
               </View>
             </View>
 
             <View style={styles.progressStatRow}>
-              <Text style={styles.progressLabel}>Open Rate (78%): 1,154</Text>
+              <Text style={styles.progressLabel}>Open Rate ({emailStats.openRate}%): {emailStats.opened}</Text>
               <View style={styles.progressBarBg}>
-                <View style={[styles.progressBarFill, { width: '78%', backgroundColor: theme.success }]} />
+                <View style={[styles.progressBarFill, { width: `${emailStats.openRate}%`, backgroundColor: theme.success }]} />
               </View>
             </View>
 
             <View style={styles.progressStatRow}>
-              <Text style={styles.progressLabel}>Click Rate (45%): 666</Text>
+              <Text style={styles.progressLabel}>Click Rate ({emailStats.clickRate}%): {emailStats.clicked}</Text>
               <View style={styles.progressBarBg}>
-                <View style={[styles.progressBarFill, { width: '45%', backgroundColor: theme.warning }]} />
+                <View style={[styles.progressBarFill, { width: `${emailStats.clickRate}%`, backgroundColor: theme.warning }]} />
               </View>
             </View>
           </View>

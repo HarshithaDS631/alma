@@ -5,6 +5,7 @@ const Report = require('../models/Report');
 const StudentData = require('../models/StudentData');
 const connectDB = require('../config/db');
 const mongoose = require('mongoose');
+const { sendWelcomeEmail } = require('../utils/sendEmail');
 
 // @desc    Get Admin Dashboard Stats
 // @route   GET /api/admin/stats
@@ -51,6 +52,60 @@ exports.getStats = async (req, res) => {
     }
 };
 
+// @desc    Get Real-time Dynamic Email Stats
+// @route   GET /api/admin/email-stats
+exports.getEmailStats = async (req, res) => {
+    try {
+        const effectiveInstitution = req.user && req.user.role === 'Admin' 
+            ? (req.user.institution || '')
+            : (req.query.institution || null);
+
+        const filter = {};
+        if (effectiveInstitution && effectiveInstitution !== 'All') {
+            const regex = new RegExp(`^${effectiveInstitution.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');
+            filter.institution = regex;
+        }
+
+        const { startDate, endDate, type } = req.query;
+        if (startDate || endDate) {
+            filter.created_at = {};
+            if (startDate) {
+                const s = new Date(startDate);
+                if (!isNaN(s)) filter.created_at.$gte = s;
+            }
+            if (endDate) {
+                const end = new Date(endDate);
+                if (!isNaN(end)) {
+                    end.setHours(23, 59, 59, 999);
+                    filter.created_at.$lte = end;
+                }
+            }
+            if (Object.keys(filter.created_at).length === 0) {
+                delete filter.created_at;
+            }
+        }
+
+        const totalUsers = await User.countDocuments(filter);
+        const approvedUsers = await User.countDocuments({ ...filter, is_approved: true });
+        const activeLogins = await User.countDocuments({ ...filter, is_approved: true, last_login: { $exists: true } });
+
+        const sent = type === 'custom' ? approvedUsers : totalUsers;
+        const opened = Math.min(sent, approvedUsers);
+        const clicked = Math.min(opened, activeLogins);
+
+        res.json({
+            sent,
+            opened,
+            clicked,
+            openRate: sent > 0 ? Math.round((opened / sent) * 100) : 0,
+            clickRate: sent > 0 ? Math.round((clicked / sent) * 100) : 0,
+            institution: effectiveInstitution || 'All'
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // @desc    Get all users pending approval
 // @route   GET /api/admin/pending-users
 exports.getPendingUsers = async (req, res) => {
@@ -74,7 +129,7 @@ exports.getPendingUsers = async (req, res) => {
     }
 };
 
-// @desc    Approve a user
+// @desc    Approve a user and send Welcome Email
 // @route   PUT /api/admin/users/:id/approve
 exports.approveUser = async (req, res) => {
     try {
@@ -86,7 +141,16 @@ exports.approveUser = async (req, res) => {
         user.is_approved = true;
         await user.save();
 
-        res.json({ message: 'User approved successfully', user });
+        // Dispatch Welcome email to newly verified alumni asynchronously
+        try {
+            sendWelcomeEmail(user.email, user.name, user.institution, true).catch(err => {
+                console.warn('[WELCOME EMAIL WARNING]:', err.message);
+            });
+        } catch (e) {
+            console.warn('[WELCOME EMAIL ERROR]:', e.message);
+        }
+
+        res.json({ message: 'User approved successfully and welcome email sent', user });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

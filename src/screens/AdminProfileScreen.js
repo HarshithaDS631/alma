@@ -481,8 +481,34 @@ const AdminProfileScreen = ({ navigation }) => {
         <View style={styles.profileInfoContainer}>
           {/* Avatar + Stats Row */}
           <View style={styles.mainInfoRow}>
-            <View style={styles.avatarCircle}>
-              <Ionicons name="shield-checkmark" size={32} color="#003366" />
+            <View style={{ position: 'relative' }}>
+              <TouchableOpacity onPress={handlePickProfilePhoto} activeOpacity={0.8}>
+                <View style={[styles.avatarCircle, { overflow: 'hidden', backgroundColor: theme.primary, borderWidth: 2, borderColor: theme.border }]}>
+                  {profileData.avatar_url ? (
+                    <Image source={{ uri: profileData.avatar_url }} style={{ width: '100%', height: '100%' }} />
+                  ) : (
+                    <Text style={{ fontSize: 26, fontWeight: '800', color: '#FFFFFF' }}>
+                      {profileData.name ? profileData.name.substring(0, 2).toUpperCase() : 'ME'}
+                    </Text>
+                  )}
+                </View>
+                <View style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  right: 0,
+                  backgroundColor: theme.primary,
+                  width: 28,
+                  height: 28,
+                  borderRadius: 14,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderWidth: 2,
+                  borderColor: theme.card,
+                  elevation: 3
+                }}>
+                  <Ionicons name="camera" size={14} color="#FFFFFF" />
+                </View>
+              </TouchableOpacity>
             </View>
             <View style={styles.statsContainer}>
               <TouchableOpacity style={styles.statBox} onPress={() => setActiveTab('post')} activeOpacity={0.7}>

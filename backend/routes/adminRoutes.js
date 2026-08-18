@@ -1,5 +1,5 @@
 const express = require('express');
-const { getStats, getPendingUsers, approveUser, rejectUser, updateUserRole, checkMatch, getAllMessages, exportUserData, downloadFullDatabaseBackup, getAllSessions } = require('../controllers/adminController');
+const { getStats, getEmailStats, getPendingUsers, approveUser, rejectUser, updateUserRole, checkMatch, getAllMessages, exportUserData, downloadFullDatabaseBackup, getAllSessions } = require('../controllers/adminController');
 const { protect, adminOnly, superAdminOnly } = require('../middleware/authMiddleware');
 const { syncStudents } = require('../controllers/syncController');
 const router = express.Router();
@@ -8,6 +8,7 @@ const router = express.Router();
 router.use(protect, adminOnly);
 
 router.get('/stats', getStats);
+router.get('/email-stats', getEmailStats);
 router.get('/pending-users', getPendingUsers);
 router.get('/messages', getAllMessages);
 router.get('/backup', downloadFullDatabaseBackup);
