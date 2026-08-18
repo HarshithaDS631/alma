@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, StatusBar, ScrollView, TextInput, Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import useUserRole from '../hooks/useUserRole';
@@ -8,6 +9,23 @@ const ContributeScreen = ({ navigation }) => {
   const { theme, isDarkMode } = useTheme();
   const styles = getStyles(theme);
   const { isAlumni, isAdmin, isSuperAdmin, isAdminOrSuper, userRole } = useUserRole();
+
+  const [userInitials, setUserInitials] = useState('ME');
+
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const userInfoStr = await AsyncStorage.getItem('userInfo');
+        if (userInfoStr) {
+          const u = JSON.parse(userInfoStr);
+          if (u?.name) {
+            setUserInitials(u.name.substring(0, 2).toUpperCase());
+          }
+        }
+      } catch (e) {}
+    };
+    loadUser();
+  }, []);
 
   // Admin/Super Admin: 'review' | 'support'; Alumni: 'mentorship' | 'support'
   const [activeTab, setActiveTab] = useState('mentorship');
@@ -249,7 +267,7 @@ const ContributeScreen = ({ navigation }) => {
       {/* Header exactly like Dashboard/Jobs flow */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.headerAvatar} activeOpacity={0.8} onPress={() => navigation.navigate('Profile')}>
-          <Text style={styles.headerAvatarText}>AJ</Text>
+          <Text style={styles.headerAvatarText}>{userInitials}</Text>
         </TouchableOpacity>
 
         <View style={styles.searchBar}>

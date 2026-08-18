@@ -15,7 +15,7 @@ const AdminDashboardScreen = ({ navigation }) => {
   const webContainerStyle = isWeb ? { alignSelf: 'center', width: '100%', maxWidth: isDesktop ? 1200 : 800, flex: 1, flexDirection: isDesktop ? 'row' : 'column', gap: 24, padding: isDesktop ? 24 : 0 } : { flex: 1 };
   
   const [adminInstitution, setAdminInstitution] = useState('Institution');
-  const [pendingApprovals, setPendingApprovals] = useState(45);
+  const [pendingApprovals, setPendingApprovals] = useState(0);
   const [actualStats, setActualStats] = useState({ posts: 0, events: 0 });
   
   useEffect(() => {

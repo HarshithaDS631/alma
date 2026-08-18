@@ -22,14 +22,7 @@ export default function AdminPlacementDetailsScreen({ navigation, route }) {
   const getInitialAlumni = () => {
     if (!companyName) return [];
     const keyword = companyName.split(' ')[0].toLowerCase();
-    const matched = INITIAL_ALUMNI_MASTER.filter(a => a.title.toLowerCase().includes(keyword));
-    if (matched.length > 0) return matched;
-    
-    // Dummy fallback if no exact match in alumniMaster
-    return [
-      { id: 'd1', name: 'Sarthak Banka', degree: 'BE \'23', title: `Software Engineer at ${companyName}`, location: 'Bengaluru', connected: false },
-      { id: 'd2', name: 'Manjunath N', degree: 'MBA \'15', title: `Product Manager at ${companyName}`, location: 'Hyderabad', connected: true }
-    ];
+    return INITIAL_ALUMNI_MASTER.filter(a => a.title.toLowerCase().includes(keyword));
   };
 
   const [alumniList, setAlumniList] = useState(getInitialAlumni());

@@ -21,9 +21,9 @@ const EngageScreen = ({ navigation }) => {
   const [postText, setPostText] = useState('');
   const [eventForm, setEventForm] = useState({
     name: '',
-    date: 'July 18, 2025',
-    startTime: '09:00am',
-    endTime: '10:00am',
+    date: '',
+    startTime: '',
+    endTime: '',
     notifyPhone: true,
     notifyEmail: false,
     reminder: '1 hour before event',

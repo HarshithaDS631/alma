@@ -25,55 +25,7 @@ const AdminEventsScreen = ({ navigation, route }) => {
   const [eventDescription, setEventDescription] = useState('');
   const [eventAttachment, setEventAttachment] = useState(null);
 
-  const [eventList, setEventList] = useState([
-    {
-      id: 'e1',
-      title: 'Alumni Gala Night 2026',
-      date: 'Dec 18, 2026',
-      location: 'Institution Campus Auditorium, Bengaluru',
-      description: 'Join us for an unforgettable evening celebrating the achievements of our alumni community. Network with fellow graduates, enjoy cultural performances, and participate in the annual awards ceremony.',
-      views: 342,
-      likes: 87,
-      liked: false,
-      attachment: 'gala_agenda.pdf',
-      comments: [
-        { id: 'c1', user: 'Priya S.', text: 'Can\'t wait for this! 🎉', time: '2h ago' },
-        { id: 'c2', user: 'Rahul V.', text: 'Will there be online participation?', time: '5h ago' },
-      ],
-      reshares: 24,
-      institution: 'RVCE',
-    },
-    {
-      id: 'e2',
-      title: 'Startup Panel Discussion',
-      date: 'Jan 15, 2027',
-      location: 'Virtual / Zoom',
-      description: 'Hear from Institution alumni who have founded successful startups. Topics include fundraising, scaling, and building a team. Open Q&A session at the end.',
-      views: 218,
-      likes: 56,
-      liked: true,
-      attachment: null,
-      comments: [
-        { id: 'c3', user: 'Arjun R.', text: 'Great lineup of speakers!', time: '1d ago' },
-      ],
-      reshares: 12,
-      institution: 'RVITM',
-    },
-    {
-      id: 'e3',
-      title: 'Career Mentorship Workshop',
-      date: 'Feb 8, 2027',
-      location: 'Institution Seminar Hall B',
-      description: 'A hands-on workshop where senior alumni mentor current students and recent graduates on career planning, resume building, and interview preparation.',
-      views: 156,
-      likes: 43,
-      liked: false,
-      attachment: 'mentorship_guidelines.docx',
-      comments: [],
-      reshares: 8,
-      institution: 'RVPU',
-    },
-  ]);
+  const [eventList, setEventList] = useState([]);
 
   // Sync selected institution with global value when screen is focused
   useEffect(() => {

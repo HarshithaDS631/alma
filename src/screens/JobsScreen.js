@@ -64,9 +64,9 @@ const JobsScreen = ({ navigation, route }) => {
   const [isApplying, setIsApplying] = useState(false);
 
   // Job Preferences State
-  const [openToWork, setOpenToWork] = useState(true);
-  const [targetTitles, setTargetTitles] = useState('Software Engineer, Full Stack Developer');
-  const [targetLocations, setTargetLocations] = useState('Bangalore, Remote, Hybrid');
+  const [openToWork, setOpenToWork] = useState(false);
+  const [targetTitles, setTargetTitles] = useState('');
+  const [targetLocations, setTargetLocations] = useState('');
   const [savingPrefs, setSavingPrefs] = useState(false);
 
   // Job Posting Form State

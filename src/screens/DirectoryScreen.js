@@ -28,16 +28,7 @@ import {
 import useUserRole from '../hooks/useUserRole';
 
 
-const DEFAULT_ALUMNI_MEMBERS = [
-  { _id: 'def_1', id: 'def_1', name: 'Dr. Ramesh Kumar', role: 'Alumni', designation: 'Principal Architect @ Google', department: 'Computer Science and Engineering', institution: 'RV College of Engineering', batchYear: '2016', is_approved: true },
-  { _id: 'def_2', id: 'def_2', name: 'Priya Sundaram', role: 'Alumni', designation: 'Senior Product Manager @ Microsoft', department: 'Information Science and Engineering', institution: 'RV College of Engineering', batchYear: '2018', is_approved: true },
-  { _id: 'def_3', id: 'def_3', name: 'Ananya Sharma', role: 'Alumni', designation: 'Data Science Lead @ Amazon', department: 'Electronics and Communication', institution: 'RV College of Engineering', batchYear: '2019', is_approved: true },
-  { _id: 'def_4', id: 'def_4', name: 'Vikram Joshi', role: 'Alumni', designation: 'Founding Engineer @ Zeta', department: 'Mechanical Engineering', institution: 'RV College of Engineering', batchYear: '2017', is_approved: true },
-  { _id: 'def_5', id: 'def_5', name: 'Rahul Varma', role: 'Alumni', designation: 'Lead Cloud Infrastructure @ AWS', department: 'Computer Science and Engineering', institution: 'RV College of Engineering', batchYear: '2021', is_approved: true },
-  { _id: 'def_6', id: 'def_6', name: 'Kavya Nair', role: 'Alumni', designation: 'Design Director @ Adobe', department: 'Design', institution: 'RV University', batchYear: '2020', is_approved: true },
-  { _id: 'def_7', id: 'def_7', name: 'Arjun Menon', role: 'Alumni', designation: 'Partner @ Sequoia Capital', department: 'Management Studies', institution: 'RV Institute of Management', batchYear: '2015', is_approved: true },
-  { _id: 'def_8', id: 'def_8', name: 'Sneha Patel', role: 'Alumni', designation: 'Senior Corporate Counsel', department: 'Law', institution: 'RV Institute of Legal Studies', batchYear: '2021', is_approved: true }
-];
+const DEFAULT_ALUMNI_MEMBERS = [];
 
 const DirectoryScreen = ({ navigation, route }) => {
   const { theme, isDarkMode } = useTheme();
@@ -47,7 +38,7 @@ const DirectoryScreen = ({ navigation, route }) => {
   const [activeTab, setActiveTab] = useState(route?.params?.tab || 'directory');
   const [searchQuery, setSearchQuery] = useState('');
   const [requests, setRequests] = useState([]);
-  const [dbAlumni, setDbAlumni] = useState(DEFAULT_ALUMNI_MEMBERS);
+  const [dbAlumni, setDbAlumni] = useState([]);
   const [sentConnectMap, setSentConnectMap] = useState({});
 
   React.useEffect(() => {

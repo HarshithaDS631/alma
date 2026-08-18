@@ -21,20 +21,7 @@ import { getPendingUsers, approveUser, rejectUser } from '../services/adminServi
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sendWelcomeEmail } from '../lib/sendgrid';
 
-const RVCE_VERIFICATION_DB = [
-  { name: 'arjun menon', joining: '2008', leaving: '2011' },
-  { name: 'rahul rao', joining: '2008', leaving: '2011' },
-  { name: 'gururaj', joining: '2008', leaving: '2011' },
-  { name: 'vishwas', joining: '2008', leaving: '2011' },
-  { name: 'vidya', joining: '2008', leaving: '2011' },
-  { name: 'harshitha', joining: '2008', leaving: '2011' },
-  { name: 'arun', joining: '2008', leaving: '2011' },
-  { name: 'hemanth', joining: '2008', leaving: '2011' },
-  { name: 'chaitra', joining: '2008', leaving: '2011' },
-  { name: 'pramod', joining: '2008', leaving: '2011' },
-  { name: 'kavan', joining: '2008', leaving: '2011' },
-  { name: 'prajwal', joining: '2008', leaving: '2011' }
-];
+const RVCE_VERIFICATION_DB = [];
 
 const checkDatabaseVerification = (name, batchYear, joiningYear, institution) => {
   if (!name) return { verified: false, reason: 'Name is missing' };

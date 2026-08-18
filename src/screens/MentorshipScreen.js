@@ -6,32 +6,7 @@ const MentorshipScreen = () => {
   const { theme, isDarkMode } = useTheme();
   const styles = getStyles(theme);
 
-  const mentors = [
-    {
-      id: '1',
-      name: 'Aarav Sharma',
-      batch: '2019',
-      company: 'Google • Senior Software Engineer',
-      expertise: 'System Design, Backend Development, Interview Prep',
-      initials: 'AS'
-    },
-    {
-      id: '2',
-      name: 'Ananya Rao',
-      batch: '2020',
-      company: 'Microsoft • Product Manager',
-      expertise: 'Product Management, Resume Review, Tech Transition',
-      initials: 'AR'
-    },
-    {
-      id: '3',
-      name: 'Rohan Kulkarni',
-      batch: '2018',
-      company: 'Amazon • Lead Data Scientist',
-      expertise: 'Machine Learning, AI Research, Career Guidance',
-      initials: 'RK'
-    }
-  ];
+  const mentors = [];
 
   const handleRequestMentorship = (mentorName) => {
     Alert.alert(
@@ -70,44 +45,50 @@ const MentorshipScreen = () => {
 
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Featured Mentors</Text>
-          <TouchableOpacity>
-            <Text style={styles.viewAllText}>View All</Text>
-          </TouchableOpacity>
         </View>
 
-        {mentors.map(mentor => (
-          <View key={mentor.id} style={styles.mentorCard}>
-            <View style={styles.mentorHeader}>
-              <View style={styles.avatar}>
-                <Text style={styles.avatarText}>{mentor.initials}</Text>
-              </View>
-              <View style={styles.mentorInfo}>
-                <Text style={styles.mentorName}>{mentor.name}</Text>
-                <Text style={styles.mentorDetails}>Class of {mentor.batch} • {mentor.company}</Text>
-              </View>
-            </View>
-            <View style={styles.expertiseRow}>
-              <Text style={styles.expertiseLabel}>Expertise:</Text>
-              <Text style={styles.expertiseValue}>{mentor.expertise}</Text>
-            </View>
-            <TouchableOpacity style={styles.requestBtn} onPress={() => handleRequestMentorship(mentor.name)}>
-              <Text style={styles.requestBtnText}>Request Mentorship</Text>
-            </TouchableOpacity>
+        {mentors.length === 0 ? (
+          <View style={{ alignItems: 'center', paddingVertical: 40, paddingHorizontal: 20 }}>
+            <Text style={{ fontSize: 16, fontWeight: '600', color: theme.text, textAlign: 'center' }}>No mentors registered yet</Text>
+            <Text style={{ fontSize: 13, color: theme.textSecondary, textAlign: 'center', marginTop: 6 }}>
+              Be the first to join as a mentor and guide junior students and fellow alumni!
+            </Text>
           </View>
-        ))}
+        ) : (
+          mentors.map(mentor => (
+            <View key={mentor.id} style={styles.mentorCard}>
+              <View style={styles.mentorHeader}>
+                <View style={styles.avatar}>
+                  <Text style={styles.avatarText}>{mentor.initials}</Text>
+                </View>
+                <View style={styles.mentorInfo}>
+                  <Text style={styles.mentorName}>{mentor.name}</Text>
+                  <Text style={styles.mentorDetails}>Class of {mentor.batch} • {mentor.company}</Text>
+                </View>
+              </View>
+              <View style={styles.expertiseRow}>
+                <Text style={styles.expertiseLabel}>Expertise:</Text>
+                <Text style={styles.expertiseValue}>{mentor.expertise}</Text>
+              </View>
+              <TouchableOpacity style={styles.requestBtn} onPress={() => handleRequestMentorship(mentor.name)}>
+                <Text style={styles.requestBtnText}>Request Mentorship</Text>
+              </TouchableOpacity>
+            </View>
+          ))
+        )}
 
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>500+</Text>
+            <Text style={styles.statValue}>0</Text>
             <Text style={styles.statLabel}>Mentors</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>1.2k</Text>
-            <Text style={styles.statLabel}>Success Stories</Text>
+            <Text style={styles.statValue}>0</Text>
+            <Text style={styles.statLabel}>Mentees</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>24h</Text>
-            <Text style={styles.statLabel}>Avg Response</Text>
+            <Text style={styles.statValue}>Active</Text>
+            <Text style={styles.statLabel}>Network</Text>
           </View>
         </View>
       </ScrollView>
