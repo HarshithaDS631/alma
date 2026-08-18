@@ -29,14 +29,18 @@ export const institutionsList = [
 
 export const institutionDepartments = {
   'Mediacell': [
-    "Media & Communications",
-    "Digital Media & Content Production",
-    "Public Relations & Outreach",
-    "Visual Arts & Design",
-    "Computer Science & Engineering",
-    "Information Science & Engineering",
-    "General",
-    "Administration"
+    "Web Team",
+    "Copy Team",
+    "UI/UX",
+    "Graphic",
+    "VFX"
+  ],
+  'Media Cell': [
+    "Web Team",
+    "Copy Team",
+    "UI/UX",
+    "Graphic",
+    "VFX"
   ],
   'RV College of Engineering': [
     "Aerospace Engineering",
