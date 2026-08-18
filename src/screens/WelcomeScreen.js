@@ -83,7 +83,7 @@ const WelcomeScreen = ({ navigation }) => {
         </View>
         
         <Text style={styles.title}>Welcome to RV Educational Institutions</Text>
-        <Text style={styles.subtitle}>Alumni & Student Portal Network</Text>
+        <Text style={styles.subtitle}>Official Alumni Portal Network</Text>
       </View>
 
       <View style={styles.bottomSection}>

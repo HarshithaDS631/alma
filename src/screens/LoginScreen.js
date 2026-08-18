@@ -285,7 +285,7 @@ const LoginScreen = ({ navigation }) => {
           <View style={styles.header}>
             <Text style={styles.title}>Sign in to your Account</Text>
             <Text style={styles.subtitle}>
-              Enter your email and password to sign in as Alumni, Student, or Admin.
+              Enter your email and password to sign in as Alumni, Admin, or Super Admin.
             </Text>
           </View>
 

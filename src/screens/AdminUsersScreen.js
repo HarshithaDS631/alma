@@ -549,7 +549,7 @@ const AdminUsersScreen = ({ navigation, route }) => {
       {activeTab === 'friends' && (
         <View style={styles.filterSummaryBar}>
           <Text style={styles.filterSummaryText}>
-            Showing {filteredFriends.length} students
+            Showing {filteredFriends.length} alumni
           </Text>
           <TouchableOpacity 
             style={[styles.filterButton, activeFiltersCount > 0 && styles.filterButtonActive]}
@@ -616,7 +616,7 @@ const AdminUsersScreen = ({ navigation, route }) => {
           <TouchableOpacity style={{ flex: 1 }} onPress={() => setShowFilterModal(false)} />
           <View style={styles.filterSheet}>
             <View style={styles.filterSheetHeader}>
-              <Text style={styles.filterSheetTitle}>Filter Students</Text>
+              <Text style={styles.filterSheetTitle}>Filter Alumni</Text>
               <View style={{ flexDirection: 'row', gap: 14 }}>
                 <TouchableOpacity onPress={handleResetAll} activeOpacity={0.7}>
                   <Text style={styles.resetText}>Reset All</Text>

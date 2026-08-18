@@ -101,7 +101,7 @@ export default function LegalScreen({ navigation }) {
             </View>
 
             {renderSection('1. Acceptance of Terms', 'By downloading, installing, or using Alumni Network, you agree to be legally bound by these Terms. If you do not agree, you must not use the App.')}
-            {renderSection('2. Who May Use This App', 'This App is for verified alumni, students, faculty, and administrators of RV Institutions. You must be at least 13 years of age to use this App.')}
+            {renderSection('2. Who May Use This App', 'This App is for verified alumni, administrators, and super administrators of RV Institutions. You must be at least 13 years of age to use this App.')}
             {renderSection('3. User Account', 'You must register with a valid institutional email. Your account requires admin approval before access is granted. You are responsible for maintaining the security of your credentials.')}
             {renderSection('4. Prohibited Activities', '')}
             {renderBullet([
