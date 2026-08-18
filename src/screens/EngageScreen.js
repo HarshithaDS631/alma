@@ -6,6 +6,18 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getPosts, createPost, reportItem } from '../services/postService';
 import { blockUser, getSuggestions, getEvents, getFollowing, toggleFollowUser } from '../services/authService';
 
+const getInitials = (name, fallback = 'AL') => {
+  if (!name || typeof name !== 'string') return fallback;
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+  if (name.length >= 2) {
+    return name.substring(0, 2).toUpperCase();
+  }
+  return name.toUpperCase() || fallback;
+};
+
 const EngageScreen = ({ navigation }) => {
   const { theme, isDarkMode } = useTheme();
   const styles = getStyles(theme);

@@ -20,6 +20,9 @@ import {
 } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
+import { getPosts, createPost, likePost, deletePost } from '../services/postService';
+import { uploadFile } from '../services/uploadService';
 
 const AdminHomeScreen = ({ navigation }) => {
   const { theme, isDarkMode } = useTheme();
@@ -58,6 +61,12 @@ const AdminHomeScreen = ({ navigation }) => {
   const [activeModal, setActiveModal] = useState(null);
   const [selectedPost, setSelectedPost] = useState(null);
   const [commentText, setCommentText] = useState('');
+  
+  // Post Creation States
+  const [posts, setPosts] = useState([]);
+  const [isPosting, setIsPosting] = useState(false);
+  const [newPostContent, setNewPostContent] = useState('');
+  const [newPostImage, setNewPostImage] = useState(null);
 
   const mockComments = [];
 
@@ -70,6 +79,31 @@ const AdminHomeScreen = ({ navigation }) => {
     setActiveModal(null);
     setSelectedPost(null);
     setCommentText('');
+    setNewPostContent('');
+    setNewPostImage(null);
+  };
+
+  const fetchPosts = async () => {
+    try {
+      const data = await getPosts();
+      if (Array.isArray(data)) {
+        const formatted = data.map(p => ({
+          id: p._id,
+          user: p.user?.name || 'Mediacell Admin',
+          role: `${p.user?.role || 'Admin'} • ${p.user?.institution || 'Mediacell'}`,
+          avatar: getInitials(p.user?.name, 'MA'),
+          content: p.content,
+          image: p.image || p.image_url,
+          likes: (p.likes || []).length,
+          commentsCount: (p.comments || []).length,
+          time: p.createdAt ? new Date(p.createdAt).toLocaleDateString() : 'Just now',
+          raw: p
+        }));
+        setPosts(formatted);
+      }
+    } catch (err) {
+      console.log('Error loading feed posts:', err.message);
+    }
   };
 
   useEffect(() => {
@@ -95,18 +129,84 @@ const AdminHomeScreen = ({ navigation }) => {
       } catch (_) {}
     };
     fetchUserInfo();
+    fetchPosts();
   }, []);
 
+  const handlePickImage = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: false,
+        quality: 0.4,
+      });
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const localUri = result.assets[0].uri;
+        const uploaded = await uploadFile(localUri, result.assets[0].mimeType || 'image/jpeg', result.assets[0].fileName || 'post.jpg');
+        setNewPostImage(uploaded || localUri);
+      }
+    } catch (err) {
+      console.log('Image picker error:', err.message);
+    }
+  };
+
+  const handleCreatePost = async () => {
+    if (!newPostContent.trim() && !newPostImage) {
+      if (Platform.OS === 'web') window.alert('Please enter text or select an image for your post.');
+      else Alert.alert('Empty Post', 'Please enter text or select an image for your post.');
+      return;
+    }
+
+    try {
+      setIsPosting(true);
+      await createPost({
+        content: newPostContent.trim(),
+        image: newPostImage
+      });
+      setNewPostContent('');
+      setNewPostImage(null);
+      closeModal();
+      await fetchPosts();
+      if (Platform.OS === 'web') window.alert('Post published successfully!');
+      else Alert.alert('Success', 'Post published successfully!');
+    } catch (err) {
+      console.error('Failed to create post:', err);
+      if (Platform.OS === 'web') window.alert('Failed to publish post: ' + (err.message || 'Please try again.'));
+      else Alert.alert('Error', 'Failed to publish post: ' + (err.message || 'Please try again.'));
+    } finally {
+      setIsPosting(false);
+    }
+  };
+
+  const handleDeletePost = async (postId) => {
+    const confirmDelete = async () => {
+      try {
+        await deletePost(postId);
+        setPosts(prev => prev.filter(p => p.id !== postId));
+      } catch (e) {
+        console.log('Error deleting post:', e.message);
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      if (window.confirm('Delete this post?')) confirmDelete();
+    } else {
+      Alert.alert('Delete Post', 'Are you sure you want to delete this post?', [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete', style: 'destructive', onPress: confirmDelete }
+      ]);
+    }
+  };
+
   // ─── Data ──────────────────────────────────────────────
-  const posts = [];
-
   const suggestions = [];
-
   const eventsAndJobs = [];
 
   // ─── Handlers ──────────────────────────────────────────
-  const toggleLike = (postId) => {
+  const toggleLike = async (postId) => {
     setLikedPosts((prev) => ({ ...prev, [postId]: !prev[postId] }));
+    try {
+      await likePost(postId);
+    } catch (e) {}
   };
 
   const toggleBookmark = (postId) => {
@@ -144,13 +244,11 @@ const AdminHomeScreen = ({ navigation }) => {
           <Text style={styles.postUserRole}>{post.role}</Text>
         </View>
         <TouchableOpacity
-          style={styles.followBtn}
+          style={{ padding: 6, marginLeft: 8 }}
           activeOpacity={0.7}
-          onPress={() => toggleFollow(post.id)}
+          onPress={() => handleDeletePost(post.id)}
         >
-          <Text style={styles.followBtnText}>
-            {followedUsers[post.id] ? 'Following' : '+ Follow'}
-          </Text>
+          <Ionicons name="trash-outline" size={18} color={theme.textMuted} />
         </TouchableOpacity>
       </View>
 
@@ -382,6 +480,25 @@ const AdminHomeScreen = ({ navigation }) => {
         ) : (
           // MOBILE LAYOUT (Current)
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+            {/* Mobile Create Post Widget */}
+            <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 12, marginHorizontal: 16, marginTop: 12, marginBottom: 8, elevation: 1, borderWidth: 1, borderColor: theme.border, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ fontSize: 13, fontWeight: '700', color: theme.card }}>{userInitials}</Text>
+              </View>
+              <TouchableOpacity 
+                style={{ flex: 1, backgroundColor: theme.inputBackground, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8, borderWidth: 1, borderColor: theme.border }}
+                onPress={() => openModal('post', null)}
+              >
+                <Text style={{ color: theme.textMuted, fontSize: 13 }}>Start a post or update...</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={{ padding: 6, backgroundColor: theme.background, borderRadius: 16 }}
+                onPress={() => openModal('post', null)}
+              >
+                <Ionicons name="image-outline" size={18} color={theme.primary} />
+              </TouchableOpacity>
+            </View>
+
             {posts.length > 0 ? (
               posts.map(post => renderPostCard(post))
             ) : (
@@ -502,6 +619,89 @@ const AdminHomeScreen = ({ navigation }) => {
                 <Text style={styles.shareText}>Copy Link</Text>
               </TouchableOpacity>
             </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
+
+      {/* Create Post Modal */}
+      <Modal visible={activeModal === 'post'} animationType="slide" transparent={true}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={isWeb ? styles.webModalOverlay : styles.modalOverlay}>
+          <View style={[isWeb ? styles.webModalContainer : styles.bottomSheet, { maxHeight: '90%' }]}>
+            <View style={styles.sheetHeader}>
+              <Text style={styles.sheetTitle}>Create Post</Text>
+              <TouchableOpacity onPress={closeModal}><Ionicons name="close" size={24} color={theme.text} /></TouchableOpacity>
+            </View>
+            
+            <ScrollView style={{ padding: 16 }} showsVerticalScrollIndicator={false}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+                <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
+                  <Text style={{ fontSize: 16, fontWeight: '700', color: theme.card }}>{userInitials}</Text>
+                </View>
+                <View>
+                  <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{userName}</Text>
+                  <Text style={{ fontSize: 12, color: theme.textSecondary }}>{userRole} • {userInstitution}</Text>
+                </View>
+              </View>
+
+              <TextInput
+                style={{
+                  minHeight: 120,
+                  fontSize: 16,
+                  color: theme.text,
+                  textAlignVertical: 'top',
+                  borderWidth: 1,
+                  borderColor: theme.border,
+                  borderRadius: 12,
+                  padding: 12,
+                  backgroundColor: theme.inputBackground,
+                  marginBottom: 16
+                }}
+                placeholder={`What's on your mind, ${userName}?`}
+                placeholderTextColor={theme.textMuted}
+                multiline
+                value={newPostContent}
+                onChangeText={setNewPostContent}
+                autoFocus
+              />
+
+              {newPostImage && (
+                <View style={{ position: 'relative', marginBottom: 16, borderRadius: 12, overflow: 'hidden', borderWidth: 1, borderColor: theme.border }}>
+                  <Image source={{ uri: newPostImage }} style={{ width: '100%', height: 200, resizeMode: 'cover' }} />
+                  <TouchableOpacity
+                    style={{ position: 'absolute', top: 8, right: 8, backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: 16, padding: 4 }}
+                    onPress={() => setNewPostImage(null)}
+                  >
+                    <Ionicons name="close" size={20} color="#FFF" />
+                  </TouchableOpacity>
+                </View>
+              )}
+
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
+                <TouchableOpacity
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8, backgroundColor: theme.border }}
+                  onPress={handlePickImage}
+                >
+                  <Ionicons name="image-outline" size={20} color={theme.primary} />
+                  <Text style={{ color: theme.text, fontWeight: '600', fontSize: 14 }}>Add Photo</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: theme.primary,
+                    paddingHorizontal: 24,
+                    paddingVertical: 10,
+                    borderRadius: 24,
+                    opacity: (!newPostContent.trim() && !newPostImage) || isPosting ? 0.6 : 1
+                  }}
+                  disabled={(!newPostContent.trim() && !newPostImage) || isPosting}
+                  onPress={handleCreatePost}
+                >
+                  <Text style={{ color: theme.card, fontWeight: '700', fontSize: 15 }}>
+                    {isPosting ? 'Publishing...' : 'Publish Post'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
           </View>
         </KeyboardAvoidingView>
       </Modal>

@@ -10,6 +10,18 @@ import { getFollowers, getFollowing } from '../services/authService';
 
 const hashtags = ['#Institution', '#AlumniMeet', '#Mentorship', '#TechTalk', '#Careers', '#ClassOf2024'];
 
+const getInitials = (name, fallback = 'MA') => {
+  if (!name || typeof name !== 'string') return fallback;
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+  if (name.length >= 2) {
+    return name.substring(0, 2).toUpperCase();
+  }
+  return name.toUpperCase() || fallback;
+};
+
 const PostCreationScreen = ({ navigation }) => {
   const { theme, isDarkMode } = useTheme();
   const styles = getStyles(theme);

@@ -91,17 +91,18 @@ exports.getPosts = async (req, res) => {
 // @desc    Create a post
 // @route   POST /api/posts
 exports.createPost = async (req, res) => {
-    const { content, image, fileType, fileName, tags } = req.body;
+    const { content, image, image_url, fileType, fileName, tags } = req.body;
 
     try {
-        const userDoc = await User.findById(req.user._id).select('institution name');
-        const userInstitution = req.user.institution || userDoc?.institution;
+        await connectDB();
+        const userDoc = await User.findById(req.user._id).select('institution name branch department batchYear avatar_url username role');
+        const userInstitution = req.user.institution || userDoc?.institution || 'Mediacell';
 
         const post = await Post.create({
             user: req.user._id,
             institution: userInstitution,
             content,
-            image,
+            image: image || image_url,
             fileType,
             fileName,
             tags: Array.isArray(tags) ? tags : []
@@ -114,14 +115,18 @@ exports.createPost = async (req, res) => {
 
         // Create notifications for tagged users
         if (Array.isArray(tags) && tags.length > 0) {
-            const notifications = tags.map(tagId => ({
-                recipient: tagId,
-                sender: req.user._id,
-                type: 'mention',
-                title: 'You were tagged in a post',
-                message: `${req.user.name || 'A connection'} tagged you in a new post.`
-            }));
-            await Notification.insertMany(notifications);
+            try {
+                const notifications = tags.map(tagId => ({
+                    recipient: tagId,
+                    sender: req.user._id,
+                    type: 'mention',
+                    title: 'You were tagged in a post',
+                    message: `${req.user.name || 'A connection'} tagged you in a new post.`
+                }));
+                await Notification.insertMany(notifications);
+            } catch (notifErr) {
+                console.log('Notification error on post tagging:', notifErr.message);
+            }
         }
 
         if (req.io) {
@@ -130,6 +135,7 @@ exports.createPost = async (req, res) => {
 
         res.status(201).json(fullPost);
     } catch (error) {
+        console.error('createPost error:', error.message);
         res.status(400).json({ message: error.message });
     }
 };
