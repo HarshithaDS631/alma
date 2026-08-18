@@ -1001,7 +1001,55 @@ const DashboardScreen = ({ navigation }) => {
       </View>
     </View>
   );
-};
+  const STORIES_DATA = [
+    { id: '1', name: 'bhavana_gb', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&h=150&q=80' },
+    { id: '2', name: 'houseofsa...', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&h=150&q=80' },
+    { id: '3', name: 'thaman.pa...', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&h=150&q=80' },
+    { id: '4', name: 'chaithrara...', avatar: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=150&h=150&q=80' },
+    { id: '5', name: 'nandish_rx...', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&h=150&q=80' },
+    { id: '6', name: 'sri_vasudev', avatar: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=150&h=150&q=80' },
+  ];
+
+  const renderStoriesBar = () => (
+    <View style={{ backgroundColor: theme.card, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: theme.border, marginBottom: 8 }}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 14, alignItems: 'center' }}>
+        {/* Your Story */}
+        <TouchableOpacity style={{ alignItems: 'center', width: 68 }} onPress={() => navigation.navigate('PostCreation')} activeOpacity={0.8}>
+          <View style={{ position: 'relative' }}>
+            <View style={{ width: 58, height: 58, borderRadius: 29, backgroundColor: theme.background, borderWidth: 1.5, borderColor: theme.border, justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
+              {userAvatarUrl ? (
+                <Image source={{ uri: userAvatarUrl }} style={{ width: 58, height: 58, borderRadius: 29 }} />
+              ) : (
+                <Text style={{ fontSize: 18, fontWeight: '700', color: theme.primary }}>{userName ? userName.substring(0, 2).toUpperCase() : 'ME'}</Text>
+              )}
+            </View>
+            <View style={{ position: 'absolute', bottom: -2, right: -2, width: 20, height: 20, borderRadius: 10, backgroundColor: '#0095F6', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: theme.card }}>
+              <Ionicons name="add" size={14} color="#FFFFFF" />
+            </View>
+          </View>
+          <Text style={{ fontSize: 11, color: theme.text, marginTop: 6, fontWeight: '500' }} numberOfLines={1}>Your story</Text>
+        </TouchableOpacity>
+
+        {/* Stories Items with Instagram Gradient Border */}
+        {STORIES_DATA.map(s => (
+          <TouchableOpacity 
+            key={s.id} 
+            style={{ alignItems: 'center', width: 68 }} 
+            activeOpacity={0.8}
+            onPress={() => {
+              if (Platform.OS === 'web') window.alert(`Viewing story from @${s.name}`);
+              else Alert.alert('Story', `Viewing story from @${s.name}`);
+            }}
+          >
+            <View style={{ width: 62, height: 62, borderRadius: 31, padding: 2, borderWidth: 2.5, borderColor: '#DD2A7B', justifyContent: 'center', alignItems: 'center' }}>
+              <Image source={{ uri: s.avatar }} style={{ width: 54, height: 54, borderRadius: 27 }} />
+            </View>
+            <Text style={{ fontSize: 11, color: theme.text, marginTop: 4 }} numberOfLines={1}>{s.name}</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </View>
+  );
 
   // ─── Render ────────────────────────────────────────────
   const [unreadMessages, setUnreadMessages] = useState(0);
@@ -1076,6 +1124,9 @@ const DashboardScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>
         )}
+
+        {/* Instagram Stories Carousel Bar */}
+        {renderStoriesBar()}
 
         {isDesktop ? (
           // WEB GRID DASHBOARD (3-Column Layout)
@@ -1164,70 +1215,190 @@ const DashboardScreen = ({ navigation }) => {
               </ScrollView>
             </View>
 
-            {/* 3. Right Column: Widgets */}
-            <View style={{ flex: 3.5 }}>
-
-              {/* Suggestions Widget */}
-              <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 16, marginBottom: 24, elevation: 2, borderWidth: 1, borderColor: theme.border }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                  <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>People you may know</Text>
-                  <TouchableOpacity onPress={() => navigation.navigate('Engage', { tab: 'directory' })} activeOpacity={0.7}>
-                    <Text style={{ fontSize: 13, color: theme.primary, fontWeight: '600' }}>See all</Text>
-                  </TouchableOpacity>
-                </View>
-                {suggestions.filter(s => !followingMap[s.id]).length > 0 ? (
-                  suggestions.filter(s => !followingMap[s.id]).map(s => (
-                    <View key={s.id} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-                      <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: theme.border, justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
-                        <Text style={{ fontWeight: '700', color: theme.textSecondary }}>{s.avatar}</Text>
-                      </View>
-                      <View style={{ flex: 1 }}>
-                        <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text }}>{s.name}</Text>
-                        <Text style={{ fontSize: 12, color: theme.textSecondary }}>{s.subtitle}</Text>
-                      </View>
-                      <TouchableOpacity 
-                        style={[styles.suggestionFollowBtn, followingMap[s.id] && styles.suggestionFollowBtnActive, { paddingHorizontal: 12, paddingVertical: 6 }]}
-                        onPress={() => toggleSuggestionFollow(s.id)}
-                      >
-                        <Text style={[styles.suggestionFollowText, followingMap[s.id] && styles.suggestionFollowTextActive]}>{followingMap[s.id] ? 'Following' : 'Follow'}</Text>
-                      </TouchableOpacity>
-                    </View>
-                  ))
-                ) : (
-                  <View style={{ paddingVertical: 12, alignItems: 'center' }}>
-                    <Ionicons name="checkmark-circle-outline" size={28} color={theme.primary} style={{ marginBottom: 4 }} />
-                    <Text style={{ fontSize: 13, color: theme.textMuted, textAlign: 'center' }}>You are following all suggested alumni! View your connections in your Profile.</Text>
+            {/* 3. Right Column: Instagram-style Profile + Suggestions + Footer */}
+            <View style={{ flex: 3.5, paddingLeft: 8 }}>
+              {/* User Switch Card */}
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+                <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }} onPress={() => navigation.navigate('Profile')} activeOpacity={0.8}>
+                  <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', marginRight: 12, overflow: 'hidden' }}>
+                    {userAvatarUrl ? (
+                      <Image source={{ uri: userAvatarUrl }} style={{ width: 44, height: 44, borderRadius: 22 }} />
+                    ) : (
+                      <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>{userName ? userName.substring(0, 2).toUpperCase() : 'ME'}</Text>
+                    )}
                   </View>
-                )}
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }} numberOfLines={1}>
+                      {currentUser?.username || (userName ? userName.toLowerCase().replace(/\s+/g, '_') : 'alumni_member')}
+                    </Text>
+                    <Text style={{ fontSize: 12, color: theme.textSecondary }} numberOfLines={1}>{userName || 'Alumni Member'}</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('Profile')} activeOpacity={0.7}>
+                  <Text style={{ color: '#0095F6', fontSize: 12, fontWeight: '700' }}>Switch</Text>
+                </TouchableOpacity>
               </View>
 
-              {/* Events & Jobs Widget */}
-              <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 16, elevation: 2, borderWidth: 1, borderColor: theme.border }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                  <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>Opportunities</Text>
-                  <TouchableOpacity onPress={() => navigation.navigate('Jobs')} activeOpacity={0.7}>
-                    <Text style={{ fontSize: 13, color: theme.primary, fontWeight: '600', cursor: 'pointer' }}>See all</Text>
-                  </TouchableOpacity>
-                </View>
-                {eventsAndJobs.map(ev => (
-                  <View key={ev.id} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: theme.border }}>
-                    <Image source={{ uri: ev.image }} style={{ width: 52, height: 52, borderRadius: 8, marginRight: 12 }} />
+              {/* Suggestions Header */}
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: theme.textSecondary }}>Suggested for you</Text>
+                <TouchableOpacity onPress={() => navigation.navigate('Engage', { tab: 'directory' })} activeOpacity={0.7}>
+                  <Text style={{ fontSize: 12, color: theme.text, fontWeight: '700' }}>See all</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Suggestions List */}
+              {suggestions.slice(0, 5).map(s => (
+                <View key={s.id} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 8 }}>
+                    <View style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: theme.border, justifyContent: 'center', alignItems: 'center', marginRight: 10, overflow: 'hidden' }}>
+                      {s.isAvatarUrl ? (
+                        <Image source={{ uri: s.avatar }} style={{ width: 38, height: 38, borderRadius: 19 }} />
+                      ) : (
+                        <Text style={{ fontWeight: '700', color: theme.textSecondary, fontSize: 12 }}>{s.avatar}</Text>
+                      )}
+                    </View>
                     <View style={{ flex: 1 }}>
-                      <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text, marginBottom: 2 }}>{ev.title}</Text>
-                      <Text style={{ fontSize: 12, color: theme.textSecondary, marginBottom: 6 }}>{ev.subtitle}</Text>
-                      <TouchableOpacity 
-                        style={{ backgroundColor: theme.background, alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6, borderWidth: 1, borderColor: theme.border }}
-                        onPress={() => navigation.navigate('Jobs')}
-                        activeOpacity={0.7}
-                      >
-                        <Text style={{ fontSize: 11, fontWeight: '600', color: theme.primary }}>{ev.btnText || 'View Job'}</Text>
-                      </TouchableOpacity>
+                      <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }} numberOfLines={1}>{s.name}</Text>
+                      <Text style={{ fontSize: 11, color: theme.textSecondary }} numberOfLines={1}>
+                        {followingMap[s.id] ? 'Followed by you' : 'Suggested for you'}
+                      </Text>
                     </View>
                   </View>
-                ))}
+                  <TouchableOpacity onPress={() => toggleSuggestionFollow(s.id)} activeOpacity={0.7}>
+                    <Text style={{ color: followingMap[s.id] ? theme.textSecondary : '#0095F6', fontSize: 12, fontWeight: '700' }}>
+                      {followingMap[s.id] ? 'Following' : 'Follow'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+
+              {/* Instagram Style Footer Links */}
+              <View style={{ marginTop: 24 }}>
+                <Text style={{ fontSize: 11, color: '#94A3B8', lineHeight: 18 }}>
+                  About • Help • Press • API • Jobs • Privacy • Terms • Locations • Language • Verified
+                </Text>
+                <Text style={{ fontSize: 11, color: '#94A3B8', marginTop: 12, fontWeight: '500' }}>
+                  © 2026 INSTAGRAM FROM META
+                </Text>
               </View>
             </View>
           </View>
+        ) : (
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+            {/* Mobile Create Post Box */}
+            <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 12, marginHorizontal: 16, marginTop: 12, marginBottom: 8, elevation: 1, borderWidth: 1, borderColor: theme.border, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <TouchableOpacity 
+                style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center' }}
+                onPress={() => navigation.navigate('Profile')}
+              >
+                {userAvatarUrl ? (
+                  <Image source={{ uri: userAvatarUrl }} style={{ width: 36, height: 36, borderRadius: 18 }} />
+                ) : (
+                  <Text style={{ fontSize: 13, fontWeight: '700', color: theme.card }}>{userName ? userName.substring(0, 2).toUpperCase() : 'HA'}</Text>
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={{ flex: 1, backgroundColor: theme.inputBackground, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8, borderWidth: 1, borderColor: theme.border }}
+                onPress={() => navigation.navigate('PostCreation')}
+              >
+                <Text style={{ color: theme.textMuted, fontSize: 13 }}>Start a post or share an update...</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={{ padding: 6, backgroundColor: theme.background, borderRadius: 16 }}
+                onPress={() => navigation.navigate('PostCreation')}
+              >
+                <Ionicons name="image-outline" size={18} color={theme.primary} />
+              </TouchableOpacity>
+            </View>
+
+            {posts.length > 0 ? (
+              posts.map(post => renderPostCard(post))
+            ) : (
+              <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 24, alignItems: 'center', margin: 16, borderWidth: 1, borderColor: theme.border }}>
+                <Ionicons name="people-outline" size={44} color={theme.primary} style={{ marginBottom: 8 }} />
+                <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text, marginBottom: 4, textAlign: 'center' }}>No Followed Alumni Posts Yet</Text>
+                <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: 'center', marginBottom: 12 }}>Follow alumni members from &quot;People you may know&quot; or the Directory to view their posts in your feed!</Text>
+                <TouchableOpacity 
+                  style={{ backgroundColor: theme.primary, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 16 }}
+                  onPress={() => navigation.navigate('Engage', { tab: 'directory' })}
+                >
+                  <Text style={{ color: '#FFF', fontWeight: '600', fontSize: 12 }}>Explore Directory</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {/* Suggestions on Mobile */}
+            {suggestions.filter(s => !followingMap[s.id]).length > 0 && (
+              <View style={styles.sectionContainer}>
+                <View style={styles.sectionHeader}>
+                  <Text style={styles.sectionTitle}>Suggestions for you</Text>
+                  <TouchableOpacity onPress={() => navigation.navigate('Engage', { tab: 'directory' })}><Text style={styles.seeAllText}>See all</Text></TouchableOpacity>
+                </View>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.suggestionsScroll}>
+                  {suggestions.filter(s => !followingMap[s.id]).map((s) => (
+                    <View key={s.id} style={styles.suggestionCard}>
+                      <View style={styles.suggestionAvatar}>
+                        {s.isAvatarUrl ? (
+                          <Image source={{ uri: s.avatar }} style={{ width: 44, height: 44, borderRadius: 22 }} />
+                        ) : (
+                          <Text style={styles.suggestionAvatarText}>{s.avatar}</Text>
+                        )}
+                      </View>
+                      <Text style={styles.suggestionName} numberOfLines={1}>{s.name}</Text>
+                      <Text style={styles.suggestionSubtitle} numberOfLines={1}>{s.subtitle}</Text>
+                      <TouchableOpacity
+                        style={[styles.suggestionFollowBtn, followingMap[s.id] && styles.suggestionFollowBtnActive]}
+                        onPress={() => toggleSuggestionFollow(s.id)}
+                      >
+                        <Text style={[styles.suggestionFollowText, followingMap[s.id] && styles.suggestionFollowTextActive]}>
+                          {followingMap[s.id] ? 'Following' : 'Follow'}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+          </ScrollView>
+        )}
+
+        {/* Instagram Floating Messages Pill */}
+        <TouchableOpacity 
+          style={{
+            position: 'absolute',
+            bottom: 20,
+            right: 24,
+            backgroundColor: isDarkMode ? '#262626' : '#FFFFFF',
+            borderRadius: 24,
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingVertical: 10,
+            paddingHorizontal: 16,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.15,
+            shadowRadius: 10,
+            elevation: 8,
+            borderWidth: 1,
+            borderColor: isDarkMode ? '#363636' : '#E2E8F0',
+            zIndex: 9999,
+            gap: 8
+          }}
+          onPress={() => navigation.navigate('Messages')}
+          activeOpacity={0.85}
+        >
+          <Ionicons name="paper-plane-outline" size={20} color={theme.text} />
+          <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>Messages</Text>
+          <View style={{ flexDirection: 'row', marginLeft: 4 }}>
+            <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: '#3B82F6', borderWidth: 1.5, borderColor: theme.card, justifyContent: 'center', alignItems: 'center' }}>
+              <Text style={{ fontSize: 9, color: '#FFF', fontWeight: 'bold' }}>JD</Text>
+            </View>
+            <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: '#10B981', borderWidth: 1.5, borderColor: theme.card, marginLeft: -8, justifyContent: 'center', alignItems: 'center' }}>
+              <Text style={{ fontSize: 9, color: '#FFF', fontWeight: 'bold' }}>SK</Text>
+            </View>
+          </View>
+        </TouchableOpacity>
         ) : (
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
             {/* Mobile Create Post Box */}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Image, ScrollView, useWindowDimensions, Alert, StatusBar, Modal, TextInput, Platform, Share } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Image, ScrollView, useWindowDimensions, Alert, StatusBar, Modal, TextInput, Platform, Share, Switch } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
@@ -494,6 +494,11 @@ const DEFAULT_TAGGED_POSTS = [];
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [twoFactor, setTwoFactor] = useState(false);
+
+  // Instagram Settings & Accounts Center States
+  const [showThreadsBadge, setShowThreadsBadge] = useState(true);
+  const [isAiCreator, setIsAiCreator] = useState(false);
+  const [accountsCenterVisible, setAccountsCenterVisible] = useState(false);
 
   const mockTags = [];
   const mockSaved = [];
@@ -2258,7 +2263,7 @@ const DEFAULT_TAGGED_POSTS = [];
         </View>
       </Modal>
 
-      {/* Instagram-Style Edit Profile Modal */}
+      {/* Instagram-Style Edit Profile Modal (Matching Image 3) */}
       <Modal visible={editProfileModalVisible} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setEditProfileModalVisible(false)}>
         <SafeAreaView style={{ flex: 1, backgroundColor: theme.card }}>
           {/* Header Bar */}
@@ -2266,119 +2271,248 @@ const DEFAULT_TAGGED_POSTS = [];
             <TouchableOpacity onPress={() => setEditProfileModalVisible(false)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
               <Text style={{ fontSize: 16, color: theme.textSecondary, fontWeight: '500' }}>Cancel</Text>
             </TouchableOpacity>
-            <Text style={{ fontSize: 17, fontWeight: '700', color: theme.text }}>Edit Profile</Text>
+            <Text style={{ fontSize: 17, fontWeight: '700', color: theme.text }}>Edit profile</Text>
             <TouchableOpacity onPress={handleSaveProfile} disabled={savingProfile} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
               {savingProfile ? (
                 <Text style={{ fontSize: 16, color: theme.textMuted, fontWeight: '600' }}>Saving...</Text>
               ) : (
-                <Text style={{ fontSize: 16, color: theme.primary, fontWeight: '700' }}>Done</Text>
+                <Text style={{ fontSize: 16, color: '#0095F6', fontWeight: '700' }}>Done</Text>
               )}
             </TouchableOpacity>
           </View>
 
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40, maxWidth: 600, width: '100%', alignSelf: 'center' }}>
-            {/* Avatar Center Section */}
-            <View style={{ alignItems: 'center', paddingVertical: 24, borderBottomWidth: 1, borderBottomColor: theme.border }}>
-              <TouchableOpacity onPress={handlePickProfilePhoto} activeOpacity={0.8} style={{ alignItems: 'center' }}>
-                <View style={{ width: 92, height: 92, borderRadius: 46, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center', overflow: 'hidden', borderWidth: 3, borderColor: theme.card, elevation: 4 }}>
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40, maxWidth: 640, width: '100%', alignSelf: 'center' }}>
+            {/* Meta Accounts Center Banner Button (Matching Image 2 & 3) */}
+            <TouchableOpacity 
+              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: isDarkMode ? '#262626' : '#F8FAFC', borderRadius: 14, padding: 14, marginHorizontal: 16, marginTop: 14, borderWidth: 1, borderColor: theme.border }}
+              onPress={() => setAccountsCenterVisible(true)}
+              activeOpacity={0.8}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 8 }}>
+                <Ionicons name="infinite" size={24} color="#0095F6" style={{ marginRight: 10 }} />
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>Accounts Center</Text>
+                  <Text style={{ fontSize: 12, color: theme.textSecondary, marginTop: 2 }}>Password, security, personal details, ad preferences</Text>
+                </View>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
+            </TouchableOpacity>
+
+            {/* Top User Avatar Card (Matching Image 3) */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: isDarkMode ? '#262626' : '#EFEFEF', borderRadius: 16, padding: 16, marginHorizontal: 16, marginTop: 16, marginBottom: 12 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 10 }}>
+                <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center', overflow: 'hidden', marginRight: 14 }}>
                   {editAvatarUrl ? (
                     <Image source={{ uri: editAvatarUrl }} style={{ width: '100%', height: '100%' }} />
                   ) : (
-                    <Text style={{ fontSize: 32, fontWeight: '800', color: '#FFFFFF' }}>{editName ? editName.substring(0, 2).toUpperCase() : 'AL'}</Text>
+                    <Text style={{ fontSize: 22, fontWeight: '800', color: '#FFFFFF' }}>{editName ? editName.substring(0, 2).toUpperCase() : 'AL'}</Text>
                   )}
                 </View>
-                <Text style={{ color: '#0A66C2', fontSize: 14, fontWeight: '700', marginTop: 12 }}>Edit picture or avatar</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }} numberOfLines={1}>{editUsername || profileData.username}</Text>
+                  <Text style={{ fontSize: 13, color: theme.textSecondary }} numberOfLines={1}>{editName || profileData.name}</Text>
+                </View>
+              </View>
+              <TouchableOpacity 
+                style={{ backgroundColor: '#0095F6', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8 }}
+                onPress={handlePickProfilePhoto}
+                activeOpacity={0.8}
+              >
+                <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 13 }}>Change photo</Text>
               </TouchableOpacity>
             </View>
 
-            {/* Instagram Style Input List */}
-            <View style={{ paddingHorizontal: 16, paddingTop: 8 }}>
-              {/* Name Row */}
-              <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.border }}>
-                <Text style={{ width: 105, fontSize: 15, fontWeight: '600', color: theme.text }}>Name</Text>
-                <TextInput
-                  style={{ flex: 1, fontSize: 15, color: theme.text, paddingVertical: 4 }}
-                  placeholder="Your full name"
-                  placeholderTextColor={theme.textMuted}
-                  value={editName}
-                  onChangeText={setEditName}
-                />
+            {/* Name Input */}
+            <View style={{ marginHorizontal: 16, marginTop: 12 }}>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text, marginBottom: 6 }}>Name</Text>
+              <TextInput
+                style={{ backgroundColor: isDarkMode ? '#262626' : '#FAFAFA', borderWidth: 1, borderColor: theme.border, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: theme.text }}
+                placeholder="Full name"
+                placeholderTextColor={theme.textMuted}
+                value={editName}
+                onChangeText={setEditName}
+              />
+            </View>
+
+            {/* Username Input */}
+            <View style={{ marginHorizontal: 16, marginTop: 12 }}>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text, marginBottom: 6 }}>Username</Text>
+              <TextInput
+                style={{ backgroundColor: isDarkMode ? '#262626' : '#FAFAFA', borderWidth: 1, borderColor: theme.border, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: theme.text }}
+                placeholder="Username / Handle"
+                placeholderTextColor={theme.textMuted}
+                autoCapitalize="none"
+                value={editUsername}
+                onChangeText={setEditUsername}
+              />
+            </View>
+
+            {/* Website Field (Matching Image 3) */}
+            <View style={{ marginHorizontal: 16, marginTop: 14 }}>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text, marginBottom: 6 }}>Website</Text>
+              <TextInput
+                style={{ backgroundColor: isDarkMode ? '#262626' : '#FAFAFA', borderWidth: 1, borderColor: theme.border, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: theme.text }}
+                placeholder="Website"
+                placeholderTextColor={theme.textMuted}
+                autoCapitalize="none"
+                value={editLinkedin}
+                onChangeText={setEditLinkedin}
+              />
+              <Text style={{ fontSize: 12, color: theme.textMuted, marginTop: 6, lineHeight: 16 }}>
+                Editing your links is only available on mobile. Visit the Instagram app and edit your profile to change the websites in your bio.
+              </Text>
+            </View>
+
+            {/* Bio Field (Matching Image 3 with character count) */}
+            <View style={{ marginHorizontal: 16, marginTop: 14 }}>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text, marginBottom: 6 }}>Bio</Text>
+              <TextInput
+                style={{ backgroundColor: isDarkMode ? '#262626' : '#FAFAFA', borderWidth: 1, borderColor: theme.border, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: theme.text, minHeight: 74, textAlignVertical: 'top' }}
+                placeholder="Add a bio..."
+                placeholderTextColor={theme.textMuted}
+                multiline
+                maxLength={150}
+                value={editBio}
+                onChangeText={setEditBio}
+              />
+              <Text style={{ alignSelf: 'flex-end', fontSize: 12, color: theme.textMuted, marginTop: 4 }}>
+                {editBio.length} / 150
+              </Text>
+            </View>
+
+            {/* Department / Branch Row */}
+            <TouchableOpacity 
+              style={{ marginHorizontal: 16, marginTop: 12, backgroundColor: isDarkMode ? '#262626' : '#FAFAFA', borderWidth: 1, borderColor: theme.border, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
+              onPress={() => setBranchModalVisible(true)}
+            >
+              <View>
+                <Text style={{ fontSize: 12, color: theme.textMuted, fontWeight: '600' }}>Department</Text>
+                <Text style={{ fontSize: 14, color: editBranch ? theme.text : theme.textMuted, fontWeight: '600', marginTop: 2 }}>{editBranch || 'Select department'}</Text>
               </View>
+              <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
+            </TouchableOpacity>
 
-              {/* Username Row */}
-              <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.border }}>
-                <Text style={{ width: 105, fontSize: 15, fontWeight: '600', color: theme.text }}>Username</Text>
-                <TextInput
-                  style={{ flex: 1, fontSize: 15, color: theme.text, paddingVertical: 4 }}
-                  placeholder="Username / Handle"
-                  placeholderTextColor={theme.textMuted}
-                  autoCapitalize="none"
-                  value={editUsername}
-                  onChangeText={setEditUsername}
-                />
+            {/* Batch Year Row */}
+            <TouchableOpacity 
+              style={{ marginHorizontal: 16, marginTop: 12, backgroundColor: isDarkMode ? '#262626' : '#FAFAFA', borderWidth: 1, borderColor: theme.border, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
+              onPress={() => setBatchModalVisible(true)}
+            >
+              <View>
+                <Text style={{ fontSize: 12, color: theme.textMuted, fontWeight: '600' }}>Batch Year</Text>
+                <Text style={{ fontSize: 14, color: editBatch ? theme.text : theme.textMuted, fontWeight: '600', marginTop: 2 }}>{editBatch ? `Class of ${editBatch}` : 'Select graduation year'}</Text>
               </View>
+              <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
+            </TouchableOpacity>
 
-              {/* Bio Row */}
-              <View style={{ flexDirection: 'row', alignItems: 'flex-start', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.border }}>
-                <Text style={{ width: 105, fontSize: 15, fontWeight: '600', color: theme.text, marginTop: 4 }}>Bio</Text>
-                <TextInput
-                  style={{ flex: 1, fontSize: 15, color: theme.text, minHeight: 64, textAlignVertical: 'top', paddingVertical: 4 }}
-                  placeholder="Add a bio to your profile..."
-                  placeholderTextColor={theme.textMuted}
-                  multiline
-                  value={editBio}
-                  onChangeText={setEditBio}
-                />
-              </View>
+            {/* Show Threads Badge (Matching Image 3) */}
+            <View style={{ marginHorizontal: 16, marginTop: 14, backgroundColor: isDarkMode ? '#262626' : '#FAFAFA', borderRadius: 10, borderWidth: 1, borderColor: theme.border, padding: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text }}>Show Threads badge</Text>
+              <Switch value={showThreadsBadge} onValueChange={setShowThreadsBadge} trackColor={{ false: '#767577', true: '#0095F6' }} />
+            </View>
 
-              {/* Department / Branch Row */}
-              <TouchableOpacity 
-                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.border }}
-                onPress={() => setBranchModalVisible(true)}
-              >
-                <Text style={{ width: 105, fontSize: 15, fontWeight: '600', color: theme.text }}>Department</Text>
-                <Text style={{ flex: 1, fontSize: 15, color: editBranch ? theme.text : theme.textMuted }} numberOfLines={1}>
-                  {editBranch || 'Select department'}
-                </Text>
-                <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
-              </TouchableOpacity>
-
-              {/* Batch Year Row */}
-              <TouchableOpacity 
-                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.border }}
-                onPress={() => setBatchModalVisible(true)}
-              >
-                <Text style={{ width: 105, fontSize: 15, fontWeight: '600', color: theme.text }}>Batch Year</Text>
-                <Text style={{ flex: 1, fontSize: 15, color: editBatch ? theme.text : theme.textMuted }}>
-                  {editBatch ? `Class of ${editBatch}` : 'Select graduation year'}
-                </Text>
-                <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
-              </TouchableOpacity>
-
-              {/* LinkedIn / Links Row */}
-              <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.border }}>
-                <Text style={{ width: 105, fontSize: 15, fontWeight: '600', color: theme.text }}>Links</Text>
-                <TextInput
-                  style={{ flex: 1, fontSize: 15, color: theme.text, paddingVertical: 4 }}
-                  placeholder="https://linkedin.com/in/..."
-                  placeholderTextColor={theme.textMuted}
-                  autoCapitalize="none"
-                  value={editLinkedin}
-                  onChangeText={setEditLinkedin}
-                />
-              </View>
+            {/* AI Creator Toggle (Matching Image 3) */}
+            <View style={{ marginHorizontal: 16, marginTop: 12, backgroundColor: isDarkMode ? '#262626' : '#FAFAFA', borderRadius: 10, borderWidth: 1, borderColor: theme.border, padding: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text }}>AI creator</Text>
+              <Switch value={isAiCreator} onValueChange={setIsAiCreator} trackColor={{ false: '#767577', true: '#0095F6' }} />
             </View>
 
             {/* Save Button */}
-            <View style={{ padding: 20, marginTop: 10 }}>
+            <View style={{ padding: 16, marginTop: 10 }}>
               <TouchableOpacity
-                style={{ backgroundColor: theme.primary, borderRadius: 10, paddingVertical: 14, alignItems: 'center', elevation: 2 }}
+                style={{ backgroundColor: '#0095F6', borderRadius: 10, paddingVertical: 14, alignItems: 'center', elevation: 2 }}
                 onPress={handleSaveProfile}
                 disabled={savingProfile}
               >
                 <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '700' }}>
-                  {savingProfile ? 'Saving Changes...' : 'Save Profile Changes'}
+                  {savingProfile ? 'Saving Changes...' : 'Submit'}
                 </Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </SafeAreaView>
+      </Modal>
+
+      {/* Meta Accounts Center Modal (Matching Image 2) */}
+      <Modal visible={accountsCenterVisible} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setAccountsCenterVisible(false)}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: isDarkMode ? '#121212' : '#FFFFFF' }}>
+          {/* Top Header */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, borderBottomWidth: 1, borderBottomColor: theme.border }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Ionicons name="infinite" size={24} color="#0095F6" style={{ marginRight: 8 }} />
+              <Text style={{ fontSize: 18, fontWeight: '800', color: theme.text }}>Meta</Text>
+            </View>
+            <TouchableOpacity onPress={() => setAccountsCenterVisible(false)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+              <Ionicons name="close" size={24} color={theme.text} />
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 20, maxWidth: 640, alignSelf: 'center', width: '100%' }}>
+            <Text style={{ fontSize: 24, fontWeight: '800', color: theme.text, marginBottom: 8 }}>Accounts Center</Text>
+            <Text style={{ fontSize: 13, color: theme.textSecondary, marginBottom: 20 }}>
+              Manage your connected experiences and account settings across Meta technologies.
+            </Text>
+
+            {/* Profiles Box */}
+            <View style={{ backgroundColor: isDarkMode ? '#1E1E1E' : '#F8FAFC', borderRadius: 16, borderWidth: 1, borderColor: theme.border, padding: 16, marginBottom: 20 }}>
+              <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text, marginBottom: 12 }}>Profiles</Text>
+              
+              <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 8 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center', overflow: 'hidden', marginRight: 12 }}>
+                    {profileData.avatar_url ? (
+                      <Image source={{ uri: profileData.avatar_url }} style={{ width: 44, height: 44, borderRadius: 22 }} />
+                    ) : (
+                      <Text style={{ color: '#FFF', fontWeight: '700' }}>{profileData.avatar || 'AL'}</Text>
+                    )}
+                  </View>
+                  <View>
+                    <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>{profileData.username}</Text>
+                    <Text style={{ fontSize: 12, color: theme.textSecondary }}>Instagram • Alumni</Text>
+                  </View>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
+              </TouchableOpacity>
+
+              <View style={{ height: 1, backgroundColor: theme.border, marginVertical: 10 }} />
+
+              <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 8 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: theme.border, justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
+                    <Ionicons name="at-circle-outline" size={24} color={theme.text} />
+                  </View>
+                  <View>
+                    <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>{profileData.username}</Text>
+                    <Text style={{ fontSize: 12, color: theme.textSecondary }}>Threads</Text>
+                  </View>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
+              </TouchableOpacity>
+
+              <TouchableOpacity style={{ marginTop: 12 }}>
+                <Text style={{ color: '#0095F6', fontSize: 14, fontWeight: '700' }}>Add accounts</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Personal Details Box (Matching Image 2) */}
+            <View style={{ backgroundColor: isDarkMode ? '#1E1E1E' : '#F8FAFC', borderRadius: 16, borderWidth: 1, borderColor: theme.border, padding: 16 }}>
+              <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text, marginBottom: 12 }}>Personal details</Text>
+
+              <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10 }}>
+                <View>
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>Contact info</Text>
+                  <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 2 }}>{profileData.email || 'harshithads2001@gmail.com'}</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
+              </TouchableOpacity>
+
+              <View style={{ height: 1, backgroundColor: theme.border, marginVertical: 8 }} />
+
+              <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10 }}>
+                <View>
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>Birthday</Text>
+                  <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 2 }}>March 6, 2001</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
               </TouchableOpacity>
             </View>
           </ScrollView>
