@@ -254,468 +254,446 @@ const RegisterScreen = ({ navigation }) => {
   };
 
   const isWeb = Platform.OS === 'web';
-  const webContainerStyle = isWeb ? { alignSelf: 'center', width: '100%', maxWidth: 500, flex: 1 } : { flex: 1 };
+  const webWrapperStyle = isWeb ? { flex: 1, backgroundColor: theme.background, justifyContent: 'center', paddingVertical: 24 } : { flex: 1 };
+  const webContainerStyle = isWeb ? { 
+    alignSelf: 'center', 
+    width: '100%', 
+    maxWidth: 540, 
+    backgroundColor: theme.card,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: theme.border,
+    padding: 32,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 16,
+    elevation: 4
+  } : { flex: 1, paddingHorizontal: 20 };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={webContainerStyle}>
-      <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.content}
-      >
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={() => {
-              if (navigation.canGoBack()) {
-                navigation.goBack();
-              } else {
-                navigation.navigate('Welcome');
-              }
-            }}
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+      <View style={webWrapperStyle}>
+        <View style={webContainerStyle}>
+          <KeyboardAvoidingView 
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={styles.content}
           >
-            <Text style={styles.backButtonText}>← Back</Text>
-          </TouchableOpacity>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <TouchableOpacity 
+                style={styles.backButton}
+                onPress={() => {
+                  if (navigation.canGoBack()) {
+                    navigation.goBack();
+                  } else {
+                    navigation.navigate('Welcome');
+                  }
+                }}
+              >
+                <Ionicons name="arrow-back" size={22} color={theme.text} style={{ marginRight: 6 }} />
+                <Text style={styles.backButtonText}>Back</Text>
+              </TouchableOpacity>
 
-          <View style={styles.header}>
-            <Text style={styles.title}>Join Network</Text>
-          </View>
-
-          <View style={styles.form}>
-            <View style={styles.inputContainer}>
-              <Text style={styles.label}>Full Name</Text>
-              <TextInput 
-                style={styles.input}
-                placeholder="Enter your full name"
-                placeholderTextColor="#94A3B8"
-                value={formData.name}
-                onChangeText={(text) => setFormData({ ...formData, name: text })}
-              />
-            </View>
-
-            <View style={styles.inputContainer}>
-              <Text style={styles.label}>Email Address</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <TextInput 
-                  style={[
-                    styles.input, 
-                    { flex: 1 }, 
-                    emailState === 'verified' && { borderColor: '#10B981', backgroundColor: 'rgba(16, 185, 129, 0.05)' }
-                  ]}
-                  placeholder="college or personal email"
-                  placeholderTextColor="#94A3B8"
-                  value={formData.email}
-                  onChangeText={(text) => {
-                    setFormData({ ...formData, email: text });
-                    if (emailState !== 'idle') {
-                      setEmailState('idle');
-                      setOtpVerified(false);
-                      setInlineOtp(['', '', '', '']);
-                      setOtpError('');
-                    }
-                  }}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  editable={emailState !== 'verified'}
-                />
-                {emailState === 'verified' ? (
-                  <View style={{ marginLeft: 10 }}>
-                    <Ionicons name="checkmark-circle" size={24} color="#10B981" />
-                  </View>
-                ) : (
-                  <TouchableOpacity 
-                    style={{
-                      marginLeft: 10,
-                      backgroundColor: theme.primary,
-                      paddingHorizontal: 14,
-                      paddingVertical: 12,
-                      borderRadius: 10,
-                      justifyContent: 'center',
-                      alignItems: 'center'
-                    }}
-                    onPress={handleSendInlineOtp}
-                    disabled={sendingOtpLoading}
-                  >
-                    {sendingOtpLoading ? (
-                      <ActivityIndicator size="small" color="#FFFFFF" />
-                    ) : (
-                      <Text style={{ color: '#FFFFFF', fontWeight: '600', fontSize: 12 }}>
-                        {emailState === 'sent' ? 'Resend' : 'Send OTP'}
-                      </Text>
-                    )}
-                  </TouchableOpacity>
-                )}
+              <View style={styles.header}>
+                <Text style={styles.title}>Join Network</Text>
+                <Text style={styles.subtitle}>Create an account to connect with alumni, faculty, and institutional opportunities.</Text>
               </View>
 
+              <View style={styles.form}>
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Full Name</Text>
+                  <TextInput 
+                    style={styles.input}
+                    placeholder="Enter your full name"
+                    placeholderTextColor={theme.textMuted}
+                    value={formData.name}
+                    onChangeText={(text) => setFormData({ ...formData, name: text })}
+                  />
+                </View>
 
-
-              {/* Validation Error Banner */}
-              {otpError ? (
-                <Text style={{ color: '#EF4444', fontSize: 12, marginTop: 6, fontWeight: '500' }}>
-                  ⚠️ {otpError}
-                </Text>
-              ) : null}
-
-              {/* Inline OTP Verification Section (Appears directly down below Email field) */}
-              {emailState === 'sent' && !otpVerified ? (
-                <View style={{
-                  marginTop: 14,
-                  padding: 16,
-                  backgroundColor: '#FFFFFF',
-                  borderRadius: 14,
-                  borderWidth: 2,
-                  borderColor: theme.primary,
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.1,
-                  shadowRadius: 6,
-                  elevation: 4
-                }}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                    <Text style={{ fontSize: 14, fontWeight: '700', color: '#0F172A' }}>
-                      📩 Enter 6-Digit Verification Code
-                    </Text>
-                    <TouchableOpacity onPress={handleSendInlineOtp} disabled={sendingOtpLoading}>
-                      <Text style={{ fontSize: 12, fontWeight: '700', color: theme.primary, textDecorationLine: 'underline' }}>
-                        {sendingOtpLoading ? 'Resending...' : 'Resend Code'}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-
-                  <Text style={{ fontSize: 12, color: '#475569', marginBottom: 14, lineHeight: 17 }}>
-                    Code sent to <Text style={{ fontWeight: '700', color: '#0F172A' }}>{formData.email}</Text>. (Check your Inbox / Spam folder)
-                  </Text>
-                  
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 14 }}>
-                    {[0, 1, 2, 3, 4, 5].map((index) => (
-                      <TextInput
-                        key={index}
-                        ref={(el) => (otpRefs.current[index] = el)}
-                        style={{
-                          width: 44,
-                          height: 48,
-                          borderWidth: 2,
-                          borderColor: inlineOtp[index] ? theme.primary : '#94A3B8',
-                          borderRadius: 10,
-                          textAlign: 'center',
-                          fontSize: 20,
-                          fontWeight: '800',
-                          color: '#0F172A',
-                          backgroundColor: inlineOtp[index] ? '#EFF6FF' : '#F8FAFC'
-                        }}
-                        keyboardType="number-pad"
-                        maxLength={6}
-                        value={inlineOtp[index]}
-                        onChangeText={(val) => {
-                          const digitsOnly = val.replace(/[^0-9]/g, '');
-                          if (digitsOnly.length === 6) {
-                            setInlineOtp(digitsOnly.split(''));
-                            otpRefs.current[5]?.focus();
-                          } else {
-                            const newOtp = [...inlineOtp];
-                            newOtp[index] = digitsOnly.slice(-1);
-                            setInlineOtp(newOtp);
-                            if (digitsOnly && index < 5) {
-                              otpRefs.current[index + 1]?.focus();
-                            }
-                          }
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Email Address</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <TextInput 
+                      style={[
+                        styles.input, 
+                        { flex: 1 }, 
+                        emailState === 'verified' && { borderColor: '#10B981', backgroundColor: isDarkMode ? '#064E3B20' : '#ECFDF5' }
+                      ]}
+                      placeholder="college or personal email"
+                      placeholderTextColor={theme.textMuted}
+                      value={formData.email}
+                      onChangeText={(text) => {
+                        setFormData({ ...formData, email: text });
+                        if (emailState !== 'idle') {
+                          setEmailState('idle');
+                          setOtpVerified(false);
+                          setInlineOtp(['', '', '', '', '', '']);
                           setOtpError('');
+                        }
+                      }}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      editable={emailState !== 'verified'}
+                    />
+                    {emailState === 'verified' ? (
+                      <View style={{ marginLeft: 10 }}>
+                        <Ionicons name="checkmark-circle" size={24} color="#10B981" />
+                      </View>
+                    ) : (
+                      <TouchableOpacity 
+                        style={{
+                          marginLeft: 10,
+                          backgroundColor: theme.primary,
+                          paddingHorizontal: 14,
+                          paddingVertical: 13,
+                          borderRadius: 10,
+                          justifyContent: 'center',
+                          alignItems: 'center'
                         }}
-                        onKeyPress={(e) => {
-                          if (e.nativeEvent.key === 'Backspace' && !inlineOtp[index] && index > 0) {
-                            otpRefs.current[index - 1]?.focus();
-                          }
-                        }}
-                      />
-                    ))}
+                        onPress={handleSendInlineOtp}
+                        disabled={sendingOtpLoading}
+                      >
+                        {sendingOtpLoading ? (
+                          <ActivityIndicator size="small" color="#FFFFFF" />
+                        ) : (
+                          <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 13 }}>
+                            {emailState === 'sent' ? 'Resend' : 'Send OTP'}
+                          </Text>
+                        )}
+                      </TouchableOpacity>
+                    )}
                   </View>
 
+                  {/* Validation Error Banner */}
                   {otpError ? (
-                    <View style={{ backgroundColor: '#FEF2F2', padding: 8, borderRadius: 8, marginBottom: 12, borderWidth: 1, borderColor: '#FCA5A5' }}>
-                      <Text style={{ color: '#DC2626', fontSize: 12, fontWeight: '700', textAlign: 'center' }}>
-                        ⚠️ {otpError}
+                    <Text style={{ color: '#EF4444', fontSize: 12, marginTop: 6, fontWeight: '500' }}>
+                      ⚠️ {otpError}
+                    </Text>
+                  ) : null}
+
+                  {/* Inline OTP Verification Section */}
+                  {emailState === 'sent' && !otpVerified ? (
+                    <View style={{
+                      marginTop: 14,
+                      padding: 16,
+                      backgroundColor: theme.card,
+                      borderRadius: 14,
+                      borderWidth: 1.5,
+                      borderColor: theme.primary,
+                      shadowColor: '#000',
+                      shadowOffset: { width: 0, height: 2 },
+                      shadowOpacity: 0.08,
+                      shadowRadius: 6,
+                      elevation: 3
+                    }}>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                        <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>
+                          📩 Enter 6-Digit Verification Code
+                        </Text>
+                        <TouchableOpacity onPress={handleSendInlineOtp} disabled={sendingOtpLoading}>
+                          <Text style={{ fontSize: 12, fontWeight: '700', color: theme.primary, textDecorationLine: 'underline' }}>
+                            {sendingOtpLoading ? 'Resending...' : 'Resend Code'}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+
+                      <Text style={{ fontSize: 12, color: theme.textSecondary, marginBottom: 14, lineHeight: 17 }}>
+                        Code sent to <Text style={{ fontWeight: '700', color: theme.text }}>{formData.email}</Text>. (Check your Inbox / Spam folder)
                       </Text>
+                      
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 14 }}>
+                        {[0, 1, 2, 3, 4, 5].map((index) => (
+                          <TextInput
+                            key={index}
+                            ref={(el) => (otpRefs.current[index] = el)}
+                            style={{
+                              width: 44,
+                              height: 48,
+                              borderWidth: 1.5,
+                              borderColor: inlineOtp[index] ? theme.primary : theme.border,
+                              borderRadius: 10,
+                              textAlign: 'center',
+                              fontSize: 18,
+                              fontWeight: '700',
+                              color: theme.text,
+                              backgroundColor: theme.inputBackground
+                            }}
+                            keyboardType="number-pad"
+                            maxLength={6}
+                            value={inlineOtp[index]}
+                            onChangeText={(val) => {
+                              const digitsOnly = val.replace(/[^0-9]/g, '');
+                              if (digitsOnly.length === 6) {
+                                setInlineOtp(digitsOnly.split(''));
+                                otpRefs.current[5]?.focus();
+                              } else {
+                                const newOtp = [...inlineOtp];
+                                newOtp[index] = digitsOnly.slice(-1);
+                                setInlineOtp(newOtp);
+                                if (digitsOnly && index < 5) {
+                                  otpRefs.current[index + 1]?.focus();
+                                }
+                              }
+                              setOtpError('');
+                            }}
+                            onKeyPress={(e) => {
+                              if (e.nativeEvent.key === 'Backspace' && !inlineOtp[index] && index > 0) {
+                                otpRefs.current[index - 1]?.focus();
+                              }
+                            }}
+                          />
+                        ))}
+                      </View>
+
+                      {otpError ? (
+                        <View style={{ backgroundColor: isDarkMode ? '#450A0A' : '#FEF2F2', padding: 8, borderRadius: 8, marginBottom: 12, borderWidth: 1, borderColor: '#FCA5A5' }}>
+                          <Text style={{ color: '#DC2626', fontSize: 12, fontWeight: '700', textAlign: 'center' }}>
+                            ⚠️ {otpError}
+                          </Text>
+                        </View>
+                      ) : null}
+
+                      <TouchableOpacity
+                        style={{
+                          backgroundColor: theme.primary,
+                          paddingVertical: 14,
+                          borderRadius: 10,
+                          alignItems: 'center',
+                          shadowColor: theme.primary,
+                          shadowOffset: { width: 0, height: 3 },
+                          shadowOpacity: 0.25,
+                          shadowRadius: 5,
+                          elevation: 3,
+                          opacity: verifyingOtpLoading ? 0.7 : 1
+                        }}
+                        disabled={verifyingOtpLoading}
+                        onPress={handleVerifyInlineOtp}
+                      >
+                        {verifyingOtpLoading ? (
+                          <ActivityIndicator size="small" color="#FFFFFF" />
+                        ) : (
+                          <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 15, letterSpacing: 0.5 }}>
+                            Verify OTP Code
+                          </Text>
+                        )}
+                      </TouchableOpacity>
                     </View>
                   ) : null}
 
-                  <TouchableOpacity
-                    style={{
-                      backgroundColor: theme.primary,
-                      paddingVertical: 14,
-                      borderRadius: 10,
-                      alignItems: 'center',
-                      shadowColor: theme.primary,
-                      shadowOffset: { width: 0, height: 3 },
-                      shadowOpacity: 0.3,
-                      shadowRadius: 5,
-                      elevation: 3,
-                      opacity: verifyingOtpLoading ? 0.7 : 1
-                    }}
-                    disabled={verifyingOtpLoading}
-                    onPress={handleVerifyInlineOtp}
-                  >
-                    {verifyingOtpLoading ? (
-                      <ActivityIndicator size="small" color="#FFFFFF" />
-                    ) : (
-                      <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 15, letterSpacing: 0.5 }}>
-                        Verify OTP Code
+                  {/* Verified Badge */}
+                  {emailState === 'verified' ? (
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6 }}>
+                      <Text style={{ color: '#10B981', fontSize: 12, fontWeight: '600' }}>
+                        ✅ Email verified successfully!
                       </Text>
-                    )}
+                      <TouchableOpacity onPress={() => { setEmailState('idle'); setOtpVerified(false); }} style={{ marginLeft: 10 }}>
+                        <Text style={{ color: theme.primary, fontSize: 12, textDecorationLine: 'underline' }}>Change</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ) : null}
+                </View>
+
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Institution</Text>
+                  <TouchableOpacity 
+                    style={styles.selector} 
+                    onPress={() => openPicker('institution')}
+                  >
+                    <Text style={[styles.selectorText, !formData.institution && { color: theme.textMuted }]}>
+                      {formData.institution || 'Select Institution'}
+                    </Text>
+                    <Ionicons name="chevron-down" size={16} color={theme.textSecondary} />
                   </TouchableOpacity>
                 </View>
-              ) : null}
 
-              {/* Verified Badge */}
-              {emailState === 'verified' ? (
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6 }}>
-                  <Text style={{ color: '#10B981', fontSize: 12, fontWeight: '600' }}>
-                    ✅ Email verified successfully!
-                  </Text>
-                  <TouchableOpacity onPress={() => { setEmailState('idle'); setOtpVerified(false); }} style={{ marginLeft: 10 }}>
-                    <Text style={{ color: theme.primary, fontSize: 12, textDecorationLine: 'underline' }}>Change</Text>
-                  </TouchableOpacity>
+                <View style={styles.row}>
+                  <View style={[styles.inputContainer, { flex: 1.5, marginRight: 10 }]}>
+                    <Text style={styles.label}>Department</Text>
+                    <TouchableOpacity 
+                      style={[styles.selector, !formData.institution && { opacity: 0.6 }]} 
+                      onPress={() => {
+                        if (!formData.institution) {
+                          alert('Please select an institution first');
+                          return;
+                        }
+                        openPicker('branch');
+                      }}
+                    >
+                      <Text style={[styles.selectorText, !formData.branch && { color: theme.textMuted }]}>
+                        {formData.branch || 'Select Dept'}
+                      </Text>
+                      <Ionicons name="chevron-down" size={16} color={theme.textSecondary} />
+                    </TouchableOpacity>
+                  </View>
+
+                  <View style={[styles.inputContainer, { flex: 1, marginRight: 10 }]}>
+                    <Text style={styles.label}>Joining Yr</Text>
+                    <TouchableOpacity 
+                      style={styles.selector} 
+                      onPress={() => openPicker('joining')}
+                    >
+                      <Text style={[styles.selectorText, !formData.joiningYear && { color: theme.textMuted }]}>
+                        {formData.joiningYear || 'Year'}
+                      </Text>
+                      <Ionicons name="chevron-down" size={16} color={theme.textSecondary} />
+                    </TouchableOpacity>
+                  </View>
+
+                  <View style={[styles.inputContainer, { flex: 1 }]}>
+                    <Text style={styles.label}>Grad Yr</Text>
+                    <TouchableOpacity 
+                      style={styles.selector} 
+                      onPress={() => openPicker('batch')}
+                    >
+                      <Text style={[styles.selectorText, !formData.batchYear && { color: theme.textMuted }]}>
+                        {formData.batchYear || 'Year'}
+                      </Text>
+                      <Ionicons name="chevron-down" size={16} color={theme.textSecondary} />
+                    </TouchableOpacity>
+                  </View>
                 </View>
-              ) : null}
-            </View>
 
-            <View style={styles.inputContainer}>
-              <Text style={styles.label}>Institution</Text>
-              <TouchableOpacity 
-                style={styles.selector} 
-                onPress={() => openPicker('institution')}
-              >
-                <Text style={[styles.selectorText, !formData.institution && { color: theme.textMuted }]}>
-                  {formData.institution || 'Select Institution'}
-                </Text>
-                <Text style={styles.arrow}>▼</Text>
-              </TouchableOpacity>
-            </View>
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Password</Text>
+                  <View style={{ position: 'relative', justifyContent: 'center' }}>
+                    <TextInput 
+                      style={[styles.input, { paddingRight: 50 }]}
+                      placeholder="Create a strong password"
+                      placeholderTextColor={theme.textMuted}
+                      value={formData.password}
+                      onChangeText={(text) => setFormData(prev => ({ ...prev, password: text }))}
+                      secureTextEntry={!showPassword}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      autoComplete="new-password"
+                    />
+                    <TouchableOpacity
+                      style={{
+                        position: 'absolute',
+                        right: 0,
+                        top: 0,
+                        bottom: 0,
+                        width: 50,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        zIndex: 10
+                      }}
+                      onPress={() => setShowPassword(!showPassword)}
+                      activeOpacity={0.7}
+                    >
+                      <Ionicons 
+                        name={showPassword ? "eye" : "eye-off"} 
+                        size={20} 
+                        color={theme.icon} 
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>
 
-            <View style={styles.row}>
-              <View style={[styles.inputContainer, { flex: 1.5, marginRight: 10 }]}>
-                <Text style={styles.label}>Department</Text>
                 <TouchableOpacity 
-                  style={[styles.selector, !formData.institution && { opacity: 0.6 }]} 
-                  onPress={() => {
-                    if (!formData.institution) {
-                      alert('Please select an institution first');
-                      return;
-                    }
-                    openPicker('branch');
-                  }}
+                  style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 12 }}
+                  onPress={() => setAgreeEULA(!agreeEULA)}
+                  activeOpacity={0.8}
                 >
-                  <Text style={[styles.selectorText, !formData.branch && { color: theme.textMuted }]}>
-                    {formData.branch || 'Select Dept'}
+                  <View style={{ 
+                    width: 22, 
+                    height: 22, 
+                    borderRadius: 6, 
+                    borderWidth: 1.5, 
+                    borderColor: agreeEULA ? theme.primary : theme.border, 
+                    justifyContent: 'center', 
+                    alignItems: 'center', 
+                    marginRight: 10, 
+                    backgroundColor: agreeEULA ? theme.primary : 'transparent' 
+                  }}>
+                    {agreeEULA && <Ionicons name="checkmark" size={15} color="#FFFFFF" />}
+                  </View>
+                  <Text style={{ color: theme.textSecondary, flex: 1, fontSize: 13, fontWeight: '500', lineHeight: 18 }}>
+                    I agree to the{' '}
+                    <Text 
+                      style={{ color: theme.primary, textDecorationLine: 'underline', fontWeight: '700' }}
+                      onPress={() => navigation.navigate('Legal')}
+                    >
+                      Terms & Privacy Policy
+                    </Text>
                   </Text>
-                  <Text style={styles.arrow}>▼</Text>
                 </TouchableOpacity>
-              </View>
 
-              <View style={[styles.inputContainer, { flex: 1, marginRight: 10 }]}>
-                <Text style={styles.label}>Joining Yr</Text>
                 <TouchableOpacity 
-                  style={styles.selector} 
-                  onPress={() => openPicker('joining')}
+                  style={[styles.primaryButton, loading && { opacity: 0.7 }]} 
+                  onPress={handleRegister}
+                  disabled={loading}
                 >
-                  <Text style={[styles.selectorText, !formData.joiningYear && { color: theme.textMuted }]}>
-                    {formData.joiningYear || 'Year'}
-                  </Text>
-                  <Text style={styles.arrow}>▼</Text>
+                  <Text style={styles.primaryButtonText}>{loading ? 'Creating Account...' : 'Create Account'}</Text>
                 </TouchableOpacity>
+
+                {/* ── Social Sign-Up Icons Row ── */}
+                <View style={{ marginTop: 24, marginBottom: 8 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
+                    <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
+                    <Text style={{ marginHorizontal: 12, color: theme.textSecondary, fontSize: 13, fontWeight: '500' }}>or sign up with</Text>
+                    <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
+                  </View>
+
+                  <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 16 }}>
+                    {/* Google Icon */}
+                    <TouchableOpacity
+                      style={styles.socialIcon}
+                      onPress={() => handleOAuthSignUp('google')}
+                      disabled={loading}
+                      activeOpacity={0.7}
+                    >
+                      <Ionicons name="logo-google" size={22} color="#EA4335" />
+                    </TouchableOpacity>
+
+                    {/* LinkedIn Icon */}
+                    <TouchableOpacity
+                      style={[styles.socialIcon, { backgroundColor: '#0A66C2' }]}
+                      onPress={() => handleOAuthSignUp('linkedin')}
+                      disabled={loading}
+                      activeOpacity={0.7}
+                    >
+                      <Ionicons name="logo-linkedin" size={22} color="#FFFFFF" />
+                    </TouchableOpacity>
+
+                    {/* Facebook Icon */}
+                    <TouchableOpacity
+                      style={[styles.socialIcon, { backgroundColor: '#1877F2' }]}
+                      onPress={() => handleOAuthSignUp('facebook')}
+                      disabled={loading}
+                      activeOpacity={0.7}
+                    >
+                      <Ionicons name="logo-facebook" size={22} color="#FFFFFF" />
+                    </TouchableOpacity>
+
+                    {/* Apple Icon */}
+                    <TouchableOpacity
+                      style={[styles.socialIcon, { backgroundColor: isDarkMode ? '#FFFFFF' : '#000000' }]}
+                      onPress={() => handleOAuthSignUp('apple')}
+                      disabled={loading}
+                      activeOpacity={0.7}
+                    >
+                      <Ionicons name="logo-apple" size={22} color={isDarkMode ? '#000000' : '#FFFFFF'} />
+                    </TouchableOpacity>
+                  </View>
+                </View>
               </View>
 
-              <View style={[styles.inputContainer, { flex: 1 }]}>
-                <Text style={styles.label}>Grad Yr</Text>
-                <TouchableOpacity 
-                  style={styles.selector} 
-                  onPress={() => openPicker('batch')}
-                >
-                  <Text style={[styles.selectorText, !formData.batchYear && { color: theme.textMuted }]}>
-                    {formData.batchYear || 'Year'}
-                  </Text>
-                  <Text style={styles.arrow}>▼</Text>
+              <View style={styles.footer}>
+                <Text style={styles.footerText}>Already have an account? </Text>
+                <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                  <Text style={styles.signupText}>Sign In</Text>
                 </TouchableOpacity>
               </View>
-            </View>
-
-            <View style={styles.inputContainer}>
-              <Text style={styles.label}>Password</Text>
-              <View style={{ position: 'relative', justifyContent: 'center' }}>
-                <TextInput 
-                  style={[styles.input, { paddingRight: 50, color: '#FFFFFF' }]}
-                  placeholder="Create a strong password"
-                  placeholderTextColor="#94A3B8"
-                  value={formData.password}
-                  onChangeText={(text) => setFormData(prev => ({ ...prev, password: text }))}
-                  secureTextEntry={!showPassword}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  autoComplete="new-password"
-                />
-                <TouchableOpacity
-                  style={{
-                    position: 'absolute',
-                    right: 0,
-                    top: 0,
-                    bottom: 0,
-                    width: 50,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    zIndex: 10
-                  }}
-                  onPress={() => setShowPassword(!showPassword)}
-                  activeOpacity={0.7}
-                >
-                  <Ionicons 
-                    name={showPassword ? "eye" : "eye-off"} 
-                    size={22} 
-                    color="#FFD700" 
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            <TouchableOpacity 
-              style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}
-              onPress={() => setAgreeEULA(!agreeEULA)}
-              activeOpacity={0.8}
-            >
-              <View style={{ width: 24, height: 24, borderRadius: 6, borderWidth: 1, borderColor: '#FFD700', justifyContent: 'center', alignItems: 'center', marginRight: 10, backgroundColor: agreeEULA ? '#FFD700' : 'transparent' }}>
-                {agreeEULA && <Ionicons name="checkmark" size={16} color={theme.primary} />}
-              </View>
-              <Text style={{ color: 'rgba(255, 255, 255, 0.9)', flex: 1, fontSize: 14, fontWeight: '500' }}>
-                I agree to the{' '}
-                <Text 
-                  style={{ color: '#FFD700', textDecorationLine: 'underline' }}
-                  onPress={() => navigation.navigate('Legal')}
-                >
-                  Terms & Privacy Policy
-                </Text>
+              
+              <Text style={{ textAlign: 'center', color: theme.textMuted, fontSize: 11, marginTop: 12, marginBottom: 20 }}>
+                By registering, you confirm your agreement to our End User License Agreement.
               </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={[styles.primaryButton, loading && { opacity: 0.7 }]} 
-              onPress={handleRegister}
-              disabled={loading}
-            >
-              <Text style={styles.primaryButtonText}>{loading ? 'Creating Account...' : 'Create Account'}</Text>
-            </TouchableOpacity>
-
-            {/* ── Social Sign-Up Icons Row ── */}
-            <View style={{ marginTop: 24, marginBottom: 8 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
-                <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255, 255, 255, 0.2)' }} />
-                <Text style={{ marginHorizontal: 12, color: 'rgba(255, 255, 255, 0.7)', fontSize: 13, fontWeight: '500' }}>or sign up with</Text>
-                <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255, 255, 255, 0.2)' }} />
-              </View>
-
-              <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 18 }}>
-                {/* Google Icon */}
-                <TouchableOpacity
-                  style={{
-                    width: 52,
-                    height: 52,
-                    borderRadius: 26,
-                    backgroundColor: '#FFFFFF',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    borderWidth: 1.5,
-                    borderColor: '#E2E8F0',
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.12,
-                    shadowRadius: 4,
-                    elevation: 3,
-                  }}
-                  onPress={() => handleOAuthSignUp('google')}
-                  disabled={loading}
-                  activeOpacity={0.7}
-                >
-                  <Ionicons name="logo-google" size={24} color="#EA4335" />
-                </TouchableOpacity>
-
-                {/* LinkedIn Icon */}
-                <TouchableOpacity
-                  style={{
-                    width: 52,
-                    height: 52,
-                    borderRadius: 26,
-                    backgroundColor: '#0A66C2',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    shadowColor: '#0A66C2',
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.25,
-                    shadowRadius: 4,
-                    elevation: 3,
-                  }}
-                  onPress={() => handleOAuthSignUp('linkedin')}
-                  disabled={loading}
-                  activeOpacity={0.7}
-                >
-                  <Ionicons name="logo-linkedin" size={24} color="#FFFFFF" />
-                </TouchableOpacity>
-
-                {/* Facebook Icon */}
-                <TouchableOpacity
-                  style={{
-                    width: 52,
-                    height: 52,
-                    borderRadius: 26,
-                    backgroundColor: '#1877F2',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    shadowColor: '#1877F2',
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.25,
-                    shadowRadius: 4,
-                    elevation: 3,
-                  }}
-                  onPress={() => handleOAuthSignUp('facebook')}
-                  disabled={loading}
-                  activeOpacity={0.7}
-                >
-                  <Ionicons name="logo-facebook" size={24} color="#FFFFFF" />
-                </TouchableOpacity>
-
-                {/* Apple Icon */}
-                <TouchableOpacity
-                  style={{
-                    width: 52,
-                    height: 52,
-                    borderRadius: 26,
-                    backgroundColor: '#000000',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.25,
-                    shadowRadius: 4,
-                    elevation: 3,
-                  }}
-                  onPress={() => handleOAuthSignUp('apple')}
-                  disabled={loading}
-                  activeOpacity={0.7}
-                >
-                  <Ionicons name="logo-apple" size={24} color="#FFFFFF" />
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>Already have an account? </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-              <Text style={styles.signupText}>Sign In</Text>
-            </TouchableOpacity>
-          </View>
-          
-          <Text style={{ textAlign: 'center', color: 'rgba(255, 255, 255, 0.6)', fontSize: 12, marginTop: 20, marginBottom: 40, paddingHorizontal: 20 }}>
-            By registering, you confirm your agreement to our End User License Agreement.
-          </Text>
-        </ScrollView>
-      </KeyboardAvoidingView>
+            </ScrollView>
+          </KeyboardAvoidingView>
+        </View>
       </View>
 
       <Modal
@@ -762,33 +740,36 @@ const RegisterScreen = ({ navigation }) => {
 const getStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.primary,
+    backgroundColor: theme.background,
   },
   content: {
     flex: 1,
-    paddingHorizontal: 24,
   },
   backButton: {
-    marginTop: 20,
-    marginBottom: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+    marginBottom: 16,
+    alignSelf: 'flex-start',
   },
   backButtonText: {
-    color: '#FFD700',
-    fontSize: 16,
+    color: theme.text,
+    fontSize: 15,
     fontWeight: '600',
   },
   header: {
-    marginBottom: 30,
+    marginBottom: 24,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: theme.card,
-    marginBottom: 8,
+    fontSize: 28,
+    fontWeight: '800',
+    color: theme.text,
+    marginBottom: 6,
   },
   subtitle: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.7)',
+    fontSize: 14,
+    color: theme.textSecondary,
+    lineHeight: 20,
   },
   form: {
     width: '100%',
@@ -801,118 +782,90 @@ const getStyles = (theme) => StyleSheet.create({
     marginBottom: 16,
   },
   label: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: theme.card,
-    marginBottom: 8,
+    fontSize: 13,
+    fontWeight: '600',
+    color: theme.text,
+    marginBottom: 6,
   },
   input: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: theme.inputBackground,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: theme.border,
     borderRadius: 12,
-    padding: 14,
-    fontSize: 16,
-    color: theme.card,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 15,
+    color: theme.text,
   },
   selector: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: theme.inputBackground,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: theme.border,
     borderRadius: 12,
-    padding: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
   selectorText: {
-    fontSize: 15,
-    color: theme.card,
+    fontSize: 14,
+    color: theme.text,
   },
   arrow: {
-    color: '#FFD700',
+    color: theme.textSecondary,
     fontSize: 12,
   },
   primaryButton: {
-    backgroundColor: '#FFD700',
-    paddingVertical: 16,
+    backgroundColor: theme.primary,
+    paddingVertical: 15,
     borderRadius: 12,
     alignItems: 'center',
-    marginTop: 20,
-    shadowColor: '#FFD700',
+    marginTop: 16,
+    shadowColor: theme.primary,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.25,
     shadowRadius: 8,
     elevation: 4,
   },
   primaryButtonText: {
-    color: theme.primary,
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  dividerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 30,
-  },
-  line: {
-    flex: 1,
-    height: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  linkedinButton: {
-    backgroundColor: '#0A66C2',
-    height: 52,
-    borderRadius: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  linkedinIcon: {
-    marginRight: 8,
-  },
-  linkedinButtonText: {
-    color: theme.card,
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '700',
   },
-  dividerText: {
-    marginHorizontal: 12,
-    color: 'rgba(255, 255, 255, 0.7)',
-    fontSize: 14,
-  },
-  socialContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 20,
-    marginTop: 20,
-  },
   socialIcon: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
-    backgroundColor: '#F1F5F9',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: theme.card,
+    borderWidth: 1,
+    borderColor: theme.border,
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 32,
-    marginBottom: 40,
+    marginTop: 24,
+    marginBottom: 12,
   },
   footerText: {
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: theme.textSecondary,
     fontSize: 14,
   },
   signupText: {
-    color: '#FFD700',
+    color: theme.primary,
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     justifyContent: 'flex-end',
   },
   modalContent: {
@@ -921,6 +874,8 @@ const getStyles = (theme) => StyleSheet.create({
     borderTopRightRadius: 24,
     height: '70%',
     padding: 24,
+    borderTopWidth: 1,
+    borderColor: theme.border,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -929,21 +884,22 @@ const getStyles = (theme) => StyleSheet.create({
     marginBottom: 20,
   },
   modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: theme.primary,
+    fontSize: 18,
+    fontWeight: '700',
+    color: theme.text,
   },
   closeButton: {
     color: theme.primary,
-    fontWeight: '600',
+    fontWeight: '700',
+    fontSize: 15,
   },
   modalItem: {
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
+    borderBottomColor: theme.border,
   },
   modalItemText: {
-    fontSize: 16,
+    fontSize: 15,
     color: theme.text,
   }
 });

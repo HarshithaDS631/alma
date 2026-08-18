@@ -4,11 +4,11 @@ export const lightTheme = {
   text: '#0F172A',
   textSecondary: '#64748B',
   textMuted: '#94A3B8',
-  primary: '#0F2744', // Executive Midnight Navy
-  primaryDark: '#0A192C',
-  accent: '#D4AF37', // Champagne Gold
+  primary: '#003366', // Professional Institution Navy
+  primaryDark: '#002244',
+  accent: '#003366',
   gold: '#D4AF37',
-  secondary: '#C5A880',
+  secondary: '#38BDF8',
   border: '#E2E8F0',
   icon: '#64748B',
   inputBackground: '#F8FAFC',
@@ -19,19 +19,19 @@ export const lightTheme = {
 };
 
 export const darkTheme = {
-  background: '#0A1220', // Deep Midnight
-  card: '#132238',
-  text: '#F8FAFC',
+  background: '#0B132B', // Deep Luxury Midnight Navy
+  card: '#1C2541',       // High contrast Slate Card
+  text: '#F8FAFC',       // Crisp text
   textSecondary: '#94A3B8',
   textMuted: '#64748B',
-  primary: '#38BDF8', // Crisp Sky Blue for dark contrast
-  primaryDark: '#0284C7',
-  accent: '#F3C64F', // Bright Champagne Gold
+  primary: '#003366',    // Brand Navy
+  primaryDark: '#002244',
+  accent: '#38BDF8',     // Highlights & Links
   gold: '#F3C64F',
-  secondary: '#C5A880',
-  border: '#1E3A5F',
+  secondary: '#64748B',
+  border: '#334155',
   icon: '#94A3B8',
-  inputBackground: '#132238',
+  inputBackground: '#0B132B',
   buttonText: '#FFFFFF',
   success: '#10B981',
   danger: '#EF4444',

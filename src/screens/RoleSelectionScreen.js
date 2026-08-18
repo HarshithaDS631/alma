@@ -100,7 +100,7 @@ const getStyles = (theme) => StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: theme.primary,
+    color: theme.text,
     marginBottom: 8,
   },
   subtitle: {
@@ -120,7 +120,7 @@ const getStyles = (theme) => StyleSheet.create({
     borderColor: theme.border,
   },
   selectedCard: {
-    backgroundColor: '#F0F9FF',
+    backgroundColor: theme.inputBackground,
     borderColor: theme.primary,
     borderWidth: 2,
   },
@@ -147,7 +147,7 @@ const getStyles = (theme) => StyleSheet.create({
   roleTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: theme.primary,
+    color: theme.text,
   },
   selectedRoleTitle: {
     color: theme.primary,
@@ -170,7 +170,7 @@ const getStyles = (theme) => StyleSheet.create({
     backgroundColor: theme.textMuted,
   },
   buttonText: {
-    color: theme.card,
+    color: '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',
   },

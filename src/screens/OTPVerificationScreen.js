@@ -196,7 +196,7 @@ const getStyles = (theme) => StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '800',
-    color: theme.primary,
+    color: theme.text,
     marginBottom: 8,
     letterSpacing: -0.5,
   },
@@ -220,12 +220,12 @@ const getStyles = (theme) => StyleSheet.create({
     textAlign: 'center',
     fontSize: 24,
     fontWeight: '800',
-    color: theme.primary,
-    backgroundColor: theme.background,
+    color: theme.text,
+    backgroundColor: theme.inputBackground,
   },
   filledInput: {
     borderColor: theme.primary,
-    backgroundColor: '#F0F9FF',
+    backgroundColor: theme.inputBackground,
   },
   timerContainer: {
     alignItems: 'center',
@@ -262,7 +262,7 @@ const getStyles = (theme) => StyleSheet.create({
     backgroundColor: theme.textMuted,
   },
   buttonText: {
-    color: theme.card,
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '700',
   },
