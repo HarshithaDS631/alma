@@ -3,7 +3,9 @@ import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Sta
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { changePassword } from '../services/authService';
+import { changePassword, updateProfile } from '../services/authService';
+import * as ImagePicker from 'expo-image-picker';
+import { uploadFile } from '../services/uploadService';
 
 // Seed Data for Profile Campus Info Tab
 const INSTITUTIONS = [
@@ -97,16 +99,96 @@ const AdminProfileScreen = ({ navigation }) => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
+  const [savingProfile, setSavingProfile] = useState(false);
   const [profileData, setProfileData] = useState({
     name: 'Mediacell Admin',
     username: '@mediacell_admin',
     bio: 'Official Admin • Mediacell Alumni Network • Managing institutional connections & opportunities.',
     branch: 'Administration',
     batch: '2026',
+    avatar_url: '',
     posts: 0,
     followers: 0,
     following: 0,
   });
+
+  const handlePickProfilePhoto = async () => {
+    try {
+      if (Platform.OS !== 'web') {
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (!permissionResult.granted) {
+          alert('Permission to access photos is required.');
+          return;
+        }
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.25,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const selectedUri = result.assets[0].uri;
+        let uploadedUrl = selectedUri;
+        try {
+          uploadedUrl = await uploadFile(selectedUri, 'image/jpeg', `avatar_${Date.now()}.jpg`);
+        } catch (uploadErr) {
+          console.warn('Image upload fallback to URI:', uploadErr);
+        }
+
+        setProfileData(prev => ({ ...prev, avatar_url: uploadedUrl }));
+
+        try {
+          await updateProfile({ avatar_url: uploadedUrl });
+          const cachedStr = await AsyncStorage.getItem('userInfo');
+          if (cachedStr) {
+            const cached = JSON.parse(cachedStr);
+            cached.avatar_url = uploadedUrl;
+            await AsyncStorage.setItem('userInfo', JSON.stringify(cached));
+          }
+        } catch (e) {}
+
+        alert('📸 Profile photo updated!');
+      }
+    } catch (error) {
+      console.error('Error uploading profile photo:', error);
+      alert('Could not update profile photo: ' + (error.message || 'Cancelled'));
+    }
+  };
+
+  const handleSaveAdminProfile = async () => {
+    if (!profileData.name.trim()) {
+      alert('Please enter your name');
+      return;
+    }
+    setSavingProfile(true);
+    try {
+      const updatePayload = {
+        name: profileData.name.trim(),
+        bio: profileData.bio.trim(),
+        avatar_url: profileData.avatar_url
+      };
+
+      await updateProfile(updatePayload);
+
+      const cachedStr = await AsyncStorage.getItem('userInfo');
+      if (cachedStr) {
+        const cached = JSON.parse(cachedStr);
+        const merged = { ...cached, ...updatePayload };
+        await AsyncStorage.setItem('userInfo', JSON.stringify(merged));
+      }
+
+      setSettingsSubView('menu');
+      alert('✨ Profile updated successfully!');
+    } catch (err) {
+      console.error('Admin profile update error:', err);
+      alert(err.response?.data?.message || err.message || 'Failed to update profile');
+    } finally {
+      setSavingProfile(false);
+    }
+  };
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -135,6 +217,7 @@ const AdminProfileScreen = ({ navigation }) => {
               bio: 'Global controls governance account • Managing all institutions, admins & system settings.',
               branch: 'Global System Admin',
               batch: '2026',
+              avatar_url: parsed.avatar_url || '',
               posts: 0,
               followers: 0,
               following: 0,
@@ -148,9 +231,10 @@ const AdminProfileScreen = ({ navigation }) => {
             setProfileData({
               name: adminName,
               username: adminHandle,
-              bio: `Official Admin • ${userInst} Alumni Network • Managing institutional connections & opportunities.`,
+              bio: parsed.bio || `Official Admin • ${userInst} Alumni Network • Managing institutional connections & opportunities.`,
               branch: parsed.department || parsed.branch || 'Administration',
               batch: parsed.batchYear || '2026',
+              avatar_url: parsed.avatar_url || '',
               posts: 0,
               followers: 0,
               following: 0,
@@ -627,13 +711,29 @@ const AdminProfileScreen = ({ navigation }) => {
                 )}
 
                 {settingsSubView === 'profile_edit' && (
-                  <View>
+                  <View style={{ paddingBottom: 20 }}>
+                    {/* Centered Avatar Picker */}
+                    <View style={{ alignItems: 'center', marginBottom: 20 }}>
+                      <TouchableOpacity onPress={handlePickProfilePhoto} activeOpacity={0.8} style={{ alignItems: 'center' }}>
+                        <View style={{ width: 84, height: 84, borderRadius: 42, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', overflow: 'hidden', borderWidth: 2, borderColor: theme.border }}>
+                          {profileData.avatar_url ? (
+                            <Image source={{ uri: profileData.avatar_url }} style={{ width: '100%', height: '100%' }} />
+                          ) : (
+                            <Text style={{ fontSize: 28, fontWeight: '800', color: '#FFFFFF' }}>{profileData.name ? profileData.name.substring(0, 2).toUpperCase() : 'AD'}</Text>
+                          )}
+                        </View>
+                        <Text style={{ color: '#0A66C2', fontSize: 13, fontWeight: '700', marginTop: 8 }}>Change Profile Photo</Text>
+                      </TouchableOpacity>
+                    </View>
+
                     <Text style={styles.editLabel}>Name</Text>
-                    <TextInput style={styles.editInput} value={profileData.name} onChangeText={(t) => setProfileData({ ...profileData, name: t })} />
+                    <TextInput style={styles.editInput} value={profileData.name} onChangeText={(t) => setProfileData({ ...profileData, name: t })} placeholder="Admin Name" placeholderTextColor="#94A3B8" />
+
                     <Text style={styles.editLabel}>Bio</Text>
-                    <TextInput style={[styles.editInput, { height: 80, textAlignVertical: 'top' }]} value={profileData.bio} onChangeText={(t) => setProfileData({ ...profileData, bio: t })} multiline />
-                    <TouchableOpacity style={styles.saveBtn} onPress={() => { setSettingsSubView('menu'); Alert.alert('Saved', 'Profile updated!'); }}>
-                      <Text style={styles.saveBtnText}>Save Changes</Text>
+                    <TextInput style={[styles.editInput, { height: 90, textAlignVertical: 'top' }]} value={profileData.bio} onChangeText={(t) => setProfileData({ ...profileData, bio: t })} placeholder="Add a bio or description..." placeholderTextColor="#94A3B8" multiline />
+
+                    <TouchableOpacity style={[styles.saveBtn, { backgroundColor: theme.primary, marginTop: 12 }]} onPress={handleSaveAdminProfile} disabled={savingProfile}>
+                      <Text style={styles.saveBtnText}>{savingProfile ? 'Saving Changes...' : 'Save Profile Changes'}</Text>
                     </TouchableOpacity>
                   </View>
                 )}

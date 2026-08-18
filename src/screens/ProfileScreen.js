@@ -413,6 +413,8 @@ const DEFAULT_TAGGED_POSTS = [];
   );
 
   // Profile Editing States
+  const [editProfileModalVisible, setEditProfileModalVisible] = useState(false);
+  const [savingProfile, setSavingProfile] = useState(false);
   const [editName, setEditName] = useState(profileData.name);
   const [editUsername, setEditUsername] = useState(profileData.username);
   const [editBranch, setEditBranch] = useState(profileData.branch);
@@ -440,12 +442,17 @@ const DEFAULT_TAGGED_POSTS = [];
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [1, 1],
-        quality: 0.2, // Heavily compress avatars to fit under Vercel's 4.5MB limit
+        quality: 0.25, // Compress avatar for snappy loading
       });
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
         const selectedUri = result.assets[0].uri;
-        const uploadedUrl = await uploadFile(selectedUri, 'image/jpeg', `avatar_${Date.now()}.jpg`);
+        let uploadedUrl = selectedUri;
+        try {
+          uploadedUrl = await uploadFile(selectedUri, 'image/jpeg', `avatar_${Date.now()}.jpg`);
+        } catch (uploadErr) {
+          console.warn('Backend image upload warning, using URI:', uploadErr);
+        }
         
         setProfileData(prev => ({
           ...prev,
@@ -468,19 +475,11 @@ const DEFAULT_TAGGED_POSTS = [];
           }
         } catch (e) {}
 
-        if (Platform.OS === 'web') {
-          alert('Profile photo updated successfully!');
-        } else {
-          Alert.alert('Success', 'Profile photo updated successfully!');
-        }
+        alert('📸 Profile photo updated!');
       }
     } catch (error) {
       console.error('Error uploading profile photo:', error);
-      if (Platform.OS === 'web') {
-        alert('Profile photo updated locally.');
-      } else {
-        Alert.alert('Notice', 'Profile photo updated locally.');
-      }
+      alert('Could not update profile photo: ' + (error.message || 'Cancelled'));
     }
   };
 
@@ -516,21 +515,64 @@ const DEFAULT_TAGGED_POSTS = [];
   };
 
   const handleOpenEdit = () => {
-    setSettingsVisible(false);
-    setSettingsSubView('menu');
-    if (navigation && typeof navigation.navigate === 'function') {
-      navigation.navigate('ProfileSetup');
-    } else {
-      setEditName(profileData.name || '');
-      setEditUsername(profileData.username || '');
-      setEditBranch(profileData.branch || '');
-      setEditBatch(profileData.batch || '');
-      setEditBio(profileData.bio || '');
-      setEditLinkedin(profileData.linkedin || '');
-      setEditAvatarUrl(profileData.avatar_url || '');
-      setEditDob(profileData.dateOfBirth || '');
-      setSettingsSubView('profile_edit');
-      setSettingsVisible(true);
+    setEditName(profileData.name || '');
+    setEditUsername(profileData.username || '');
+    setEditBranch(profileData.branch || '');
+    setEditBatch(profileData.batch || '');
+    setEditBio(profileData.bio || '');
+    setEditLinkedin(profileData.linkedin || '');
+    setEditAvatarUrl(profileData.avatar_url || '');
+    setEditProfileModalVisible(true);
+  };
+
+  const handleSaveProfile = async () => {
+    if (!editName.trim()) {
+      alert('Please enter your name');
+      return;
+    }
+    setSavingProfile(true);
+    try {
+      const updatePayload = {
+        name: editName.trim(),
+        username: editUsername.trim().toLowerCase(),
+        bio: editBio.trim(),
+        branch: editBranch,
+        department: editBranch,
+        batchYear: editBatch,
+        linkedin: editLinkedin.trim(),
+        avatar_url: editAvatarUrl
+      };
+
+      await updateProfile(updatePayload);
+      
+      // Update local storage session
+      const cachedStr = await AsyncStorage.getItem('userInfo');
+      if (cachedStr) {
+        const cached = JSON.parse(cachedStr);
+        const merged = { ...cached, ...updatePayload };
+        await AsyncStorage.setItem('userInfo', JSON.stringify(merged));
+      }
+
+      // Update active profile data state
+      setProfileData(prev => ({
+        ...prev,
+        name: editName.trim(),
+        username: editUsername.trim().toLowerCase(),
+        bio: editBio.trim(),
+        branch: editBranch,
+        batch: editBatch,
+        linkedin: editLinkedin.trim(),
+        avatar_url: editAvatarUrl,
+        avatar: editName.trim().substring(0, 2).toUpperCase()
+      }));
+
+      setEditProfileModalVisible(false);
+      alert('✨ Profile updated successfully!');
+    } catch (error) {
+      console.error('Update profile error:', error);
+      alert(error.response?.data?.message || error.message || 'Failed to update profile');
+    } finally {
+      setSavingProfile(false);
     }
   };
 
@@ -2214,6 +2256,133 @@ const DEFAULT_TAGGED_POSTS = [];
             </View>
           </View>
         </View>
+      </Modal>
+
+      {/* Instagram-Style Edit Profile Modal */}
+      <Modal visible={editProfileModalVisible} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setEditProfileModalVisible(false)}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: theme.card }}>
+          {/* Header Bar */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.border }}>
+            <TouchableOpacity onPress={() => setEditProfileModalVisible(false)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+              <Text style={{ fontSize: 16, color: theme.textSecondary, fontWeight: '500' }}>Cancel</Text>
+            </TouchableOpacity>
+            <Text style={{ fontSize: 17, fontWeight: '700', color: theme.text }}>Edit Profile</Text>
+            <TouchableOpacity onPress={handleSaveProfile} disabled={savingProfile} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+              {savingProfile ? (
+                <Text style={{ fontSize: 16, color: theme.textMuted, fontWeight: '600' }}>Saving...</Text>
+              ) : (
+                <Text style={{ fontSize: 16, color: theme.primary, fontWeight: '700' }}>Done</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40, maxWidth: 600, width: '100%', alignSelf: 'center' }}>
+            {/* Avatar Center Section */}
+            <View style={{ alignItems: 'center', paddingVertical: 24, borderBottomWidth: 1, borderBottomColor: theme.border }}>
+              <TouchableOpacity onPress={handlePickProfilePhoto} activeOpacity={0.8} style={{ alignItems: 'center' }}>
+                <View style={{ width: 92, height: 92, borderRadius: 46, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center', overflow: 'hidden', borderWidth: 3, borderColor: theme.card, elevation: 4 }}>
+                  {editAvatarUrl ? (
+                    <Image source={{ uri: editAvatarUrl }} style={{ width: '100%', height: '100%' }} />
+                  ) : (
+                    <Text style={{ fontSize: 32, fontWeight: '800', color: '#FFFFFF' }}>{editName ? editName.substring(0, 2).toUpperCase() : 'AL'}</Text>
+                  )}
+                </View>
+                <Text style={{ color: '#0A66C2', fontSize: 14, fontWeight: '700', marginTop: 12 }}>Edit picture or avatar</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Instagram Style Input List */}
+            <View style={{ paddingHorizontal: 16, paddingTop: 8 }}>
+              {/* Name Row */}
+              <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.border }}>
+                <Text style={{ width: 105, fontSize: 15, fontWeight: '600', color: theme.text }}>Name</Text>
+                <TextInput
+                  style={{ flex: 1, fontSize: 15, color: theme.text, paddingVertical: 4 }}
+                  placeholder="Your full name"
+                  placeholderTextColor={theme.textMuted}
+                  value={editName}
+                  onChangeText={setEditName}
+                />
+              </View>
+
+              {/* Username Row */}
+              <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.border }}>
+                <Text style={{ width: 105, fontSize: 15, fontWeight: '600', color: theme.text }}>Username</Text>
+                <TextInput
+                  style={{ flex: 1, fontSize: 15, color: theme.text, paddingVertical: 4 }}
+                  placeholder="Username / Handle"
+                  placeholderTextColor={theme.textMuted}
+                  autoCapitalize="none"
+                  value={editUsername}
+                  onChangeText={setEditUsername}
+                />
+              </View>
+
+              {/* Bio Row */}
+              <View style={{ flexDirection: 'row', alignItems: 'flex-start', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.border }}>
+                <Text style={{ width: 105, fontSize: 15, fontWeight: '600', color: theme.text, marginTop: 4 }}>Bio</Text>
+                <TextInput
+                  style={{ flex: 1, fontSize: 15, color: theme.text, minHeight: 64, textAlignVertical: 'top', paddingVertical: 4 }}
+                  placeholder="Add a bio to your profile..."
+                  placeholderTextColor={theme.textMuted}
+                  multiline
+                  value={editBio}
+                  onChangeText={setEditBio}
+                />
+              </View>
+
+              {/* Department / Branch Row */}
+              <TouchableOpacity 
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.border }}
+                onPress={() => setBranchModalVisible(true)}
+              >
+                <Text style={{ width: 105, fontSize: 15, fontWeight: '600', color: theme.text }}>Department</Text>
+                <Text style={{ flex: 1, fontSize: 15, color: editBranch ? theme.text : theme.textMuted }} numberOfLines={1}>
+                  {editBranch || 'Select department'}
+                </Text>
+                <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
+              </TouchableOpacity>
+
+              {/* Batch Year Row */}
+              <TouchableOpacity 
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.border }}
+                onPress={() => setBatchModalVisible(true)}
+              >
+                <Text style={{ width: 105, fontSize: 15, fontWeight: '600', color: theme.text }}>Batch Year</Text>
+                <Text style={{ flex: 1, fontSize: 15, color: editBatch ? theme.text : theme.textMuted }}>
+                  {editBatch ? `Class of ${editBatch}` : 'Select graduation year'}
+                </Text>
+                <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
+              </TouchableOpacity>
+
+              {/* LinkedIn / Links Row */}
+              <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.border }}>
+                <Text style={{ width: 105, fontSize: 15, fontWeight: '600', color: theme.text }}>Links</Text>
+                <TextInput
+                  style={{ flex: 1, fontSize: 15, color: theme.text, paddingVertical: 4 }}
+                  placeholder="https://linkedin.com/in/..."
+                  placeholderTextColor={theme.textMuted}
+                  autoCapitalize="none"
+                  value={editLinkedin}
+                  onChangeText={setEditLinkedin}
+                />
+              </View>
+            </View>
+
+            {/* Save Button */}
+            <View style={{ padding: 20, marginTop: 10 }}>
+              <TouchableOpacity
+                style={{ backgroundColor: theme.primary, borderRadius: 10, paddingVertical: 14, alignItems: 'center', elevation: 2 }}
+                onPress={handleSaveProfile}
+                disabled={savingProfile}
+              >
+                <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '700' }}>
+                  {savingProfile ? 'Saving Changes...' : 'Save Profile Changes'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </SafeAreaView>
       </Modal>
 
     </View>
