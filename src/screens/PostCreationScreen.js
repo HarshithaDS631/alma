@@ -227,7 +227,7 @@ const PostCreationScreen = ({ navigation }) => {
               {/* User Header */}
               <View style={styles.userSection}>
                 <View style={styles.avatar}>
-                  <Text style={styles.avatarText}>{currentUser?.name ? currentUser.name.substring(0, 2).toUpperCase() : 'ME'}</Text>
+                  <Text style={styles.avatarText}>{getInitials(currentUser?.name)}</Text>
                 </View>
                 <View>
                   <Text style={styles.userName}>{currentUser?.name || 'User'}</Text>

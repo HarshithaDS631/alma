@@ -98,14 +98,14 @@ const AdminProfileScreen = ({ navigation }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
 
   const [profileData, setProfileData] = useState({
-    name: 'Institution Admin',
-    username: '@institution_admin',
-    bio: 'Official Admin • Institution Alumni Network • Managing institutional connections & opportunities.',
+    name: 'Mediacell Admin',
+    username: '@mediacell_admin',
+    bio: 'Official Admin • Mediacell Alumni Network • Managing institutional connections & opportunities.',
     branch: 'Administration',
-    batch: '2024',
-    posts: 48,
-    followers: 1248,
-    following: 56,
+    batch: '2026',
+    posts: 0,
+    followers: 0,
+    following: 0,
   });
 
   useEffect(() => {
@@ -116,36 +116,44 @@ const AdminProfileScreen = ({ navigation }) => {
           const parsed = JSON.parse(info);
           setUserRole(parsed.role || 'admin');
 
-          const defaultInst = parsed.role === 'superadmin' 
-            ? (global.selectedInstitution && global.selectedInstitution !== 'All' ? global.selectedInstitution : 'RVCE')
-            : (parsed.email && parsed.email.toLowerCase().includes('rvce') ? 'RVCE' 
-              : parsed.email && parsed.email.toLowerCase().includes('rvitm') ? 'RVITM' 
-              : parsed.email && parsed.email.toLowerCase().includes('rvpu') ? 'RVPU' 
-              : parsed.email && parsed.email.toLowerCase().includes('rvis') ? 'RVIS' 
-              : 'RVITM');
+          const userInst = parsed.institution || 
+            (parsed.email && parsed.email.toLowerCase().includes('mediacell') ? 'Mediacell'
+              : parsed.email && parsed.email.toLowerCase().includes('web.rsst') ? 'Mediacell'
+              : parsed.email && parsed.email.toLowerCase().includes('rvce') ? 'RVCE'
+              : parsed.email && parsed.email.toLowerCase().includes('rvitm') ? 'RVITM'
+              : 'Mediacell');
+
+          const defaultInst = (parsed.role === 'superadmin' || parsed.role === 'Super Admin')
+            ? (global.selectedInstitution && global.selectedInstitution !== 'All' ? global.selectedInstitution : 'Mediacell')
+            : userInst;
           setActiveInst(defaultInst);
 
-          if (parsed.role === 'superadmin') {
+          if (parsed.role === 'superadmin' || parsed.role === 'Super Admin') {
             setProfileData({
               name: parsed.name || 'Super Admin',
               username: '@superadmin',
               bio: 'Global controls governance account • Managing all institutions, admins & system settings.',
               branch: 'Global System Admin',
               batch: '2026',
-              posts: 120,
-              followers: 15420,
-              following: 12,
+              posts: 0,
+              followers: 0,
+              following: 0,
             });
           } else {
+            const adminName = parsed.name || (userInst + ' Admin');
+            const adminHandle = (parsed.email && parsed.email.toLowerCase().includes('web.rsst')) 
+              ? '@mediacell_admin'
+              : (parsed.username || (parsed.email ? `@${parsed.email.split('@')[0]}` : `@${userInst.toLowerCase()}_admin`));
+
             setProfileData({
-              name: parsed.name || 'RVITM Admin',
-              username: parsed.email ? `@${parsed.email.split('@')[0]}` : '@rvitm_admin',
-              bio: `Official Admin • ${parsed.name || 'RVITM'} Alumni Network • Managing institutional connections & opportunities.`,
-              branch: 'Administration',
-              batch: '2024',
-              posts: 48,
-              followers: 1248,
-              following: 56,
+              name: adminName,
+              username: adminHandle,
+              bio: `Official Admin • ${userInst} Alumni Network • Managing institutional connections & opportunities.`,
+              branch: parsed.department || parsed.branch || 'Administration',
+              batch: parsed.batchYear || '2026',
+              posts: 0,
+              followers: 0,
+              following: 0,
             });
           }
         }

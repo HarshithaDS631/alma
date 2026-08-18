@@ -55,7 +55,7 @@ const EngageScreen = ({ navigation }) => {
           user_id: p.user._id,
           user: p.user.name || 'Unknown User',
           subtitle: p.user.institution || 'Institution',
-          avatar: p.user.name ? p.user.name.substring(0,2).toUpperCase() : 'UU',
+          avatar: getInitials(p.user.name, 'AL'),
           image: p.image_url,
           likes: 0,
           time: new Date(p.created_at).toLocaleDateString(),
@@ -69,7 +69,7 @@ const EngageScreen = ({ navigation }) => {
         const formatted = suggRes.value.map(s => ({
           id: s._id,
           name: s.name,
-          avatar: s.name ? s.name.substring(0, 2).toUpperCase() : '??',
+          avatar: getInitials(s.name, 'AL'),
           subtitle: s.company ? `${s.designation || ''} @ ${s.company}`.trim() : `Batch of ${s.batchYear || ''} • ${s.department || s.institution || ''}`.trim(),
         }));
         setSuggestions(formatted);
@@ -201,7 +201,7 @@ const EngageScreen = ({ navigation }) => {
           </View>
 
           <View style={styles.hostRow}>
-            <View style={styles.hostAvatar}><Text style={styles.hostAvatarText}>{currentUser?.name ? currentUser.name.substring(0, 2).toUpperCase() : 'ME'}</Text></View>
+            <View style={styles.hostAvatar}><Text style={styles.hostAvatarText}>{getInitials(currentUser?.name, 'AL')}</Text></View>
             <Text style={styles.hostName}>{currentUser?.name || 'User'}</Text>
             <Ionicons name="chevron-down" size={16} color="#002144" />
           </View>
@@ -291,7 +291,7 @@ const EngageScreen = ({ navigation }) => {
         <View style={{ backgroundColor: '#FFFFFF', padding: 16, marginBottom: 12, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
-              <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>{currentUser?.name ? currentUser.name.substring(0, 2).toUpperCase() : 'ME'}</Text>
+              <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>{getInitials(currentUser?.name, 'AL')}</Text>
             </View>
             <TouchableOpacity style={{ flex: 1, height: 44, borderRadius: 22, backgroundColor: '#F8FAFC', borderWidth: 1, borderColor: '#E2E8F0', paddingHorizontal: 16, justifyContent: 'center' }} onPress={() => navigation.navigate('PostCreation')}>
               <Text style={{ color: '#94A3B8', fontSize: 14.5 }}>Share an update, milestone, or question...</Text>
@@ -442,7 +442,7 @@ const EngageScreen = ({ navigation }) => {
             activeOpacity={0.8}
             onPress={() => navigation.navigate('Profile')}
           >
-            <Text style={styles.headerAvatarText}>{currentUser?.name ? currentUser.name.substring(0, 2).toUpperCase() : 'ME'}</Text>
+            <Text style={styles.headerAvatarText}>{getInitials(currentUser?.name, 'AL')}</Text>
           </TouchableOpacity>
 
           {/* Center – Search bar */}

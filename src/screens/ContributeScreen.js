@@ -19,7 +19,12 @@ const ContributeScreen = ({ navigation }) => {
         if (userInfoStr) {
           const u = JSON.parse(userInfoStr);
           if (u?.name) {
-            setUserInitials(u.name.substring(0, 2).toUpperCase());
+            const parts = u.name.trim().split(/\s+/).filter(Boolean);
+            setUserInitials(
+              parts.length >= 2
+                ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+                : u.name.substring(0, 2).toUpperCase()
+            );
           }
         }
       } catch (e) {}

@@ -36,7 +36,23 @@ const AdminHomeScreen = ({ navigation }) => {
   const [followedUsers, setFollowedUsers] = useState({});
   const [followedSuggestions, setFollowedSuggestions] = useState({});
   const [searchText, setSearchText] = useState('');
-  const [userInstitution, setUserInstitution] = useState('Our Network');
+  const [userInstitution, setUserInstitution] = useState('Mediacell');
+  const [userName, setUserName] = useState('Mediacell Admin');
+  const [userRole, setUserRole] = useState('Admin');
+  const [userDepartment, setUserDepartment] = useState('Administration');
+  const [userInitials, setUserInitials] = useState('MA');
+
+  const getInitials = (name, fallback = 'MA') => {
+    if (!name || typeof name !== 'string') return fallback;
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    if (name.length >= 2) {
+      return name.substring(0, 2).toUpperCase();
+    }
+    return name.toUpperCase() || fallback;
+  };
 
   // Modal States
   const [activeModal, setActiveModal] = useState(null);
@@ -58,13 +74,25 @@ const AdminHomeScreen = ({ navigation }) => {
 
   useEffect(() => {
     const fetchUserInfo = async () => {
-      const userInfoString = await AsyncStorage.getItem('userInfo');
-      if (userInfoString) {
-        const userInfo = JSON.parse(userInfoString);
-        if (userInfo.institution) {
-          setUserInstitution(userInfo.institution);
+      try {
+        const userInfoString = await AsyncStorage.getItem('userInfo');
+        if (userInfoString) {
+          const userInfo = JSON.parse(userInfoString);
+          if (userInfo.name) {
+            setUserName(userInfo.name);
+            setUserInitials(getInitials(userInfo.name));
+          }
+          if (userInfo.institution) {
+            setUserInstitution(userInfo.institution);
+          }
+          if (userInfo.role) {
+            setUserRole(userInfo.role);
+          }
+          if (userInfo.department || userInfo.branch) {
+            setUserDepartment(userInfo.department || userInfo.branch);
+          }
         }
-      }
+      } catch (_) {}
     };
     fetchUserInfo();
   }, []);
@@ -198,7 +226,7 @@ const AdminHomeScreen = ({ navigation }) => {
             activeOpacity={0.8}
             onPress={() => navigation.navigate('AdminProfile')}
           >
-            <Text style={styles.headerAvatarText}>{userInstitution ? userInstitution.substring(0, 2).toUpperCase() : 'ME'}</Text>
+            <Text style={styles.headerAvatarText}>{userInitials}</Text>
           </TouchableOpacity>
 
           {/* Center – Search bar */}
@@ -238,10 +266,10 @@ const AdminHomeScreen = ({ navigation }) => {
             <View style={{ flex: 3 }}>
               <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 20, elevation: 2, borderWidth: 1, borderColor: theme.border, marginBottom: 24, alignItems: 'center' }}>
                 <View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center', marginBottom: 12, shadowColor: theme.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8 }}>
-                  <Text style={{ fontSize: 24, fontWeight: '700', color: theme.card }}>{userInstitution ? userInstitution.substring(0, 2).toUpperCase() : 'ME'}</Text>
+                  <Text style={{ fontSize: 24, fontWeight: '700', color: theme.card }}>{userInitials}</Text>
                 </View>
-                <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>Admin User</Text>
-                <Text style={{ fontSize: 13, color: theme.textSecondary, textAlign: 'center', marginTop: 6, lineHeight: 18 }}>Alumni Developer{'\n'}@ {userInstitution}</Text>
+                <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>{userName}</Text>
+                <Text style={{ fontSize: 13, color: theme.textSecondary, textAlign: 'center', marginTop: 6, lineHeight: 18 }}>{userRole} • {userDepartment}{'\n'}@ {userInstitution}</Text>
                 
                 <View style={{ width: '100%', height: 1, backgroundColor: theme.border, marginVertical: 16 }} />
                 
@@ -267,7 +295,7 @@ const AdminHomeScreen = ({ navigation }) => {
               {/* Create Post Widget */}
               <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 16, elevation: 2, borderWidth: 1, borderColor: theme.border, marginBottom: 24, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                 <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center' }}>
-                  <Text style={{ fontSize: 14, fontWeight: '700', color: theme.card }}>{userInstitution ? userInstitution.substring(0, 2).toUpperCase() : 'ME'}</Text>
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: theme.card }}>{userInitials}</Text>
                 </View>
                 <TouchableOpacity 
                   style={{ flex: 1, backgroundColor: theme.inputBackground, borderRadius: 24, paddingHorizontal: 16, paddingVertical: 12, borderWidth: 1, borderColor: theme.border }}
@@ -281,7 +309,15 @@ const AdminHomeScreen = ({ navigation }) => {
               </View>
 
               <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
-                {posts.map(post => renderPostCard(post))}
+                {posts.length > 0 ? (
+                  posts.map(post => renderPostCard(post))
+                ) : (
+                  <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 32, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: theme.border }}>
+                    <Ionicons name="newspaper-outline" size={44} color={theme.textMuted} />
+                    <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text, marginTop: 12 }}>No Posts Yet</Text>
+                    <Text style={{ fontSize: 13, color: theme.textSecondary, textAlign: 'center', marginTop: 4 }}>Posts and announcements published by {userInstitution} will appear here.</Text>
+                  </View>
+                )}
               </ScrollView>
             </View>
 
@@ -295,23 +331,27 @@ const AdminHomeScreen = ({ navigation }) => {
                     <Text style={{ fontSize: 13, color: theme.primary, fontWeight: '600' }}>See all</Text>
                   </TouchableOpacity>
                 </View>
-                {suggestions.map(s => (
-                  <View key={s.id} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-                    <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: theme.border, justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
-                      <Text style={{ fontWeight: '700', color: theme.textSecondary }}>{s.avatar}</Text>
+                {suggestions.length > 0 ? (
+                  suggestions.map(s => (
+                    <View key={s.id} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+                      <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: theme.border, justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
+                        <Text style={{ fontWeight: '700', color: theme.textSecondary }}>{s.avatar}</Text>
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text }}>{s.name}</Text>
+                        <Text style={{ fontSize: 12, color: theme.textSecondary }}>{s.subtitle}</Text>
+                      </View>
+                      <TouchableOpacity 
+                        style={[styles.suggestionFollowBtn, followedSuggestions[s.id] && styles.suggestionFollowBtnActive, { paddingHorizontal: 12, paddingVertical: 6 }]}
+                        onPress={() => toggleSuggestionFollow(s.id)}
+                      >
+                        <Text style={[styles.suggestionFollowText, followedSuggestions[s.id] && styles.suggestionFollowTextActive]}>{followedSuggestions[s.id] ? 'Following' : 'Follow'}</Text>
+                      </TouchableOpacity>
                     </View>
-                    <View style={{ flex: 1 }}>
-                      <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text }}>{s.name}</Text>
-                      <Text style={{ fontSize: 12, color: theme.textSecondary }}>{s.subtitle}</Text>
-                    </View>
-                    <TouchableOpacity 
-                      style={[styles.suggestionFollowBtn, followedSuggestions[s.id] && styles.suggestionFollowBtnActive, { paddingHorizontal: 12, paddingVertical: 6 }]}
-                      onPress={() => toggleSuggestionFollow(s.id)}
-                    >
-                      <Text style={[styles.suggestionFollowText, followedSuggestions[s.id] && styles.suggestionFollowTextActive]}>{followedSuggestions[s.id] ? 'Following' : 'Follow'}</Text>
-                    </TouchableOpacity>
-                  </View>
-                ))}
+                  ))
+                ) : (
+                  <Text style={{ fontSize: 13, color: theme.textMuted, textAlign: 'center', paddingVertical: 12 }}>No connection suggestions available.</Text>
+                )}
               </View>
 
               {/* Events & Jobs Widget */}
@@ -320,69 +360,84 @@ const AdminHomeScreen = ({ navigation }) => {
                   <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>Opportunities</Text>
                   <Text style={{ fontSize: 13, color: theme.primary, fontWeight: '600' }}>See all</Text>
                 </View>
-                {eventsAndJobs.map(ev => (
-                  <View key={ev.id} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: theme.border }}>
-                    <Image source={{ uri: ev.image }} style={{ width: 60, height: 60, borderRadius: 8, marginRight: 12 }} />
-                    <View style={{ flex: 1 }}>
-                      <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text, marginBottom: 2 }}>{ev.title}</Text>
-                      <Text style={{ fontSize: 12, color: theme.textSecondary, marginBottom: 6 }}>{ev.subtitle}</Text>
-                      <TouchableOpacity style={{ backgroundColor: theme.background, alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 }}>
-                        <Text style={{ fontSize: 11, fontWeight: '600', color: theme.primary }}>{ev.btnText}</Text>
-                      </TouchableOpacity>
+                {eventsAndJobs.length > 0 ? (
+                  eventsAndJobs.map(ev => (
+                    <View key={ev.id} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: theme.border }}>
+                      <Image source={{ uri: ev.image }} style={{ width: 60, height: 60, borderRadius: 8, marginRight: 12 }} />
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text, marginBottom: 2 }}>{ev.title}</Text>
+                        <Text style={{ fontSize: 12, color: theme.textSecondary, marginBottom: 6 }}>{ev.subtitle}</Text>
+                        <TouchableOpacity style={{ backgroundColor: theme.background, alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 }}>
+                          <Text style={{ fontSize: 11, fontWeight: '600', color: theme.primary }}>{ev.btnText}</Text>
+                        </TouchableOpacity>
+                      </View>
                     </View>
-                  </View>
-                ))}
+                  ))
+                ) : (
+                  <Text style={{ fontSize: 13, color: theme.textMuted, textAlign: 'center', paddingVertical: 12 }}>No current opportunities.</Text>
+                )}
               </View>
             </View>
           </View>
         ) : (
           // MOBILE LAYOUT (Current)
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-            {renderPostCard(posts[0])}
-            <View style={styles.sectionContainer}>
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Suggestions for you</Text>
-                <TouchableOpacity><Text style={styles.seeAllText}>See all</Text></TouchableOpacity>
+            {posts.length > 0 ? (
+              posts.map(post => renderPostCard(post))
+            ) : (
+              <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 24, alignItems: 'center', justifyContent: 'center', margin: 16, borderWidth: 1, borderColor: theme.border }}>
+                <Ionicons name="newspaper-outline" size={40} color={theme.textMuted} />
+                <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text, marginTop: 10 }}>No Posts Yet</Text>
+                <Text style={{ fontSize: 12, color: theme.textSecondary, textAlign: 'center', marginTop: 4 }}>Posts from {userInstitution} will appear here.</Text>
               </View>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.suggestionsScroll}>
-                {suggestions.map((s) => (
-                  <View key={s.id} style={styles.suggestionCard}>
-                    <TouchableOpacity style={styles.suggestionRemove}><Ionicons name="close" size={14} color="#94A3B8" /></TouchableOpacity>
-                    <View style={styles.suggestionAvatar}><Text style={styles.avatarText}>{s.avatar}</Text></View>
-                    <Text style={styles.suggestionName} numberOfLines={1}>{s.name}</Text>
-                    <Text style={styles.suggestSubText}>{s.subtitle}</Text>
-                    <TouchableOpacity
-                      style={[styles.suggestionFollowBtn, followedSuggestions[s.id] && styles.suggestionFollowBtnActive]}
-                      onPress={() => toggleSuggestionFollow(s.id)}
-                    >
-                      <Text style={[styles.suggestionFollowText, followedSuggestions[s.id] && styles.suggestionFollowTextActive]}>
-                        {followedSuggestions[s.id] ? 'Following' : 'Follow'}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                ))}
-              </ScrollView>
-            </View>
-            {renderPostCard(posts[1])}
-            <View style={styles.sectionContainer}>
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Events & Job Suggestions</Text>
-                <TouchableOpacity><Text style={styles.seeAllText}>See all</Text></TouchableOpacity>
-              </View>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.eventsScroll}>
-                {eventsAndJobs.map((ev) => (
-                  <View key={ev.id} style={[styles.eventRowCard, { width: contentWidth * 0.76 }]}>
-                    <Image source={{ uri: ev.image }} style={styles.eventRowImage} />
-                    <View style={styles.eventRowContent}>
-                      <Text style={styles.eventRowTitle} numberOfLines={1}>{ev.title}</Text>
-                      <Text style={styles.eventRowSub} numberOfLines={1}>{ev.subtitle}</Text>
-                      <TouchableOpacity style={styles.eventRowBtn}><Text style={styles.eventRowBtnText}>{ev.btnText}</Text></TouchableOpacity>
+            )}
+            {suggestions.length > 0 && (
+              <View style={styles.sectionContainer}>
+                <View style={styles.sectionHeader}>
+                  <Text style={styles.sectionTitle}>Suggestions for you</Text>
+                  <TouchableOpacity><Text style={styles.seeAllText}>See all</Text></TouchableOpacity>
+                </View>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.suggestionsScroll}>
+                  {suggestions.map((s) => (
+                    <View key={s.id} style={styles.suggestionCard}>
+                      <TouchableOpacity style={styles.suggestionRemove}><Ionicons name="close" size={14} color="#94A3B8" /></TouchableOpacity>
+                      <View style={styles.suggestionAvatar}><Text style={styles.avatarText}>{s.avatar}</Text></View>
+                      <Text style={styles.suggestionName} numberOfLines={1}>{s.name}</Text>
+                      <Text style={styles.suggestSubText}>{s.subtitle}</Text>
+                      <TouchableOpacity
+                        style={[styles.suggestionFollowBtn, followedSuggestions[s.id] && styles.suggestionFollowBtnActive]}
+                        onPress={() => toggleSuggestionFollow(s.id)}
+                      >
+                        <Text style={[styles.suggestionFollowText, followedSuggestions[s.id] && styles.suggestionFollowTextActive]}>
+                          {followedSuggestions[s.id] ? 'Following' : 'Follow'}
+                        </Text>
+                      </TouchableOpacity>
                     </View>
-                    <TouchableOpacity style={styles.eventRowClose}><Ionicons name="close" size={14} color="#94A3B8" /></TouchableOpacity>
-                  </View>
-                ))}
-              </ScrollView>
-            </View>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+            {eventsAndJobs.length > 0 && (
+              <View style={styles.sectionContainer}>
+                <View style={styles.sectionHeader}>
+                  <Text style={styles.sectionTitle}>Events & Opportunities</Text>
+                  <TouchableOpacity><Text style={styles.seeAllText}>See all</Text></TouchableOpacity>
+                </View>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.eventsScroll}>
+                  {eventsAndJobs.map((ev) => (
+                    <View key={ev.id} style={[styles.eventRowCard, { width: contentWidth * 0.76 }]}>
+                      <Image source={{ uri: ev.image }} style={styles.eventRowImage} />
+                      <View style={styles.eventRowContent}>
+                        <Text style={styles.eventRowTitle} numberOfLines={1}>{ev.title}</Text>
+                        <Text style={styles.eventRowSub} numberOfLines={1}>{ev.subtitle}</Text>
+                        <TouchableOpacity style={styles.eventRowBtn}><Text style={styles.eventRowBtnText}>{ev.btnText}</Text></TouchableOpacity>
+                      </View>
+                      <TouchableOpacity style={styles.eventRowClose}><Ionicons name="close" size={14} color="#94A3B8" /></TouchableOpacity>
+                    </View>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
             <View style={{ height: 30 }} />
           </ScrollView>
         )}
