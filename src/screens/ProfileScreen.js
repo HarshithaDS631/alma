@@ -44,7 +44,7 @@ const BRANCHES_LIST = [
   'Cyber Security',
   'Telecommunication Engineering',
   'Industrial Engineering & Management',
-  'Media Cell & Communications',
+  'Media & Communications',
   'Social Media',
   'Master of Business Administration (MBA)',
   'Master of Computer Applications (MCA)',
@@ -66,17 +66,8 @@ const ProfileScreen = ({ navigation }) => {
   const [activeTab, setActiveTab] = useState('post'); // 'post' | 'messages' | 'reshare' | 'saved' | 'tags'
   const [listModalType, setListModalType] = useState(null); // 'connections' | 'following'
   
-const DEFAULT_FOLLOWING = [
-  { id: '6a61f94b23674221799b28f4', name: 'Ruchi', title: 'Alumni • Media Cell', avatar: 'RU', avatar_url: '' },
-  { id: '6a59e08bdb5218b5efb52691', name: 'Vidya Aradhya', title: 'Professor • Computer Science', avatar: 'VA', avatar_url: '' },
-  { id: '6a59e08bdb5218b5efb52694', name: 'test', title: 'Alumni Member • Social Media', avatar: 'TE', avatar_url: '' },
-  { id: '6a59e08bdb5218b5efb52695', name: 'vidya', title: 'Alumni Member • Computer Science', avatar: 'VI', avatar_url: '' },
-];
-
-const DEFAULT_CONNECTIONS = [
-  { id: '6a61f94b23674221799b28f4', name: 'Ruchi', title: 'Alumni • Media Cell', avatar: 'RU', avatar_url: '' },
-  { id: '6a59e08bdb5218b5efb52696', name: 'Harshitha', title: 'Student • Social Media', avatar: 'HA', avatar_url: '' },
-];
+const DEFAULT_FOLLOWING = [];
+const DEFAULT_CONNECTIONS = [];
 
   // Real data states for connections, following, and messages
   const [connections, setConnections] = useState(DEFAULT_CONNECTIONS);
@@ -124,7 +115,7 @@ const DEFAULT_CONNECTIONS = [
             username: uHandle,
             branch: cached.department || cached.branch || 'Alumni Network',
             batch: cached.batchYear || cached.batch_year || '',
-            bio: cached.bio || `Media Cell Institution Alumni`,
+            bio: cached.bio || '',
             linkedin: cached.linkedin || '',
             posts: cachedProfile.posts || prev.posts || '0',
             followers: cachedProfile.followers || prev.followers || '0',
@@ -157,90 +148,10 @@ const DEFAULT_CONNECTIONS = [
     loadCache();
   }, []);
 
-const DEFAULT_USER_POSTS = [
-  {
-    _id: '6a60ac428947b73a8c9c9b89',
-    id: '6a60ac428947b73a8c9c9b89',
-    user: { _id: '6a59e08bdb5218b5efb52690', name: 'Harshitha', username: 'harshitha' },
-    content: '#Institution #AlumniMeet #Mentorship #TechTalk #Careers #ClassOf2024',
-    image: 'https://backend-pi-bice-97.vercel.app/api/upload/c2208d41877125fc2d37697cb4f22cbd.webp',
-    image_url: 'https://backend-pi-bice-97.vercel.app/api/upload/c2208d41877125fc2d37697cb4f22cbd.webp',
-    createdAt: '2026-07-22T11:40:50.466Z'
-  },
-  {
-    _id: '6a60ac428947b73a8c9c9b90',
-    id: '6a60ac428947b73a8c9c9b90',
-    user: { _id: '6a59e08bdb5218b5efb52690', name: 'Harshitha', username: 'harshitha' },
-    content: 'Excited to be part of the Alumni Network! Great to reconnect with everyone. 🎓',
-    image: 'https://backend-pi-bice-97.vercel.app/api/upload/e5209795256356fd28117ffdacf98b0e.webp',
-    image_url: 'https://backend-pi-bice-97.vercel.app/api/upload/e5209795256356fd28117ffdacf98b0e.webp',
-    createdAt: '2026-07-20T10:00:00.000Z'
-  },
-  {
-    _id: '6a60ac428947b73a8c9c9b91',
-    id: '6a60ac428947b73a8c9c9b91',
-    user: { _id: '6a59e08bdb5218b5efb52690', name: 'Harshitha', username: 'harshitha' },
-    content: 'Looking forward to the upcoming Alumni Mentorship Program. Who else is joining? 💼',
-    image: '',
-    image_url: '',
-    createdAt: '2026-07-18T09:00:00.000Z'
-  }
-];
-
-
-const DEFAULT_RESHARED_POSTS = [
-  {
-    _id: '6a66e6bbcc03eff12d00bd02',
-    id: '6a66e6bbcc03eff12d00bd02',
-    user: { _id: '6a59e08bdb5218b5efb52690', name: 'harshitha', username: 'harshithads' },
-    content: '🔄 Reshared from @Ruchi: ',
-    image: 'https://backend-pi-bice-97.vercel.app/api/upload/78417866da41eb1f43e8f1b53ef77f57.webp',
-    image_url: 'https://backend-pi-bice-97.vercel.app/api/upload/78417866da41eb1f43e8f1b53ef77f57.webp',
-    isReshare: true,
-    originalAuthorName: 'Ruchi'
-  },
-  {
-    _id: '6a66e19f14e45a7fa4fea1a7',
-    id: '6a66e19f14e45a7fa4fea1a7',
-    user: { _id: '6a59e08bdb5218b5efb52690', name: 'harshitha', username: 'harshithads' },
-    content: 'Reshared from @Ruchi:\n\nReshared from @test:\n\nerr3wrefe',
-    image: 'https://backend-pi-bice-97.vercel.app/api/upload/109f5cddce5b48ee0c57282c940db1b9.png',
-    image_url: 'https://backend-pi-bice-97.vercel.app/api/upload/109f5cddce5b48ee0c57282c940db1b9.png',
-    isReshare: true,
-    originalAuthorName: 'Ruchi'
-  }
-];
-
-const DEFAULT_SAVED_POSTS = [
-  {
-    _id: '6a6080e3f4c37e54625325e4',
-    id: '6a6080e3f4c37e54625325e4',
-    user: { name: 'Media Cell Admin' },
-    content: '#AlumniMeet #Institution Official Announcement',
-    image: 'https://backend-pi-bice-97.vercel.app/api/upload/e5209795256356fd28117ffdacf98b0e.webp',
-    image_url: 'https://backend-pi-bice-97.vercel.app/api/upload/e5209795256356fd28117ffdacf98b0e.webp'
-  },
-  {
-    _id: '6a61f94b23674221799b28f4',
-    id: '6a61f94b23674221799b28f4',
-    user: { name: 'Ruchi' },
-    content: 'Excited to connect with alumni and students!',
-    image: 'https://backend-pi-bice-97.vercel.app/api/upload/78417866da41eb1f43e8f1b53ef77f57.webp',
-    image_url: 'https://backend-pi-bice-97.vercel.app/api/upload/78417866da41eb1f43e8f1b53ef77f57.webp'
-  }
-];
-
-const DEFAULT_TAGGED_POSTS = [
-  {
-    _id: '6a61f94b23674221799b28f4',
-    id: '6a61f94b23674221799b28f4',
-    user: { name: 'Ruchi' },
-    content: 'Great event with @harshitha!',
-    image: 'https://backend-pi-bice-97.vercel.app/api/upload/78417866da41eb1f43e8f1b53ef77f57.webp',
-    image_url: 'https://backend-pi-bice-97.vercel.app/api/upload/78417866da41eb1f43e8f1b53ef77f57.webp',
-    tags: [{ name: 'harshitha' }]
-  }
-];
+const DEFAULT_USER_POSTS = [];
+const DEFAULT_RESHARED_POSTS = [];
+const DEFAULT_SAVED_POSTS = [];
+const DEFAULT_TAGGED_POSTS = [];
 
   // Start with empty arrays — only real API data or real user's own cached posts are shown
   const [userPosts, setUserPosts] = useState([]);
@@ -316,7 +227,7 @@ const DEFAULT_TAGGED_POSTS = [
               username: uHandle,
               branch: activeUser.department || activeUser.branch || 'Alumni Network',
               batch: activeUser.batchYear || activeUser.batch_year || '',
-              bio: activeUser.bio || `Media Cell Institution Alumni`,
+              bio: activeUser.bio || '',
               linkedin: activeUser.linkedin || '',
               avatar: uName ? uName.substring(0, 2).toUpperCase() : 'AL',
               avatar_url: fullAvatarUrl

@@ -33,91 +33,7 @@ import { initSocket, getSocket } from '../services/socketService';
 
 
 // Pool of all known posts across all users — used as offline fallback
-const ALL_KNOWN_POSTS = [
-  // --- Harshitha's posts ---
-  {
-    id: '6a60ac428947b73a8c9c9b89',
-    user: 'Alumni Member',
-    authorId: '6a59e08bdb5218b5efb52690',
-    role: 'Alumni Member • Class of 2024',
-    avatar: 'AL',
-    isAvatarUrl: false,
-    content: '#Institution #AlumniMeet #Mentorship #TechTalk #Careers #ClassOf2024',
-    image: 'https://backend-pi-bice-97.vercel.app/api/upload/c2208d41877125fc2d37697cb4f22cbd.webp',
-    likes: 4, comments: [], commentsCount: 0, time: '5 days ago',
-  },
-  {
-    id: '6a60ac428947b73a8c9c9b91',
-    user: 'Alumni Member',
-    authorId: '6a59e08bdb5218b5efb52690',
-    role: 'Alumni Member • Class of 2024',
-    avatar: 'AL',
-    isAvatarUrl: false,
-    content: 'Looking forward to the upcoming Alumni Mentorship Program. Who else is joining? 💼',
-    image: '',
-    likes: 3, comments: [], commentsCount: 0, time: '7 days ago',
-  },
-  // --- Media Cell Admin (official announcement — always shown) ---
-  {
-    id: '6a6080e3f4c37e54625325e4',
-    user: 'Media Cell Admin',
-    authorId: 'admin-001',
-    role: 'Admin • Media Cell Institution',
-    avatar: 'MC',
-    isAvatarUrl: false,
-    content: '#AlumniMeet #Institution Official Announcement — Welcome to the Alumni Network! Stay connected, stay inspired.',
-    image: 'https://backend-pi-bice-97.vercel.app/api/upload/e5209795256356fd28117ffdacf98b0e.webp',
-    likes: 7, comments: [], commentsCount: 0, time: '1 week ago',
-    isAdmin: true,
-  },
-  // --- Ruchi's posts ---
-  {
-    id: '6a61f94b23674221799b28f4',
-    user: 'Ruchi',
-    authorId: '6a61f94b23674221799b28f4',
-    role: 'Alumni • Media Cell',
-    avatar: 'RU',
-    isAvatarUrl: false,
-    content: 'Excited to connect with alumni and students! Great to be part of this network. 🎓',
-    image: 'https://backend-pi-bice-97.vercel.app/api/upload/78417866da41eb1f43e8f1b53ef77f57.webp',
-    likes: 5, comments: [], commentsCount: 0, time: '3 days ago',
-  },
-  {
-    id: '6a66e19f14e45a7fa4fea1a7',
-    user: 'Ruchi',
-    authorId: '6a61f94b23674221799b28f4',
-    role: 'Alumni • Media Cell',
-    avatar: 'RU',
-    isAvatarUrl: false,
-    content: 'Networking session was amazing! Met so many incredible alumni today. 🌟',
-    image: 'https://backend-pi-bice-97.vercel.app/api/upload/109f5cddce5b48ee0c57282c940db1b9.png',
-    likes: 6, comments: [], commentsCount: 0, time: '4 days ago',
-  },
-  // --- Vidya Aradhya's posts ---
-  {
-    id: 'vidya-post-001',
-    user: 'Vidya Aradhya',
-    authorId: '6a59e08bdb5218b5efb52691',
-    role: 'Professor • Computer Science',
-    avatar: 'VA',
-    isAvatarUrl: false,
-    content: 'Sharing some important research resources for our Computer Science students. Knowledge is power! 📚',
-    image: '',
-    likes: 9, comments: [], commentsCount: 0, time: '2 days ago',
-  },
-  // --- Raghu's posts ---
-  {
-    id: 'raghu-post-001',
-    user: 'Raghu',
-    authorId: 'raghu-id-001',
-    role: 'Alumni • Engineering',
-    avatar: 'RA',
-    isAvatarUrl: false,
-    content: 'Job opportunity at TechCorp — looking for fresh graduates from our institution! DM me for details. 💼',
-    image: '',
-    likes: 11, comments: [], commentsCount: 0, time: '1 day ago',
-  },
-];
+const ALL_KNOWN_POSTS = [];
 
 /**
  * Returns ONLY posts from followed users + own posts.
@@ -565,7 +481,7 @@ const DashboardScreen = ({ navigation }) => {
                   id: pid,
                   user: p.user?.name || 'Alumni',
                   authorId: p.user?._id || null,
-                  role: p.user?.department ? `${p.user.department} • Batch ${p.user.batchYear || ''}` : 'Alumni Member @ Media Cell Institution',
+                  role: p.user?.department ? `${p.user.department} • Batch ${p.user.batchYear || ''}` : (p.user?.institution ? `${p.user.institution} Alumni` : 'Alumni Member'),
                   avatar: p.user?.profilePicture || p.user?.avatar_url ? getImageUrl(p.user?.profilePicture || p.user?.avatar_url) : (p.user?.name ? p.user.name.substring(0, 2).toUpperCase() : 'AL'),
                   isAvatarUrl: !!(p.user?.profilePicture || p.user?.avatar_url),
                   content: p.content,

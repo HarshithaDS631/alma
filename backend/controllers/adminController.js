@@ -12,7 +12,7 @@ exports.getStats = async (req, res) => {
     try {
         // Multi-tenant Scoping: If Admin (not Super Admin), force filter to req.user.institution
         const effectiveInstitution = req.user && req.user.role === 'Admin' 
-            ? (req.user.institution || 'Media Cell Institution')
+            ? (req.user.institution || '')
             : (req.query.institution || null);
         
         const userFilter = {};
@@ -57,7 +57,7 @@ exports.getPendingUsers = async (req, res) => {
     try {
         // Multi-tenant Scoping: If Admin (not Super Admin), force filter to req.user.institution
         const effectiveInstitution = req.user && req.user.role === 'Admin' 
-            ? (req.user.institution || 'Media Cell Institution')
+            ? (req.user.institution || '')
             : (req.query.institution || null);
 
         let filter = { is_approved: false };

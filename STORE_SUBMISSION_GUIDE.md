@@ -10,7 +10,7 @@ Prepared for **Alumni Network** — `com.mediacell.alumni`
 |:---|:---|
 | **App Name** | Alumni Network |
 | **Package / Bundle ID** | `com.mediacell.alumni` |
-| **Developer Name** | Media Cell Institution |
+| **Developer Name** | RV Educational Institutions |
 | **Contact Email** | rvmediadevelopers@gmail.com |
 | **Version** | 1.0.0 |
 | **Category** | Education / Social Networking |
@@ -68,7 +68,7 @@ SUPPORTED USERS:
 
 Alumni Network is built with React Native + Expo for seamless performance on both iOS and Android.
 
-Made with ❤️ by Media Cell Institution, Bengaluru.
+Made with ❤️ by RV Educational Institutions, Bengaluru.
 ```
 
 ---

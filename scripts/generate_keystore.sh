@@ -11,7 +11,7 @@ keytool -genkey -v -keystore "$KEYSTORE_NAME" \
   -keyalg RSA \
   -keysize 2048 \
   -validity 10000 \
-  -dname "CN=Alumni App, OU=Media Cell, O=Institution, L=Bengaluru, ST=Karnataka, C=IN"
+  -dname "CN=Alumni App, OU=Alumni, O=RV Educational Institutions, L=Bengaluru, ST=Karnataka, C=IN"
 
 echo "✅ Keystore generated successfully: $KEYSTORE_NAME"
 echo "Place $KEYSTORE_NAME in android/app/ and configure build.gradle for release builds."

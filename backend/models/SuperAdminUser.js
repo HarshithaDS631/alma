@@ -5,7 +5,7 @@ const superAdminUserSchema = new mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    institution: { type: String, default: 'Media Cell Institution' },
+    institution: { type: String, default: 'RV Educational Institutions' },
     role: { type: String, default: 'Super Admin' },
     department: { type: String, default: 'Super Administration' },
     avatar_url: { type: String },

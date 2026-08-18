@@ -54,7 +54,6 @@ const INSTITUTIONS = [
   { id: '24', name: 'SSMRV College', shortName: 'SSMRV', location: 'Bengaluru, Karnataka', established: 1984, totalAlumni: 12000, registeredUsers: 490, admins: 2, status: 'Active', color: '#0D9488' },
   { id: '25', name: 'RV University, Bengaluru Campus', shortName: 'RVU_BLR', location: 'Bengaluru, Karnataka', established: 2021, totalAlumni: 1200, registeredUsers: 450, admins: 3, status: 'Active', color: '#B45309' },
   { id: '26', name: 'RV University, Mysuru Campus', shortName: 'RVU_MYS', location: 'Mysuru, Karnataka', established: 2024, totalAlumni: 0, registeredUsers: 0, admins: 3, status: 'Active', color: '#B45309' },
-  { id: '27', name: 'Media Cell Institution', shortName: 'MCI', location: 'Bengaluru, Karnataka', established: 2008, totalAlumni: 12, registeredUsers: 0, admins: 1, status: 'Active', color: '#D97706' },
 ];
 
 const INITIAL_ADMINS = [];
@@ -63,16 +62,12 @@ const INITIAL_SPAM_REPORTS = [];
 
 const RVCE_VERIFICATION_DB = [];
 
-const MEDIA_CELL_VERIFICATION_DB = [];
-
 const checkDatabaseVerification = (name, batchYear, joiningYear, institution) => {
   if (!name) return { verified: false, reason: 'Name is missing' };
   const cleanName = name.toLowerCase().trim();
   
   let dbToSearch = [];
-  if (institution === 'Media Cell Institution' || institution === 'MCI' || institution === 'Media Cell') {
-    dbToSearch = MEDIA_CELL_VERIFICATION_DB;
-  } else if (institution === 'RV College of Engineering' || institution === 'RVCE') {
+  if (institution === 'RV College of Engineering' || institution === 'RVCE') {
     dbToSearch = RVCE_VERIFICATION_DB;
   } else {
     return { verified: false, reason: 'No database record' };
@@ -381,14 +376,6 @@ const SuperAdminDashboardScreen = ({ navigation, route }) => {
           subtitle: 'Bengaluru, Karnataka • Est. 2020',
           logo: 'LH',
           color: '#111827',
-        };
-      case 'MCI':
-      case 'Media Cell Institution':
-        return {
-          fullName: 'Media Cell Institution',
-          subtitle: 'Bengaluru, Karnataka • Est. 2008',
-          logo: 'MC',
-          color: '#D97706',
         };
       default:
         return {

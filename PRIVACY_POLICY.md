@@ -2,14 +2,14 @@
 
 **Effective Date:** 7 August 2026  
 **App Name:** Alumni Network  
-**Developer:** Media Cell Institution  
+**Developer:** RV Educational Institutions  
 **Contact:** rvmediadevelopers@gmail.com
 
 ---
 
 ## 1. Introduction
 
-Media Cell Institution ("we", "us", or "our") operates the Alumni Network mobile application ("App"). This Privacy Policy explains how we collect, use, disclose, and safeguard your personal information when you use our App.
+RV Educational Institutions ("we", "us", or "our") operates the Alumni Network mobile application ("App"). This Privacy Policy explains how we collect, use, disclose, and safeguard your personal information when you use our App.
 
 By using the App, you agree to the collection and use of information described in this policy.
 
@@ -123,6 +123,6 @@ We may update this Privacy Policy periodically. Changes will be communicated via
 
 ## 11. Contact
 
-**Privacy Officer:** Media Cell Institution  
+**Privacy Officer:** RV Educational Institutions  
 **Email:** rvmediadevelopers@gmail.com  
 **Address:** Bengaluru, Karnataka, India

@@ -238,7 +238,7 @@ const DirectoryScreen = ({ navigation, route }) => {
           id: userId,
           _id: userId,
           name: targetUser.name,
-          title: targetUser.title || `${targetUser.branch || 'Media Cell'} Alumni`,
+          title: targetUser.title || (targetUser.branch ? `${targetUser.branch} Alumni` : 'Alumni Member'),
           avatar: targetUser.initials || (targetUser.name ? targetUser.name.substring(0, 2).toUpperCase() : 'AL'),
           avatar_url: ''
         };

@@ -250,7 +250,7 @@ export default function LegalScreen({ navigation }) {
         {/* Footer */}
         <View style={styles.footer}>
           <Text style={[styles.footerText, { color: theme.subtext }]}>
-            © 2026 Media Cell Institution. Alumni Network App v1.0.0
+            © 2026 RV Educational Institutions. Alumni Network App v1.0.0
           </Text>
           <Text style={[styles.footerText, { color: theme.subtext }]}>
             rvmediadevelopers@gmail.com

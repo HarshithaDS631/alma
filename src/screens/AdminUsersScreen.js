@@ -36,29 +36,12 @@ const RVCE_VERIFICATION_DB = [
   { name: 'prajwal', joining: '2008', leaving: '2011' }
 ];
 
-const MEDIA_CELL_VERIFICATION_DB = [
-  { name: 'arjun menon', joining: '2008', leaving: '2011' },
-  { name: 'rahul rao', joining: '2008', leaving: '2011' },
-  { name: 'gururaj', joining: '2008', leaving: '2011' },
-  { name: 'vishwas', joining: '2008', leaving: '2011' },
-  { name: 'vidya', joining: '2008', leaving: '2011' },
-  { name: 'harshitha', joining: '2008', leaving: '2011' },
-  { name: 'arun', joining: '2008', leaving: '2011' },
-  { name: 'hemanth', joining: '2008', leaving: '2011' },
-  { name: 'chaitra', joining: '2008', leaving: '2011' },
-  { name: 'pramod', joining: '2008', leaving: '2011' },
-  { name: 'kavan', joining: '2008', leaving: '2011' },
-  { name: 'prajwal', joining: '2008', leaving: '2011' }
-];
-
 const checkDatabaseVerification = (name, batchYear, joiningYear, institution) => {
   if (!name) return { verified: false, reason: 'Name is missing' };
   const cleanName = name.toLowerCase().trim();
   
   let dbToSearch = [];
-  if (institution === 'Media Cell Institution' || institution === 'MCI' || institution === 'Media Cell') {
-    dbToSearch = MEDIA_CELL_VERIFICATION_DB;
-  } else if (institution === 'RV College of Engineering' || institution === 'RVCE') {
+  if (institution === 'RV College of Engineering' || institution === 'RVCE') {
     dbToSearch = RVCE_VERIFICATION_DB;
   } else {
     return { verified: false, reason: 'No database record' };
@@ -277,7 +260,6 @@ const AdminUsersScreen = ({ navigation, route }) => {
         if (u.institution === selectedInstitution) return true;
         
         const instMap = {
-          'MCI': 'Media Cell Institution',
           'RVCE': 'RV College of Engineering',
           'RVITM': 'RV Institute of Technology and Management',
           'RVSK': 'RV-Skills',

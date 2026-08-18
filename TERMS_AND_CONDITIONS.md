@@ -2,7 +2,7 @@
 
 **Effective Date:** 7 August 2026  
 **App Name:** Alumni Network  
-**Developer:** Media Cell Institution  
+**Developer:** RV Educational Institutions  
 **Contact:** rvmediadevelopers@gmail.com  
 **Platform:** iOS (Apple App Store) & Android (Google Play Store)
 
@@ -100,4 +100,4 @@ These Terms are governed by the laws of India. Any disputes shall be subject to 
 
 For questions about these Terms:  
 **Email:** rvmediadevelopers@gmail.com  
-**Address:** Media Cell Institution, Bengaluru, Karnataka, India
+**Address:** RV Educational Institutions, Bengaluru, Karnataka, India

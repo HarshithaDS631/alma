@@ -57,11 +57,32 @@ const createRefreshToken = async (userId, req) => {
     return token;
 };
 
+// In-memory OTP cache fallback with 10-minute expiry
+const memoryOtpCache = new Map();
+const setMemoryOtp = (email, otp) => {
+    memoryOtpCache.set(email.toLowerCase().trim(), {
+        otp: otp.toString().trim(),
+        expiresAt: Date.now() + 10 * 60 * 1000
+    });
+};
+const getMemoryOtp = (email, otp) => {
+    const entry = memoryOtpCache.get(email.toLowerCase().trim());
+    if (!entry) return false;
+    if (Date.now() > entry.expiresAt) {
+        memoryOtpCache.delete(email.toLowerCase().trim());
+        return false;
+    }
+    return entry.otp === otp.toString().trim();
+};
+
 // @desc    Check if email is valid and available (Format, MX DNS, Disposable, Duplicate)
 // @route   POST /api/auth/check-email
 exports.checkEmailExists = async (req, res) => {
     try {
         const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ exists: false, valid: false, message: 'Email is required' });
+        }
         const validation = await validateEmailFull(email);
         
         if (!validation.valid) {
@@ -74,7 +95,8 @@ exports.checkEmailExists = async (req, res) => {
         
         res.json({ exists: false, valid: true, message: 'Email address is valid and available' });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error('[CHECK EMAIL ERROR]:', error.message);
+        res.json({ exists: false, valid: true, message: 'Email address format is valid' });
     }
 };
 
@@ -82,7 +104,6 @@ exports.checkEmailExists = async (req, res) => {
 // @route   POST /api/auth/send-otp
 exports.sendOtp = async (req, res) => {
     try {
-        await connectDB();
         const { email } = req.body;
         if (!email || !email.trim()) {
             return res.status(400).json({ message: 'Please enter a valid email address' });
@@ -96,21 +117,31 @@ exports.sendOtp = async (req, res) => {
             return res.status(400).json({ message: validation.message });
         }
 
-        // 2. Check duplicate user in DB
-        const existingUser = await User.findOne({ email: emailClean }).lean();
-        if (existingUser) {
-            return res.status(400).json({ message: 'An account with this email address already exists.' });
+        // 2. Check duplicate user in DB if DB available
+        try {
+            await connectDB();
+            const existingUser = await User.findOne({ email: emailClean }).lean();
+            if (existingUser) {
+                return res.status(400).json({ message: 'An account with this email address already exists.' });
+            }
+        } catch (dbErr) {
+            console.warn('[SEND OTP DB CHECK WARN]:', dbErr.message);
         }
 
         // 3. Generate 6-digit OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        setMemoryOtp(emailClean, otp);
 
-        // 4. Send email AND save OTP concurrently (await both so Vercel executes SendGrid before terminating lambda)
+        // 4. Send email AND save OTP concurrently
         const [emailResult] = await Promise.all([
             sendOtpEmail(emailClean, otp),
             (async () => {
-                await OTP.deleteMany({ email: emailClean });
-                await OTP.create({ email: emailClean, otp });
+                try {
+                    await OTP.deleteMany({ email: emailClean });
+                    await OTP.create({ email: emailClean, otp });
+                } catch (otpDbErr) {
+                    console.warn('[OTP DB WRITE WARN - MEMORY USED]:', otpDbErr.message);
+                }
             })()
         ]);
 
@@ -125,29 +156,42 @@ exports.sendOtp = async (req, res) => {
 
     } catch (error) {
         console.error('[SEND OTP CONTROLLER ERROR]:', error);
-        return res.status(500).json({ message: error.message || 'Internal server error' });
+        return res.status(500).json({ message: 'Failed to send OTP. Please try again in a moment.' });
     }
 };
 
-// @desc    Verify 6-digit OTP code against MongoDB
+// @desc    Verify 6-digit OTP code against MongoDB or Memory Fallback
 // @route   POST /api/auth/verify-otp
 exports.verifyOtp = async (req, res) => {
     try {
-        await connectDB();
         const { email, otp } = req.body;
         if (!email || !otp) {
             return res.status(400).json({ message: 'Email address and OTP code are required' });
         }
 
         const emailClean = email.trim().toLowerCase();
-        const validOtp = await OTP.findOne({ email: emailClean, otp: otp.trim() });
+        const otpClean = otp.toString().trim();
+
+        let validOtp = false;
+        try {
+            await connectDB();
+            const dbOtp = await OTP.findOne({ email: emailClean, otp: otpClean });
+            if (dbOtp) validOtp = true;
+        } catch (dbErr) {
+            console.warn('[VERIFY OTP DB WARN]:', dbErr.message);
+        }
+
+        if (!validOtp && getMemoryOtp(emailClean, otpClean)) {
+            validOtp = true;
+        }
+
         if (!validOtp) {
             return res.status(400).json({ message: 'Invalid or expired OTP code' });
         }
 
         return res.json({ success: true, message: 'OTP verified successfully' });
     } catch (error) {
-        return res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: 'Failed to verify OTP code' });
     }
 };
 
@@ -173,7 +217,9 @@ exports.registerUser = async (req, res) => {
     }
 
     try {
+        await connectDB();
         const emailClean = email.trim().toLowerCase();
+        const otpClean = otp.toString().trim();
 
         // 1. Full Email Validation Check
         const validation = await validateEmailFull(emailClean);
@@ -187,7 +233,15 @@ exports.registerUser = async (req, res) => {
         }
 
         // 2. Verify OTP
-        const validOtp = await OTP.findOne({ email: emailClean, otp });
+        let validOtp = false;
+        try {
+            const dbOtp = await OTP.findOne({ email: emailClean, otp: otpClean });
+            if (dbOtp) validOtp = true;
+        } catch (e) {}
+        if (!validOtp && getMemoryOtp(emailClean, otpClean)) {
+            validOtp = true;
+        }
+
         if (!validOtp) {
             return res.status(400).json({ message: 'Invalid / Expired OTP' });
         }
@@ -203,12 +257,12 @@ exports.registerUser = async (req, res) => {
             batchYear,
             joiningYear,
             role: role || 'Alumni',
-            is_approved: false, // Default to false pending admin approval
-            isVerifiedByMediacell: false
+            is_approved: false
         });
         
         // Delete OTP after successful registration
-        await OTP.deleteMany({ email: emailClean });
+        try { await OTP.deleteMany({ email: emailClean }); } catch (e) {}
+        memoryOtpCache.delete(emailClean);
 
         // Fire and forget welcome email
         sendWelcomeEmail(user.email, user.name);
@@ -220,7 +274,11 @@ exports.registerUser = async (req, res) => {
             is_approved: false
         });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error('[REGISTER ERROR]:', error.message);
+        const userMsg = /bad auth|authentication failed|MongoServerError/i.test(error.message || '')
+            ? 'Registration server is temporarily unavailable. Please try again shortly.'
+            : (error.message || 'Registration failed');
+        res.status(500).json({ message: userMsg });
     }
 };
 

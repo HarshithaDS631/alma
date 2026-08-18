@@ -5,7 +5,7 @@ const adminUserSchema = new mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    institution: { type: String, default: 'Media Cell Institution' },
+    institution: { type: String, default: 'RV Educational Institutions' },
     role: { type: String, enum: ['Admin', 'Super Admin'], default: 'Admin' },
     department: { type: String, default: 'Administration' },
     avatar_url: { type: String },

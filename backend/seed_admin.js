@@ -13,21 +13,21 @@ const seedAdmin = async () => {
         console.log('Connected to MongoDB');
 
         // Check if admin exists
-        const existingAdmin = await User.findOne({ email: 'admin@mediacell.com' });
+        const existingAdmin = await User.findOne({ email: 'admin@rvce.edu.in' });
         if (existingAdmin) {
             console.log('Admin already exists, updating role/institution...');
             existingAdmin.role = 'Admin';
-            existingAdmin.institution = 'Media Cell Institution';
+            existingAdmin.institution = 'RV College of Engineering';
             existingAdmin.password = 'admin123'; // It will hash via pre-save
             await existingAdmin.save();
             console.log('Admin updated successfully.');
         } else {
-            console.log('Creating Media Cell Admin...');
+            console.log('Creating Admin...');
             await User.create({
-                name: 'Media Cell Admin',
-                email: 'admin@mediacell.com',
+                name: 'RVCE Admin',
+                email: 'admin@rvce.edu.in',
                 password: 'admin123',
-                institution: 'Media Cell Institution',
+                institution: 'RV College of Engineering',
                 role: 'Admin',
                 isAdmin: true,
                 verified: true,
