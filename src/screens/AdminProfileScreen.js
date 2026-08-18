@@ -90,7 +90,7 @@ const AdminProfileScreen = ({ navigation }) => {
   const [userInfo, setUserInfo] = useState(null);
   const [listModalType, setListModalType] = useState(null);
   const [userRole, setUserRole] = useState('admin');
-  const [activeInst, setActiveInst] = useState('RVCE');
+  const [activeInst, setActiveInst] = useState('Mediacell');
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [settingsSubView, setSettingsSubView] = useState('menu');
   const [currentPassword, setCurrentPassword] = useState('');
@@ -124,7 +124,7 @@ const AdminProfileScreen = ({ navigation }) => {
               : 'Mediacell');
 
           const defaultInst = (parsed.role === 'superadmin' || parsed.role === 'Super Admin')
-            ? (global.selectedInstitution && global.selectedInstitution !== 'All' ? global.selectedInstitution : 'Mediacell')
+            ? (global.selectedInstitution && global.selectedInstitution !== 'All' ? global.selectedInstitution : userInst)
             : userInst;
           setActiveInst(defaultInst);
 
@@ -197,10 +197,10 @@ const AdminProfileScreen = ({ navigation }) => {
   };
 
   const renderInstitutionDetails = () => {
-    const instDetails = INSTITUTIONS.find(i => i.shortName === activeInst);
-    const instAdminsList = INITIAL_ADMINS.filter(a => a.institution === activeInst);
-    const instPlacementsList = INITIAL_PLACEMENTS.filter(p => p.institution === activeInst);
-    const instSettings = INITIAL_NETWORK_SETTINGS[activeInst] || {};
+    const instDetails = INSTITUTIONS.find(i => i.shortName === activeInst || i.name === activeInst) || INSTITUTIONS[0];
+    const instAdminsList = INITIAL_ADMINS.filter(a => a.institution === activeInst || a.institution === instDetails?.name);
+    const instPlacementsList = INITIAL_PLACEMENTS.filter(p => p.institution === activeInst || p.institution === instDetails?.name);
+    const instSettings = INITIAL_NETWORK_SETTINGS[activeInst] || INITIAL_NETWORK_SETTINGS[instDetails?.shortName] || INITIAL_NETWORK_SETTINGS['Mediacell'] || {};
 
     return (
       <View style={{ gap: 16 }}>
@@ -722,11 +722,11 @@ const AdminProfileScreen = ({ navigation }) => {
                         <Ionicons name="people-outline" size={20} color="#003366" />
                         <Text style={styles.activityCardTitle}>Accounts Reached</Text>
                       </View>
-                      <Text style={styles.activityBigNumber}>12,845</Text>
-                      <Text style={styles.activitySubText}>+23.5% vs last 30 days</Text>
+                      <Text style={styles.activityBigNumber}>0</Text>
+                      <Text style={styles.activitySubText}>Live institutional network activity</Text>
                       {/* Mini Bar Chart */}
                       <View style={styles.activityChartRow}>
-                        {[40, 55, 70, 45, 80, 65, 90].map((val, idx) => (
+                        {[0, 0, 0, 0, 0, 0, 0].map((val, idx) => (
                           <View key={idx} style={styles.activityChartCol}>
                             <View style={styles.activityBarBg}>
                               <View style={[styles.activityBarFill, { height: `${val}%` }]} />
@@ -745,19 +745,19 @@ const AdminProfileScreen = ({ navigation }) => {
                       </View>
                       <View style={styles.interactionRow}>
                         <View style={styles.interactionItem}>
-                          <Text style={styles.interactionValue}>2,456</Text>
+                          <Text style={styles.interactionValue}>0</Text>
                           <Text style={styles.interactionLabel}>Likes</Text>
                         </View>
                         <View style={styles.interactionItem}>
-                          <Text style={styles.interactionValue}>342</Text>
+                          <Text style={styles.interactionValue}>0</Text>
                           <Text style={styles.interactionLabel}>Comments</Text>
                         </View>
                         <View style={styles.interactionItem}>
-                          <Text style={styles.interactionValue}>128</Text>
+                          <Text style={styles.interactionValue}>0</Text>
                           <Text style={styles.interactionLabel}>Shares</Text>
                         </View>
                         <View style={styles.interactionItem}>
-                          <Text style={styles.interactionValue}>89</Text>
+                          <Text style={styles.interactionValue}>0</Text>
                           <Text style={styles.interactionLabel}>Saves</Text>
                         </View>
                       </View>
@@ -772,17 +772,17 @@ const AdminProfileScreen = ({ navigation }) => {
                       <View style={styles.profileActivityRow}>
                         <View style={styles.profileActivityItem}>
                           <Ionicons name="eye-outline" size={22} color="#003366" />
-                          <Text style={styles.profileActivityValue}>856</Text>
+                          <Text style={styles.profileActivityValue}>0</Text>
                           <Text style={styles.profileActivityLabel}>Profile Visits</Text>
                         </View>
                         <View style={styles.profileActivityItem}>
                           <Ionicons name="link-outline" size={22} color="#003366" />
-                          <Text style={styles.profileActivityValue}>124</Text>
+                          <Text style={styles.profileActivityValue}>0</Text>
                           <Text style={styles.profileActivityLabel}>Link Taps</Text>
                         </View>
                         <View style={styles.profileActivityItem}>
                           <Ionicons name="person-add-outline" size={22} color="#003366" />
-                          <Text style={styles.profileActivityValue}>+38</Text>
+                          <Text style={styles.profileActivityValue}>+0</Text>
                           <Text style={styles.profileActivityLabel}>New Followers</Text>
                         </View>
                       </View>
@@ -797,19 +797,19 @@ const AdminProfileScreen = ({ navigation }) => {
                       <View style={styles.engagementList}>
                         <View style={styles.engagementItem}>
                           <Text style={styles.engagementLabel}>Engagement Rate</Text>
-                          <Text style={styles.engagementValue}>4.8%</Text>
+                          <Text style={styles.engagementValue}>0.0%</Text>
                         </View>
                         <View style={styles.engagementItem}>
                           <Text style={styles.engagementLabel}>Avg. Reach per Post</Text>
-                          <Text style={styles.engagementValue}>267</Text>
+                          <Text style={styles.engagementValue}>0</Text>
                         </View>
                         <View style={styles.engagementItem}>
-                          <Text style={styles.engagementLabel}>Best Posting Time</Text>
-                          <Text style={styles.engagementValue}>6:00 PM</Text>
+                          <Text style={styles.engagementLabel}>Status</Text>
+                          <Text style={styles.engagementValue}>Active</Text>
                         </View>
                         <View style={[styles.engagementItem, { borderBottomWidth: 0 }]}>
                           <Text style={styles.engagementLabel}>Top Content Type</Text>
-                          <Text style={styles.engagementValue}>Photos</Text>
+                          <Text style={styles.engagementValue}>Announcements</Text>
                         </View>
                       </View>
                     </View>
