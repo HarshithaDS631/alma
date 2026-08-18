@@ -1001,6 +1001,7 @@ const DashboardScreen = ({ navigation }) => {
       </View>
     </View>
   );
+};
   const renderStoriesBar = () => {
     const activeStories = (suggestions && suggestions.length > 0) ? suggestions.slice(0, 10) : [];
     return (
