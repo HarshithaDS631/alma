@@ -198,13 +198,17 @@ exports.verifyOtp = async (req, res) => {
 // @desc    Register new user (Validate Email -> OTP Verified -> Pending Admin Approval)
 // @route   POST /api/auth/register
 exports.registerUser = async (req, res) => {
-    const { name, email, password, institution, branch, batchYear, department, joiningYear, role, otp } = req.body;
+    const { name, email, password, institution, branch, batchYear, department, joiningYear, role, otp, authProvider, avatar_url, providerId } = req.body;
 
     if (!email) {
         return res.status(400).json({ message: 'Email address is required' });
     }
+
+    if (!institution || !institution.trim()) {
+        return res.status(400).json({ message: 'Please select your Institution' });
+    }
     
-    if (!otp) {
+    if (authProvider !== 'google' && !otp) {
         return res.status(400).json({ message: 'OTP verification code is required' });
     }
 
@@ -219,7 +223,7 @@ exports.registerUser = async (req, res) => {
     try {
         await connectDB();
         const emailClean = email.trim().toLowerCase();
-        const otpClean = otp.toString().trim();
+        const otpClean = (otp || '').toString().trim();
 
         // 1. Full Email Validation Check
         const validation = await validateEmailFull(emailClean);
@@ -229,34 +233,39 @@ exports.registerUser = async (req, res) => {
 
         const userExists = await User.findOne({ email: emailClean });
         if (userExists) {
-            return res.status(400).json({ message: 'Email Already Exists' });
+            return res.status(400).json({ message: 'An account with this email already exists. Please log in.' });
         }
 
-        // 2. Verify OTP
-        let validOtp = false;
-        try {
-            const dbOtp = await OTP.findOne({ email: emailClean, otp: otpClean });
-            if (dbOtp) validOtp = true;
-        } catch (e) {}
-        if (!validOtp && getMemoryOtp(emailClean, otpClean)) {
-            validOtp = true;
+        // 2. Verify OTP only if not verified via Google OAuth
+        if (authProvider !== 'google') {
+            let validOtp = false;
+            try {
+                const dbOtp = await OTP.findOne({ email: emailClean, otp: otpClean });
+                if (dbOtp) validOtp = true;
+            } catch (e) {}
+            if (!validOtp && getMemoryOtp(emailClean, otpClean)) {
+                validOtp = true;
+            }
+
+            if (!validOtp) {
+                return res.status(400).json({ message: 'Invalid or expired OTP verification code' });
+            }
         }
 
-        if (!validOtp) {
-            return res.status(400).json({ message: 'Invalid / Expired OTP' });
-        }
-
-        // 3. Complete Registration (Default is_approved: false -> Requires Admin Approval)
+        // 3. Complete Registration (Default is_approved: false -> Strict Admin Approval Required)
         const user = await User.create({
             name,
             email: emailClean,
             password,
             institution,
-            branch: branch || department, // Fallback for old clients
+            branch: branch || department,
             department: department || branch,
             batchYear,
             joiningYear,
             role: role || 'Alumni',
+            authProvider: authProvider || 'local',
+            providerId: providerId || '',
+            avatar_url: avatar_url || '',
             is_approved: false
         });
         
@@ -268,9 +277,10 @@ exports.registerUser = async (req, res) => {
         sendWelcomeEmail(user.email, user.name);
 
         res.status(201).json({
-            message: 'Registration complete! Your account has been submitted and is currently pending Admin approval.',
+            message: `Registration submitted! Your account under '${institution}' is now pending approval by your Institution Admin. You will be able to sign in once approved.`,
             _id: user._id,
             email: user.email,
+            institution: user.institution,
             is_approved: false
         });
     } catch (error) {
@@ -1199,27 +1209,19 @@ exports.googleAuth = async (req, res) => {
             user = await User.findOne({ email: email.toLowerCase() });
 
             if (!user) {
-                // Register user in database as pending admin approval
-                user = await User.create({
+                // If user is not yet registered with an Institution, return 404 so UI opens the registration form
+                return res.status(404).json({
+                    message: 'No alumni profile found for this Google email. Please complete the registration form to select your Institution and Department.',
+                    status: 'NOT_REGISTERED',
                     name: name || 'Google User',
                     email: email.toLowerCase(),
-                    avatar_url: picture,
-                    authProvider: 'google',
-                    providerId: sub,
-                    is_approved: false, // Default to false -> Requires Admin Approval
-                    role: 'Alumni',
-                    institution: req.body.institution || 'RV Educational Institutions'
-                });
-
-                return res.status(403).json({
-                    message: 'Your Google account has been registered in the database and is pending administrator approval. You will be able to log in once approved by the admin.',
-                    status: 'PENDING_APPROVAL'
+                    picture: picture || ''
                 });
             } else {
                 const isAdminOrSuper = ['admin', 'super admin', 'superadmin', 'institution admin'].includes((user.role || '').toLowerCase());
                 if (!isAdminOrSuper && !user.is_approved) {
                     return res.status(403).json({
-                        message: 'Your account is pending administrator approval. You can log in once the admin approves your account.',
+                        message: `Your account registered under '${user.institution}' is currently pending approval by your Institution Administrator. You can log in once approved.`,
                         status: 'PENDING_APPROVAL'
                     });
                 }

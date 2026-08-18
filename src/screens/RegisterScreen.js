@@ -48,20 +48,39 @@ const validatePasswordStrength = (password) => {
   return { valid: true };
 };
 
-const RegisterScreen = ({ navigation }) => {
+const RegisterScreen = ({ navigation, route }) => {
   const { theme, isDarkMode } = useTheme();
   const styles = getStyles(theme);
 
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
+    name: route?.params?.prefill?.name || '',
+    email: route?.params?.prefill?.email || '',
     role: 'Alumni',
     password: '',
     institution: global.selectedInstitution || '',
     branch: '',
     batchYear: '',
-    joiningYear: ''
+    joiningYear: '',
+    authProvider: route?.params?.prefill ? 'google' : 'local',
+    avatar_url: route?.params?.prefill?.photoURL || ''
   });
+
+  useEffect(() => {
+    if (route?.params?.prefill) {
+      const { name, email, photoURL } = route.params.prefill;
+      setFormData(prev => ({
+        ...prev,
+        name: name || prev.name,
+        email: email ? email.toLowerCase().trim() : prev.email,
+        avatar_url: photoURL || prev.avatar_url,
+        authProvider: 'google'
+      }));
+      if (email) {
+        setEmailState('verified');
+        setOtpVerified(true);
+      }
+    }
+  }, [route?.params?.prefill]);
 
   useEffect(() => {
     const loadStoredInstitution = async () => {
@@ -81,9 +100,9 @@ const RegisterScreen = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalType, setModalType] = useState(null); // 'institution' | 'branch' | 'joining' | 'batch'
-  const [emailState, setEmailState] = useState('idle'); // 'idle' | 'sending' | 'sent' | 'verified'
+  const [emailState, setEmailState] = useState(route?.params?.prefill?.email ? 'verified' : 'idle');
   const [inlineOtp, setInlineOtp] = useState(['', '', '', '', '', '']);
-  const [otpVerified, setOtpVerified] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(!!route?.params?.prefill?.email);
   const [otpError, setOtpError] = useState('');
   const [sendingOtpLoading, setSendingOtpLoading] = useState(false);
   const [verifyingOtpLoading, setVerifyingOtpLoading] = useState(false);
@@ -137,9 +156,9 @@ const RegisterScreen = ({ navigation }) => {
   };
 
   const handleRegister = async () => {
-    const { name, email, password, institution, branch, batchYear, joiningYear } = formData;
+    const { name, email, password, institution, branch, batchYear, joiningYear, authProvider, avatar_url } = formData;
     if (!name || !email || !password || !institution || !branch || !batchYear || !joiningYear) {
-      alert('Please fill in all fields');
+      alert('Please fill in all fields including your Institution and Department.');
       return;
     }
 
@@ -155,8 +174,8 @@ const RegisterScreen = ({ navigation }) => {
       return;
     }
 
-    if (!otpVerified && inlineOtp.join('').length < 4) {
-      alert('Please click "Send OTP" and enter the 4-digit verification code below your email.');
+    if (authProvider !== 'google' && !otpVerified && inlineOtp.join('').length < 6) {
+      alert('Please click "Send OTP" and enter the 6-digit verification code below your email.');
       return;
     }
 
@@ -172,7 +191,7 @@ const RegisterScreen = ({ navigation }) => {
 
     setLoading(true);
     try {
-      await register({
+      const res = await register({
         name,
         email: emailClean,
         role: formData.role || 'Alumni',
@@ -182,10 +201,12 @@ const RegisterScreen = ({ navigation }) => {
         department: branch,
         batchYear,
         joiningYear,
+        authProvider: authProvider || 'local',
+        avatar_url: avatar_url || '',
         otp: inlineOtp.join('')
       });
 
-      alert('Registration complete! Your account has been submitted and is currently pending Admin approval.');
+      alert(`✅ Registration Submitted!\n\nYour account has been registered under '${institution}' and is currently pending Admin approval.\n\nYou will be able to sign in once your Institution Administrator verifies and approves your account.`);
       navigation.navigate('Login');
     } catch (error) {
       console.error('Registration error:', error);
@@ -205,31 +226,44 @@ const RegisterScreen = ({ navigation }) => {
   const handleOAuthSignUp = async (provider) => {
     setLoading(true);
     try {
-      let userData;
+      let socialUser;
       if (provider === 'google') {
-        userData = await handleGoogleLogin();
+        if (Platform.OS === 'web') {
+          socialUser = await googleSignInWeb();
+        } else {
+          socialUser = await googleSignInMobile();
+        }
       } else if (provider === 'linkedin') {
-        userData = await handleLinkedInLogin();
+        socialUser = await handleLinkedInLogin();
       } else if (provider === 'facebook') {
-        userData = await handleFacebookLogin();
+        socialUser = await handleFacebookLogin();
       } else if (provider === 'apple') {
-        userData = await handleAppleLogin();
+        socialUser = await handleAppleLogin();
       } else {
         alert(`${provider} sign-up is coming soon.`);
         return;
       }
 
-      const userRole = (userData.role || '').trim().toLowerCase();
-      if (userRole === 'super admin' || userRole === 'superadmin') {
-        navigation.navigate('SuperAdminMain');
-      } else if (userRole === 'admin' || userRole === 'institution admin') {
-        navigation.navigate('AdminMain');
-      } else {
-        navigation.navigate('Main');
+      if (socialUser && socialUser.email) {
+        // Pre-fill the form with Name and Email from social provider
+        setFormData(prev => ({
+          ...prev,
+          name: socialUser.name || prev.name || '',
+          email: socialUser.email.toLowerCase().trim(),
+          avatar_url: socialUser.photoURL || prev.avatar_url || '',
+          authProvider: provider
+        }));
+        setEmailState('verified');
+        setOtpVerified(true);
+        setOtpError('');
+        
+        alert(`✨ Connected with ${provider.charAt(0).toUpperCase() + provider.slice(1)} as ${socialUser.name || socialUser.email}!\n\nPlease select your Institution, Department, and Graduation Year below, then create a password to submit your registration for Admin approval.`);
       }
     } catch (error) {
       console.error(`${provider} Sign-Up Error:`, error);
-      alert(`${provider.charAt(0).toUpperCase() + provider.slice(1)} Sign-Up Error: ` + error.message);
+      if (!error.message?.includes('cancelled') && !error.message?.includes('popup-closed')) {
+        alert(`${provider.charAt(0).toUpperCase() + provider.slice(1)} Error: ` + (error.message || 'Authentication failed'));
+      }
     } finally {
       setLoading(false);
     }

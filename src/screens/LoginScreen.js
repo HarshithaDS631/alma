@@ -49,8 +49,18 @@ const LoginScreen = ({ navigation }) => {
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
     try {
-      const userData = await handleGoogleLogin();
-      const userRole = (userData.role || '').trim().toLowerCase();
+      const result = await handleGoogleLogin();
+
+      if (result?.notRegistered && result?.googleUser) {
+        alert(`👋 Welcome ${result.googleUser.name || 'Alumni'}!\n\nPlease select your Institution, Department, and Graduation Year to complete your registration.`);
+        navigation.navigate('Register', {
+          prefill: result.googleUser
+        });
+        return;
+      }
+
+      const userData = result;
+      const userRole = (userData?.role || '').trim().toLowerCase();
       if (userRole === 'super admin' || userRole === 'superadmin') {
         navigation.navigate('SuperAdminMain');
       } else if (userRole === 'admin' || userRole === 'institution admin') {
@@ -59,7 +69,11 @@ const LoginScreen = ({ navigation }) => {
         navigation.navigate('Main');
       }
     } catch (error) {
-      alert(error.message || 'Google Sign-In failed. Please try again.');
+      if (error.isPendingApproval || error.message?.includes('pending')) {
+        alert(`⏳ Account Pending Approval\n\n${error.message}`);
+      } else if (!error.message?.includes('cancelled') && !error.message?.includes('popup-closed')) {
+        alert(error.message || 'Google Sign-In failed. Please try again.');
+      }
     } finally {
       setGoogleLoading(false);
     }
@@ -217,7 +231,12 @@ const LoginScreen = ({ navigation }) => {
         navigation.navigate('Main');
       }
     } catch (error) {
-      alert(error.response?.data?.message || error.message || 'Login failed');
+      const msg = error.response?.data?.message || error.message || 'Login failed';
+      if (error.response?.status === 403 || msg.toLowerCase().includes('pending')) {
+        alert(`⏳ Account Pending Approval\n\n${msg}`);
+      } else {
+        alert(msg);
+      }
     } finally {
       setLoading(false);
     }

@@ -184,18 +184,31 @@ export const handleGoogleLogin = async () => {
       // Exchange with our backend to get Alumni JWT
       userData = await exchangeGoogleTokenWithBackend(googleUser);
     } catch (backendErr) {
-      console.warn('[Google Login] Backend exchange error, using verified Google session:', backendErr?.message);
-      userData = {
-        _id: googleUser.uid || 'google_' + Date.now(),
-        id: googleUser.uid || 'google_' + Date.now(),
-        name: googleUser.name || 'Google User',
-        email: googleUser.email,
-        institution: global.selectedInstitution || 'RV Educational Institutions',
-        role: 'Alumni',
-        avatar_url: googleUser.photoURL,
-        token: googleUser.idToken || googleUser.accessToken || 'google_token_' + Date.now(),
-        is_approved: true
-      };
+      const status = backendErr?.response?.status;
+      const respData = backendErr?.response?.data;
+      
+      if (status === 403 || respData?.status === 'PENDING_APPROVAL') {
+        const err = new Error(respData?.message || 'Your account is pending administrator approval. You will be able to log in once approved by your institution admin.');
+        err.isPendingApproval = true;
+        err.response = backendErr.response;
+        throw err;
+      }
+
+      if (status === 404 || respData?.status === 'NOT_REGISTERED') {
+        return {
+          notRegistered: true,
+          googleUser: {
+            name: googleUser.name,
+            email: googleUser.email,
+            photoURL: googleUser.photoURL,
+            idToken: googleUser.idToken
+          }
+        };
+      }
+
+      const err = new Error(respData?.message || backendErr.message || 'Google authentication failed.');
+      err.response = backendErr.response;
+      throw err;
     }
 
     // Persist session
@@ -210,6 +223,7 @@ export const handleGoogleLogin = async () => {
     console.error('[Google Login Error]:', errorMsg);
     const err = new Error(errorMsg);
     err.response = error.response;
+    err.isPendingApproval = error.isPendingApproval;
     throw err;
   }
 };
