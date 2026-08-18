@@ -9,6 +9,7 @@ import { updateProfile } from '../services/authService';
 import { institutionDepartments, defaultDepartments } from '../constants/institutionDepartments';
 
 const institutions = [
+  { id: 'Mediacell', name: 'Mediacell', fullName: 'Mediacell' },
   { id: 'RV School', name: 'RVS', fullName: 'RV School' },
   { id: 'RV Girls High School', name: 'RVGHS', fullName: 'RV Girls High School' },
   { id: 'RV Public School', name: 'RVPS', fullName: 'RV Public School' },

@@ -1,4 +1,5 @@
 export const institutionsList = [
+  'Mediacell',
   'RV College of Engineering',
   'RV Institute of Technology and Management',
   'RV College of Architecture',
@@ -27,6 +28,16 @@ export const institutionsList = [
 ];
 
 export const institutionDepartments = {
+  'Mediacell': [
+    "Media & Communications",
+    "Digital Media & Content Production",
+    "Public Relations & Outreach",
+    "Visual Arts & Design",
+    "Computer Science & Engineering",
+    "Information Science & Engineering",
+    "General",
+    "Administration"
+  ],
   'RV College of Engineering': [
     "Aerospace Engineering",
     "Artificial Intelligence and Machine Learning",

@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const institutions = [
+  { id: 'Mediacell', name: 'Mediacell', fullName: 'Mediacell', icon: 'videocam' },
   { id: 'RV College of Engineering', name: 'RVCE', fullName: 'RV College of Engineering', icon: 'build' },
   { id: 'RV Institute of Technology and Management', name: 'RVITM', fullName: 'RV Institute of Technology and Management', icon: 'code-working' },
   { id: 'RV College of Architecture', name: 'RVCA', fullName: 'RV College of Architecture', icon: 'color-palette' },

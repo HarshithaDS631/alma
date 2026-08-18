@@ -28,6 +28,7 @@ import { getPosts, getEvents } from '../services/authService';
 // ==========================================
 
 const INSTITUTIONS = [
+  { id: '0', name: 'Mediacell', shortName: 'Mediacell', location: 'Bengaluru, Karnataka', established: 2024, totalAlumni: 1200, registeredUsers: 350, admins: 2, status: 'Active', color: '#003366' },
   { id: '1', name: 'RV School', shortName: 'RVS', location: 'Bengaluru, Karnataka', established: 1999, totalAlumni: 1500, registeredUsers: 400, admins: 2, status: 'Active', color: '#003366' },
   { id: '2', name: 'RV Girls High School', shortName: 'RVGHS', location: 'Bengaluru, Karnataka', established: 1999, totalAlumni: 1500, registeredUsers: 400, admins: 2, status: 'Active', color: '#003366' },
   { id: '3', name: 'RV Public School', shortName: 'RVPS', location: 'Bengaluru, Karnataka', established: 1999, totalAlumni: 1500, registeredUsers: 400, admins: 2, status: 'Active', color: '#003366' },
@@ -101,6 +102,7 @@ const INITIAL_ACTIVITIES = [];
 const INITIAL_IMPORTS = [];
 
 const INITIAL_NETWORK_SETTINGS = {
+  'Mediacell': { institutionName: 'Mediacell', shortTitle: 'Mediacell', website: 'https://rvei.edu.in', established: '2024', location: 'Bengaluru, Karnataka', primaryColor: '#003366', secondaryColor: '#00a99c', alumniText: 'Alumni', studentsText: 'Students', facultyText: 'Faculty', batchmatesText: 'Batchmates', manualApproval: true, emailVouching: false, allowUnverified: true, displayJobs: true, displayEvents: true, displayGroups: true, displayMemories: true, displayDonations: true, displayMentorship: true, displayAlumniCard: true, welcomeEmailEnabled: true, whatsappEnabled: true },
   'RVCE': { institutionName: 'RV College of Engineering', shortTitle: 'RVCE', website: 'https://rvce.edu.in', established: '1963', location: 'Bengaluru, Karnataka', primaryColor: '#4F46E5', secondaryColor: '#00a99c', alumniText: 'Alumni', studentsText: 'Students', facultyText: 'Faculty', batchmatesText: 'Batchmates', manualApproval: true, emailVouching: false, allowUnverified: true, displayJobs: true, displayEvents: true, displayGroups: true, displayMemories: true, displayDonations: false, displayMentorship: true, displayAlumniCard: false, welcomeEmailEnabled: true, whatsappEnabled: false },
   'Institution': { institutionName: 'Institute of Technology', shortTitle: 'Institution', website: 'https://institution.edu.in', established: '2019', location: 'Bengaluru, Karnataka', primaryColor: '#1a5276', secondaryColor: '#2ecc71', alumniText: 'Alumni', studentsText: 'Students', facultyText: 'Faculty', batchmatesText: 'Classmates', manualApproval: true, emailVouching: true, allowUnverified: false, displayJobs: true, displayEvents: true, displayGroups: false, displayMemories: true, displayDonations: true, displayMentorship: true, displayAlumniCard: true, welcomeEmailEnabled: true, whatsappEnabled: true },
   'RVPU': { institutionName: 'RV PU College', shortTitle: 'RVPU', website: 'https://rvpucollege.edu.in', established: '1970', location: 'Bengaluru, Karnataka', primaryColor: '#8e44ad', secondaryColor: '#e74c3c', alumniText: 'Alumni', studentsText: 'Students', facultyText: 'Teachers', batchmatesText: 'Batchmates', manualApproval: false, emailVouching: false, allowUnverified: true, displayJobs: false, displayEvents: true, displayGroups: true, displayMemories: true, displayDonations: false, displayMentorship: false, displayAlumniCard: false, welcomeEmailEnabled: false, whatsappEnabled: false },
@@ -2454,6 +2456,7 @@ const SuperAdminDashboardScreen = ({ navigation, route }) => {
   // 0. Alumni Portals Module (Inside Super Admin Dashboard)
   const renderAlumniPortalsGrid = () => {
     const portalList = [
+      { id: 'Mediacell', name: 'Mediacell', fullName: 'Mediacell', icon: 'videocam', color: '#003366' },
       { id: 'RV School', name: 'RVS', fullName: 'RV School', icon: 'school', color: '#3B82F6' },
       { id: 'RV Girls High School', name: 'RVGHS', fullName: 'RV Girls High School', icon: 'school', color: '#EC4899' },
       { id: 'RV Public School', name: 'RVPS', fullName: 'RV Public School', icon: 'school', color: '#10B981' },
