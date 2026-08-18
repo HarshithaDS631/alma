@@ -1001,6 +1001,7 @@ const DashboardScreen = ({ navigation }) => {
       </View>
     </View>
   );
+};
   const STORIES_DATA = [
     { id: '1', name: 'bhavana_gb', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&h=150&q=80' },
     { id: '2', name: 'houseofsa...', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&h=150&q=80' },
