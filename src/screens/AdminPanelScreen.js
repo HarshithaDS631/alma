@@ -929,8 +929,8 @@ export default function AdminPanelScreen({ navigation }) {
                 <Ionicons name="shield-checkmark" size={28} color="#003366" />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={styles.welcomeTitle}>Welcome, Institution Admin</Text>
-                <Text style={styles.welcomeSub}>Institution Management Console</Text>
+                <Text style={styles.welcomeTitle}>Welcome, Mediacell Admin</Text>
+                <Text style={styles.welcomeSub}>Mediacell Management Console</Text>
               </View>
             </View>
 
