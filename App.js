@@ -113,7 +113,7 @@ function MainTabs() {
           drawerIcon: ({ focused, color, size }) => {
             if (route.name === 'Home') return <Ionicons name={focused ? 'home' : 'home-outline'} size={22} color={color} />;
             if (route.name === 'Engage') return <MaterialCommunityIcons name={focused ? 'handshake' : 'handshake-outline'} size={22} color={color} />;
-            if (route.name === 'Post') return <MaterialCommunityIcons name={focused ? 'account-switch' : 'account-switch-outline'} size={22} color={color} />;
+            if (route.name === 'Post') return <Ionicons name={focused ? 'add-circle' : 'add-circle-outline'} size={24} color={color} />;
             if (route.name === 'Jobs') return <Ionicons name={focused ? 'briefcase' : 'briefcase-outline'} size={22} color={color} />;
             if (route.name === 'Contribute') return <MaterialCommunityIcons name={focused ? 'hand-heart' : 'hand-heart-outline'} size={22} color={color} />;
             return null;
@@ -140,7 +140,14 @@ function MainTabs() {
           let icon = null;
           if (route.name === 'Home') icon = <Ionicons name={focused ? 'home' : 'home-outline'} size={22} color={color} />;
           if (route.name === 'Engage') icon = <MaterialCommunityIcons name={focused ? 'handshake' : 'handshake-outline'} size={22} color={color} />;
-          if (route.name === 'Post') icon = <MaterialCommunityIcons name={focused ? 'account-switch' : 'account-switch-outline'} size={22} color={color} />;
+          if (route.name === 'Post') return (
+            <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+              <View style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: focused ? theme.primary : (isDarkMode ? '#1E293B' : '#E2E8F0'), justifyContent: 'center', alignItems: 'center', marginTop: -4 }}>
+                <Ionicons name="add" size={24} color={focused ? '#FFFFFF' : theme.text} />
+              </View>
+              <Text style={{ color, fontSize: 10, fontWeight: '700', marginTop: 2 }}>Post</Text>
+            </View>
+          );
           if (route.name === 'Jobs') icon = <Ionicons name={focused ? 'briefcase' : 'briefcase-outline'} size={22} color={color} />;
           if (route.name === 'Contribute') icon = <MaterialCommunityIcons name={focused ? 'hand-heart' : 'hand-heart-outline'} size={22} color={color} />;
           return (

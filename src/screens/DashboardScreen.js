@@ -1230,7 +1230,33 @@ const DashboardScreen = ({ navigation }) => {
           </View>
         ) : (
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-            {posts.length > 0 ? posts.slice(0, 1).map(post => renderPostCard(post)) : (
+            {/* Mobile Create Post Box */}
+            <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 12, marginHorizontal: 16, marginTop: 12, marginBottom: 8, elevation: 1, borderWidth: 1, borderColor: theme.border, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <TouchableOpacity 
+                style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center' }}
+                onPress={() => navigation.navigate('Profile')}
+              >
+                {userAvatarUrl ? (
+                  <Image source={{ uri: userAvatarUrl }} style={{ width: 36, height: 36, borderRadius: 18 }} />
+                ) : (
+                  <Text style={{ fontSize: 13, fontWeight: '700', color: '#FFFFFF' }}>{userName ? userName.substring(0, 2).toUpperCase() : 'HA'}</Text>
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={{ flex: 1, backgroundColor: theme.inputBackground, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8, borderWidth: 1, borderColor: theme.border }}
+                onPress={() => navigation.navigate('PostCreation')}
+              >
+                <Text style={{ color: theme.textMuted, fontSize: 13 }}>Start a post or share an update...</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={{ padding: 6, backgroundColor: theme.background, borderRadius: 16 }}
+                onPress={() => navigation.navigate('PostCreation')}
+              >
+                <Ionicons name="image-outline" size={18} color={theme.primary} />
+              </TouchableOpacity>
+            </View>
+
+            {posts.length > 0 ? posts.map(post => renderPostCard(post)) : (
               <View style={{ alignItems: 'center', paddingVertical: 30 }}>
                 <Ionicons name="newspaper-outline" size={40} color={theme.textSecondary} />
                 <Text style={{ color: theme.textSecondary, marginTop: 8, fontSize: 14 }}>No posts yet. Be the first to share!</Text>
