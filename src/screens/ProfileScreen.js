@@ -2432,14 +2432,14 @@ const DEFAULT_TAGGED_POSTS = [];
         </SafeAreaView>
       </Modal>
 
-      {/* Meta Accounts Center Modal (Matching Image 2) */}
+      {/* Accounts Center Modal */}
       <Modal visible={accountsCenterVisible} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setAccountsCenterVisible(false)}>
         <SafeAreaView style={{ flex: 1, backgroundColor: isDarkMode ? '#121212' : '#FFFFFF' }}>
           {/* Top Header */}
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, borderBottomWidth: 1, borderBottomColor: theme.border }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Ionicons name="infinite" size={24} color="#0095F6" style={{ marginRight: 8 }} />
-              <Text style={{ fontSize: 18, fontWeight: '800', color: theme.text }}>Meta</Text>
+              <Ionicons name="shield-checkmark" size={22} color={theme.primary} style={{ marginRight: 8 }} />
+              <Text style={{ fontSize: 18, fontWeight: '800', color: theme.text }}>Accounts Center</Text>
             </View>
             <TouchableOpacity onPress={() => setAccountsCenterVisible(false)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
               <Ionicons name="close" size={24} color={theme.text} />
@@ -2447,16 +2447,16 @@ const DEFAULT_TAGGED_POSTS = [];
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 20, maxWidth: 640, alignSelf: 'center', width: '100%' }}>
-            <Text style={{ fontSize: 24, fontWeight: '800', color: theme.text, marginBottom: 8 }}>Accounts Center</Text>
+            <Text style={{ fontSize: 22, fontWeight: '800', color: theme.text, marginBottom: 8 }}>Accounts Center</Text>
             <Text style={{ fontSize: 13, color: theme.textSecondary, marginBottom: 20 }}>
-              Manage your connected experiences and account settings across Meta technologies.
+              Manage your connected profiles, verification credentials, and personal details across the Alumni Network.
             </Text>
 
             {/* Profiles Box */}
             <View style={{ backgroundColor: isDarkMode ? '#1E1E1E' : '#F8FAFC', borderRadius: 16, borderWidth: 1, borderColor: theme.border, padding: 16, marginBottom: 20 }}>
               <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text, marginBottom: 12 }}>Profiles</Text>
               
-              <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 8 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 8 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center', overflow: 'hidden', marginRight: 12 }}>
                     {profileData.avatar_url ? (
@@ -2467,52 +2467,35 @@ const DEFAULT_TAGGED_POSTS = [];
                   </View>
                   <View>
                     <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>{profileData.username}</Text>
-                    <Text style={{ fontSize: 12, color: theme.textSecondary }}>Instagram • Alumni</Text>
+                    <Text style={{ fontSize: 12, color: theme.textSecondary }}>{profileData.name} • {profileData.branch || 'Alumni'}</Text>
                   </View>
                 </View>
-                <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
-              </TouchableOpacity>
-
-              <View style={{ height: 1, backgroundColor: theme.border, marginVertical: 10 }} />
-
-              <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 8 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: theme.border, justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
-                    <Ionicons name="at-circle-outline" size={24} color={theme.text} />
-                  </View>
-                  <View>
-                    <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>{profileData.username}</Text>
-                    <Text style={{ fontSize: 12, color: theme.textSecondary }}>Threads</Text>
-                  </View>
-                </View>
-                <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
-              </TouchableOpacity>
-
-              <TouchableOpacity style={{ marginTop: 12 }}>
-                <Text style={{ color: '#0095F6', fontSize: 14, fontWeight: '700' }}>Add accounts</Text>
-              </TouchableOpacity>
+                <Ionicons name="checkmark-circle" size={20} color={theme.primary} />
+              </View>
             </View>
 
-            {/* Personal Details Box (Matching Image 2) */}
+            {/* Personal Details Box */}
             <View style={{ backgroundColor: isDarkMode ? '#1E1E1E' : '#F8FAFC', borderRadius: 16, borderWidth: 1, borderColor: theme.border, padding: 16 }}>
               <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text, marginBottom: 12 }}>Personal details</Text>
 
-              <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10 }}>
                 <View>
                   <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>Contact info</Text>
-                  <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 2 }}>{profileData.email || 'harshithads2001@gmail.com'}</Text>
+                  <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 2 }}>{profileData.email || 'No email specified'}</Text>
                 </View>
-                <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
-              </TouchableOpacity>
+              </View>
 
               <View style={{ height: 1, backgroundColor: theme.border, marginVertical: 8 }} />
 
-              <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10 }}>
+              <TouchableOpacity 
+                style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10 }}
+                onPress={() => setDobCalendarVisible(true)}
+              >
                 <View>
-                  <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>Birthday</Text>
-                  <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 2 }}>March 6, 2001</Text>
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>Date of Birth</Text>
+                  <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 2 }}>{editDob || 'Not specified'}</Text>
                 </View>
-                <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
+                <Ionicons name="calendar-outline" size={18} color={theme.textMuted} />
               </TouchableOpacity>
             </View>
           </ScrollView>

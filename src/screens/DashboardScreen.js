@@ -1001,56 +1001,55 @@ const DashboardScreen = ({ navigation }) => {
       </View>
     </View>
   );
-};
-  const STORIES_DATA = [
-    { id: '1', name: 'bhavana_gb', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&h=150&q=80' },
-    { id: '2', name: 'houseofsa...', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&h=150&q=80' },
-    { id: '3', name: 'thaman.pa...', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&h=150&q=80' },
-    { id: '4', name: 'chaithrara...', avatar: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=150&h=150&q=80' },
-    { id: '5', name: 'nandish_rx...', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&h=150&q=80' },
-    { id: '6', name: 'sri_vasudev', avatar: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=150&h=150&q=80' },
-  ];
-
-  const renderStoriesBar = () => (
-    <View style={{ backgroundColor: theme.card, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: theme.border, marginBottom: 8 }}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 14, alignItems: 'center' }}>
-        {/* Your Story */}
-        <TouchableOpacity style={{ alignItems: 'center', width: 68 }} onPress={() => navigation.navigate('PostCreation')} activeOpacity={0.8}>
-          <View style={{ position: 'relative' }}>
-            <View style={{ width: 58, height: 58, borderRadius: 29, backgroundColor: theme.background, borderWidth: 1.5, borderColor: theme.border, justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
-              {userAvatarUrl ? (
-                <Image source={{ uri: userAvatarUrl }} style={{ width: 58, height: 58, borderRadius: 29 }} />
-              ) : (
-                <Text style={{ fontSize: 18, fontWeight: '700', color: theme.primary }}>{userName ? userName.substring(0, 2).toUpperCase() : 'ME'}</Text>
-              )}
+  const renderStoriesBar = () => {
+    const activeStories = (suggestions && suggestions.length > 0) ? suggestions.slice(0, 10) : [];
+    return (
+      <View style={{ backgroundColor: theme.card, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: theme.border, marginBottom: 8 }}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 14, alignItems: 'center' }}>
+          {/* Your Story */}
+          <TouchableOpacity style={{ alignItems: 'center', width: 68 }} onPress={() => navigation.navigate('PostCreation')} activeOpacity={0.8}>
+            <View style={{ position: 'relative' }}>
+              <View style={{ width: 58, height: 58, borderRadius: 29, backgroundColor: theme.background, borderWidth: 1.5, borderColor: theme.border, justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
+                {userAvatarUrl ? (
+                  <Image source={{ uri: userAvatarUrl }} style={{ width: 58, height: 58, borderRadius: 29 }} />
+                ) : (
+                  <Text style={{ fontSize: 18, fontWeight: '700', color: theme.primary }}>{userName ? userName.substring(0, 2).toUpperCase() : 'ME'}</Text>
+                )}
+              </View>
+              <View style={{ position: 'absolute', bottom: -2, right: -2, width: 20, height: 20, borderRadius: 10, backgroundColor: '#0095F6', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: theme.card }}>
+                <Ionicons name="add" size={14} color="#FFFFFF" />
+              </View>
             </View>
-            <View style={{ position: 'absolute', bottom: -2, right: -2, width: 20, height: 20, borderRadius: 10, backgroundColor: '#0095F6', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: theme.card }}>
-              <Ionicons name="add" size={14} color="#FFFFFF" />
-            </View>
-          </View>
-          <Text style={{ fontSize: 11, color: theme.text, marginTop: 6, fontWeight: '500' }} numberOfLines={1}>Your story</Text>
-        </TouchableOpacity>
-
-        {/* Stories Items with Instagram Gradient Border */}
-        {STORIES_DATA.map(s => (
-          <TouchableOpacity 
-            key={s.id} 
-            style={{ alignItems: 'center', width: 68 }} 
-            activeOpacity={0.8}
-            onPress={() => {
-              if (Platform.OS === 'web') window.alert(`Viewing story from @${s.name}`);
-              else Alert.alert('Story', `Viewing story from @${s.name}`);
-            }}
-          >
-            <View style={{ width: 62, height: 62, borderRadius: 31, padding: 2, borderWidth: 2.5, borderColor: '#DD2A7B', justifyContent: 'center', alignItems: 'center' }}>
-              <Image source={{ uri: s.avatar }} style={{ width: 54, height: 54, borderRadius: 27 }} />
-            </View>
-            <Text style={{ fontSize: 11, color: theme.text, marginTop: 4 }} numberOfLines={1}>{s.name}</Text>
+            <Text style={{ fontSize: 11, color: theme.text, marginTop: 6, fontWeight: '500' }} numberOfLines={1}>Your story</Text>
           </TouchableOpacity>
-        ))}
-      </ScrollView>
-    </View>
-  );
+
+          {/* Dynamic Alumni Stories */}
+          {activeStories.map(s => (
+            <TouchableOpacity 
+              key={s.id} 
+              style={{ alignItems: 'center', width: 68 }} 
+              activeOpacity={0.8}
+              onPress={() => {
+                if (Platform.OS === 'web') window.alert(`Viewing story from @${s.name}`);
+                else Alert.alert('Story', `Viewing story from @${s.name}`);
+              }}
+            >
+              <View style={{ width: 62, height: 62, borderRadius: 31, padding: 2, borderWidth: 2.5, borderColor: '#DD2A7B', justifyContent: 'center', alignItems: 'center' }}>
+                {s.isAvatarUrl ? (
+                  <Image source={{ uri: s.avatar }} style={{ width: 54, height: 54, borderRadius: 27 }} />
+                ) : (
+                  <View style={{ width: 54, height: 54, borderRadius: 27, backgroundColor: theme.border, justifyContent: 'center', alignItems: 'center' }}>
+                    <Text style={{ fontWeight: '700', color: theme.textSecondary, fontSize: 16 }}>{s.avatar}</Text>
+                  </View>
+                )}
+              </View>
+              <Text style={{ fontSize: 11, color: theme.text, marginTop: 4 }} numberOfLines={1}>{s.name}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+    );
+  };
 
   // ─── Render ────────────────────────────────────────────
   const [unreadMessages, setUnreadMessages] = useState(0);
@@ -1280,7 +1279,7 @@ const DashboardScreen = ({ navigation }) => {
                   About • Help • Press • API • Jobs • Privacy • Terms • Locations • Language • Verified
                 </Text>
                 <Text style={{ fontSize: 11, color: '#94A3B8', marginTop: 12, fontWeight: '500' }}>
-                  © 2026 INSTAGRAM FROM META
+                  © 2026 ALUMNI PORTAL
                 </Text>
               </View>
             </View>
