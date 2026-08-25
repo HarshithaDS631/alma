@@ -17,7 +17,7 @@ if (process.env.MONGO_URI && !process.env.MONGO_URI.includes('alumni_db')) {
 }
 
 const connectDB = async () => {
-    const mongoUri = process.env.MONGO_URI || 'mongodb+srv://rveducational_db_user:Alumni%40123@cluster0.xk6n9j6.mongodb.net/alumni_db?appName=Cluster0';
+    const mongoUri = process.env.MONGO_URI || 'mongodb+srv://rveducational_db_user:knXULQe7XH5VDK9r@cluster0.xk6n9j6.mongodb.net/alumni_db?retryWrites=true&w=majority';
 
     if (mongoose.connection.readyState === 1) {
         return mongoose.connection;

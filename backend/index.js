@@ -21,6 +21,10 @@ const messageRoutes = require('./routes/messageRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const jobRoutes = require('./routes/jobRoutes');
 const firebaseAuthRoutes = require('./routes/firebaseAuthRoutes');
+const institutionRoutes = require('./routes/institutionRoutes');
+const verificationRoutes = require('./routes/verificationRoutes');
+const passwordRoutes = require('./routes/passwordRoutes');
+const recommendationRoutes = require('./routes/recommendationRoutes');
 const { initScheduler } = require('./utils/cronScheduler');
 const { apiLimiter, authLimiter } = require('./middleware/rateLimiter');
 const activityLogger = require('./middleware/activityLogger');
@@ -159,8 +163,30 @@ app.use((req, res, next) => {
 });
 app.use(activityLogger);
 
-// ─── API Routes ─────────────────────────────────────────────────
+// ─── API v1 Versioned Routes (Primary) ───────────────────────────
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/institutions', institutionRoutes);
+app.use('/api/v1/verifications', verificationRoutes);
+app.use('/api/v1/password', passwordRoutes);
+app.use('/api/v1/posts', postRoutes);
+app.use('/api/v1/mentorship', mentorshipRoutes);
+app.use('/api/v1/events', eventRoutes);
+app.use('/api/v1/reports', reportRoutes);
+app.use('/api/v1/blocks', blockRoutes);
+app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/upload', uploadRoutes);
+app.use('/api/v1/activity', activityRoutes);
+app.use('/api/v1/messages', messageRoutes);
+app.use('/api/v1/notifications', notificationRoutes);
+app.use('/api/v1/jobs', jobRoutes);
+app.use('/api/v1/firebase-auth', firebaseAuthRoutes);
+app.use('/api/v1/recommendations', recommendationRoutes);
+
+// ─── Legacy /api/* Compatibility Aliases ────────────────────────
 app.use('/api/auth', authRoutes);
+app.use('/api/institutions', institutionRoutes);
+app.use('/api/verifications', verificationRoutes);
+app.use('/api/password', passwordRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/mentorship', mentorshipRoutes);
 app.use('/api/events', eventRoutes);
@@ -173,18 +199,18 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/firebase-auth', firebaseAuthRoutes);
-const recommendationRoutes = require('./routes/recommendationRoutes');
 app.use('/api/recommendations', recommendationRoutes);
 
 // ─── System Health ──────────────────────────────────────────────
-app.get('/api/system-status', async (req, res) => {
+const handleSystemStatus = async (req, res) => {
     const mongoose = require('mongoose');
     try { await connectDB(); } catch (e) {}
     res.json({
         status: 'healthy',
+        version: 'v1.0.0',
         architecture: {
             transport: 'HTTPS / WSS (Load Balancer & Nginx Proxy Ready)',
-            clients: ['Web Application (React/Next.js)', 'Mobile Application (Flutter)'],
+            clients: ['Web Application (React/Next.js)', 'Mobile Application (React Native / Expo / Flutter)'],
             security: [
                 'Helmet (Secure HTTP Headers)',
                 'Rate Limiting (100 req/15min)',
@@ -192,10 +218,14 @@ app.get('/api/system-status', async (req, res) => {
                 'Input Validation (express-validator)',
                 'Token Blacklisting (Logout Invalidation)',
                 'Login History & Audit Trail',
+                'Multi-Tenant Institution Isolation',
+                '5-Password History Enforcement',
                 'CORS Origin Whitelist'
             ],
             modules: [
                 'Authentication Module (JWT + OTP + OAuth + 2FA-Ready)',
+                'Institution & Department Management Module',
+                'Alumni Verification Workflow Module',
                 'User Management Module',
                 'Alumni Directory Module',
                 'Profile Management Module',
@@ -205,9 +235,7 @@ app.get('/api/system-status', async (req, res) => {
                 'Chat Module (Socket.IO)',
                 'Notification Module',
                 'Admin Module',
-                'Reports & Analytics Module',
-                'Gamification Module (Planned)',
-                'Community Groups Module (Planned)'
+                'Reports & Analytics Module'
             ],
             database: 'MongoDB Atlas',
             dbState: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected',
@@ -216,14 +244,15 @@ app.get('/api/system-status', async (req, res) => {
         },
         timestamp: new Date().toISOString()
     });
-});
+};
 
-app.get('/api/health', async (req, res) => {
+const handleHealth = async (req, res) => {
     try {
         await connectDB();
         const mongoose = require('mongoose');
         res.json({
             status: 'ok',
+            version: 'v1.0.0',
             timestamp: new Date(),
             dbState: mongoose.connection.readyState,
             dbHost: mongoose.connection.host || 'none',
@@ -232,7 +261,12 @@ app.get('/api/health', async (req, res) => {
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
-});
+};
+
+app.get('/api/v1/system-status', handleSystemStatus);
+app.get('/api/system-status', handleSystemStatus);
+app.get('/api/v1/health', handleHealth);
+app.get('/api/health', handleHealth);
 
 app.get('/', (req, res) => {
     res.send('RVITM Alumni API is running with HTTPS, WSS (Socket.IO), JWT Auth & MongoDB Atlas...');
