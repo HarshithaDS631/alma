@@ -151,50 +151,6 @@ const LoginScreen = ({ navigation }) => {
       return;
     }
 
-    if (emailClean === 'superadmin@institution.edu' && password === 'super123') {
-      await AsyncStorage.setItem('userInfo', JSON.stringify({ 
-        name: 'Super Admin', 
-        email: 'superadmin@institution.edu',
-        role: 'superadmin'
-      }));
-      setLoading(false);
-      navigation.navigate('SuperAdminMain');
-      return;
-    }
-
-    if (emailClean === 'harshithads2001@gmail.com' && (password === 'Alumni@6363' || password === 'Alumni@123')) {
-      await AsyncStorage.setItem('userInfo', JSON.stringify({ 
-        _id: '6a59f32a6f76e181ca88b77a',
-        id: '6a59f32a6f76e181ca88b77a',
-        name: 'Harshitha D S', 
-        email: 'harshithads2001@gmail.com',
-        role: 'Alumni',
-        institution: 'RV College of Engineering',
-        department: 'Computer Science and Engineering',
-        branch: 'Computer Science and Engineering',
-        batchYear: '2026',
-        token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNTlmMzJhNmY3NmUxODFjYTg4Yjc3YSIsImlhdCI6MTc4NDI4MTE2MiwiZXhwIjoxNzg2ODczMTYyfQ.tCgKkvSUnJLcK_lenejGRYAqhXJik2HxglqrydpafBI'
-      }));
-      setLoading(false);
-      navigation.navigate('Main');
-      return;
-    }
-
-    if (emailClean === 'testadmin@institution.edu' && password === 'admin123') {
-      await AsyncStorage.setItem('userInfo', JSON.stringify({ 
-        _id: '6a59f32a6f76e181ca88b77b',
-        id: '6a59f32a6f76e181ca88b77b',
-        name: 'Test Admin', 
-        email: 'testadmin@institution.edu',
-        role: 'Admin',
-        institution: 'RV College of Engineering',
-        token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNTlmMzJhNmY3NmUxODFjYTg4Yjc3YSIsImlhdCI6MTc4NDI4MTE2MiwiZXhwIjoxNzg2ODczMTYyfQ.tCgKkvSUnJLcK_lenejGRYAqhXJik2HxglqrydpafBI'
-      }));
-      setLoading(false);
-      navigation.navigate('AdminMain');
-      return;
-    }
-
     try {
       const userData = await login({ email: emailClean, password });
 
@@ -221,6 +177,10 @@ const LoginScreen = ({ navigation }) => {
         bio: userData.bio,
         role: userData.role
       }));
+      if (userData.token) {
+        await AsyncStorage.setItem('userToken', userData.token);
+        await AsyncStorage.setItem('token', userData.token);
+      }
       
       const userRole = (userData.role || '').trim().toLowerCase();
       if (userRole === 'super admin' || userRole === 'superadmin') {
