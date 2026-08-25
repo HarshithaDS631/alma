@@ -72,8 +72,18 @@ router.get('/:filename', async (req, res) => {
             return res.status(404).json({ message: 'No file exists' });
         }
 
-        // Set content type
-        res.set('Content-Type', file[0].contentType);
+        // Set content type with robust fallback based on extension
+        const fn = (req.params.filename || '').toLowerCase();
+        let mimeType = file[0].contentType || (file[0].metadata && file[0].metadata.contentType);
+        if (!mimeType || mimeType === 'false' || mimeType === 'undefined') {
+            if (fn.endsWith('.png')) mimeType = 'image/png';
+            else if (fn.endsWith('.webp')) mimeType = 'image/webp';
+            else if (fn.endsWith('.gif')) mimeType = 'image/gif';
+            else if (fn.endsWith('.svg')) mimeType = 'image/svg+xml';
+            else mimeType = 'image/jpeg';
+        }
+        res.set('Content-Type', mimeType);
+        res.set('Cache-Control', 'public, max-age=86400');
 
         // Read from GridFS
         const readStream = gfs.openDownloadStreamByName(req.params.filename);

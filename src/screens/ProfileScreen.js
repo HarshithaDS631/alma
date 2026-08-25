@@ -546,7 +546,8 @@ const DEFAULT_TAGGED_POSTS = [];
         department: editBranch,
         batchYear: editBatch,
         linkedin: editLinkedin.trim(),
-        avatar_url: editAvatarUrl
+        avatar_url: editAvatarUrl || profileData.avatar_url,
+        profilePicture: editAvatarUrl || profileData.avatar_url
       };
 
       await updateProfile(updatePayload);

@@ -549,7 +549,10 @@ exports.updateUserProfile = async (req, res) => {
             user.company = req.body.company !== undefined ? req.body.company : user.company;
             user.designation = req.body.designation !== undefined ? req.body.designation : user.designation;
             user.linkedin = req.body.linkedin !== undefined ? req.body.linkedin : user.linkedin;
-            user.avatar_url = req.body.avatar_url || user.avatar_url;
+            if (req.body.avatar_url || req.body.profilePicture) {
+                user.avatar_url = req.body.avatar_url || req.body.profilePicture;
+                user.profilePicture = user.avatar_url;
+            }
             if (req.body.dateOfBirth !== undefined) {
                 if (req.body.dateOfBirth && !isNaN(new Date(req.body.dateOfBirth).getTime())) {
                     user.dateOfBirth = new Date(req.body.dateOfBirth);
