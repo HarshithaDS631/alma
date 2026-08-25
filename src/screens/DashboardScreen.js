@@ -1217,30 +1217,8 @@ const DashboardScreen = ({ navigation }) => {
               </ScrollView>
             </View>
 
-            {/* 3. Right Column: Instagram-style Profile + Suggestions + Footer */}
+            {/* 3. Right Column: Suggestions + Footer */}
             <View style={{ flex: 3.5, paddingLeft: 8 }}>
-              {/* User Switch Card */}
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-                <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }} onPress={() => navigation.navigate('Profile')} activeOpacity={0.8}>
-                  <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', marginRight: 12, overflow: 'hidden' }}>
-                    {userAvatarUrl ? (
-                      <Image source={{ uri: userAvatarUrl }} style={{ width: 44, height: 44, borderRadius: 22 }} />
-                    ) : (
-                      <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(userName)}</Text>
-                    )}
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }} numberOfLines={1}>
-                      {currentUser?.username || (userName ? userName.toLowerCase().replace(/\s+/g, '_') : 'alumni_member')}
-                    </Text>
-                    <Text style={{ fontSize: 12, color: theme.textSecondary }} numberOfLines={1}>{userName || 'Alumni Member'}</Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate('Profile')} activeOpacity={0.7}>
-                  <Text style={{ color: '#0095F6', fontSize: 12, fontWeight: '700' }}>Switch</Text>
-                </TouchableOpacity>
-              </View>
-
               {/* Suggestions Header */}
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
                 <Text style={{ fontSize: 14, fontWeight: '700', color: theme.textSecondary }}>Suggested for you</Text>
