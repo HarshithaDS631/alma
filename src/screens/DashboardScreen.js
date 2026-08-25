@@ -90,7 +90,6 @@ const DashboardScreen = ({ navigation }) => {
   const [searchText, setSearchText] = useState('');
   const [userInstitution, setUserInstitution] = useState('Our Network');
   const [userName, setUserName] = useState('');
-  const [userAvatarUrl, setUserAvatarUrl] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
 
   // Modal States
@@ -303,12 +302,6 @@ const DashboardScreen = ({ navigation }) => {
         }
         if (userInfo.name) {
           setUserName(userInfo.name);
-        }
-        const rawAv = userInfo.avatar_url || userInfo.profilePicture;
-        if (rawAv && typeof rawAv === 'string' && rawAv.trim() !== '') {
-          setUserAvatarUrl(getImageUrl(rawAv));
-        } else {
-          setUserAvatarUrl(null);
         }
       }
     };
@@ -1010,7 +1003,7 @@ const DashboardScreen = ({ navigation }) => {
             onPress={() => navigation.navigate('Profile')}
           >
             {userAvatarUrl ? (
-              <Image source={{ uri: userAvatarUrl }} style={{ width: '100%', height: '100%', borderRadius: 17 }} onError={() => setUserAvatarUrl(null)} />
+              <Image source={{ uri: userAvatarUrl }} style={{ width: '100%', height: '100%', borderRadius: 17 }} />
             ) : (
               <Text style={{ fontSize: 13, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(userName || currentUser?.name || 'Harshitha D S', 'HS')}</Text>
             )}
@@ -1079,7 +1072,7 @@ const DashboardScreen = ({ navigation }) => {
                   activeOpacity={0.8}
                 >
                   {userAvatarUrl ? (
-                    <Image source={{ uri: userAvatarUrl }} style={{ width: 72, height: 72, borderRadius: 36 }} onError={() => setUserAvatarUrl(null)} />
+                    <Image source={{ uri: userAvatarUrl }} style={{ width: 72, height: 72, borderRadius: 36 }} />
                   ) : (
                     <Text style={{ fontSize: 24, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(userName || currentUser?.name || 'Harshitha D S', 'HS')}</Text>
                   )}
@@ -1115,7 +1108,7 @@ const DashboardScreen = ({ navigation }) => {
                   activeOpacity={0.8}
                 >
                   {userAvatarUrl ? (
-                    <Image source={{ uri: userAvatarUrl }} style={{ width: 44, height: 44, borderRadius: 22 }} onError={() => setUserAvatarUrl(null)} />
+                    <Image source={{ uri: userAvatarUrl }} style={{ width: 44, height: 44, borderRadius: 22 }} />
                   ) : (
                     <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(userName || currentUser?.name || 'Harshitha D S', 'HS')}</Text>
                   )}
