@@ -660,9 +660,13 @@ const DEFAULT_TAGGED_POSTS = [];
               <View style={styles.storyRing}>
                 <View style={styles.avatar}>
                   {profileData.avatar_url ? (
-                    <Image source={{ uri: profileData.avatar_url }} style={{ width: '100%', height: '100%', borderRadius: 45 }} />
+                    <Image 
+                      source={{ uri: profileData.avatar_url }} 
+                      style={{ width: '100%', height: '100%', borderRadius: 40 }} 
+                      onError={() => setProfileData(p => ({ ...p, avatar_url: '' }))}
+                    />
                   ) : (
-                    <Text style={styles.avatarText}>{profileData.avatar}</Text>
+                    <Text style={styles.avatarText}>{profileData.avatar || getInitials(profileData.name || 'Harshitha D S', 'HS')}</Text>
                   )}
                 </View>
                 <TouchableOpacity 
@@ -2559,24 +2563,24 @@ const getStyles = (theme) => StyleSheet.create({
   },
   storyRing: {
     padding: 3,
-    borderRadius: 44,
-    borderWidth: 2,
-    borderColor: theme.primary,
+    borderRadius: 48,
+    borderWidth: 2.5,
+    borderColor: '#003366',
   },
   avatar: {
-    width: 76,
-    height: 76,
-    borderRadius: 38,
-    backgroundColor: theme.background,
-    borderWidth: 1,
-    borderColor: theme.border,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#003366',
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden',
   },
   avatarText: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: '800',
-    color: theme.primary,
+    color: '#FFFFFF',
+    letterSpacing: 1,
   },
   statsContainer: {
     flexDirection: 'row',

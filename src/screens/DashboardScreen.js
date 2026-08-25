@@ -90,6 +90,7 @@ const DashboardScreen = ({ navigation }) => {
   const [searchText, setSearchText] = useState('');
   const [userInstitution, setUserInstitution] = useState('Our Network');
   const [userName, setUserName] = useState('');
+  const [userAvatarUrl, setUserAvatarUrl] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
 
   // Modal States
@@ -302,6 +303,12 @@ const DashboardScreen = ({ navigation }) => {
         }
         if (userInfo.name) {
           setUserName(userInfo.name);
+        }
+        const rawAv = userInfo.avatar_url || userInfo.profilePicture;
+        if (rawAv && typeof rawAv === 'string' && rawAv.trim() !== '') {
+          setUserAvatarUrl(getImageUrl(rawAv));
+        } else {
+          setUserAvatarUrl(null);
         }
       }
     };
@@ -998,14 +1005,14 @@ const DashboardScreen = ({ navigation }) => {
         <View style={styles.header}>
           {/* Left – User avatar */}
           <TouchableOpacity
-            style={[styles.headerAvatar, { overflow: 'hidden', backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center' }]}
+            style={[styles.headerAvatar, { width: 34, height: 34, borderRadius: 17, overflow: 'hidden', backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center' }]}
             activeOpacity={0.8}
             onPress={() => navigation.navigate('Profile')}
           >
             {userAvatarUrl ? (
-              <Image source={{ uri: userAvatarUrl }} style={{ width: '100%', height: '100%', borderRadius: 16 }} />
+              <Image source={{ uri: userAvatarUrl }} style={{ width: '100%', height: '100%', borderRadius: 17 }} onError={() => setUserAvatarUrl(null)} />
             ) : (
-              <Text style={{ fontSize: 13, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(userName)}</Text>
+              <Text style={{ fontSize: 13, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(userName || currentUser?.name || 'Harshitha D S', 'HS')}</Text>
             )}
           </TouchableOpacity>
 
@@ -1072,9 +1079,9 @@ const DashboardScreen = ({ navigation }) => {
                   activeOpacity={0.8}
                 >
                   {userAvatarUrl ? (
-                    <Image source={{ uri: userAvatarUrl }} style={{ width: 72, height: 72, borderRadius: 36 }} />
+                    <Image source={{ uri: userAvatarUrl }} style={{ width: 72, height: 72, borderRadius: 36 }} onError={() => setUserAvatarUrl(null)} />
                   ) : (
-                    <Text style={{ fontSize: 24, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(userName)}</Text>
+                    <Text style={{ fontSize: 24, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(userName || currentUser?.name || 'Harshitha D S', 'HS')}</Text>
                   )}
                 </TouchableOpacity>
                 <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>{userName || 'Alumni Member'}</Text>
@@ -1108,9 +1115,9 @@ const DashboardScreen = ({ navigation }) => {
                   activeOpacity={0.8}
                 >
                   {userAvatarUrl ? (
-                    <Image source={{ uri: userAvatarUrl }} style={{ width: 44, height: 44, borderRadius: 22 }} />
+                    <Image source={{ uri: userAvatarUrl }} style={{ width: 44, height: 44, borderRadius: 22 }} onError={() => setUserAvatarUrl(null)} />
                   ) : (
-                    <Text style={{ fontSize: 14, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(userName)}</Text>
+                    <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(userName || currentUser?.name || 'Harshitha D S', 'HS')}</Text>
                   )}
                 </TouchableOpacity>
                 <TouchableOpacity 
