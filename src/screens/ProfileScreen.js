@@ -109,7 +109,7 @@ const DEFAULT_CONNECTIONS = [];
           const rawAvatar = cached.avatar_url || cached.profilePicture;
           const safeEmail = (cached.email && typeof cached.email === 'string') ? cached.email : '';
           const uName = cached.name || (safeEmail ? safeEmail.split('@')[0] : 'Alumni Member');
-          const uHandle = safeEmail ? safeEmail.split('@')[0] : (cached.username || 'alumni');
+          const uHandle = cached.username || (cached.name ? cached.name.toLowerCase().replace(/\s+/g, '_') : (safeEmail ? safeEmail.split('@')[0] : 'alumni'));
           setProfileData(prev => ({
             ...prev,
             name: uName,
@@ -220,7 +220,7 @@ const DEFAULT_TAGGED_POSTS = [];
             const fullAvatarUrl = rawAvatar ? getImageUrl(rawAvatar) : '';
             const safeEmail = (activeUser.email && typeof activeUser.email === 'string') ? activeUser.email : '';
             const uName = activeUser.name || (safeEmail ? safeEmail.split('@')[0] : 'Alumni Member');
-            const uHandle = safeEmail ? safeEmail.split('@')[0] : (activeUser.username || 'alumni');
+            const uHandle = activeUser.username || (activeUser.name ? activeUser.name.toLowerCase().replace(/\s+/g, '_') : (safeEmail ? safeEmail.split('@')[0] : 'alumni'));
 
             setProfileData(prev => ({
               ...prev,
@@ -288,8 +288,8 @@ const DEFAULT_TAGGED_POSTS = [];
               setFollowing(parsedFollowing);
             }
 
-            const followersCountStr = (parsedConnections.length > 0 ? parsedConnections.length : DEFAULT_CONNECTIONS.length).toString();
-            const followingCountStr = (parsedFollowing.length > 0 ? parsedFollowing.length : DEFAULT_FOLLOWING.length).toString();
+            const followersCountStr = String(parsedConnections.length);
+            const followingCountStr = String(parsedFollowing.length);
 
             setProfileData(prev => ({
               ...prev,

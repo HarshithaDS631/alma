@@ -563,13 +563,13 @@ const DashboardScreen = ({ navigation }) => {
           setEventsAndJobs(combinedOpportunities);
 
           // 5. Process Following & Followers connections
-          const initialFollowed = { 'ruchi': true, '6a61f94b23674221799b28f4': true };
+          const initialFollowed = {};
           let totalConn = 0;
 
           if (followingRes.status === 'fulfilled' && Array.isArray(followingRes.value)) {
             followingRes.value.forEach(user => {
               if (user._id || user.id) initialFollowed[user._id || user.id] = true;
-              if (user.name) initialFollowed[user.name.toLowerCase()] = true;
+              if (user.name) initialFollowed[user.name.toLowerCase().trim()] = true;
             });
             totalConn += followingRes.value.length;
           }
@@ -577,27 +577,8 @@ const DashboardScreen = ({ navigation }) => {
             totalConn += followersRes.value.length;
           }
 
-          setFollowingMap(initialFollowed);
-          // If API returned real data use it, otherwise keep cached count already set on mount
-          if (totalConn > 0) {
-            setConnectionsCount(totalConn);
-          } else {
-            // Fallback: try profileCache for the displayed follower count
-            try {
-              const profileCacheStr = await AsyncStorage.getItem('profileCache');
-              if (profileCacheStr) {
-                const profileCache = JSON.parse(profileCacheStr);
-                const cachedFollowers = parseInt(profileCache.followers || '0', 10);
-                const cachedConnections = Array.isArray(profileCache.connections) ? profileCache.connections.length : 0;
-                const cachedCount = cachedFollowers || cachedConnections || 2;
-                setConnectionsCount(cachedCount);
-              } else {
-                setConnectionsCount(prev => prev > 0 ? prev : 2);
-              }
-            } catch (e) {
-              setConnectionsCount(prev => prev > 0 ? prev : 2);
-            }
-          }
+          setFollowingMap(prev => ({ ...prev, ...initialFollowed }));
+          setConnectionsCount(totalConn);
 
         } catch (err) {
           console.error('Error fetching dashboard data:', err);
