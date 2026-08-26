@@ -31,7 +31,9 @@ const activityLogger = require('./middleware/activityLogger');
 
 dotenv.config();
 
-initScheduler();
+if (require.main === module && !process.env.VERCEL) {
+    initScheduler();
+}
 
 console.log(`[ENV CONFIG] SMTP Host: ${process.env.SMTP_HOST || 'Not Set'} | SMTP User: ${process.env.SMTP_USER || 'Not Set'}`);
 
@@ -279,7 +281,7 @@ app.use((err, req, res, next) => {
     res.status(err.status || 500).json({ message });
 });
 
-if (!process.env.VERCEL) {
+if (require.main === module && !process.env.VERCEL) {
     server.listen(PORT, () => {
         console.log(`Server running on port ${PORT} (HTTP & Socket.IO WSS)`);
     });
