@@ -241,7 +241,7 @@ const DEFAULT_TAGGED_POSTS = [];
             ]);
             
             let parsedConnections = [];
-            if (Array.isArray(followersData) && followersData.length > 0) {
+            if (Array.isArray(followersData)) {
               parsedConnections = followersData.filter(Boolean).map((s, idx) => {
                 const isObj = typeof s === 'object' && s !== null;
                 const sName = isObj ? (s.name || s.username || (s.email ? s.email.split('@')[0] : 'Alumni Member')) : 'Alumni Member';
@@ -261,11 +261,11 @@ const DEFAULT_TAGGED_POSTS = [];
                   avatar_url: sAvatarUrl ? getImageUrl(sAvatarUrl) : ''
                 };
               });
-              setConnections(parsedConnections);
             }
+            setConnections(parsedConnections);
             
             let parsedFollowing = [];
-            if (Array.isArray(followingData) && followingData.length > 0) {
+            if (Array.isArray(followingData)) {
               parsedFollowing = followingData.filter(Boolean).map((s, idx) => {
                 const isObj = typeof s === 'object' && s !== null;
                 const sName = isObj ? (s.name || s.username || (s.email ? s.email.split('@')[0] : 'Alumni Member')) : 'Alumni Member';
@@ -285,8 +285,8 @@ const DEFAULT_TAGGED_POSTS = [];
                   avatar_url: sAvatarUrl ? getImageUrl(sAvatarUrl) : ''
                 };
               });
-              setFollowing(parsedFollowing);
             }
+            setFollowing(parsedFollowing);
 
             const followersCountStr = String(parsedConnections.length);
             const followingCountStr = String(parsedFollowing.length);

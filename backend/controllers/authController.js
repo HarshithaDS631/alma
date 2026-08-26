@@ -862,16 +862,7 @@ exports.getFollowers = async (req, res) => {
     try {
         await connectDB();
         const user = await User.findById(req.user._id).populate('followers', 'name institution batchYear branch department avatar_url profilePicture role company designation email username');
-        let followersList = user && Array.isArray(user.followers) ? user.followers.filter(Boolean) : [];
-
-        if (followersList.length === 0) {
-            const query = { _id: { $ne: req.user._id } };
-            if (user && user.institution) {
-                query.institution = user.institution;
-            }
-            followersList = await User.find(query).select('name institution batchYear branch department avatar_url profilePicture role company designation email username').limit(20);
-        }
-
+        const followersList = user && Array.isArray(user.followers) ? user.followers.filter(Boolean) : [];
         res.json(followersList);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -884,16 +875,7 @@ exports.getFollowing = async (req, res) => {
     try {
         await connectDB();
         const user = await User.findById(req.user._id).populate('following', 'name institution batchYear branch department avatar_url profilePicture role company designation email username');
-        let followingList = user && Array.isArray(user.following) ? user.following.filter(Boolean) : [];
-
-        if (followingList.length === 0) {
-            const query = { _id: { $ne: req.user._id } };
-            if (user && user.institution) {
-                query.institution = user.institution;
-            }
-            followingList = await User.find(query).select('name institution batchYear branch department avatar_url profilePicture role company designation email username').limit(20);
-        }
-
+        const followingList = user && Array.isArray(user.following) ? user.following.filter(Boolean) : [];
         res.json(followingList);
     } catch (error) {
         res.status(500).json({ message: error.message });
