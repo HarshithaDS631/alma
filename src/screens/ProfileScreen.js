@@ -104,7 +104,7 @@ const DEFAULT_CONNECTIONS = [];
           try { cachedProfile = JSON.parse(profileCacheStr); } catch (e) {}
         }
 
-        if (userInfoStr) {
+          if (userInfoStr) {
           const cached = JSON.parse(userInfoStr);
           const rawAvatar = cached.avatar_url || cached.profilePicture;
           const safeEmail = (cached.email && typeof cached.email === 'string') ? cached.email : '';
@@ -113,7 +113,7 @@ const DEFAULT_CONNECTIONS = [];
           setProfileData(prev => ({
             ...prev,
             name: uName,
-            username: uHandle,
+            username: uName, // Keep full user display name at top
             branch: cached.department || cached.branch || 'Alumni Network',
             batch: cached.batchYear || cached.batch_year || '',
             bio: cached.bio || '',
@@ -137,10 +137,10 @@ const DEFAULT_CONNECTIONS = [];
           if (cachedProfile.taggedPosts && Array.isArray(cachedProfile.taggedPosts) && cachedProfile.taggedPosts.length > 0) {
             setTaggedPosts(cachedProfile.taggedPosts);
           }
-          if (cachedProfile.connections && Array.isArray(cachedProfile.connections) && cachedProfile.connections.length > 0) {
+          if (cachedProfile.connections && Array.isArray(cachedProfile.connections)) {
             setConnections(cachedProfile.connections);
           }
-          if (cachedProfile.followingList && Array.isArray(cachedProfile.followingList) && cachedProfile.followingList.length > 0) {
+          if (cachedProfile.followingList && Array.isArray(cachedProfile.followingList)) {
             setFollowing(cachedProfile.followingList);
           }
         }
@@ -225,7 +225,7 @@ const DEFAULT_TAGGED_POSTS = [];
             setProfileData(prev => ({
               ...prev,
               name: uName,
-              username: uHandle,
+              username: uName, // Display real name at top
               branch: activeUser.department || activeUser.branch || 'Alumni Network',
               batch: activeUser.batchYear || activeUser.batch_year || '',
               bio: activeUser.bio || '',
@@ -1385,103 +1385,120 @@ const DEFAULT_TAGGED_POSTS = [];
             </View>
             
             <ScrollView style={{ padding: 16 }}>
-              {((listModalType === 'following' ? (following.length > 0 ? following : DEFAULT_FOLLOWING) : (connections.length > 0 ? connections : DEFAULT_CONNECTIONS))
-                .filter(u => !modalSearchQuery.trim() || (u.name && u.name.toLowerCase().includes(modalSearchQuery.toLowerCase())) || (u.title && u.title.toLowerCase().includes(modalSearchQuery.toLowerCase())))
-              ).map(user => (
-                <View key={user.id} style={styles.connectionItem}>
-                  <View style={[styles.connectionAvatar, { overflow: 'hidden', backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center' }]}>
-                    {user.avatar_url ? (
-                      <Image source={{ uri: user.avatar_url }} style={{ width: '100%', height: '100%', borderRadius: 20 }} />
-                    ) : (
-                      <Text style={styles.connectionAvatarText}>{user.avatar}</Text>
-                    )}
-                  </View>
-                  <View style={styles.connectionInfo}>
-                    <Text style={styles.connectionName}>{user.name}</Text>
-                    <Text style={styles.connectionUsername}>{user.title}</Text>
-                  </View>
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <TouchableOpacity 
-                      style={[styles.connectionBtn, { backgroundColor: '#EFF6FF', marginRight: 8, paddingHorizontal: 10 }]}
-                      onPress={() => {
-                        setListModalType(null);
-                        navigation.navigate('Chat', { 
-                          user: { 
-                            id: user.id, 
-                            name: user.name, 
-                            role: user.title || '', 
-                            initials: user.avatar 
-                          } 
-                        });
-                      }}
-                    >
-                      <Ionicons name="chatbubble-ellipses-outline" size={16} color="#003366" />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity 
-                      style={[styles.connectionBtn, listModalType === 'following' && styles.followingBtn]}
-                      onPress={() => {
-                        if (listModalType === 'following') {
-                          setUnfollowTarget({
-                            name: user.name,
-                            avatar: user.avatar,
-                            subtext: 'Their posts will no longer appear in your main feed.',
-                            actionLabel: 'Unfollow',
-                            onConfirm: async () => {
-                              try {
-                                toggleFollowUser(user.id).catch(e => console.error(e));
-                              } catch (err) {}
-                              
-                              setFollowing(prev => {
-                                const updated = prev.filter(u => {
-                                  const idMatch = (u.id || u._id || '').toString() === (user.id || user._id || '').toString();
-                                  const nameMatch = (u.name || '').toLowerCase().trim() === (user.name || '').toLowerCase().trim();
-                                  return !idMatch && !nameMatch;
-                                });
-                                setProfileData(p => ({ ...p, following: updated.length.toString() }));
-                                AsyncStorage.getItem('profileCache').then(cStr => {
-                                  let cache = {};
-                                  if (cStr) { try { cache = JSON.parse(cStr); } catch (e) {} }
-                                  cache.following = updated.length.toString();
-                                  cache.followingList = updated;
-                                  AsyncStorage.setItem('profileCache', JSON.stringify(cache)).catch(() => {});
-                                }).catch(() => {});
-                                return updated;
-                              });
-                            }
-                          });
-                        } else {
-                          setUnfollowTarget({
-                            name: user.name,
-                            avatar: user.avatar,
-                            subtext: 'They will be removed from your connections list.',
-                            actionLabel: 'Remove',
-                            onConfirm: async () => {
-                              try {
-                                toggleFollowUser(user.id).catch(e => console.error(e));
-                              } catch (err) {}
-
-                              setConnections(prev => {
-                                const updated = prev.filter(u => {
-                                  const idMatch = (u.id || u._id || '').toString() === (user.id || user._id || '').toString();
-                                  const nameMatch = (u.name || '').toLowerCase().trim() === (user.name || '').toLowerCase().trim();
-                                  return !idMatch && !nameMatch;
-                                });
-                                setProfileData(p => ({ ...p, followers: updated.length.toString() }));
-                                return updated;
-                              });
-                            }
-                          });
-                        }
-                      }}
-                    >
-                      <Text style={[styles.connectionBtnText, listModalType === 'following' && styles.followingBtnText]}>
-                        {listModalType === 'connections' ? 'Remove' : 'Following'}
+              {(() => {
+                const list = (listModalType === 'following' ? following : connections)
+                  .filter(u => !modalSearchQuery.trim() || (u.name && u.name.toLowerCase().includes(modalSearchQuery.toLowerCase())) || (u.title && u.title.toLowerCase().includes(modalSearchQuery.toLowerCase())));
+                
+                if (list.length === 0) {
+                  return (
+                    <View style={{ alignItems: 'center', paddingVertical: 48, paddingHorizontal: 24 }}>
+                      <Ionicons name="people-outline" size={44} color={theme.textMuted || '#94A3B8'} style={{ opacity: 0.4, marginBottom: 12 }} />
+                      <Text style={{ fontSize: 15, fontWeight: '600', color: theme.text || '#0F172A', marginBottom: 4 }}>
+                        No {listModalType === 'following' ? 'following' : 'connections'} yet
                       </Text>
-                    </TouchableOpacity>
+                      <Text style={{ fontSize: 13, color: theme.textMuted || '#64748B', textAlign: 'center' }}>
+                        Connect with fellow alumni to grow your network!
+                      </Text>
+                    </View>
+                  );
+                }
+
+                return list.map(user => (
+                  <View key={user.id} style={styles.connectionItem}>
+                    <View style={[styles.connectionAvatar, { overflow: 'hidden', backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center' }]}>
+                      {user.avatar_url ? (
+                        <Image source={{ uri: user.avatar_url }} style={{ width: '100%', height: '100%', borderRadius: 20 }} />
+                      ) : (
+                        <Text style={styles.connectionAvatarText}>{user.avatar}</Text>
+                      )}
+                    </View>
+                    <View style={styles.connectionInfo}>
+                      <Text style={styles.connectionName}>{user.name}</Text>
+                      <Text style={styles.connectionUsername}>{user.title}</Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <TouchableOpacity 
+                        style={[styles.connectionBtn, { backgroundColor: '#EFF6FF', marginRight: 8, paddingHorizontal: 10 }]}
+                        onPress={() => {
+                          setListModalType(null);
+                          navigation.navigate('Chat', { 
+                            user: { 
+                              id: user.id, 
+                              name: user.name, 
+                              role: user.title || '', 
+                              initials: user.avatar 
+                            } 
+                          });
+                        }}
+                      >
+                        <Ionicons name="chatbubble-ellipses-outline" size={16} color="#003366" />
+                      </TouchableOpacity>
+
+                      <TouchableOpacity 
+                        style={[styles.connectionBtn, listModalType === 'following' && styles.followingBtn]}
+                        onPress={() => {
+                          if (listModalType === 'following') {
+                            setUnfollowTarget({
+                              name: user.name,
+                              avatar: user.avatar,
+                              subtext: 'Their posts will no longer appear in your main feed.',
+                              actionLabel: 'Unfollow',
+                              onConfirm: async () => {
+                                try {
+                                  toggleFollowUser(user.id).catch(e => console.error(e));
+                                } catch (err) {}
+                                
+                                setFollowing(prev => {
+                                  const updated = prev.filter(u => {
+                                    const idMatch = (u.id || u._id || '').toString() === (user.id || user._id || '').toString();
+                                    const nameMatch = (u.name || '').toLowerCase().trim() === (user.name || '').toLowerCase().trim();
+                                    return !idMatch && !nameMatch;
+                                  });
+                                  setProfileData(p => ({ ...p, following: updated.length.toString() }));
+                                  AsyncStorage.getItem('profileCache').then(cStr => {
+                                    let cache = {};
+                                    if (cStr) { try { cache = JSON.parse(cStr); } catch (e) {} }
+                                    cache.following = updated.length.toString();
+                                    cache.followingList = updated;
+                                    AsyncStorage.setItem('profileCache', JSON.stringify(cache)).catch(() => {});
+                                  }).catch(() => {});
+                                  return updated;
+                                });
+                              }
+                            });
+                          } else {
+                            setUnfollowTarget({
+                              name: user.name,
+                              avatar: user.avatar,
+                              subtext: 'They will be removed from your connections list.',
+                              actionLabel: 'Remove',
+                              onConfirm: async () => {
+                                try {
+                                  toggleFollowUser(user.id).catch(e => console.error(e));
+                                } catch (err) {}
+
+                                setConnections(prev => {
+                                  const updated = prev.filter(u => {
+                                    const idMatch = (u.id || u._id || '').toString() === (user.id || user._id || '').toString();
+                                    const nameMatch = (u.name || '').toLowerCase().trim() === (user.name || '').toLowerCase().trim();
+                                    return !idMatch && !nameMatch;
+                                  });
+                                  setProfileData(p => ({ ...p, followers: updated.length.toString() }));
+                                  return updated;
+                                });
+                              }
+                            });
+                          }
+                        }}
+                      >
+                        <Text style={[styles.connectionBtnText, listModalType === 'following' && styles.followingBtnText]}>
+                          {listModalType === 'connections' ? 'Remove' : 'Following'}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
-                </View>
-              ))}
+                ));
+              })()}
               <View style={{height: 40}} />
             </ScrollView>
           </View>

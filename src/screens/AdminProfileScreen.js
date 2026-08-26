@@ -468,7 +468,7 @@ const AdminProfileScreen = ({ navigation }) => {
           }}>
             <Ionicons name="arrow-back" size={22} color="#0F172A" />
           </TouchableOpacity>
-          <Text style={styles.headerUsername}>{profileData.username}</Text>
+          <Text style={styles.headerUsername}>{profileData.name || profileData.username}</Text>
           <Ionicons name="chevron-down" size={16} color="#0F172A" />
         </View>
         <View style={styles.headerRight}>
