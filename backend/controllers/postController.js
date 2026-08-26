@@ -344,12 +344,10 @@ exports.resharePost = async (req, res) => {
             return res.status(404).json({ message: 'Original post not found' });
         }
 
-        // Increment reshares on original post
-        if (!originalPost.reshares) originalPost.reshares = [];
-        if (!originalPost.reshares.includes(req.user._id)) {
-            originalPost.reshares.push(req.user._id);
-            await originalPost.save();
-        }
+        // Increment reshares on original post atomically
+        await Post.findByIdAndUpdate(originalPost._id, {
+            $addToSet: { reshares: req.user._id }
+        });
 
         // Create new reshared post entry — store the note or original content indicator
         const { note } = req.body;
