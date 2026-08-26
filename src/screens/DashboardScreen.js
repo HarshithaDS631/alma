@@ -87,6 +87,7 @@ const DashboardScreen = ({ navigation }) => {
   const [bookmarkedPosts, setBookmarkedPosts] = useState({});
   const [followingMap, setFollowingMap] = useState({});
   const [connectionsCount, setConnectionsCount] = useState(0);
+  const [myEventsCount, setMyEventsCount] = useState(0);
   const [searchText, setSearchText] = useState('');
   const [userInstitution, setUserInstitution] = useState('Our Network');
   const [userName, setUserName] = useState('');
@@ -264,10 +265,9 @@ const DashboardScreen = ({ navigation }) => {
         const profileCacheStr = await AsyncStorage.getItem('profileCache');
         if (profileCacheStr) {
           const profileCache = JSON.parse(profileCacheStr);
-          const cachedFollowers = parseInt(profileCache.followers || '0', 10);
           const cachedConnections = Array.isArray(profileCache.connections) ? profileCache.connections.length : 0;
-          const cachedCount = cachedFollowers || cachedConnections;
-          if (cachedCount > 0) setConnectionsCount(cachedCount);
+          const cachedFollowing = Array.isArray(profileCache.followingList) ? profileCache.followingList.length : 0;
+          setConnectionsCount(cachedConnections + cachedFollowing);
 
           const cachedFollowingList = Array.isArray(profileCache.followingList) ? profileCache.followingList : [];
           const cachedFollowingIds = cachedFollowingList.map(u => u.id || u._id || '').filter(Boolean);
@@ -539,6 +539,7 @@ const DashboardScreen = ({ navigation }) => {
 
           // 4. Process combined Opportunities (Real Jobs & Events only)
           let combinedOpportunities = [];
+          let registeredEventsCount = 0;
           if (jobsRes.status === 'fulfilled' && Array.isArray(jobsRes.value) && jobsRes.value.length > 0) {
             const formattedJobs = jobsRes.value.map(j => ({
               id: j._id || j.id,
@@ -551,6 +552,15 @@ const DashboardScreen = ({ navigation }) => {
           }
 
           if (eventsRes.status === 'fulfilled' && Array.isArray(eventsRes.value) && eventsRes.value.length > 0) {
+            const myIdStr = (currentUserInfo?._id || currentUserInfo?.id || '').toString();
+            registeredEventsCount = eventsRes.value.filter(e => {
+              if (!myIdStr) return false;
+              const attendees = Array.isArray(e.attendees) ? e.attendees : [];
+              return attendees.some(a => (a._id || a.id || a).toString() === myIdStr) || 
+                     (e.organizer && (e.organizer._id || e.organizer).toString() === myIdStr) ||
+                     (e.user && (e.user._id || e.user).toString() === myIdStr);
+            }).length;
+
             const formattedEvents = eventsRes.value.map(e => ({
               id: e._id || e.id,
               title: e.title,
@@ -561,6 +571,7 @@ const DashboardScreen = ({ navigation }) => {
             combinedOpportunities.push(...formattedEvents);
           }
           setEventsAndJobs(combinedOpportunities);
+          setMyEventsCount(registeredEventsCount);
 
           // 5. Process Following & Followers connections
           const initialFollowed = {};
@@ -1090,9 +1101,9 @@ const DashboardScreen = ({ navigation }) => {
                     <Text style={{ color: theme.textSecondary, fontWeight: '600', fontSize: 13 }}>Connections</Text>
                     <Text style={{ color: theme.primary, fontWeight: '700', fontSize: 13 }}>{connectionsCount}</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }} onPress={() => navigation.navigate('Engage')}>
                     <Text style={{ color: theme.textSecondary, fontWeight: '600', fontSize: 13 }}>My Events</Text>
-                    <Text style={{ color: theme.primary, fontWeight: '700', fontSize: 13 }}>{eventsAndJobs.length > 0 ? eventsAndJobs.length : 0}</Text>
+                    <Text style={{ color: theme.primary, fontWeight: '700', fontSize: 13 }}>{myEventsCount}</Text>
                   </TouchableOpacity>
                 </View>
               </View>
