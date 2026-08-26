@@ -12,9 +12,12 @@ import {
   ScrollView,
   StatusBar,
   Modal,
+  Image,
   Alert, Platform, useWindowDimensions} from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
+import { getImageUrl } from '../services/api';
 import { 
   getSuggestions, 
   getUsers, 
@@ -253,8 +256,32 @@ const DirectoryScreen = ({ navigation, route }) => {
   const [communityStep, setCommunityStep] = useState(1); // 1: Info, 2: Groups, 3: Success
   const [communityName, setCommunityName] = useState('');
   const [communityDesc, setCommunityDesc] = useState('');
+  const [communityIconUri, setCommunityIconUri] = useState(null);
   const [selectedGroups, setSelectedGroups] = useState(['announcement']);
   const [userCommunities, setUserCommunities] = useState([]);
+
+  const handlePickCommunityIcon = async () => {
+    try {
+      if (Platform.OS !== 'web') {
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (!permissionResult.granted) {
+          Alert.alert('Permission Required', 'Permission to access photos is needed to add a community icon.');
+          return;
+        }
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        setCommunityIconUri(result.assets[0].uri);
+      }
+    } catch (err) {
+      console.error('Error picking community icon:', err);
+    }
+  };
 
   const availableGroups = [
     { id: 'announcement', name: 'Announcements', icon: 'megaphone', desc: 'Official updates and announcements' },
@@ -370,6 +397,8 @@ const DirectoryScreen = ({ navigation, route }) => {
       id: Date.now().toString(),
       name: communityName,
       description: communityDesc,
+      iconUri: communityIconUri,
+      avatar_url: communityIconUri,
       groups: availableGroups.filter(g => selectedGroups.includes(g.id)).map(g => ({
         ...g,
         lastMessage: g.id === 'announcement' ? `Welcome to ${communityName} Announcements!` : 'No messages yet'
@@ -382,6 +411,7 @@ const DirectoryScreen = ({ navigation, route }) => {
   const resetCommunityForm = () => {
     setCommunityName('');
     setCommunityDesc('');
+    setCommunityIconUri(null);
     setSelectedGroups(['announcement']);
     setCommunityStep(1);
     setCommunityModalVisible(false);
@@ -402,15 +432,19 @@ const DirectoryScreen = ({ navigation, route }) => {
           {userCommunities.map((comm) => (
             <View key={comm.id} style={styles.commCard}>
               <View style={styles.commCardHeader}>
-                <View style={styles.commAvatar}>
-                  <Ionicons name="people" size={24} color="#FFFFFF" />
+                <View style={[styles.commAvatar, { overflow: 'hidden', backgroundColor: '#003366' }]}>
+                  {comm.avatar_url || comm.iconUri ? (
+                    <Image source={{ uri: comm.avatar_url || comm.iconUri }} style={{ width: '100%', height: '100%', borderRadius: 16 }} />
+                  ) : (
+                    <Ionicons name="people" size={24} color="#FFFFFF" />
+                  )}
                 </View>
                 <View style={styles.commInfo}>
                   <Text style={styles.commName}>{comm.name}</Text>
                   <Text style={styles.commSubText} numberOfLines={1}>{comm.description || 'No description'}</Text>
                 </View>
-                <TouchableOpacity style={styles.commMoreBtn}>
-                  <Ionicons name="ellipsis-vertical" size={20} color="#64748B" />
+                <TouchableOpacity style={styles.commMoreBtn} activeOpacity={0.7}>
+                  <Ionicons name="ellipsis-vertical" size={18} color="#64748B" />
                 </TouchableOpacity>
               </View>
 
@@ -418,7 +452,7 @@ const DirectoryScreen = ({ navigation, route }) => {
                 {comm.groups.map((group) => (
                   <TouchableOpacity key={group.id} style={styles.commGroupRow} activeOpacity={0.7}>
                     <View style={[styles.commGroupIconBg, group.id === 'announcement' && styles.announcementBg]}>
-                      <Ionicons name={group.id === 'announcement' ? "megaphone" : group.icon} size={16} color={group.id === 'announcement' ? "#003366" : "#475569"} />
+                      <Ionicons name={group.id === 'announcement' ? "megaphone" : (group.icon || "chatbubbles")} size={16} color={group.id === 'announcement' ? "#003366" : "#475569"} />
                     </View>
                     <View style={styles.commGroupInfo}>
                       <Text style={styles.commGroupName}>
@@ -426,7 +460,9 @@ const DirectoryScreen = ({ navigation, route }) => {
                       </Text>
                       <Text style={styles.commGroupMessage} numberOfLines={1}>{group.lastMessage}</Text>
                     </View>
-                    <Ionicons name="chevron-forward" size={14} color="#94A3B8" />
+                    <View style={{ width: 24, height: 24, justifyContent: 'center', alignItems: 'center' }}>
+                      <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
+                    </View>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -776,12 +812,22 @@ const DirectoryScreen = ({ navigation, route }) => {
                 </View>
                 
                 <ScrollView contentContainerStyle={styles.wizardBody} keyboardShouldPersistTaps="handled">
-                  <View style={styles.commIconSetup}>
-                    <View style={styles.commIconBgLarge}>
-                      <Ionicons name="camera" size={32} color="#94A3B8" />
+                  <TouchableOpacity 
+                    style={styles.commIconSetup} 
+                    activeOpacity={0.8}
+                    onPress={handlePickCommunityIcon}
+                  >
+                    <View style={[styles.commIconBgLarge, communityIconUri && { borderStyle: 'solid', borderColor: '#003366', overflow: 'hidden' }]}>
+                      {communityIconUri ? (
+                        <Image source={{ uri: communityIconUri }} style={{ width: '100%', height: '100%', borderRadius: 24 }} />
+                      ) : (
+                        <Ionicons name="camera" size={32} color="#003366" />
+                      )}
                     </View>
-                    <Text style={styles.commIconLabel}>Add Community Icon</Text>
-                  </View>
+                    <Text style={[styles.commIconLabel, { color: '#003366', fontWeight: '700' }]}>
+                      {communityIconUri ? 'Change Community Icon' : 'Add Community Icon'}
+                    </Text>
+                  </TouchableOpacity>
 
                   <Text style={styles.wizardLabel}>Community Name</Text>
                   <TextInput
