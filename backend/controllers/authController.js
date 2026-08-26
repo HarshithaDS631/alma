@@ -298,94 +298,8 @@ exports.loginUser = async (req, res) => {
     const { email, password } = req.body;
     const emailClean = (email || '').trim().toLowerCase();
 
-    // Fallback authentication for key admin/superadmin accounts if DB connection has temporary issues
-    const SYSTEM_FALLBACK_USERS = {
-        'harshithads2001@gmail.com': {
-            passwords: ['Alumni@6363', 'Alumni@123', 'admin123'],
-            user: {
-                _id: '6a59f32a6f76e181ca88b77a',
-                name: 'Harshitha D S',
-                email: 'harshithads2001@gmail.com',
-                institution: 'RV College of Engineering',
-                branch: 'Computer Science and Engineering',
-                department: 'Computer Science and Engineering',
-                batchYear: '2026',
-                joiningYear: '2022',
-                role: 'Alumni',
-                avatar_url: '',
-                is_approved: true
-            }
-        },
-        'testadmin@institution.edu': {
-            passwords: ['admin123', 'Admin@123'],
-            user: {
-                _id: '6a59f32a6f76e181ca88b77b',
-                name: 'Test Admin',
-                email: 'testadmin@institution.edu',
-                institution: 'RV College of Engineering',
-                branch: 'Information Science',
-                department: 'Information Science',
-                batchYear: '2024',
-                joiningYear: '2020',
-                role: 'Admin',
-                avatar_url: '',
-                is_approved: true
-            }
-        },
-        'admin@rvce.edu.in': {
-            passwords: ['Admin@123', 'Alumni@123'],
-            user: {
-                _id: '6a59f32a6f76e181ca88b77c',
-                name: 'RVCE Admin',
-                email: 'admin@rvce.edu.in',
-                institution: 'RV College of Engineering',
-                branch: 'Computer Science and Engineering',
-                department: 'Computer Science and Engineering',
-                batchYear: '2024',
-                joiningYear: '2020',
-                role: 'Admin',
-                avatar_url: '',
-                is_approved: true
-            }
-        },
-        'web.rsst@rvei.edu.in': {
-            passwords: ['Media@123', 'media@123'],
-            user: {
-                _id: '6a59f32a6f76e181ca88b77d',
-                name: 'Mediacell Admin',
-                email: 'web.rsst@rvei.edu.in',
-                institution: 'Mediacell',
-                branch: 'Web Team',
-                department: 'Administration',
-                batchYear: '2026',
-                joiningYear: '2022',
-                role: 'Admin',
-                avatar_url: '',
-                is_approved: true
-            }
-        }
-    };
-
     try {
-        if (SYSTEM_FALLBACK_USERS[emailClean]) {
-            const fallbackEntry = SYSTEM_FALLBACK_USERS[emailClean];
-            if (fallbackEntry.passwords.includes(password)) {
-                const u = fallbackEntry.user;
-                return res.json({
-                    ...u,
-                    token: generateToken(u._id),
-                    refreshToken: 'fallback_refresh_token_' + Date.now()
-                });
-            }
-        }
-
-        let dbConnected = false;
-        try {
-            await connectDB();
-            dbConnected = true;
-        } catch (dbErr) {
-            console.warn('[LOGIN DB WARNING]:', dbErr.message);
-        }
+        await connectDB();
 
         const AdminUser = require('../models/AdminUser');
         const SuperAdminUser = require('../models/SuperAdminUser');
@@ -472,21 +386,13 @@ exports.loginUser = async (req, res) => {
                 designation: user.designation,
                 role: user.role,
                 avatar_url: user.avatar_url,
+                profilePicture: user.avatar_url,
                 linkedin: user.linkedin,
                 twoFactorEnabled: user.twoFactorEnabled || false,
                 token: generateToken(user._id),
                 refreshToken
             });
         } else {
-            if (SYSTEM_FALLBACK_USERS[emailClean] && SYSTEM_FALLBACK_USERS[emailClean].passwords.includes(password)) {
-                const u = SYSTEM_FALLBACK_USERS[emailClean].user;
-                return res.json({
-                    ...u,
-                    token: generateToken(u._id),
-                    refreshToken: 'fallback_refresh_token_' + Date.now()
-                });
-            }
-
             // Record failed login attempt
             if (user) {
                 try {
@@ -497,15 +403,8 @@ exports.loginUser = async (req, res) => {
             res.status(401).json({ message: 'Invalid email or password' });
         }
     } catch (error) {
-        if (SYSTEM_FALLBACK_USERS[emailClean] && SYSTEM_FALLBACK_USERS[emailClean].passwords.includes(password)) {
-            const u = SYSTEM_FALLBACK_USERS[emailClean].user;
-            return res.json({
-                ...u,
-                token: generateToken(u._id),
-                refreshToken: 'fallback_refresh_token_' + Date.now()
-            });
-        }
-        res.status(401).json({ message: 'Invalid email or password' });
+        console.error('[LOGIN ERROR]:', error.message);
+        res.status(500).json({ message: error.message || 'Login failed due to server error' });
     }
 };
 
