@@ -26,6 +26,10 @@ const vercelJsonConfig = {
   cleanUrls: false,
   rewrites: [
     {
+      source: "/api/:path*",
+      destination: "/api"
+    },
+    {
       source: "/:path*",
       destination: "/index.html"
     }
@@ -46,6 +50,7 @@ const buildOutputConfig = {
   version: 3,
   routes: [
     { handle: "filesystem" },
+    { src: "^/api(/.*)?$", dest: "/api" },
     { src: "/(.*)", dest: "/index.html" }
   ]
 };

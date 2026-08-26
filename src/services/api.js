@@ -7,15 +7,19 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 
 const getApiUrl = () => {
-  // On web running locally, always use local backend to avoid Vercel rate limits
+  // On web running locally, always use local backend
   if (typeof window !== 'undefined' && 
       (window.location?.hostname === 'localhost' || window.location?.hostname === '127.0.0.1')) {
     return 'http://localhost:5000/api';
   }
+  // On web deployed on Vercel, use same-origin /api
+  if (typeof window !== 'undefined' && window.location?.origin && window.location.origin.includes('vercel.app')) {
+    return `${window.location.origin}/api`;
+  }
   if (process.env.EXPO_PUBLIC_API_URL) {
     return process.env.EXPO_PUBLIC_API_URL;
   }
-  return 'https://backend-pi-bice-97.vercel.app/api';
+  return 'https://alma-orpin-delta.vercel.app/api';
 };
 
 export const API_URL = getApiUrl();
