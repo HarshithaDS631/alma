@@ -1,7 +1,22 @@
 import { io } from 'socket.io-client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const SOCKET_URL = process.env.EXPO_PUBLIC_API_URL || 'https://backend-pi-bice-97.vercel.app';
+const getSocketUrl = () => {
+  if (typeof window !== 'undefined' && 
+      (window.location?.hostname === 'localhost' || window.location?.hostname === '127.0.0.1')) {
+    return 'http://localhost:5000';
+  }
+  if (process.env.EXPO_PUBLIC_SOCKET_URL) {
+    return process.env.EXPO_PUBLIC_SOCKET_URL;
+  }
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    return process.env.EXPO_PUBLIC_API_URL.replace(/\/api\/?$/, '');
+  }
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return window.location.origin;
+  }
+  return 'http://localhost:5000';
+};
 
 let socket = null;
 
@@ -16,7 +31,8 @@ export const initSocket = async (userId) => {
     token = await AsyncStorage.getItem('token');
   } catch (_) {}
 
-  socket = io(SOCKET_URL, {
+  const url = getSocketUrl();
+  socket = io(url, {
     transports: ['websocket', 'polling'],
     auth: { token },
     reconnection: true,
