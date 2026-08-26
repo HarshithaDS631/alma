@@ -88,13 +88,17 @@ export const uploadFile = async (uri, mimeType = 'image/jpeg', name = 'upload.jp
             });
         }
 
-        // Use custom multipart/form-data headers
-        const response = await api.post('/upload', formData, {
+        // Configure headers: on web, let browser/Axios compute multipart boundary automatically
+        const config = {
             headers: {
-                'Content-Type': 'multipart/form-data',
                 Accept: 'application/json',
-            },
-        });
+            }
+        };
+        if (Platform.OS !== 'web') {
+            config.headers['Content-Type'] = 'multipart/form-data';
+        }
+
+        const response = await api.post('/upload', formData, config);
 
         if (response.data && response.data.url) {
             return getImageUrl(response.data.url);

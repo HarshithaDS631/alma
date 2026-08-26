@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Post = require('../models/Post');
 const User = require('../models/User');
 const BlockedUser = require('../models/BlockedUser');
@@ -98,6 +99,10 @@ exports.createPost = async (req, res) => {
         const userDoc = await User.findById(req.user._id).select('institution name branch department batchYear avatar_url username role');
         const userInstitution = req.user.institution || userDoc?.institution || 'Mediacell';
 
+        const validTags = Array.isArray(tags) 
+            ? tags.filter(t => t && mongoose.Types.ObjectId.isValid(t)) 
+            : [];
+
         const post = await Post.create({
             user: req.user._id,
             institution: userInstitution,
@@ -105,7 +110,7 @@ exports.createPost = async (req, res) => {
             image: image || image_url,
             fileType,
             fileName,
-            tags: Array.isArray(tags) ? tags : []
+            tags: validTags
         });
 
         const fullPost = await post.populate([
@@ -114,9 +119,9 @@ exports.createPost = async (req, res) => {
         ]);
 
         // Create notifications for tagged users
-        if (Array.isArray(tags) && tags.length > 0) {
+        if (validTags.length > 0) {
             try {
-                const notifications = tags.map(tagId => ({
+                const notifications = validTags.map(tagId => ({
                     recipient: tagId,
                     sender: req.user._id,
                     type: 'mention',

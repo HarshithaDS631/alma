@@ -65,7 +65,12 @@ const PostCreationScreen = ({ navigation }) => {
     try {
       let imageUrl = null;
       if (localImageUri) {
-        imageUrl = await uploadFile(localImageUri, mimeType, fileName || 'post-image.jpg');
+        try {
+          imageUrl = await uploadFile(localImageUri, mimeType, fileName || 'post-image.jpg');
+        } catch (uploadErr) {
+          console.warn('Image upload failed, using local URI or proceeding:', uploadErr);
+          imageUrl = localImageUri.startsWith('data:') || localImageUri.startsWith('http') ? localImageUri : null;
+        }
       }
 
       await createPost({
@@ -73,7 +78,7 @@ const PostCreationScreen = ({ navigation }) => {
         image: imageUrl,
         fileType: mimeType,
         fileName: fileName,
-        tags: taggedUsers.map(u => u._id)
+        tags: taggedUsers.map(u => u._id).filter(Boolean)
       });
 
       setIsUploading(false);
@@ -94,8 +99,9 @@ const PostCreationScreen = ({ navigation }) => {
     } catch (error) {
       console.error('Error creating post:', error);
       setIsUploading(false);
-      if (Platform.OS === 'web') window.alert('Error: Failed to create post. Please try again later.');
-      else Alert.alert('Error', 'Failed to create post. Please try again later.');
+      const errorMsg = error.response?.data?.message || error.message || 'Failed to create post. Please try again later.';
+      if (Platform.OS === 'web') window.alert(`Error: ${errorMsg}`);
+      else Alert.alert('Error', errorMsg);
     }
   };
 
