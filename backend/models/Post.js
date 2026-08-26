@@ -5,7 +5,8 @@ const postSchema = new mongoose.Schema({
     institution: { type: String },
     content: { 
         type: String, 
-        required: function() { return !this.image; } 
+        required: function() { return !this.image && !this.originalPost && !this.isReshare; },
+        default: ''
     },
     image: { type: String },
     fileType: { type: String },

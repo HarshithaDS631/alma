@@ -351,11 +351,12 @@ exports.resharePost = async (req, res) => {
             await originalPost.save();
         }
 
-        // Create new reshared post entry — store only the note as content (not duplicate original)
+        // Create new reshared post entry — store the note or original content indicator
         const { note } = req.body;
+        const noteContent = (note && typeof note === 'string' && note.trim()) ? note.trim() : (originalPost.content ? `Reshared: ${originalPost.content.substring(0, 80)}` : 'Reshared post');
         const resharedPost = await Post.create({
             user: req.user._id,
-            content: note ? note.trim() : '',
+            content: noteContent,
             image: null, // reshare has no image of its own
             originalPost: originalPost._id,
             originalAuthorName: originalPost.user?.name || 'Alumni Member',
@@ -363,14 +364,19 @@ exports.resharePost = async (req, res) => {
         });
 
         const populatedReshare = await Post.findById(resharedPost._id)
-            .populate('user', 'name branch department batchYear avatar_url')
+            .populate('user', 'name branch department batchYear avatar_url username role institution')
             .populate({
                 path: 'originalPost',
-                populate: { path: 'user', select: 'name department branch batchYear avatar_url' }
+                populate: { path: 'user', select: 'name department branch batchYear avatar_url username' }
             });
+
+        if (req.io) {
+            req.io.emit('new_post_created', populatedReshare);
+        }
 
         res.status(201).json({ message: 'Reposted successfully!', post: populatedReshare, resharesCount: originalPost.reshares.length });
     } catch (error) {
+        console.error('resharePost error:', error);
         res.status(500).json({ message: error.message });
     }
 };
