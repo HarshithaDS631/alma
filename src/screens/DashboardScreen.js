@@ -71,6 +71,53 @@ const getDefaultPostsForUser = (currentUserId, currentUserName, followingIds = [
   });
 };
 
+const formatPostObject = (p, myUserId) => {
+  if (!p) return null;
+  const pid = p._id || p.id;
+  const likesArr = Array.isArray(p.likes) ? p.likes : [];
+  const isLikedByMe = likesArr.some(id => {
+    const idStr = typeof id === 'object' ? (id._id || id.id || '') : id;
+    return idStr && myUserId && idStr.toString() === myUserId.toString();
+  });
+
+  const origP = p.originalPost;
+  const isReshare = Boolean(p.isReshare || origP);
+  const origAuthorName = p.originalAuthorName || (origP && origP.user ? (origP.user.name || origP.user) : '') || '';
+
+  return {
+    id: pid,
+    _id: pid,
+    user: p.user?.name || (typeof p.user === 'string' ? p.user : 'Alumni'),
+    authorId: p.user?._id || p.authorId || null,
+    role: p.user?.department ? `${p.user.department} • Batch ${p.user.batchYear || ''}` : (p.user?.institution ? `${p.user.institution} Alumni` : 'Alumni Member'),
+    avatar: p.user?.profilePicture || p.user?.avatar_url ? getImageUrl(p.user?.profilePicture || p.user?.avatar_url) : getInitials(p.user?.name || (typeof p.user === 'string' ? p.user : 'Alumni')),
+    isAvatarUrl: Boolean(p.user?.profilePicture || p.user?.avatar_url),
+    content: p.content || '',
+    image: p.image ? getImageUrl(p.image) : null,
+    likes: likesArr.length,
+    likesArray: likesArr,
+    isLiked: isLikedByMe,
+    comments: p.comments || [],
+    commentsCount: p.comments?.length || 0,
+    resharesCount: Array.isArray(p.reshares) ? p.reshares.length : (p.resharesCount || 0),
+    time: p.createdAt ? getTimeAgo(p.createdAt) : (p.time || 'Just now'),
+    isReshare,
+    originalAuthorName: origAuthorName,
+    originalPost: origP ? {
+      id: origP._id || origP.id,
+      user: (origP.user && origP.user.name) || (typeof origP.user === 'string' ? origP.user : '') || origAuthorName || 'Alumni Member',
+      role: origP.user?.department ? `${origP.user.department} • Batch ${origP.user.batchYear || ''}` : (origP.user?.institution ? `${origP.user.institution} Alumni` : 'Alumni Member'),
+      avatar: origP.user?.profilePicture || origP.user?.avatar_url ? getImageUrl(origP.user?.profilePicture || origP.user?.avatar_url) : getInitials((origP.user && origP.user.name) || origAuthorName || 'Alumni'),
+      isAvatarUrl: Boolean(origP.user?.profilePicture || origP.user?.avatar_url),
+      content: origP.content || '',
+      image: origP.image ? getImageUrl(origP.image) : null,
+      likes: Array.isArray(origP.likes) ? origP.likes.length : (origP.likes || 0),
+      commentsCount: Array.isArray(origP.comments) ? origP.comments.length : (origP.commentsCount || 0),
+      time: origP.createdAt ? getTimeAgo(origP.createdAt) : ''
+    } : null
+  };
+};
+
 const DashboardScreen = ({ navigation }) => {
 
   const { theme, isDarkMode } = useTheme();
@@ -319,10 +366,14 @@ const DashboardScreen = ({ navigation }) => {
 
       socketInstance.on('new_post_created', (newPost) => {
         if (!newPost) return;
+        const formattedNewPost = formatPostObject(newPost, currentUser?._id || currentUser?.id);
+        if (!formattedNewPost) return;
         setPosts(prevPosts => {
-          const exists = prevPosts.some(p => (p._id || p.id) === (newPost._id || newPost.id));
-          if (exists) return prevPosts;
-          return [newPost, ...prevPosts];
+          const exists = prevPosts.some(p => (p._id || p.id).toString() === (formattedNewPost._id || formattedNewPost.id).toString());
+          if (exists) {
+            return prevPosts.map(p => (p._id || p.id).toString() === (formattedNewPost._id || formattedNewPost.id).toString() ? formattedNewPost : p);
+          }
+          return [formattedNewPost, ...prevPosts];
         });
       });
 
@@ -471,30 +522,8 @@ const DashboardScreen = ({ navigation }) => {
                 // No following list yet — show only own posts (very new account)
                 return false;
               })
-              .map(p => {
-                const pid = p._id || p.id;
-                const likesArr = Array.isArray(p.likes) ? p.likes : [];
-                const isLikedByMe = likesArr.some(id => {
-                  const idStr = typeof id === 'object' ? (id._id || id.id || '') : id;
-                  return idStr && myUserId && idStr.toString() === myUserId.toString();
-                });
-                return {
-                  id: pid,
-                  user: p.user?.name || 'Alumni',
-                  authorId: p.user?._id || null,
-                  role: p.user?.department ? `${p.user.department} • Batch ${p.user.batchYear || ''}` : (p.user?.institution ? `${p.user.institution} Alumni` : 'Alumni Member'),
-                  avatar: p.user?.profilePicture || p.user?.avatar_url ? getImageUrl(p.user?.profilePicture || p.user?.avatar_url) : (getInitials(p.user?.name)),
-                  isAvatarUrl: !!(p.user?.profilePicture || p.user?.avatar_url),
-                  content: p.content,
-                  image: getImageUrl(p.image),
-                  likes: likesArr.length,
-                  likesArray: likesArr,
-                  isLiked: isLikedByMe,
-                  comments: p.comments || [],
-                  commentsCount: p.comments?.length || 0,
-                  time: getTimeAgo(p.createdAt),
-                };
-              });
+              .map(p => formatPostObject(p, myUserId))
+              .filter(Boolean);
 
             // Initialize likedPosts map with current user's liked posts
             const initLikedMap = {};
@@ -723,19 +752,7 @@ const DashboardScreen = ({ navigation }) => {
     try {
       const postsData = await getPosts();
       if (Array.isArray(postsData)) {
-        const formatted = postsData.map(p => ({
-          id: p._id,
-          user: p.user?.name || 'Alumni',
-          authorId: p.user?._id || null,
-          role: p.user?.department ? `${p.user.department} • Batch ${p.user.batchYear || ''}` : 'Alumni Member',
-          avatar: getInitials(p.user?.name),
-          content: p.content,
-          image: getImageUrl(p.image),
-          likes: p.likes?.length || 0,
-          comments: p.comments || [],
-          commentsCount: p.comments?.length || 0,
-          time: getTimeAgo(p.createdAt),
-        }));
+        const formatted = postsData.map(p => formatPostObject(p, currentUser?._id || currentUser?.id)).filter(Boolean);
         setPosts(formatted);
       }
     } catch (e) {
@@ -790,12 +807,14 @@ const DashboardScreen = ({ navigation }) => {
     const isReshared = Boolean(post.isReshare || post.originalPost || post.originalAuthorName || (post.content && /reshared\s+from/i.test(post.content)));
     return (
       <View key={post.id} style={styles.postCard}>
-        {/* Reshared Header Tag */}
+        {/* Reshared Top Header Tag (Instagram / Threads style) */}
         {isReshared && (
-          <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#EFF6FF', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, marginBottom: 10, alignSelf: 'flex-start' }}>
-            <Ionicons name="repeat-outline" size={13} color="#2563EB" style={{ marginRight: 6 }} />
-            <Text style={{ fontSize: 12, fontWeight: '600', color: '#1E40AF' }}>
-              Reshared from {post.originalAuthorName || 'Alumni'}
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10, paddingHorizontal: 2 }}>
+            <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: isDarkMode ? '#312E81' : '#EEF2FF', justifyContent: 'center', alignItems: 'center', marginRight: 8 }}>
+              <Ionicons name="repeat" size={13} color="#6366F1" />
+            </View>
+            <Text style={{ fontSize: 13, fontWeight: '600', color: theme.textSecondary || '#64748B' }}>
+              <Text style={{ fontWeight: '700', color: theme.text }}>{post.user}</Text> reposted
             </Text>
           </View>
         )}
@@ -810,23 +829,6 @@ const DashboardScreen = ({ navigation }) => {
                 <Text style={styles.avatarText}>{post.avatar}</Text>
               )}
             </View>
-            {isReshared && (
-              <View style={{
-                position: 'absolute',
-                bottom: -2,
-                right: -2,
-                backgroundColor: '#6366F1',
-                width: 18,
-                height: 18,
-                borderRadius: 9,
-                justifyContent: 'center',
-                alignItems: 'center',
-                borderWidth: 2,
-                borderColor: theme.card
-              }}>
-                <Ionicons name="repeat" size={10} color="#FFFFFF" />
-              </View>
-            )}
           </View>
           <View style={styles.postUserInfo}>
             <Text style={styles.postUserName}>{post.user}</Text>
@@ -876,125 +878,165 @@ const DashboardScreen = ({ navigation }) => {
           })()}
         </View>
 
-      {/* Post image with Instagram Double-Tap to Like */}
-      {post.image ? (
-        <TouchableOpacity 
-          activeOpacity={0.95} 
-          onPress={() => handleImageDoubleTap(post.id)}
-          style={{ position: 'relative', overflow: 'hidden' }}
-        >
-          <Image source={{ uri: post.image }} style={[styles.postImage, { width: '100%', height: contentWidth * 0.65 }]} />
-          {doubleTapHeart[post.id] && (
-            <View style={{
-              position: 'absolute',
-              top: 0, left: 0, right: 0, bottom: 0,
-              justifyContent: 'center',
-              alignItems: 'center',
-              backgroundColor: 'rgba(0,0,0,0.2)',
-              zIndex: 10
-            }}>
-              <Ionicons name="heart" size={96} color="#FF3040" style={{
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.6,
-                shadowRadius: 12,
-                elevation: 12
-              }} />
-            </View>
-          )}
-        </TouchableOpacity>
-      ) : null}
+        {/* Reposter Note / Caption (if present) */}
+        {isReshared && post.content && !post.content.startsWith('Reshared:') && !post.content.startsWith('Reshared post') ? (
+          <Text style={[styles.postContent, { marginTop: 4, marginBottom: 10, paddingHorizontal: 2, fontSize: 14, lineHeight: 20 }]}>
+            {post.content}
+          </Text>
+        ) : null}
 
-      {/* Instagram-style embedded original post for reshares */}
-      {isReshared && post.originalPost && (
-        <View style={{
-          marginHorizontal: 12,
-          marginBottom: 8,
-          borderRadius: 12,
-          borderWidth: 1,
-          borderColor: theme.border,
-          overflow: 'hidden',
-          backgroundColor: theme.background
-        }}>
-          {/* Original author header */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10, borderBottomWidth: 1, borderBottomColor: theme.border }}>
-            <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', marginRight: 8 }}>
-              <Text style={{ fontSize: 11, fontWeight: '700', color: '#FFF' }}>
-                {getInitials(post.originalPost.user || post.originalAuthorName)}
+        {/* ─── Embedded Original Post Card for Reshares ─── */}
+        {isReshared && (
+          <View style={{
+            marginHorizontal: 2,
+            marginBottom: 12,
+            marginTop: 4,
+            borderRadius: 14,
+            borderWidth: 1,
+            borderColor: isDarkMode ? '#334155' : '#E2E8F0',
+            backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+            overflow: 'hidden',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.05,
+            shadowRadius: 3,
+            elevation: 1
+          }}>
+            {/* Original author header */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', padding: 12, borderBottomWidth: 1, borderBottomColor: isDarkMode ? '#334155' : '#E2E8F0' }}>
+              <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', marginRight: 10, overflow: 'hidden' }}>
+                {post.originalPost?.isAvatarUrl ? (
+                  <Image source={{ uri: post.originalPost.avatar }} style={{ width: 34, height: 34, borderRadius: 17 }} />
+                ) : (
+                  <Text style={{ fontSize: 12, fontWeight: '700', color: '#FFF' }}>
+                    {post.originalPost?.avatar || getInitials(post.originalPost?.user || post.originalAuthorName || 'Alumni')}
+                  </Text>
+                )}
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }}>
+                  {post.originalPost?.user || post.originalAuthorName || 'Alumni Member'}
+                </Text>
+                <Text style={{ fontSize: 11, color: theme.textSecondary }}>
+                  {post.originalPost?.role || 'Alumni Member'}
+                </Text>
+              </View>
+              {post.originalPost?.time ? (
+                <Text style={{ fontSize: 11, color: theme.textMuted }}>{post.originalPost.time}</Text>
+              ) : null}
+            </View>
+
+            {/* Original post image */}
+            {post.originalPost?.image ? (
+              <Image 
+                source={{ uri: post.originalPost.image }} 
+                style={{ width: '100%', height: 220, backgroundColor: isDarkMode ? '#0F172A' : '#F1F5F9' }} 
+                resizeMode="cover" 
+              />
+            ) : null}
+
+            {/* Original post text */}
+            {post.originalPost?.content ? (
+              <Text style={{ fontSize: 13, color: theme.text, padding: 12, lineHeight: 18 }} numberOfLines={4}>
+                {post.originalPost.content}
               </Text>
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }}>{post.originalPost.user || post.originalAuthorName || 'Alumni'}</Text>
-              <Text style={{ fontSize: 11, color: theme.textSecondary }}>{post.originalPost.role || 'Alumni Member'}</Text>
-            </View>
+            ) : (
+              (!post.originalPost?.image && post.content) ? (
+                <Text style={{ fontSize: 13, color: theme.text, padding: 12, lineHeight: 18 }} numberOfLines={4}>
+                  {post.content.replace(/^Reshared:\s*/i, '')}
+                </Text>
+              ) : null
+            )}
           </View>
-          {/* Original post image */}
-          {post.originalPost.image ? (
-            <Image source={{ uri: getImageUrl(post.originalPost.image) }} style={{ width: '100%', height: 180 }} resizeMode="cover" />
-          ) : null}
-          {/* Original post caption */}
-          {post.originalPost.content ? (
-            <Text style={{ fontSize: 13, color: theme.text, padding: 10 }} numberOfLines={3}>{post.originalPost.content}</Text>
-          ) : null}
-        </View>
-      )}
+        )}
 
-      {/* Action row - Instagram HiFi Styling */}
-      <View style={styles.postActions}>
-        <View style={styles.leftActions}>
-          <TouchableOpacity onPress={() => toggleLike(post.id)} activeOpacity={0.6}>
-            <Ionicons
-              name={likedPosts[post.id] ? 'heart' : 'heart-outline'}
-              size={26}
-              color={likedPosts[post.id] ? '#FF3040' : theme.text}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn} activeOpacity={0.6} onPress={() => openModal('comments', post)}>
-            <Ionicons name="chatbubble-outline" size={24} color={theme.text} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn} activeOpacity={0.6} onPress={() => openModal('reshare', post)}>
-            <Ionicons name="repeat-outline" size={26} color={isReshared ? '#6366F1' : theme.text} />
-            {post.resharesCount > 0 && (
-              <Text style={{ fontSize: 11, color: theme.textSecondary, marginLeft: 2 }}>{post.resharesCount}</Text>
+        {/* Regular Non-Reshared Post Image with Double-Tap to Like */}
+        {!isReshared && post.image ? (
+          <TouchableOpacity 
+            activeOpacity={0.95} 
+            onPress={() => handleImageDoubleTap(post.id)}
+            style={{ position: 'relative', overflow: 'hidden' }}
+          >
+            <Image source={{ uri: post.image }} style={[styles.postImage, { width: '100%', height: contentWidth * 0.65 }]} />
+            {doubleTapHeart[post.id] && (
+              <View style={{
+                position: 'absolute',
+                top: 0, left: 0, right: 0, bottom: 0,
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: 'rgba(0,0,0,0.2)',
+                zIndex: 10
+              }}>
+                <Ionicons name="heart" size={96} color="#FF3040" style={{
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.6,
+                  shadowRadius: 12,
+                  elevation: 12
+                }} />
+              </View>
             )}
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.actionBtn}
-            onPress={() => openModal('share', post)}
-            activeOpacity={0.6}
-          >
-            <Ionicons name="paper-plane-outline" size={24} color={theme.text} />
+        ) : null}
+
+        {/* Action row - Instagram HiFi Styling */}
+        <View style={styles.postActions}>
+          <View style={styles.leftActions}>
+            <TouchableOpacity onPress={() => toggleLike(post.id)} activeOpacity={0.6}>
+              <Ionicons
+                name={likedPosts[post.id] ? 'heart' : 'heart-outline'}
+                size={26}
+                color={likedPosts[post.id] ? '#FF3040' : theme.text}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionBtn} activeOpacity={0.6} onPress={() => openModal('comments', post)}>
+              <Ionicons name="chatbubble-outline" size={24} color={theme.text} />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionBtn} activeOpacity={0.6} onPress={() => openModal('reshare', post)}>
+              <Ionicons name="repeat-outline" size={26} color={isReshared ? '#6366F1' : theme.text} />
+              {post.resharesCount > 0 && (
+                <Text style={{ fontSize: 11, color: theme.textSecondary, marginLeft: 2 }}>{post.resharesCount}</Text>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.actionBtn}
+              onPress={() => openModal('share', post)}
+              activeOpacity={0.6}
+            >
+              <Ionicons name="paper-plane-outline" size={24} color={theme.text} />
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity onPress={() => toggleBookmark(post.id)} activeOpacity={0.6}>
+            <Ionicons
+              name={bookmarkedPosts[post.id] ? 'bookmark' : 'bookmark-outline'}
+              size={24}
+              color={bookmarkedPosts[post.id] ? '#0F172A' : theme.text}
+            />
           </TouchableOpacity>
         </View>
-        <TouchableOpacity onPress={() => toggleBookmark(post.id)} activeOpacity={0.6}>
-          <Ionicons
-            name={bookmarkedPosts[post.id] ? 'bookmark' : 'bookmark-outline'}
-            size={24}
-            color={bookmarkedPosts[post.id] ? '#0F172A' : theme.text}
-          />
-        </TouchableOpacity>
-      </View>
 
-      {/* Footer */}
-      <View style={styles.postFooter}>
-        <Text style={styles.likesText}>
-          {post.likes} {post.likes === 1 ? 'like' : 'likes'}
-        </Text>
-        <Text style={styles.postContent} numberOfLines={2}>
-          {post.content}
-        </Text>
-        {post.commentsCount > 0 && (
-          <TouchableOpacity style={styles.commentBtn} onPress={() => openModal('comments', post)}>
-            <Text style={styles.viewCommentsText}>
-              View all {post.commentsCount} comments
+        {/* Footer */}
+        <View style={styles.postFooter}>
+          <Text style={styles.likesText}>
+            {post.likes} {post.likes === 1 ? 'like' : 'likes'}
+          </Text>
+          {!isReshared && post.content ? (
+            <Text style={styles.postContent} numberOfLines={3}>
+              {post.content}
             </Text>
-          </TouchableOpacity>
-        )}
-        <Text style={styles.timeText}>{post.time}</Text>
+          ) : null}
+          {post.commentsCount > 0 && (
+            <TouchableOpacity style={styles.commentBtn} onPress={() => openModal('comments', post)}>
+              <Text style={styles.viewCommentsText}>
+                View all {post.commentsCount} comments
+              </Text>
+            </TouchableOpacity>
+          )}
+          <Text style={styles.timeText}>{post.time}</Text>
+        </View>
       </View>
-    </View>
-  );
-};
+    );
+  };
 
   // ─── Render ────────────────────────────────────────────
   const [unreadMessages, setUnreadMessages] = useState(0);
