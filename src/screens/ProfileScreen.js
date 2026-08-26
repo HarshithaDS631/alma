@@ -462,7 +462,7 @@ const DEFAULT_TAGGED_POSTS = [];
         setEditAvatarUrl(uploadedUrl);
 
         try {
-          await updateProfile({ avatar_url: uploadedUrl });
+          await updateProfile({ avatar_url: uploadedUrl, profilePicture: uploadedUrl });
         } catch (e) {
           console.warn('Backend update failed, updating local storage session', e);
         }
@@ -472,6 +472,7 @@ const DEFAULT_TAGGED_POSTS = [];
           if (cachedStr) {
             const cached = JSON.parse(cachedStr);
             cached.avatar_url = uploadedUrl;
+            cached.profilePicture = uploadedUrl;
             await AsyncStorage.setItem('userInfo', JSON.stringify(cached));
           }
         } catch (e) {}

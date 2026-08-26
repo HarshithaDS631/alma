@@ -578,6 +578,7 @@ exports.updateUserProfile = async (req, res) => {
                 designation: updatedUser.designation,
                 role: updatedUser.role,
                 avatar_url: updatedUser.avatar_url,
+                profilePicture: updatedUser.avatar_url,
                 linkedin: updatedUser.linkedin,
                 dateOfBirth: updatedUser.dateOfBirth,
                 token: generateToken(updatedUser._id) // Optionally return a new token
