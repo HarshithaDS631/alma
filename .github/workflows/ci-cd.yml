@@ -17,19 +17,18 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
 
       - name: Install Frontend Dependencies
-        run: npm ci
+        run: npm install --legacy-peer-deps
 
       - name: Verify Frontend Web Build
         run: npm run build
 
       - name: Install Backend Dependencies
-        run: cd backend && npm ci
+        run: cd backend && npm install --legacy-peer-deps
 
       - name: Test Backend Models & Controllers Syntax
         run: |
           cd backend
-          node -e "require('./models/User.js'); require('./controllers/authController.js'); console.log('Backend syntax clean!');"
+          node -e "require('./models/User.js'); require('./controllers/authController.js'); require('./controllers/postController.js'); console.log('Backend syntax clean!');"
 
