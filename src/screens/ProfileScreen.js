@@ -517,6 +517,7 @@ const DEFAULT_TAGGED_POSTS = [];
   const [editDob, setEditDob] = useState(profileData.dateOfBirth ? (typeof profileData.dateOfBirth === 'string' ? profileData.dateOfBirth.substring(0, 10) : new Date(profileData.dateOfBirth).toISOString().substring(0, 10)) : '');
   const [editResumeUrl, setEditResumeUrl] = useState(profileData.resumeUrl || '');
   const [editResumeFileName, setEditResumeFileName] = useState(profileData.resumeFileName || '');
+  const [uploadingResume, setUploadingResume] = useState(false);
   const [editDomain, setEditDomain] = useState(profileData.domain || '');
   const [editExperienceYears, setEditExperienceYears] = useState(profileData.experienceYears || '');
   const [editSkills, setEditSkills] = useState(Array.isArray(profileData.skills) ? profileData.skills.join(', ') : (profileData.skills || ''));
