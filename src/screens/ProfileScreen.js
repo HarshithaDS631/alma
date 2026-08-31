@@ -957,11 +957,27 @@ const DEFAULT_TAGGED_POSTS = [];
 
           {/* Action Buttons */}
           <View style={styles.buttonRow}>
-            <TouchableOpacity style={[styles.actionButton, { flex: 1, marginRight: 8 }]} onPress={handleOpenEdit} activeOpacity={0.7}>
+            <TouchableOpacity style={[styles.actionButton, { flex: 1, marginRight: 6 }]} onPress={handleOpenEdit} activeOpacity={0.7}>
               <Text style={styles.actionButtonText}>Edit Profile</Text>
             </TouchableOpacity>
             <TouchableOpacity 
-              style={[styles.actionButton, { flex: 1, marginRight: 8, backgroundColor: 'rgba(0, 33, 68, 0.08)' }]} 
+              style={[styles.actionButton, { flex: 1, marginRight: 6, backgroundColor: profileData.resumeUrl ? '#EFF6FF' : 'rgba(0, 33, 68, 0.08)' }]} 
+              onPress={() => {
+                if (profileData.resumeUrl) {
+                  if (Platform.OS === 'web') window.open(getImageUrl(profileData.resumeUrl), '_blank');
+                  else Alert.alert('Resume Link', getImageUrl(profileData.resumeUrl));
+                } else {
+                  handleOpenEdit();
+                }
+              }} 
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.actionButtonText, { color: '#003366', fontWeight: '700' }]}>
+                {profileData.resumeUrl ? '📄 View Resume' : '+ Add Resume'}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.actionButton, { flex: 1, marginRight: 6, backgroundColor: 'rgba(0, 33, 68, 0.08)' }]} 
               onPress={() => {
                 if (Platform.OS === 'web' && navigator.clipboard) {
                   navigator.clipboard.writeText(window.location.href);
@@ -972,7 +988,7 @@ const DEFAULT_TAGGED_POSTS = [];
               }} 
               activeOpacity={0.7}
             >
-              <Text style={[styles.actionButtonText, { color: theme.primary }]}>Share Profile</Text>
+              <Text style={[styles.actionButtonText, { color: theme.primary }]}>Share</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.smallIconBtn} onPress={handleLogout} activeOpacity={0.7}>
               <Ionicons name="log-out-outline" size={18} color="#FF3B30" />
@@ -3341,6 +3357,32 @@ const DEFAULT_TAGGED_POSTS = [];
                   </View>
                 </TouchableOpacity>
               )}
+
+              <View style={{ height: 1, backgroundColor: theme.border, marginVertical: 8 }} />
+
+              {/* Resume & Career Profile Option */}
+              <TouchableOpacity 
+                style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10 }}
+                onPress={() => {
+                  setAccountsCenterVisible(false);
+                  handleOpenEdit();
+                }}
+                activeOpacity={0.7}
+              >
+                <View style={{ flex: 1, marginRight: 10 }}>
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>Resume & Career Profile</Text>
+                  {profileData.resumeUrl ? (
+                    <Text style={{ fontSize: 12.5, color: '#10B981', fontWeight: '700', marginTop: 4 }}>
+                      ✓ {profileData.resumeFileName || 'Resume attached (Tap to manage)'}
+                    </Text>
+                  ) : (
+                    <Text style={{ fontSize: 12, color: '#0095F6', fontWeight: '600', marginTop: 4 }}>
+                      + Upload Resume / CV (PDF or DOC)
+                    </Text>
+                  )}
+                </View>
+                <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
+              </TouchableOpacity>
             </View>
           </ScrollView>
         </SafeAreaView>
