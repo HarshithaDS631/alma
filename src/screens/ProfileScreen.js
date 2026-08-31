@@ -618,6 +618,33 @@ const DEFAULT_TAGGED_POSTS = [];
     }
   };
 
+  const handleOpenResume = (url) => {
+    const targetUrl = url || editResumeUrl || profileData.resumeUrl;
+    if (!targetUrl) {
+      alert('No resume attached yet.');
+      return;
+    }
+    const fullUrl = getImageUrl(targetUrl);
+    if (!fullUrl) {
+      alert('Invalid resume link');
+      return;
+    }
+    if (Platform.OS === 'web') {
+      try {
+        const win = window.open(fullUrl, '_blank', 'noopener,noreferrer');
+        if (!win || win.closed || typeof win.closed === 'undefined') {
+          window.location.href = fullUrl;
+        }
+      } catch (e) {
+        window.location.href = fullUrl;
+      }
+    } else {
+      Linking.openURL(fullUrl).catch(() => {
+        Alert.alert('Resume Link', fullUrl);
+      });
+    }
+  };
+
   const handleRemoveResume = () => {
     setEditResumeUrl('');
     setEditResumeFileName('');
@@ -938,47 +965,15 @@ const DEFAULT_TAGGED_POSTS = [];
                 </Text>
               </TouchableOpacity>
             ) : null}
-            {profileData.resumeUrl ? (
-              <TouchableOpacity 
-                style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#EFF6FF', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, alignSelf: 'flex-start', marginTop: 8, borderWidth: 1, borderColor: '#BFDBFE' }}
-                onPress={() => {
-                  if (Platform.OS === 'web') window.open(getImageUrl(profileData.resumeUrl), '_blank');
-                  else Alert.alert('Resume Link', getImageUrl(profileData.resumeUrl));
-                }}
-              >
-                <Ionicons name="document-text" size={15} color="#003366" style={{ marginRight: 6 }} />
-                <Text style={{ color: '#003366', fontWeight: '700', fontSize: 12.5 }}>
-                  {profileData.resumeFileName || 'View Resume (CV)'}
-                </Text>
-              </TouchableOpacity>
-            ) : null}
           </View>
-
-
 
           {/* Action Buttons */}
           <View style={styles.buttonRow}>
-            <TouchableOpacity style={[styles.actionButton, { flex: 1, marginRight: 6 }]} onPress={handleOpenEdit} activeOpacity={0.7}>
+            <TouchableOpacity style={[styles.actionButton, { flex: 1, marginRight: 8 }]} onPress={handleOpenEdit} activeOpacity={0.7}>
               <Text style={styles.actionButtonText}>Edit Profile</Text>
             </TouchableOpacity>
             <TouchableOpacity 
-              style={[styles.actionButton, { flex: 1, marginRight: 6, backgroundColor: profileData.resumeUrl ? '#EFF6FF' : 'rgba(0, 33, 68, 0.08)' }]} 
-              onPress={() => {
-                if (profileData.resumeUrl) {
-                  if (Platform.OS === 'web') window.open(getImageUrl(profileData.resumeUrl), '_blank');
-                  else Alert.alert('Resume Link', getImageUrl(profileData.resumeUrl));
-                } else {
-                  handleOpenEdit();
-                }
-              }} 
-              activeOpacity={0.7}
-            >
-              <Text style={[styles.actionButtonText, { color: '#003366', fontWeight: '700' }]}>
-                {profileData.resumeUrl ? '📄 View Resume' : '+ Add Resume'}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.actionButton, { flex: 1, marginRight: 6, backgroundColor: 'rgba(0, 33, 68, 0.08)' }]} 
+              style={[styles.actionButton, { flex: 1, marginRight: 8, backgroundColor: 'rgba(0, 33, 68, 0.08)' }]} 
               onPress={() => {
                 if (Platform.OS === 'web' && navigator.clipboard) {
                   navigator.clipboard.writeText(window.location.href);
@@ -989,7 +984,7 @@ const DEFAULT_TAGGED_POSTS = [];
               }} 
               activeOpacity={0.7}
             >
-              <Text style={[styles.actionButtonText, { color: theme.primary }]}>Share</Text>
+              <Text style={[styles.actionButtonText, { color: theme.primary }]}>Share Profile</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.smallIconBtn} onPress={handleLogout} activeOpacity={0.7}>
               <Ionicons name="log-out-outline" size={18} color="#FF3B30" />
@@ -3106,25 +3101,33 @@ const DEFAULT_TAGGED_POSTS = [];
 
               {/* Current Resume Badge */}
               {editResumeUrl ? (
-                <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: isDarkMode ? '#262626' : '#FFFFFF', padding: 12, borderRadius: 12, borderWidth: 1, borderColor: theme.border, marginBottom: 14 }}>
-                  <Ionicons name="document-attach" size={22} color="#003366" style={{ marginRight: 10 }} />
+                <TouchableOpacity 
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    backgroundColor: isDarkMode ? '#262626' : '#FFFFFF',
+                    padding: 12,
+                    borderRadius: 12,
+                    borderWidth: 1.5,
+                    borderColor: '#0095F6',
+                    marginBottom: 14,
+                    cursor: 'pointer'
+                  }}
+                  onPress={() => handleOpenResume(editResumeUrl)}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="document-text" size={24} color="#003366" style={{ marginRight: 10 }} />
                   <View style={{ flex: 1 }}>
                     <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }} numberOfLines={1}>
                       {editResumeFileName || 'My_Resume.pdf'}
                     </Text>
-                    <Text style={{ fontSize: 11, color: '#10B981', fontWeight: '600', marginTop: 2 }}>✓ Resume attached</Text>
+                    <Text style={{ fontSize: 11, color: '#10B981', fontWeight: '600', marginTop: 2 }}>✓ Tap to open/view PDF</Text>
                   </View>
                   <TouchableOpacity 
-                    style={{ paddingHorizontal: 10, paddingVertical: 6, backgroundColor: '#EFF6FF', borderRadius: 8, marginRight: 6 }}
-                    onPress={() => {
-                      if (Platform.OS === 'web') {
-                        window.open(getImageUrl(editResumeUrl), '_blank');
-                      } else {
-                        Alert.alert('Resume Link', getImageUrl(editResumeUrl));
-                      }
-                    }}
+                    style={{ paddingHorizontal: 12, paddingVertical: 6, backgroundColor: '#003366', borderRadius: 8, marginRight: 8 }}
+                    onPress={() => handleOpenResume(editResumeUrl)}
                   >
-                    <Text style={{ fontSize: 12, fontWeight: '700', color: '#003366' }}>View</Text>
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: '#FFFFFF' }}>Open PDF</Text>
                   </TouchableOpacity>
                   <TouchableOpacity 
                     style={{ padding: 6 }}
@@ -3132,7 +3135,7 @@ const DEFAULT_TAGGED_POSTS = [];
                   >
                     <Ionicons name="trash-outline" size={18} color="#EF4444" />
                   </TouchableOpacity>
-                </View>
+                </TouchableOpacity>
               ) : null}
 
               {/* Upload Resume Button */}
