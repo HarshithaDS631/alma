@@ -448,6 +448,27 @@ exports.updateUserProfile = async (req, res) => {
             user.company = req.body.company !== undefined ? req.body.company : user.company;
             user.designation = req.body.designation !== undefined ? req.body.designation : user.designation;
             user.linkedin = req.body.linkedin !== undefined ? req.body.linkedin : user.linkedin;
+            user.headline = req.body.headline !== undefined ? req.body.headline : user.headline;
+            user.domain = req.body.domain !== undefined ? req.body.domain : user.domain;
+            user.experienceYears = req.body.experienceYears !== undefined ? req.body.experienceYears : user.experienceYears;
+            
+            if (req.body.skills !== undefined) {
+                user.skills = Array.isArray(req.body.skills) ? req.body.skills : (typeof req.body.skills === 'string' ? req.body.skills.split(',').map(s => s.trim()).filter(Boolean) : user.skills);
+            }
+            if (req.body.resumeUrl !== undefined) {
+                user.resumeUrl = req.body.resumeUrl;
+                user.resumeUpdatedAt = new Date();
+                if (req.body.resumeUrl && req.body.isJobSeeker === undefined) {
+                    user.isJobSeeker = true;
+                }
+            }
+            if (req.body.resumeFileName !== undefined) {
+                user.resumeFileName = req.body.resumeFileName;
+            }
+            if (req.body.isJobSeeker !== undefined) {
+                user.isJobSeeker = Boolean(req.body.isJobSeeker);
+            }
+
             if (req.body.avatar_url || req.body.profilePicture) {
                 user.avatar_url = req.body.avatar_url || req.body.profilePicture;
                 user.profilePicture = user.avatar_url;
@@ -475,6 +496,14 @@ exports.updateUserProfile = async (req, res) => {
                 location: updatedUser.location,
                 company: updatedUser.company,
                 designation: updatedUser.designation,
+                headline: updatedUser.headline,
+                domain: updatedUser.domain,
+                experienceYears: updatedUser.experienceYears,
+                skills: updatedUser.skills || [],
+                resumeUrl: updatedUser.resumeUrl || '',
+                resumeFileName: updatedUser.resumeFileName || '',
+                resumeUpdatedAt: updatedUser.resumeUpdatedAt,
+                isJobSeeker: updatedUser.isJobSeeker || false,
                 role: updatedUser.role,
                 avatar_url: updatedUser.avatar_url,
                 profilePicture: updatedUser.avatar_url,

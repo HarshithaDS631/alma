@@ -9,7 +9,9 @@ const {
     getJobTracker,
     getPreferences,
     updatePreferences,
-    getRecommendedJobs
+    getRecommendedJobs,
+    getResumeBook,
+    shareResumeViaEmail
 } = require('../controllers/jobController');
 
 router.get('/', protect, getJobs);
@@ -20,5 +22,7 @@ router.get('/tracker', protect, getJobTracker);
 router.get('/preferences', protect, getPreferences);
 router.put('/preferences', protect, updatePreferences);
 router.get('/recommended', protect, getRecommendedJobs);
+router.get('/resume-book', protect, getResumeBook);
+router.post('/resume-book/share', protect, shareResumeViaEmail);
 
 module.exports = router;

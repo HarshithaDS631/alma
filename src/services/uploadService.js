@@ -69,16 +69,23 @@ const compressImageWeb = async (uri, mimeType) => {
 export const uploadFile = async (uri, mimeType = 'image/jpeg', name = 'upload.jpg') => {
     try {
         const formData = new FormData();
+        const isDocument = mimeType.includes('pdf') || mimeType.includes('word') || mimeType.includes('officedocument') || mimeType.startsWith('application/');
         
         if (Platform.OS === 'web') {
-            try {
-                const blob = await compressImageWeb(uri, mimeType);
-                formData.append('image', blob, name);
-            } catch (err) {
-                console.warn('Compression failed on web, falling back to original blob', err);
+            if (isDocument) {
                 const response = await fetch(uri);
                 const blob = await response.blob();
                 formData.append('image', blob, name);
+            } else {
+                try {
+                    const blob = await compressImageWeb(uri, mimeType);
+                    formData.append('image', blob, name);
+                } catch (err) {
+                    console.warn('Compression failed on web, falling back to original blob', err);
+                    const response = await fetch(uri);
+                    const blob = await response.blob();
+                    formData.append('image', blob, name);
+                }
             }
         } else {
             formData.append('image', {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useIsFocused } from '@react-navigation/native';
 import {
   View,
@@ -14,13 +14,16 @@ import {
   Modal,
   Platform,
   useWindowDimensions,
+  ActivityIndicator,
+  Image
 } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
+import { fetchResumeBook, shareCandidateResume } from '../services/jobService';
+import { getImageUrl } from '../services/uploadService';
+import getInitials from '../lib/getInitials';
 
 const DUMMY_JOBS = [];
-
-const RESUME_DATA = [];
 
 const WORK_MODES = ['Full-Time', 'Part-Time', 'Remote', 'Hybrid', 'Contract', 'Internship'];
 
@@ -76,45 +79,92 @@ function JobCard({ item, onPress, onDelete, isSmallScreen }) {
 }
 
 // ─── RESUME CARD COMPONENT ───────────────────────────────────────────
-function ResumeCard({ item }) {
+function ResumeCard({ item, onShowResume, onForward }) {
+  const avatarUrl = item.avatar_url || item.profilePicture;
+  const initials = getInitials(item.name || 'Alumni');
+  const skills = Array.isArray(item.skills) ? item.skills : (typeof item.skills === 'string' ? item.skills.split(',').map(s => s.trim()).filter(Boolean) : []);
+
   return (
     <View style={s.resumeCard}>
       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-        <View style={s.resumeAvatar}>
-          <Text style={{ fontSize: 16, fontWeight: '700', color: '#FFFFFF' }}>{item.initials}</Text>
-        </View>
+        {avatarUrl ? (
+          <Image source={{ uri: getImageUrl(avatarUrl) }} style={s.resumeAvatarImage} />
+        ) : (
+          <View style={s.resumeAvatar}>
+            <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>{initials}</Text>
+          </View>
+        )}
         <View style={{ flex: 1 }}>
           <Text style={{ fontSize: 16, fontWeight: '700', color: '#002144' }}>{item.name}</Text>
-          <Text style={{ fontSize: 12, fontWeight: '500', color: '#64748B', marginTop: 2 }}>
-            {item.role} at {item.company}
+          <Text style={{ fontSize: 12.5, fontWeight: '500', color: '#64748B', marginTop: 2 }}>
+            {item.designation || item.headline || 'Alumni Member'} {item.company ? `• ${item.company}` : ''}
+          </Text>
+          <Text style={{ fontSize: 11.5, color: '#0055A5', fontWeight: '600', marginTop: 1 }}>
+            {item.institution || 'Alumni Network'} {item.department ? `(${item.department})` : ''} {item.batchYear ? `'${String(item.batchYear).slice(-2)}` : ''}
           </Text>
         </View>
       </View>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 12 }}>
-        {item.skills.map((skill) => (
-          <View key={skill} style={s.skillPill}>
-            <Text style={{ fontSize: 11, fontWeight: '600', color: '#003366' }}>{skill}</Text>
+
+      {skills.length > 0 && (
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 10 }}>
+          {skills.map((skill, index) => (
+            <View key={`${skill}-${index}`} style={s.skillPill}>
+              <Text style={{ fontSize: 11, fontWeight: '600', color: '#003366' }}>{skill}</Text>
+            </View>
+          ))}
+        </View>
+      )}
+
+      <View style={{ marginBottom: 12, backgroundColor: '#F8FAFC', padding: 10, borderRadius: 10, borderWidth: 1, borderColor: '#F1F5F9' }}>
+        {Boolean(item.domain) && (
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+            <Ionicons name="grid-outline" size={13} color="#64748B" />
+            <Text style={{ fontSize: 12.5, color: '#334155', marginLeft: 6, fontWeight: '500' }}>
+              Domain: <Text style={{ fontWeight: '600', color: '#002144' }}>{item.domain}</Text>
+            </Text>
           </View>
-        ))}
+        )}
+        {Boolean(item.experienceYears) && (
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+            <Ionicons name="time-outline" size={13} color="#64748B" />
+            <Text style={{ fontSize: 12.5, color: '#334155', marginLeft: 6, fontWeight: '500' }}>
+              Experience: <Text style={{ fontWeight: '600', color: '#002144' }}>{item.experienceYears}</Text>
+            </Text>
+          </View>
+        )}
+        {Boolean(item.resumeFileName || item.resumeUrl) && (
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Ionicons name="document-attach-outline" size={13} color="#10B981" />
+            <Text style={{ fontSize: 12, color: '#10B981', marginLeft: 6, fontWeight: '600' }} numberOfLines={1}>
+              {item.resumeFileName || 'Resume Attached (PDF)'}
+            </Text>
+          </View>
+        )}
       </View>
-      <View style={{ marginBottom: 12 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
-          <Ionicons name="grid-outline" size={14} color="#64748B" />
-          <Text style={{ fontSize: 13, color: '#64748B', marginLeft: 8 }}>{item.domain}</Text>
-        </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
-          <Ionicons name="time-outline" size={14} color="#64748B" />
-          <Text style={{ fontSize: 13, color: '#64748B', marginLeft: 8 }}>{item.experience}</Text>
-        </View>
-      </View>
-      <Text style={{ fontSize: 13, color: '#64748B', lineHeight: 20, marginBottom: 14 }}>{item.description}</Text>
+
+      {Boolean(item.bio) && (
+        <Text style={{ fontSize: 13, color: '#64748B', lineHeight: 18, marginBottom: 12 }} numberOfLines={2}>
+          {item.bio}
+        </Text>
+      )}
+
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-        <TouchableOpacity style={s.resumeActionBtn} activeOpacity={0.7}>
-          <Ionicons name="document-text-outline" size={16} color="#003366" />
-          <Text style={{ fontSize: 13, fontWeight: '600', color: '#003366', marginLeft: 6 }}>Show Resume</Text>
+        <TouchableOpacity 
+          style={[s.resumeActionBtn, !item.resumeUrl && { borderColor: '#CBD5E1', opacity: 0.6 }]} 
+          activeOpacity={0.7}
+          onPress={() => onShowResume(item)}
+        >
+          <Ionicons name="document-text-outline" size={16} color={item.resumeUrl ? '#003366' : '#94A3B8'} />
+          <Text style={{ fontSize: 13, fontWeight: '600', color: item.resumeUrl ? '#003366' : '#94A3B8', marginLeft: 6 }}>
+            {item.resumeUrl ? 'Show Resume' : 'No Resume'}
+          </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[s.resumeActionBtn, { backgroundColor: '#003366', borderColor: '#003366', marginLeft: 8, marginRight: 0 }]} activeOpacity={0.7}>
-          <Ionicons name="arrow-redo-outline" size={16} color="#FFFFFF" />
+        <TouchableOpacity 
+          style={[s.resumeActionBtn, { backgroundColor: '#003366', borderColor: '#003366', marginLeft: 8, marginRight: 0 }]} 
+          activeOpacity={0.7}
+          onPress={() => onForward(item)}
+        >
+          <Ionicons name="mail-outline" size={16} color="#FFFFFF" />
           <Text style={{ fontSize: 13, fontWeight: '600', color: '#FFFFFF', marginLeft: 6 }}>Forward</Text>
         </TouchableOpacity>
       </View>
@@ -146,12 +196,104 @@ export default function AdminJobsScreen({ navigation, route }) {
   const [fLoc, setFLoc] = useState('');
   const [fDesc, setFDesc] = useState('');
 
+  // Resume Book States
+  const [resumes, setResumes] = useState([]);
+  const [loadingResumes, setLoadingResumes] = useState(false);
+  const [resumeSearch, setResumeSearch] = useState('');
+  const [selectedDomain, setSelectedDomain] = useState('All');
+
+  // Forward Email Modal States
+  const [forwardModalVisible, setForwardModalVisible] = useState(false);
+  const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const [fwdEmail, setFwdEmail] = useState('');
+  const [fwdSubject, setFwdSubject] = useState('');
+  const [fwdMessage, setFwdMessage] = useState('');
+  const [sendingEmail, setSendingEmail] = useState(false);
+
   // Sync selected institution with global value when screen is focused
   useEffect(() => {
     if (isFocused && isSuperAdmin && global.selectedInstitution) {
       setSelectedInstitution(global.selectedInstitution);
     }
   }, [isFocused, isSuperAdmin]);
+
+  const loadResumeBook = useCallback(async () => {
+    setLoadingResumes(true);
+    try {
+      const filters = {};
+      if (selectedInstitution && selectedInstitution !== 'All') {
+        filters.institution = selectedInstitution;
+      }
+      if (resumeSearch.trim()) {
+        filters.search = resumeSearch.trim();
+      }
+      if (selectedDomain && selectedDomain !== 'All') {
+        filters.domain = selectedDomain;
+      }
+      const data = await fetchResumeBook(filters);
+      setResumes(Array.isArray(data) ? data : []);
+    } catch (e) {
+      console.error('Error loading resume book:', e);
+      setResumes([]);
+    } finally {
+      setLoadingResumes(false);
+    }
+  }, [selectedInstitution, resumeSearch, selectedDomain]);
+
+  useEffect(() => {
+    if (screen === 'resume') {
+      loadResumeBook();
+    }
+  }, [screen, loadResumeBook]);
+
+  const handleShowResume = (candidate) => {
+    if (!candidate.resumeUrl) {
+      if (Platform.OS === 'web') alert('No resume document uploaded for this candidate yet.');
+      else Alert.alert('Notice', 'No resume document uploaded for this candidate yet.');
+      return;
+    }
+    const fullUrl = getImageUrl(candidate.resumeUrl);
+    if (Platform.OS === 'web') {
+      window.open(fullUrl, '_blank');
+    } else {
+      Alert.alert('Candidate Resume', fullUrl);
+    }
+  };
+
+  const handleOpenForward = (candidate) => {
+    setSelectedCandidate(candidate);
+    setFwdEmail('');
+    setFwdSubject(`Candidate Referral: ${candidate.name} (${candidate.institution || 'Alumni'})`);
+    setFwdMessage(`Please find attached the profile and resume of ${candidate.name}, ${candidate.designation || 'Alumni'} from ${candidate.institution || 'our network'}.`);
+    setForwardModalVisible(true);
+  };
+
+  const handleSendResumeEmail = async () => {
+    if (!selectedCandidate || !fwdEmail.trim()) {
+      if (Platform.OS === 'web') alert('Please enter a recipient email address.');
+      else Alert.alert('Required', 'Please enter a recipient email address.');
+      return;
+    }
+    setSendingEmail(true);
+    try {
+      await shareCandidateResume({
+        candidateId: selectedCandidate._id,
+        recipientEmail: fwdEmail.trim(),
+        subject: fwdSubject.trim(),
+        message: fwdMessage.trim()
+      });
+      setForwardModalVisible(false);
+      if (Platform.OS === 'web') alert(`✓ Candidate profile & resume forwarded to ${fwdEmail.trim()} successfully!`);
+      else Alert.alert('Success', `Candidate profile & resume forwarded to ${fwdEmail.trim()} successfully!`);
+    } catch (err) {
+      console.error('Error forwarding resume:', err);
+      const msg = err.response?.data?.message || err.message || 'Failed to send resume email';
+      if (Platform.OS === 'web') alert(`Error: ${msg}`);
+      else Alert.alert('Error', msg);
+    } finally {
+      setSendingEmail(false);
+    }
+  };
 
   const clearForm = () => {
     setFRole(''); setFCompany(''); setFMode(''); setFExp(''); setFLoc(''); setFDesc(''); 
@@ -296,27 +438,163 @@ export default function AdminJobsScreen({ navigation, route }) {
   }
 
   if (screen === 'resume') {
+    const resumesCount = resumes.length;
     return (
       <SafeAreaView style={s.safe}>
         <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor="#FFFFFF" />
         {header}
-        {subHeader('Resume Book', () => setScreen('list'))}
-        <View style={s.banner}>
-          <Text style={{ fontSize: 18, fontWeight: '800', color: '#FFFFFF', marginBottom: 6 }}>Are you a job seeker?</Text>
-          <Text style={{ fontSize: 13, color: '#CBD5E1', marginBottom: 16, lineHeight: 20 }}>Get listed and let recruiters find you.</Text>
-          <View style={{ flexDirection: 'row' }}>
-            <TouchableOpacity style={s.bannerBtn}><Text style={{ fontSize: 14, fontWeight: '700', color: '#003366' }}>Get Listed</Text></TouchableOpacity>
-            <TouchableOpacity style={s.bannerBtnOutline}><Text style={{ fontSize: 14, fontWeight: '700', color: '#FFFFFF' }}>Learn More</Text></TouchableOpacity>
+        {subHeader('Talent Resume Book', () => setScreen('list'))}
+
+        {/* Search & Domain Filter Bar */}
+        <View style={{ backgroundColor: '#FFFFFF', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#E2E8F0' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC', borderRadius: 10, paddingHorizontal: 12, height: 42, borderWidth: 1, borderColor: '#E2E8F0' }}>
+            <Ionicons name="search-outline" size={18} color="#64748B" style={{ marginRight: 8 }} />
+            <TextInput
+              style={{ flex: 1, fontSize: 14, color: '#0F172A', padding: 0 }}
+              placeholder="Search candidate name, skills, or domain..."
+              placeholderTextColor="#94A3B8"
+              value={resumeSearch}
+              onChangeText={setResumeSearch}
+            />
+            {resumeSearch ? (
+              <TouchableOpacity onPress={() => setResumeSearch('')} style={{ padding: 4 }}>
+                <Ionicons name="close-circle" size={16} color="#94A3B8" />
+              </TouchableOpacity>
+            ) : null}
           </View>
         </View>
-        <FlatList
-          style={{ flex: 1 }}
-          data={RESUME_DATA}
-          keyExtractor={item => item.id}
-          contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
-          showsVerticalScrollIndicator={false}
-          renderItem={({ item }) => <ResumeCard item={item} />}
-        />
+
+        {/* Overview Banner */}
+        <View style={s.banner}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <View style={{ flex: 1, paddingRight: 10 }}>
+              <Text style={{ fontSize: 17, fontWeight: '800', color: '#FFFFFF', marginBottom: 4 }}>Alumni Talent Pipeline</Text>
+              <Text style={{ fontSize: 12.5, color: '#CBD5E1', lineHeight: 18 }}>
+                {isSuperAdmin && selectedInstitution !== 'All' ? `${selectedInstitution} • ` : ''}Verified candidate profiles & uploaded CVs ready for recruiter forwarding.
+              </Text>
+            </View>
+            <View style={{ backgroundColor: 'rgba(255,255,255,0.15)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, alignItems: 'center' }}>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: '#FFFFFF' }}>{resumesCount}</Text>
+              <Text style={{ fontSize: 10, color: '#BAE6FD', fontWeight: '700', textTransform: 'uppercase' }}>Candidates</Text>
+            </View>
+          </View>
+        </View>
+
+        {loadingResumes ? (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <ActivityIndicator size="large" color="#003366" />
+            <Text style={{ marginTop: 12, fontSize: 14, color: '#64748B', fontWeight: '600' }}>Loading Resume Book...</Text>
+          </View>
+        ) : (
+          <FlatList
+            style={{ flex: 1 }}
+            data={resumes}
+            keyExtractor={item => item._id || String(item.id)}
+            contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
+            showsVerticalScrollIndicator={false}
+            renderItem={({ item }) => (
+              <ResumeCard 
+                item={item} 
+                onShowResume={handleShowResume}
+                onForward={handleOpenForward}
+              />
+            )}
+            ListEmptyComponent={() => (
+              <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: 48, paddingHorizontal: 24 }}>
+                <Ionicons name="document-text-outline" size={56} color="#CBD5E1" />
+                <Text style={{ fontSize: 16, fontWeight: '700', color: '#334155', marginTop: 12 }}>No Candidates Found</Text>
+                <Text style={{ fontSize: 13, color: '#64748B', textAlign: 'center', marginTop: 6, lineHeight: 18 }}>
+                  No alumni have uploaded a resume or registered as job seekers for {selectedInstitution === 'All' ? 'any institution' : selectedInstitution} yet.
+                </Text>
+              </View>
+            )}
+          />
+        )}
+
+        {/* ─── FORWARD EMAIL MODAL ─── */}
+        <Modal
+          visible={forwardModalVisible}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setForwardModalVisible(false)}
+        >
+          <View style={s.modalOverlay}>
+            <View style={[s.modalContent, { maxWidth: 440, borderRadius: 20, padding: 22 }]}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#EFF6FF', justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
+                    <Ionicons name="mail" size={18} color="#003366" />
+                  </View>
+                  <Text style={{ fontSize: 17, fontWeight: '800', color: '#002144' }}>Forward Candidate</Text>
+                </View>
+                <TouchableOpacity onPress={() => setForwardModalVisible(false)} style={{ padding: 4 }}>
+                  <Ionicons name="close-circle" size={22} color="#94A3B8" />
+                </TouchableOpacity>
+              </View>
+
+              {selectedCandidate && (
+                <View style={{ backgroundColor: '#F8FAFC', padding: 12, borderRadius: 12, borderWidth: 1, borderColor: '#E2E8F0', marginBottom: 14 }}>
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: '#002144' }}>{selectedCandidate.name}</Text>
+                  <Text style={{ fontSize: 12, color: '#64748B', marginTop: 2 }}>
+                    {selectedCandidate.institution || 'Alumni Network'} • {selectedCandidate.department || 'General'}
+                  </Text>
+                  {selectedCandidate.resumeUrl ? (
+                    <Text style={{ fontSize: 11, color: '#10B981', fontWeight: '700', marginTop: 4 }}>✓ Resume attached ({selectedCandidate.resumeFileName || 'PDF'})</Text>
+                  ) : (
+                    <Text style={{ fontSize: 11, color: '#EF4444', fontWeight: '700', marginTop: 4 }}>⚠ No resume file attached to profile</Text>
+                  )}
+                </View>
+              )}
+
+              <Text style={s.label}>Recruiter / Recipient Email *</Text>
+              <TextInput
+                style={[s.input, { marginTop: 0 }]}
+                placeholder="recruiter@company.com"
+                placeholderTextColor="#94A3B8"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                value={fwdEmail}
+                onChangeText={setFwdEmail}
+              />
+
+              <Text style={s.label}>Email Subject</Text>
+              <TextInput
+                style={[s.input, { marginTop: 0 }]}
+                placeholder="Candidate referral subject"
+                placeholderTextColor="#94A3B8"
+                value={fwdSubject}
+                onChangeText={setFwdSubject}
+              />
+
+              <Text style={s.label}>Message / Admin Recommendation</Text>
+              <TextInput
+                style={[s.input, { minHeight: 80, textAlignVertical: 'top', marginTop: 0 }]}
+                placeholder="Add your note or recommendation..."
+                placeholderTextColor="#94A3B8"
+                value={fwdMessage}
+                onChangeText={setFwdMessage}
+                multiline
+                numberOfLines={3}
+              />
+
+              <TouchableOpacity
+                style={[s.postBtn, { marginTop: 18 }]}
+                activeOpacity={0.8}
+                onPress={handleSendResumeEmail}
+                disabled={sendingEmail}
+              >
+                {sendingEmail ? (
+                  <ActivityIndicator color="#FFFFFF" />
+                ) : (
+                  <>
+                    <Ionicons name="send" size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
+                    <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>Send Candidate Resume</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </SafeAreaView>
     );
   }
@@ -538,6 +816,7 @@ const s = StyleSheet.create({
 
   // Resume
   resumeAvatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#003366', alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+  resumeAvatarImage: { width: 44, height: 44, borderRadius: 22, marginRight: 12, backgroundColor: '#EFF6FF', borderWidth: 1, borderColor: '#CBD5E1' },
   resumeCard: { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 16, marginBottom: 14, borderWidth: 1, borderColor: '#E2E8F0' },
   skillPill: { backgroundColor: '#EFF6FF', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5, marginRight: 8, marginBottom: 6, borderWidth: 1, borderColor: '#DBEAFE' },
   resumeActionBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 10, borderRadius: 10, borderWidth: 1, borderColor: '#003366', marginRight: 8 },

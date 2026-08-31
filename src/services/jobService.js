@@ -59,3 +59,19 @@ export const fetchRecommendedJobs = async () => {
         return [];
     }
 };
+
+export const fetchResumeBook = async (filters = {}) => {
+    try {
+        const { data } = await api.get('/jobs/resume-book', { params: filters });
+        return data;
+    } catch (e) {
+        console.log('fetchResumeBook error:', e);
+        return [];
+    }
+};
+
+export const shareCandidateResume = async (payload) => {
+    const { data } = await api.post('/jobs/resume-book/share', payload);
+    return data;
+};
+

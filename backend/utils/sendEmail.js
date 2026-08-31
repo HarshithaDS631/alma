@@ -291,4 +291,161 @@ const sendPasswordResetEmail = async (userEmail, resetUrl, resetToken) => {
     return { success: false };
 };
 
-module.exports = { sendWelcomeEmail, sendOtpEmail, sendPasswordResetEmail };
+// ─── Share Candidate Resume Email ──────────────────────────────────────────
+const sendCandidateResumeEmail = async ({ recipientEmail, candidate, adminName, adminInstitution, customMessage, subject }) => {
+    const apiKey = process.env.SENDGRID_API_KEY;
+    const fromEmail = process.env.SENDGRID_FROM_EMAIL || 'rvmediadevelopers@gmail.com';
+    const emailSubject = subject || `Candidate Profile & Resume: ${candidate.name} (${candidate.institution || adminInstitution || 'Alumni'})`;
+
+    const skillsHtml = (candidate.skills && candidate.skills.length > 0)
+        ? candidate.skills.map(s => `<span style="display:inline-block; background-color:#EFF6FF; color:#003366; font-size:12px; font-weight:600; padding:4px 10px; border-radius:12px; margin:3px 4px 3px 0; border:1px solid #DBEAFE;">${s}</span>`).join('')
+        : '<span style="color:#94A3B8; font-size:13px;">Not specified</span>';
+
+    const html = `
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 620px; margin: 0 auto; border: 1px solid #E2E8F0; border-radius: 14px; overflow: hidden; background-color: #FFFFFF;">
+            <div style="background: linear-gradient(135deg, #003366, #002144); padding: 28px 24px; text-align: center;">
+                <h1 style="color: #FFFFFF; margin: 0; font-size: 22px; font-weight: 700; letter-spacing: 0.5px;">Alumni Talent Network</h1>
+                <p style="color: #BAE6FD; margin: 6px 0 0 0; font-size: 13.5px;">Candidate Resume Referral from ${adminInstitution || 'Alumni Administration'}</p>
+            </div>
+            <div style="padding: 28px 24px; background-color: #FFFFFF;">
+                <p style="font-size: 15px; color: #1E293B; margin-top: 0; line-height: 1.6;">
+                    Hello,<br/><br/>
+                    <strong>${adminName || 'The Alumni Placement & Career Admin'}</strong> has forwarded a verified candidate profile from the <strong>${candidate.institution || adminInstitution || 'Alumni Network'}</strong> Resume Book for your review.
+                </p>
+
+                ${customMessage ? `
+                <div style="background-color: #F8FAFC; border-left: 4px solid #003366; padding: 14px 18px; border-radius: 6px; margin: 20px 0;">
+                    <p style="margin: 0; font-size: 13.5px; color: #334155; font-style: italic;">
+                        "${customMessage}"
+                    </p>
+                </div>
+                ` : ''}
+
+                <!-- Candidate Profile Summary Card -->
+                <div style="background-color: #FFFFFF; border: 1px solid #CBD5E1; border-radius: 12px; padding: 20px; margin: 22px 0;">
+                    <h2 style="margin: 0 0 4px 0; font-size: 18px; color: #002144; font-weight: 700;">${candidate.name}</h2>
+                    <p style="margin: 0 0 14px 0; font-size: 14px; color: #64748B; font-weight: 500;">
+                        ${candidate.designation || candidate.headline || 'Alumni Member'} ${candidate.company ? `at ${candidate.company}` : ''}
+                    </p>
+
+                    <table style="width: 100%; border-collapse: collapse; font-size: 13.5px; color: #334155;">
+                        <tr>
+                            <td style="padding: 6px 0; width: 32%; color: #64748B; font-weight: 600;">Institution:</td>
+                            <td style="padding: 6px 0; font-weight: 600; color: #002144;">${candidate.institution || 'Alumni Network'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 0; color: #64748B; font-weight: 600;">Branch / Dept:</td>
+                            <td style="padding: 6px 0;">${candidate.department || candidate.branch || 'General'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 0; color: #64748B; font-weight: 600;">Batch Year:</td>
+                            <td style="padding: 6px 0;">${candidate.batchYear || 'N/A'}</td>
+                        </tr>
+                        ${candidate.domain ? `
+                        <tr>
+                            <td style="padding: 6px 0; color: #64748B; font-weight: 600;">Domain:</td>
+                            <td style="padding: 6px 0;">${candidate.domain}</td>
+                        </tr>
+                        ` : ''}
+                        ${candidate.experienceYears ? `
+                        <tr>
+                            <td style="padding: 6px 0; color: #64748B; font-weight: 600;">Experience:</td>
+                            <td style="padding: 6px 0;">${candidate.experienceYears}</td>
+                        </tr>
+                        ` : ''}
+                        <tr>
+                            <td style="padding: 6px 0; color: #64748B; font-weight: 600;">Contact Email:</td>
+                            <td style="padding: 6px 0;"><a href="mailto:${candidate.email}" style="color: #0055A5; text-decoration: none;">${candidate.email}</a></td>
+                        </tr>
+                    </table>
+
+                    <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid #F1F5F9;">
+                        <span style="font-size: 12px; color: #64748B; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 6px;">Skills & Competencies</span>
+                        <div>${skillsHtml}</div>
+                    </div>
+                </div>
+
+                <!-- Action Button -->
+                ${candidate.resumeUrl ? `
+                <div style="text-align: center; margin: 28px 0;">
+                    <a href="${candidate.resumeUrl}" target="_blank" style="background-color: #003366; color: #FFFFFF; padding: 14px 32px; border-radius: 10px; font-weight: 700; text-decoration: none; display: inline-block; font-size: 15px; box-shadow: 0 4px 12px rgba(0,51,102,0.25);">
+                        📥 Download & View Candidate Resume
+                    </a>
+                </div>
+                ` : `
+                <p style="text-align: center; font-size: 13px; color: #64748B;">
+                    Candidate resume link is available on the internal portal.
+                </p>
+                `}
+
+                <div style="margin-top: 28px; border-top: 1px solid #F1F5F9; padding-top: 16px;">
+                    <p style="font-size: 13px; color: #64748B; margin: 0; line-height: 1.5;">
+                        Shared via <strong>${adminInstitution || 'Alumni'} Administration Portal</strong><br/>
+                        For inquiries, reply directly to this email or reach out to <a href="mailto:${candidate.email}" style="color:#003366;">${candidate.email}</a>.
+                    </p>
+                </div>
+            </div>
+            <div style="background-color: #F8FAFC; padding: 16px; text-align: center; border-top: 1px solid #E2E8F0;">
+                <p style="font-size: 12px; color: #94A3B8; margin: 0;">© ${new Date().getFullYear()} Alumni Network. All rights reserved.</p>
+            </div>
+        </div>
+    `;
+
+    if (apiKey && apiKey.startsWith('SG.')) {
+        try {
+            const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    personalizations: [{ to: [{ email: recipientEmail }] }],
+                    from: { email: fromEmail, name: `${adminInstitution || 'Alumni'} Placement Desk` },
+                    subject: emailSubject,
+                    content: [
+                        { type: 'text/plain', value: `Candidate Profile: ${candidate.name}\nInstitution: ${candidate.institution}\nEmail: ${candidate.email}\nResume URL: ${candidate.resumeUrl || 'N/A'}` },
+                        { type: 'text/html', value: html }
+                    ]
+                })
+            });
+
+            if (response.status >= 200 && response.status < 300) {
+                console.log(`[RESUME SHARE EMAIL OK] Sent to ${recipientEmail}`);
+                return { success: true };
+            }
+            const errText = await response.text();
+            console.error('[RESUME SHARE SENDGRID ERROR]:', errText);
+        } catch (e) {
+            console.error('[RESUME SHARE FETCH ERROR]:', e.message);
+        }
+    }
+
+    // Nodemailer fallback
+    try {
+        const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
+        const smtpUser = process.env.SMTP_USER || process.env.EMAIL_USER;
+        const smtpPass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
+        if (smtpUser && smtpPass) {
+            const transporter = nodemailer.createTransport({
+                host: smtpHost,
+                port: Number(process.env.SMTP_PORT) || 587,
+                secure: false,
+                auth: { user: smtpUser, pass: smtpPass }
+            });
+            await transporter.sendMail({
+                from: `"${adminInstitution || 'Alumni'} Placement Desk" <${smtpUser}>`,
+                to: recipientEmail,
+                subject: emailSubject,
+                html
+            });
+            return { success: true };
+        }
+    } catch (e) {
+        console.error('[RESUME SHARE NODEMAILER ERROR]:', e.message);
+    }
+
+    return { success: true, simulated: true };
+};
+
+module.exports = { sendWelcomeEmail, sendOtpEmail, sendPasswordResetEmail, sendCandidateResumeEmail };

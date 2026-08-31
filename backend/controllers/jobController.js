@@ -243,3 +243,106 @@ exports.getRecommendedJobs = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// @desc    Get Alumni Resume Book
+// @route   GET /api/jobs/resume-book
+exports.getResumeBook = async (req, res) => {
+    try {
+        const { search, institution, domain } = req.query;
+        let query = {
+            is_approved: true,
+            $or: [
+                { resumeUrl: { $exists: true, $ne: '' } },
+                { isJobSeeker: true }
+            ]
+        };
+
+        // If not super admin, restrict to user's institution
+        if (req.user && req.user.role !== 'Super Admin') {
+            const userInstitution = req.user.institution;
+            if (userInstitution && userInstitution !== 'All') {
+                query.institution = new RegExp(`^${userInstitution.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');
+            }
+        } else if (institution && institution !== 'All') {
+            query.institution = new RegExp(`^${institution.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');
+        }
+
+        if (domain && domain !== 'All') {
+            query.domain = new RegExp(`^${domain.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');
+        }
+
+        if (search && search.trim()) {
+            const term = search.trim();
+            const searchRegex = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+            query.$and = [
+                {
+                    $or: [
+                        { name: searchRegex },
+                        { company: searchRegex },
+                        { designation: searchRegex },
+                        { headline: searchRegex },
+                        { skills: searchRegex },
+                        { department: searchRegex },
+                        { branch: searchRegex },
+                        { domain: searchRegex }
+                    ]
+                }
+            ];
+        }
+
+        const candidates = await User.find(query)
+            .select('_id name email institution branch department batchYear company designation headline domain experienceYears skills resumeUrl resumeFileName resumeUpdatedAt isJobSeeker avatar_url profilePicture bio')
+            .sort({ resumeUpdatedAt: -1, updatedAt: -1 })
+            .limit(100);
+
+        res.json(candidates);
+    } catch (error) {
+        console.error('Error fetching resume book:', error);
+        res.status(500).json({ message: error.message || 'Failed to fetch resume book' });
+    }
+};
+
+// @desc    Share Candidate Resume via Email
+// @route   POST /api/jobs/resume-book/share
+exports.shareResumeViaEmail = async (req, res) => {
+    try {
+        const { sendCandidateResumeEmail } = require('../utils/sendEmail');
+        const { candidateId, recipientEmail, subject, message } = req.body;
+
+        if (!candidateId || !recipientEmail) {
+            return res.status(400).json({ message: 'Candidate ID and recipient email are required' });
+        }
+
+        // Validate recipient email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(recipientEmail.trim())) {
+            return res.status(400).json({ message: 'Please provide a valid recipient email address' });
+        }
+
+        const candidate = await User.findById(candidateId).select('name email institution branch department batchYear company designation headline domain experienceYears skills resumeUrl resumeFileName bio');
+        if (!candidate) {
+            return res.status(404).json({ message: 'Candidate profile not found' });
+        }
+
+        const adminName = req.user.name || 'Alumni Administrator';
+        const adminInstitution = req.user.institution || candidate.institution || 'Alumni Network';
+
+        const result = await sendCandidateResumeEmail({
+            recipientEmail: recipientEmail.trim(),
+            candidate,
+            adminName,
+            adminInstitution,
+            customMessage: message,
+            subject
+        });
+
+        res.json({
+            success: true,
+            message: `Candidate resume for ${candidate.name} was successfully forwarded to ${recipientEmail.trim()}`,
+            result
+        });
+    } catch (error) {
+        console.error('Error sharing resume via email:', error);
+        res.status(500).json({ message: error.message || 'Failed to share candidate resume' });
+    }
+};

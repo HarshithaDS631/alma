@@ -9,6 +9,7 @@ import { getChatHistory, sendMessage } from '../services/messageService';
 import { uploadFile, getImageUrl } from '../services/uploadService';
 import { addComment, deletePost, toggleSavePost, updatePostSettings, editPost, getSavedPosts, getUserPosts } from '../services/postService';
 import * as ImagePicker from 'expo-image-picker';
+import * as DocumentPicker from 'expo-document-picker';
 import { institutionDepartments, defaultDepartments } from '../constants/institutionDepartments';
 import getInitials from '../lib/getInitials';
 
@@ -84,6 +85,12 @@ const DEFAULT_CONNECTIONS = [];
     batch: '',
     bio: '',
     linkedin: '',
+    resumeUrl: '',
+    resumeFileName: '',
+    isJobSeeker: false,
+    domain: '',
+    experienceYears: '',
+    skills: [],
     posts: '0',
     followers: '0',
     following: '0',
@@ -118,12 +125,24 @@ const DEFAULT_CONNECTIONS = [];
             batch: cached.batchYear || cached.batch_year || '',
             bio: cached.bio || '',
             linkedin: cached.linkedin || '',
+            resumeUrl: cached.resumeUrl || '',
+            resumeFileName: cached.resumeFileName || '',
+            isJobSeeker: cached.isJobSeeker || false,
+            domain: cached.domain || '',
+            experienceYears: cached.experienceYears || '',
+            skills: cached.skills || [],
             posts: cachedProfile.posts || prev.posts || '0',
             followers: cachedProfile.followers || prev.followers || '0',
             following: cachedProfile.following || prev.following || '0',
             avatar: getInitials(uName),
             avatar_url: rawAvatar ? getImageUrl(rawAvatar) : ''
           }));
+          setEditResumeUrl(cached.resumeUrl || '');
+          setEditResumeFileName(cached.resumeFileName || '');
+          setEditIsJobSeeker(cached.isJobSeeker || false);
+          setEditDomain(cached.domain || '');
+          setEditExperienceYears(cached.experienceYears || '');
+          setEditSkills(Array.isArray(cached.skills) ? cached.skills.join(', ') : (cached.skills || ''));
 
           if (cachedProfile.userPosts && Array.isArray(cachedProfile.userPosts) && cachedProfile.userPosts.length > 0) {
             setUserPosts(cachedProfile.userPosts);
@@ -230,9 +249,21 @@ const DEFAULT_TAGGED_POSTS = [];
               batch: activeUser.batchYear || activeUser.batch_year || '',
               bio: activeUser.bio || '',
               linkedin: activeUser.linkedin || '',
+              resumeUrl: activeUser.resumeUrl || '',
+              resumeFileName: activeUser.resumeFileName || '',
+              isJobSeeker: activeUser.isJobSeeker || false,
+              domain: activeUser.domain || '',
+              experienceYears: activeUser.experienceYears || '',
+              skills: activeUser.skills || [],
               avatar: getInitials(uName),
               avatar_url: fullAvatarUrl
             }));
+            setEditResumeUrl(activeUser.resumeUrl || '');
+            setEditResumeFileName(activeUser.resumeFileName || '');
+            setEditIsJobSeeker(activeUser.isJobSeeker || false);
+            setEditDomain(activeUser.domain || '');
+            setEditExperienceYears(activeUser.experienceYears || '');
+            setEditSkills(Array.isArray(activeUser.skills) ? activeUser.skills.join(', ') : (activeUser.skills || ''));
 
             // 2. Fetch connections
             const [followersData, followingData] = await Promise.all([
@@ -424,10 +455,66 @@ const DEFAULT_TAGGED_POSTS = [];
   const [editLinkedin, setEditLinkedin] = useState(profileData.linkedin);
   const [editAvatarUrl, setEditAvatarUrl] = useState(profileData.avatar_url || '');
   const [editDob, setEditDob] = useState(profileData.dateOfBirth ? (typeof profileData.dateOfBirth === 'string' ? profileData.dateOfBirth.substring(0, 10) : new Date(profileData.dateOfBirth).toISOString().substring(0, 10)) : '');
+  const [editResumeUrl, setEditResumeUrl] = useState(profileData.resumeUrl || '');
+  const [editResumeFileName, setEditResumeFileName] = useState(profileData.resumeFileName || '');
+  const [editDomain, setEditDomain] = useState(profileData.domain || '');
+  const [editExperienceYears, setEditExperienceYears] = useState(profileData.experienceYears || '');
+  const [editSkills, setEditSkills] = useState(Array.isArray(profileData.skills) ? profileData.skills.join(', ') : (profileData.skills || ''));
+  const [editIsJobSeeker, setEditIsJobSeeker] = useState(profileData.isJobSeeker ?? false);
+  const [uploadingResume, setUploadingResume] = useState(false);
   const [branchModalVisible, setBranchModalVisible] = useState(false);
   const [batchModalVisible, setBatchModalVisible] = useState(false);
   const [dobCalendarVisible, setDobCalendarVisible] = useState(false);
   const [branchSearch, setBranchSearch] = useState('');
+
+  const handlePickResume = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/octet-stream', '*/*'],
+        copyToCacheDirectory: true
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const file = result.assets[0];
+        setUploadingResume(true);
+        const uploadedUrl = await uploadFile(file.uri, file.mimeType || 'application/pdf', file.name || `resume_${Date.now()}.pdf`);
+        
+        setEditResumeUrl(uploadedUrl);
+        setEditResumeFileName(file.name || 'Resume.pdf');
+        setEditIsJobSeeker(true);
+
+        setProfileData(prev => ({
+          ...prev,
+          resumeUrl: uploadedUrl,
+          resumeFileName: file.name || 'Resume.pdf',
+          isJobSeeker: true
+        }));
+
+        if (Platform.OS === 'web') {
+          alert('📄 Resume uploaded! Tap "Save Profile" to finalize.');
+        } else {
+          Alert.alert('Success', '📄 Resume uploaded! Tap "Save Profile" to finalize.');
+        }
+      }
+    } catch (e) {
+      console.error('Resume upload error:', e);
+      alert('Could not upload resume: ' + (e.message || 'Error'));
+    } finally {
+      setUploadingResume(false);
+    }
+  };
+
+  const handleRemoveResume = () => {
+    setEditResumeUrl('');
+    setEditResumeFileName('');
+    setEditIsJobSeeker(false);
+    setProfileData(prev => ({
+      ...prev,
+      resumeUrl: '',
+      resumeFileName: '',
+      isJobSeeker: false
+    }));
+  };
 
   const handlePickProfilePhoto = async () => {
     try {
@@ -1113,6 +1200,121 @@ const DEFAULT_TAGGED_POSTS = [];
                   </TouchableOpacity>
                 )}
 
+                {/* ─── RESUME & RESUME BOOK SECTION ─── */}
+                <View style={{ marginTop: 24, marginBottom: 8, padding: 16, backgroundColor: '#F8FAFC', borderRadius: 16, borderWidth: 1, borderColor: '#E2E8F0' }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+                    <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#EFF6FF', justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
+                      <Ionicons name="document-text" size={20} color="#003366" />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ fontSize: 15, fontWeight: '700', color: '#002144' }}>Resume & Career Profile</Text>
+                      <Text style={{ fontSize: 12, color: '#64748B' }}>Showcase your CV in the Alumni Resume Book</Text>
+                    </View>
+                  </View>
+
+                  {/* Current Resume Badge */}
+                  {editResumeUrl ? (
+                    <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', padding: 12, borderRadius: 12, borderWidth: 1, borderColor: '#CBD5E1', marginBottom: 14 }}>
+                      <Ionicons name="document-attach" size={22} color="#003366" style={{ marginRight: 10 }} />
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ fontSize: 13, fontWeight: '700', color: '#002144' }} numberOfLines={1}>
+                          {editResumeFileName || 'My_Resume.pdf'}
+                        </Text>
+                        <Text style={{ fontSize: 11, color: '#10B981', fontWeight: '600', marginTop: 2 }}>✓ Resume attached</Text>
+                      </View>
+                      <TouchableOpacity 
+                        style={{ paddingHorizontal: 10, paddingVertical: 6, backgroundColor: '#EFF6FF', borderRadius: 8, marginRight: 6 }}
+                        onPress={() => {
+                          if (Platform.OS === 'web') {
+                            window.open(getImageUrl(editResumeUrl), '_blank');
+                          } else {
+                            Alert.alert('Resume Link', getImageUrl(editResumeUrl));
+                          }
+                        }}
+                      >
+                        <Text style={{ fontSize: 12, fontWeight: '700', color: '#003366' }}>View</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity 
+                        style={{ padding: 6 }}
+                        onPress={handleRemoveResume}
+                      >
+                        <Ionicons name="trash-outline" size={18} color="#EF4444" />
+                      </TouchableOpacity>
+                    </View>
+                  ) : null}
+
+                  {/* Upload Resume Button */}
+                  <TouchableOpacity 
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: '#003366',
+                      paddingVertical: 12,
+                      borderRadius: 12,
+                      marginBottom: 16
+                    }}
+                    onPress={handlePickResume}
+                    disabled={uploadingResume}
+                    activeOpacity={0.8}
+                  >
+                    {uploadingResume ? (
+                      <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 14 }}>Uploading Resume...</Text>
+                    ) : (
+                      <>
+                        <Ionicons name="cloud-upload-outline" size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
+                        <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 14 }}>
+                          {editResumeUrl ? 'Replace Resume (PDF/DOC)' : 'Upload Resume (PDF/DOC)'}
+                        </Text>
+                      </>
+                    )}
+                  </TouchableOpacity>
+
+                  {/* Domain / Specialization */}
+                  <Text style={[styles.editLabel, { marginTop: 4 }]}>Domain / Industry Specialization</Text>
+                  <TextInput 
+                    style={[styles.securityInput, { backgroundColor: '#FFFFFF' }]} 
+                    placeholder="e.g. Software Engineering, Data Science, Product" 
+                    placeholderTextColor="#94A3B8"
+                    value={editDomain}
+                    onChangeText={setEditDomain}
+                  />
+
+                  {/* Experience */}
+                  <Text style={[styles.editLabel, { marginTop: 8 }]}>Years of Experience</Text>
+                  <TextInput 
+                    style={[styles.securityInput, { backgroundColor: '#FFFFFF' }]} 
+                    placeholder="e.g. 3+ years, Fresher, 5 years" 
+                    placeholderTextColor="#94A3B8"
+                    value={editExperienceYears}
+                    onChangeText={setEditExperienceYears}
+                  />
+
+                  {/* Skills */}
+                  <Text style={[styles.editLabel, { marginTop: 8 }]}>Key Skills (comma separated)</Text>
+                  <TextInput 
+                    style={[styles.securityInput, { backgroundColor: '#FFFFFF' }]} 
+                    placeholder="e.g. React Native, Node.js, Python, AWS" 
+                    placeholderTextColor="#94A3B8"
+                    value={editSkills}
+                    onChangeText={setEditSkills}
+                  />
+
+                  {/* Job Seeker Resume Book Toggle */}
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#E2E8F0' }}>
+                    <View style={{ flex: 1, marginRight: 10 }}>
+                      <Text style={{ fontSize: 13.5, fontWeight: '700', color: '#002144' }}>Include in Resume Book</Text>
+                      <Text style={{ fontSize: 11.5, color: '#64748B', marginTop: 2 }}>Allow admins and recruiters to discover and share your resume</Text>
+                    </View>
+                    <Switch
+                      value={editIsJobSeeker}
+                      onValueChange={setEditIsJobSeeker}
+                      trackColor={{ false: '#CBD5E1', true: '#003366' }}
+                      thumbColor="#FFFFFF"
+                    />
+                  </View>
+                </View>
+
                 <TouchableOpacity 
                   style={styles.saveSettingsBtn}
                   onPress={() => {
@@ -1130,6 +1332,12 @@ const DEFAULT_TAGGED_POSTS = [];
                       linkedin: editLinkedin,
                       avatar_url: editAvatarUrl,
                       dateOfBirth: editDob,
+                      resumeUrl: editResumeUrl,
+                      resumeFileName: editResumeFileName,
+                      isJobSeeker: editIsJobSeeker,
+                      domain: editDomain,
+                      experienceYears: editExperienceYears,
+                      skills: typeof editSkills === 'string' ? editSkills.split(',').map(s => s.trim()).filter(Boolean) : editSkills,
                       avatar: getInitials(editName)
                     });
 
@@ -1142,7 +1350,13 @@ const DEFAULT_TAGGED_POSTS = [];
                           bio: editBio,
                           linkedin: editLinkedin,
                           avatar_url: editAvatarUrl,
-                          dateOfBirth: editDob
+                          dateOfBirth: editDob,
+                          resumeUrl: editResumeUrl,
+                          resumeFileName: editResumeFileName,
+                          isJobSeeker: editIsJobSeeker,
+                          domain: editDomain,
+                          experienceYears: editExperienceYears,
+                          skills: editSkills
                         });
                       } catch (err) {
                         console.error('Error saving profile:', err);
@@ -1160,6 +1374,12 @@ const DEFAULT_TAGGED_POSTS = [];
                           cached.bio = editBio;
                           cached.linkedin = editLinkedin;
                           cached.dateOfBirth = editDob;
+                          cached.resumeUrl = editResumeUrl;
+                          cached.resumeFileName = editResumeFileName;
+                          cached.isJobSeeker = editIsJobSeeker;
+                          cached.domain = editDomain;
+                          cached.experienceYears = editExperienceYears;
+                          cached.skills = editSkills;
                           if (editAvatarUrl) cached.avatar_url = editAvatarUrl;
                           await AsyncStorage.setItem('userInfo', JSON.stringify(cached));
                         }

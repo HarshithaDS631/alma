@@ -52,9 +52,15 @@ const userSchema = new mongoose.Schema({
         success: { type: Boolean, default: true }
     }],
 
-    // Profile Enhancement
+    // Profile Enhancement & Resume Book
     skills: [{ type: String }],
     headline: { type: String },
+    domain: { type: String, default: '' },
+    experienceYears: { type: String, default: '' },
+    resumeUrl: { type: String, default: '' },
+    resumeFileName: { type: String, default: '' },
+    resumeUpdatedAt: { type: Date },
+    isJobSeeker: { type: Boolean, default: false },
     
     // Post Management
     savedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }]
