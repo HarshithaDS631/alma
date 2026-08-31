@@ -2899,6 +2899,112 @@ const DEFAULT_TAGGED_POSTS = [];
         </View>
       </Modal>
 
+      {/* Branch / Department Selection Modal */}
+      <Modal visible={branchModalVisible} transparent animationType="slide" onRequestClose={() => setBranchModalVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity style={StyleSheet.absoluteFillObject} activeOpacity={1} onPress={() => setBranchModalVisible(false)} />
+          <View style={[styles.modalContent, { maxHeight: 540, maxWidth: 460, zIndex: 20 }]}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Department</Text>
+              <TouchableOpacity onPress={() => { setBranchModalVisible(false); setBranchSearch(''); }}>
+                <Ionicons name="close" size={24} color="#0F172A" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Search Input */}
+            <View style={{ paddingHorizontal: 16, paddingTop: 10, paddingBottom: 6 }}>
+              <View style={[styles.securityInput, { flexDirection: 'row', alignItems: 'center', height: 42, paddingHorizontal: 12 }]}>
+                <Ionicons name="search" size={16} color="#64748B" style={{ marginRight: 8 }} />
+                <TextInput
+                  style={{ flex: 1, fontSize: 14, color: theme.text, padding: 0 }}
+                  placeholder="Search branch or department..."
+                  placeholderTextColor="#94A3B8"
+                  value={branchSearch}
+                  onChangeText={setBranchSearch}
+                />
+                {branchSearch ? (
+                  <TouchableOpacity onPress={() => setBranchSearch('')}>
+                    <Ionicons name="close-circle" size={16} color="#94A3B8" />
+                  </TouchableOpacity>
+                ) : null}
+              </View>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, paddingHorizontal: 16 }}>
+              {BRANCHES_LIST.filter(b => b.toLowerCase().includes(branchSearch.toLowerCase())).map((branch, idx) => {
+                const isSelected = editBranch === branch;
+                return (
+                  <TouchableOpacity
+                    key={idx}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      paddingVertical: 14,
+                      borderBottomWidth: 0.5,
+                      borderColor: 'rgba(0,0,0,0.06)'
+                    }}
+                    onPress={() => {
+                      setEditBranch(branch);
+                      setBranchModalVisible(false);
+                      setBranchSearch('');
+                    }}
+                  >
+                    <Text style={{ fontSize: 14, color: isSelected ? theme.primary : theme.text, fontWeight: isSelected ? '700' : '500', flex: 1, marginRight: 8 }}>
+                      {branch}
+                    </Text>
+                    {isSelected && <Ionicons name="checkmark-circle" size={20} color={theme.primary} />}
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Batch Year Selection Modal */}
+      <Modal visible={batchModalVisible} transparent animationType="slide" onRequestClose={() => setBatchModalVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity style={StyleSheet.absoluteFillObject} activeOpacity={1} onPress={() => setBatchModalVisible(false)} />
+          <View style={[styles.modalContent, { maxHeight: 540, maxWidth: 440, zIndex: 20 }]}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Batch Year</Text>
+              <TouchableOpacity onPress={() => setBatchModalVisible(false)}>
+                <Ionicons name="close" size={24} color="#0F172A" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, paddingHorizontal: 16 }}>
+              {BATCH_YEARS_LIST.map((year, idx) => {
+                const isSelected = editBatch === year;
+                return (
+                  <TouchableOpacity
+                    key={idx}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      paddingVertical: 14,
+                      borderBottomWidth: 0.5,
+                      borderColor: 'rgba(0,0,0,0.06)'
+                    }}
+                    onPress={() => {
+                      setEditBatch(year);
+                      setBatchModalVisible(false);
+                    }}
+                  >
+                    <Text style={{ fontSize: 15, color: isSelected ? theme.primary : theme.text, fontWeight: isSelected ? '700' : '500' }}>
+                      Class of {year}
+                    </Text>
+                    {isSelected && <Ionicons name="checkmark-circle" size={20} color={theme.primary} />}
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
       {/* Instagram-Style Edit Profile Modal (Matching Image 3) */}
       <Modal visible={editProfileModalVisible} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setEditProfileModalVisible(false)}>
         <SafeAreaView style={{ flex: 1, backgroundColor: theme.card }}>
@@ -2983,23 +3089,20 @@ const DEFAULT_TAGGED_POSTS = [];
               />
             </View>
 
-            {/* Website Field (Matching Image 3) */}
+            {/* Website / LinkedIn Field */}
             <View style={{ marginHorizontal: 16, marginTop: 14 }}>
-              <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text, marginBottom: 6 }}>Website</Text>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text, marginBottom: 6 }}>Website / LinkedIn</Text>
               <TextInput
                 style={{ backgroundColor: isDarkMode ? '#262626' : '#FAFAFA', borderWidth: 1, borderColor: theme.border, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: theme.text }}
-                placeholder="Website"
+                placeholder="https://linkedin.com/in/... or website"
                 placeholderTextColor={theme.textMuted}
                 autoCapitalize="none"
                 value={editLinkedin}
                 onChangeText={setEditLinkedin}
               />
-              <Text style={{ fontSize: 12, color: theme.textMuted, marginTop: 6, lineHeight: 16 }}>
-                Editing your links is only available on mobile. Visit the Instagram app and edit your profile to change the websites in your bio.
-              </Text>
             </View>
 
-            {/* Bio Field (Matching Image 3 with character count) */}
+            {/* Bio Field (with character count) */}
             <View style={{ marginHorizontal: 16, marginTop: 14 }}>
               <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text, marginBottom: 6 }}>Bio</Text>
               <TextInput
