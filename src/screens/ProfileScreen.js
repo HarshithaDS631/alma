@@ -729,6 +729,14 @@ const DEFAULT_TAGGED_POSTS = [];
     setEditBio(profileData.bio || '');
     setEditLinkedin(profileData.linkedin || '');
     setEditAvatarUrl(profileData.avatar_url || '');
+    setEditPhone(profileData.phone || '');
+    setEditCountryCode(profileData.countryCode || '+91');
+    setEditResumeUrl(profileData.resumeUrl || '');
+    setEditResumeFileName(profileData.resumeFileName || '');
+    setEditDomain(profileData.domain || '');
+    setEditExperienceYears(profileData.experienceYears || '');
+    setEditSkills(Array.isArray(profileData.skills) ? profileData.skills.join(', ') : (profileData.skills || ''));
+    setEditIsJobSeeker(Boolean(profileData.isJobSeeker));
     setEditProfileModalVisible(true);
   };
 
@@ -748,7 +756,13 @@ const DEFAULT_TAGGED_POSTS = [];
         batchYear: editBatch,
         linkedin: editLinkedin.trim(),
         phone: editPhone.trim(),
-        countryCode: editCountryCode,
+        countryCode: editCountryCode || '+91',
+        resumeUrl: editResumeUrl,
+        resumeFileName: editResumeFileName,
+        domain: editDomain.trim(),
+        experienceYears: editExperienceYears.trim(),
+        skills: editSkills ? editSkills.split(',').map(s => s.trim()).filter(Boolean) : [],
+        isJobSeeker: Boolean(editIsJobSeeker),
         avatar_url: editAvatarUrl || profileData.avatar_url,
         profilePicture: editAvatarUrl || profileData.avatar_url
       };
@@ -766,15 +780,7 @@ const DEFAULT_TAGGED_POSTS = [];
       // Update active profile data state
       setProfileData(prev => ({
         ...prev,
-        name: editName.trim(),
-        username: editUsername.trim().toLowerCase(),
-        bio: editBio.trim(),
-        branch: editBranch,
-        batch: editBatch,
-        linkedin: editLinkedin.trim(),
-        phone: editPhone.trim(),
-        countryCode: editCountryCode,
-        avatar_url: editAvatarUrl,
+        ...updatePayload,
         avatar: getInitials(editName)
       }));
 
@@ -919,10 +925,29 @@ const DEFAULT_TAGGED_POSTS = [];
             </Text>
             <Text style={styles.occupationText}>{profileData.branch} Class of {profileData.batch}</Text>
             <Text style={styles.bioText}>{profileData.bio}</Text>
+            {profileData.phone ? (
+              <Text style={{ color: '#003366', fontWeight: '600', fontSize: 13, marginTop: 4 }}>
+                📱 {profileData.countryCode || '+91'} {profileData.phone}
+              </Text>
+            ) : null}
             {profileData.linkedin ? (
               <TouchableOpacity onPress={() => Platform.OS === 'web' && window.open(profileData.linkedin, '_blank')}>
                 <Text style={{ color: '#0A66C2', fontWeight: '600', fontSize: 13, marginTop: 4 }}>
                   🔗 {profileData.linkedin}
+                </Text>
+              </TouchableOpacity>
+            ) : null}
+            {profileData.resumeUrl ? (
+              <TouchableOpacity 
+                style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#EFF6FF', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, alignSelf: 'flex-start', marginTop: 8, borderWidth: 1, borderColor: '#BFDBFE' }}
+                onPress={() => {
+                  if (Platform.OS === 'web') window.open(getImageUrl(profileData.resumeUrl), '_blank');
+                  else Alert.alert('Resume Link', getImageUrl(profileData.resumeUrl));
+                }}
+              >
+                <Ionicons name="document-text" size={15} color="#003366" style={{ marginRight: 6 }} />
+                <Text style={{ color: '#003366', fontWeight: '700', fontSize: 12.5 }}>
+                  {profileData.resumeFileName || 'View Resume (CV)'}
                 </Text>
               </TouchableOpacity>
             ) : null}
@@ -3002,6 +3027,167 @@ const DEFAULT_TAGGED_POSTS = [];
               </View>
               <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
             </TouchableOpacity>
+
+            {/* Contact Info (Mobile / WhatsApp Number) */}
+            <View style={{ marginHorizontal: 16, marginTop: 14 }}>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text, marginBottom: 6 }}>Mobile / WhatsApp Number</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <TouchableOpacity
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    paddingHorizontal: 10,
+                    height: 46,
+                    minWidth: 115,
+                    justifyContent: 'space-between',
+                    backgroundColor: isDarkMode ? '#262626' : '#FAFAFA',
+                    borderWidth: 1,
+                    borderColor: theme.border,
+                    borderRadius: 10
+                  }}
+                  onPress={() => setCountryPickerModalVisible(true)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>
+                    {editCountryCode || '+91'} ({COUNTRY_CODES.find(c => c.code === (editCountryCode || '+91'))?.short || 'IN'})
+                  </Text>
+                  <Ionicons name="chevron-down" size={16} color="#64748B" />
+                </TouchableOpacity>
+                <TextInput
+                  style={{
+                    flex: 1,
+                    height: 46,
+                    backgroundColor: isDarkMode ? '#262626' : '#FAFAFA',
+                    borderWidth: 1,
+                    borderColor: theme.border,
+                    borderRadius: 10,
+                    paddingHorizontal: 14,
+                    fontSize: 14,
+                    color: theme.text,
+                    fontWeight: '600'
+                  }}
+                  placeholder="Enter phone number"
+                  placeholderTextColor={theme.textMuted}
+                  keyboardType="phone-pad"
+                  value={editPhone}
+                  onChangeText={setEditPhone}
+                />
+              </View>
+            </View>
+
+            {/* ─── RESUME & CAREER PROFILE SECTION ─── */}
+            <View style={{ marginHorizontal: 16, marginTop: 16, padding: 16, backgroundColor: isDarkMode ? '#1E1E1E' : '#F8FAFC', borderRadius: 14, borderWidth: 1, borderColor: theme.border }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+                <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#EFF6FF', justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
+                  <Ionicons name="document-text" size={20} color="#003366" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text }}>Resume & Career Profile</Text>
+                  <Text style={{ fontSize: 12, color: theme.textSecondary }}>Showcase your CV in the Alumni Resume Book</Text>
+                </View>
+              </View>
+
+              {/* Current Resume Badge */}
+              {editResumeUrl ? (
+                <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: isDarkMode ? '#262626' : '#FFFFFF', padding: 12, borderRadius: 12, borderWidth: 1, borderColor: theme.border, marginBottom: 14 }}>
+                  <Ionicons name="document-attach" size={22} color="#003366" style={{ marginRight: 10 }} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }} numberOfLines={1}>
+                      {editResumeFileName || 'My_Resume.pdf'}
+                    </Text>
+                    <Text style={{ fontSize: 11, color: '#10B981', fontWeight: '600', marginTop: 2 }}>✓ Resume attached</Text>
+                  </View>
+                  <TouchableOpacity 
+                    style={{ paddingHorizontal: 10, paddingVertical: 6, backgroundColor: '#EFF6FF', borderRadius: 8, marginRight: 6 }}
+                    onPress={() => {
+                      if (Platform.OS === 'web') {
+                        window.open(getImageUrl(editResumeUrl), '_blank');
+                      } else {
+                        Alert.alert('Resume Link', getImageUrl(editResumeUrl));
+                      }
+                    }}
+                  >
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: '#003366' }}>View</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={{ padding: 6 }}
+                    onPress={handleRemoveResume}
+                  >
+                    <Ionicons name="trash-outline" size={18} color="#EF4444" />
+                  </TouchableOpacity>
+                </View>
+              ) : null}
+
+              {/* Upload Resume Button */}
+              <TouchableOpacity 
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: '#003366',
+                  paddingVertical: 12,
+                  borderRadius: 10,
+                  marginBottom: 14
+                }}
+                onPress={handlePickResume}
+                disabled={uploadingResume}
+                activeOpacity={0.8}
+              >
+                {uploadingResume ? (
+                  <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 14 }}>Uploading Resume...</Text>
+                ) : (
+                  <>
+                    <Ionicons name="cloud-upload-outline" size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
+                    <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 14 }}>
+                      {editResumeUrl ? 'Replace Resume (PDF/DOC)' : 'Upload Resume (PDF/DOC)'}
+                    </Text>
+                  </>
+                )}
+              </TouchableOpacity>
+
+              {/* Domain / Specialization */}
+              <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text, marginTop: 4, marginBottom: 4 }}>Domain / Industry Specialization</Text>
+              <TextInput 
+                style={{ backgroundColor: isDarkMode ? '#262626' : '#FFFFFF', borderWidth: 1, borderColor: theme.border, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8, fontSize: 13.5, color: theme.text }} 
+                placeholder="e.g. Software Engineering, Data Science, Product" 
+                placeholderTextColor="#94A3B8"
+                value={editDomain}
+                onChangeText={setEditDomain}
+              />
+
+              {/* Experience */}
+              <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text, marginTop: 10, marginBottom: 4 }}>Years of Experience</Text>
+              <TextInput 
+                style={{ backgroundColor: isDarkMode ? '#262626' : '#FFFFFF', borderWidth: 1, borderColor: theme.border, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8, fontSize: 13.5, color: theme.text }} 
+                placeholder="e.g. 3+ years, Fresher, 5 years" 
+                placeholderTextColor="#94A3B8"
+                value={editExperienceYears}
+                onChangeText={setEditExperienceYears}
+              />
+
+              {/* Skills */}
+              <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text, marginTop: 10, marginBottom: 4 }}>Key Skills (comma separated)</Text>
+              <TextInput 
+                style={{ backgroundColor: isDarkMode ? '#262626' : '#FFFFFF', borderWidth: 1, borderColor: theme.border, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8, fontSize: 13.5, color: theme.text }} 
+                placeholder="e.g. React Native, Node.js, Python, AWS" 
+                placeholderTextColor="#94A3B8"
+                value={editSkills}
+                onChangeText={setEditSkills}
+              />
+
+              {/* Job Seeker Resume Book Toggle */}
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 14, paddingTop: 12, borderTopWidth: 1, borderTopColor: theme.border }}>
+                <View style={{ flex: 1, marginRight: 10 }}>
+                  <Text style={{ fontSize: 13.5, fontWeight: '700', color: theme.text }}>Include in Resume Book</Text>
+                  <Text style={{ fontSize: 11.5, color: theme.textSecondary, marginTop: 2 }}>Allow admins and recruiters to discover and share your resume</Text>
+                </View>
+                <Switch
+                  value={editIsJobSeeker}
+                  onValueChange={setEditIsJobSeeker}
+                  trackColor={{ false: '#767577', true: '#003366' }}
+                />
+              </View>
+            </View>
 
             {/* Show Threads Badge (Matching Image 3) */}
             <View style={{ marginHorizontal: 16, marginTop: 14, backgroundColor: isDarkMode ? '#262626' : '#FAFAFA', borderRadius: 10, borderWidth: 1, borderColor: theme.border, padding: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
