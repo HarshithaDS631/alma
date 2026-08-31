@@ -4,7 +4,7 @@ import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
-import { uploadFile } from '../services/uploadService';
+import { uploadFile, getImageUrl } from '../services/uploadService';
 import { createPost } from '../services/postService';
 import { getFollowers, getFollowing } from '../services/authService';
 import getInitials from '../lib/getInitials';
@@ -233,8 +233,15 @@ const PostCreationScreen = ({ navigation }) => {
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
               {/* User Header */}
               <View style={styles.userSection}>
-                <View style={styles.avatar}>
-                  <Text style={styles.avatarText}>{getInitials(currentUser?.name)}</Text>
+                <View style={[styles.avatar, { overflow: 'hidden', justifyContent: 'center', alignItems: 'center' }]}>
+                  {(currentUser?.avatar_url || currentUser?.profilePicture) ? (
+                    <Image 
+                      source={{ uri: getImageUrl(currentUser.avatar_url || currentUser.profilePicture) }} 
+                      style={{ width: '100%', height: '100%', borderRadius: 20 }} 
+                    />
+                  ) : (
+                    <Text style={styles.avatarText}>{getInitials(currentUser?.name)}</Text>
+                  )}
                 </View>
                 <View>
                   <Text style={styles.userName}>{currentUser?.name || 'User'}</Text>

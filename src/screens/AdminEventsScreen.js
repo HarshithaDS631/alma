@@ -1,8 +1,11 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { useIsFocused } from '@react-navigation/native';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, TextInput, StatusBar, Alert, Modal, FlatList, Platform } from 'react-native';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { useIsFocused, useFocusEffect } from '@react-navigation/native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, TextInput, StatusBar, Alert, Modal, FlatList, Platform, Image } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
+import { getImageUrl } from '../services/uploadService';
+import getInitials from '../lib/getInitials';
 
 const AdminEventsScreen = ({ navigation, route }) => {
   const { theme, isDarkMode } = useTheme();
@@ -17,6 +20,8 @@ const AdminEventsScreen = ({ navigation, route }) => {
   const [commentModalEvent, setCommentModalEvent] = useState(null);
   const [newComment, setNewComment] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [userName, setUserName] = useState('');
+  const [userAvatarUrl, setUserAvatarUrl] = useState('');
 
   // Event form states
   const [eventTitle, setEventTitle] = useState('');
@@ -26,6 +31,19 @@ const AdminEventsScreen = ({ navigation, route }) => {
   const [eventAttachment, setEventAttachment] = useState(null);
 
   const [eventList, setEventList] = useState([]);
+
+  useFocusEffect(
+    useCallback(() => {
+      AsyncStorage.getItem('userInfo').then(str => {
+        if (str) {
+          const u = JSON.parse(str);
+          if (u?.name) setUserName(u.name);
+          const rawAv = u?.avatar_url || u?.profilePicture;
+          if (rawAv) setUserAvatarUrl(getImageUrl(rawAv));
+        }
+      }).catch(() => {});
+    }, [])
+  );
 
   // Sync selected institution with global value when screen is focused
   useEffect(() => {
@@ -317,8 +335,19 @@ const AdminEventsScreen = ({ navigation, route }) => {
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={[styles.headerAvatar, isSuperAdmin && { backgroundColor: '#D97706' }]} activeOpacity={0.8} onPress={() => navigation && navigation.navigate('AdminProfile')}>
-          <Text style={styles.headerAvatarText}>{isSuperAdmin ? 'SA' : 'AD'}</Text>
+        <TouchableOpacity 
+          style={[styles.headerAvatar, { overflow: 'hidden', justifyContent: 'center', alignItems: 'center' }, isSuperAdmin && { backgroundColor: '#D97706' }]} 
+          activeOpacity={0.8} 
+          onPress={() => navigation && navigation.navigate('AdminProfile')}
+        >
+          {userAvatarUrl ? (
+            <Image 
+              source={{ uri: userAvatarUrl }} 
+              style={{ width: '100%', height: '100%', borderRadius: 18 }} 
+            />
+          ) : (
+            <Text style={styles.headerAvatarText}>{isSuperAdmin ? 'SA' : (userName ? getInitials(userName, 'AD') : 'AD')}</Text>
+          )}
         </TouchableOpacity>
         <View style={styles.searchBar}>
           <Ionicons name="search-outline" size={18} color="#94A3B8" style={{ marginRight: 6 }} />

@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { useIsFocused } from '@react-navigation/native';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { useIsFocused, useFocusEffect } from '@react-navigation/native';
 import {
   View,
   Text,
@@ -19,10 +19,13 @@ import {
   Share,
   useWindowDimensions,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { getPosts, getEvents } from '../services/authService';
 import { getEmailStats } from '../services/adminService';
+import { getImageUrl } from '../services/uploadService';
+import getInitials from '../lib/getInitials';
 
 // ==========================================
 // DUMMY DATABASE / SEED DATA
@@ -148,7 +151,20 @@ const SuperAdminDashboardScreen = ({ navigation, route }) => {
   const initialModule = route?.params?.initialModule ?? null;
   const [activeModule, setActiveModule] = useState(initialModule);
   const [selectedInstitution, setSelectedInstitution] = useState(global.selectedInstitution || 'All');
+  const [userAvatarUrl, setUserAvatarUrl] = useState('');
   const isFocused = useIsFocused();
+
+  useFocusEffect(
+    useCallback(() => {
+      AsyncStorage.getItem('userInfo').then(str => {
+        if (str) {
+          const u = JSON.parse(str);
+          const rawAv = u?.avatar_url || u?.profilePicture;
+          if (rawAv) setUserAvatarUrl(getImageUrl(rawAv));
+        }
+      }).catch(() => {});
+    }, [])
+  );
 
   // Sync selected institution with global value when screen is focused
   useEffect(() => {
@@ -2672,8 +2688,16 @@ const SuperAdminDashboardScreen = ({ navigation, route }) => {
             </View>
           ) : (
             <View style={styles.headerAdminStyle}>
-              <TouchableOpacity style={styles.headerAvatarAdminStyle} activeOpacity={0.8} onPress={() => navigation && navigation.navigate('AdminProfile')}>
-                <Text style={styles.headerAvatarTextAdminStyle}>SA</Text>
+              <TouchableOpacity 
+                style={[styles.headerAvatarAdminStyle, { overflow: 'hidden', justifyContent: 'center', alignItems: 'center' }]} 
+                activeOpacity={0.8} 
+                onPress={() => navigation && navigation.navigate('AdminProfile')}
+              >
+                {userAvatarUrl ? (
+                  <Image source={{ uri: userAvatarUrl }} style={{ width: '100%', height: '100%', borderRadius: 18 }} />
+                ) : (
+                  <Text style={styles.headerAvatarTextAdminStyle}>SA</Text>
+                )}
               </TouchableOpacity>
               {activeModule === 'dashboard_home' ? (
                 <View style={{ flex: 1, justifyContent: 'center' }}>

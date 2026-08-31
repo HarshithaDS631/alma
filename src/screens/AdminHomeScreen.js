@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
   Text,
@@ -22,7 +23,7 @@ import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { getPosts, createPost, likePost, deletePost } from '../services/postService';
-import { uploadFile } from '../services/uploadService';
+import { uploadFile, getImageUrl } from '../services/uploadService';
 import getInitials from '../lib/getInitials';
 
 const AdminHomeScreen = ({ navigation }) => {
@@ -38,6 +39,7 @@ const AdminHomeScreen = ({ navigation }) => {
   const [likedPosts, setLikedPosts] = useState({});
   const [bookmarkedPosts, setBookmarkedPosts] = useState({});
   const [followedUsers, setFollowedUsers] = useState({});
+  const [userAvatarUrl, setUserAvatarUrl] = useState('');
   const [followedSuggestions, setFollowedSuggestions] = useState({});
   const [searchText, setSearchText] = useState('');
   const [userInstitution, setUserInstitution] = useState('Mediacell');
@@ -115,12 +117,30 @@ const AdminHomeScreen = ({ navigation }) => {
           if (userInfo.department || userInfo.branch) {
             setUserDepartment(userInfo.department || userInfo.branch);
           }
+          const rawAv = userInfo.avatar_url || userInfo.profilePicture;
+          if (rawAv) setUserAvatarUrl(getImageUrl(rawAv));
         }
       } catch (_) {}
     };
     fetchUserInfo();
     fetchPosts();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      AsyncStorage.getItem('userInfo').then(userInfoString => {
+        if (userInfoString) {
+          const userInfo = JSON.parse(userInfoString);
+          if (userInfo.name) {
+            setUserName(userInfo.name);
+            setUserInitials(getInitials(userInfo.name));
+          }
+          const rawAv = userInfo.avatar_url || userInfo.profilePicture;
+          if (rawAv) setUserAvatarUrl(getImageUrl(rawAv));
+        }
+      }).catch(() => {});
+    }, [])
+  );
 
   const handlePickImage = async () => {
     try {
@@ -310,11 +330,18 @@ const AdminHomeScreen = ({ navigation }) => {
         <View style={styles.header}>
           {/* Left – User avatar */}
           <TouchableOpacity
-            style={styles.headerAvatar}
+            style={[styles.headerAvatar, { overflow: 'hidden', backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center' }]}
             activeOpacity={0.8}
             onPress={() => navigation.navigate('AdminProfile')}
           >
-            <Text style={styles.headerAvatarText}>{userInitials}</Text>
+            {userAvatarUrl ? (
+              <Image 
+                source={{ uri: userAvatarUrl }} 
+                style={{ width: '100%', height: '100%', borderRadius: 18 }} 
+              />
+            ) : (
+              <Text style={styles.headerAvatarText}>{userInitials}</Text>
+            )}
           </TouchableOpacity>
 
           {/* Center – Search bar */}

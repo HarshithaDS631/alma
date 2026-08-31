@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -12,12 +12,18 @@ import {
   FlatList,
   Modal,
   ActivityIndicator,
-  useWindowDimensions, Platform} from 'react-native';
+  useWindowDimensions, 
+  Platform,
+  Image
+} from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AdminMetricsScreen from './AdminMetricsScreen';
 import { getActivityLogs, getEmailStats } from '../services/adminService';
+import { getImageUrl } from '../services/uploadService';
+import getInitials from '../lib/getInitials';
 
 // ==========================================
 // DUMMY DATA FOR THE NEW MODULES
@@ -56,6 +62,8 @@ export default function AdminPanelScreen({ navigation }) {
   // Admin User Info
   const [adminEmail, setAdminEmail] = useState('web.rsst@rvei.edu.in');
   const [adminInstitution, setAdminInstitution] = useState('Mediacell');
+  const [userName, setUserName] = useState('Admin');
+  const [userAvatarUrl, setUserAvatarUrl] = useState('');
 
   // Module States
   const [spamReports, setSpamReports] = useState(INITIAL_SPAM_REPORTS);
@@ -112,6 +120,9 @@ export default function AdminPanelScreen({ navigation }) {
             (email.toLowerCase().includes('mediacell') || email.toLowerCase().includes('web.rsst') ? 'Mediacell' : 'Mediacell');
           setAdminEmail(email);
           setAdminInstitution(inst);
+          if (parsed.name) setUserName(parsed.name);
+          const rawAv = parsed.avatar_url || parsed.profilePicture;
+          if (rawAv) setUserAvatarUrl(getImageUrl(rawAv));
           setMailSubject(`Welcome to the ${inst} Alumni Community!`);
           setMailBody(`Hi {alumni_name},\n\nWelcome to the official alumni platform of ${inst}! We are thrilled to have you join us. Stay connected with fellow batchmates, share job opportunities, and engage in mentorship programs.\n\nWarm regards,\n${inst} Alumni Association`);
         }
@@ -119,6 +130,19 @@ export default function AdminPanelScreen({ navigation }) {
     };
     loadAdminDetails();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      AsyncStorage.getItem('userInfo').then(str => {
+        if (str) {
+          const parsed = JSON.parse(str);
+          if (parsed.name) setUserName(parsed.name);
+          const rawAv = parsed.avatar_url || parsed.profilePicture;
+          if (rawAv) setUserAvatarUrl(getImageUrl(rawAv));
+        }
+      }).catch(() => {});
+    }, [])
+  );
 
   const fetchRealEmailStats = async (tab = emailTab, start = startDate, end = endDate) => {
     setLoadingEmailStats(true);
@@ -973,8 +997,19 @@ export default function AdminPanelScreen({ navigation }) {
             <Ionicons name="arrow-back" size={24} color="#003366" />
           </TouchableOpacity>
         ) : (
-          <TouchableOpacity style={styles.headerAvatar} activeOpacity={0.8} onPress={() => navigation.navigate('AdminProfile')}>
-            <Text style={styles.headerAvatarText}>AD</Text>
+          <TouchableOpacity 
+            style={[styles.headerAvatar, { overflow: 'hidden', backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center' }]} 
+            activeOpacity={0.8} 
+            onPress={() => navigation.navigate('AdminProfile')}
+          >
+            {userAvatarUrl ? (
+              <Image 
+                source={{ uri: userAvatarUrl }} 
+                style={{ width: '100%', height: '100%', borderRadius: 18 }} 
+              />
+            ) : (
+              <Text style={styles.headerAvatarText}>{getInitials(userName, 'AD')}</Text>
+            )}
           </TouchableOpacity>
         )}
         <View style={styles.headerCenter}>

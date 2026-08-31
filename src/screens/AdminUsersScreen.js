@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { useIsFocused } from '@react-navigation/native';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { useIsFocused, useFocusEffect } from '@react-navigation/native';
 import {
   View,
   Text,
@@ -14,10 +14,12 @@ import {
   Platform,
   RefreshControl,
   Alert,
+  Image
 } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { getPendingUsers, approveUser, rejectUser } from '../services/adminService';
+import { getImageUrl } from '../services/uploadService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sendWelcomeEmail } from '../lib/sendgrid';
 import getInitials from '../lib/getInitials';
@@ -80,6 +82,8 @@ const AdminUsersScreen = ({ navigation, route }) => {
   const [sheetMatches, setSheetMatches] = useState({});
   const [checkingMatch, setCheckingMatch] = useState({});
   const [refreshing, setRefreshing] = useState(false);
+  const [userName, setUserName] = useState('');
+  const [userAvatarUrl, setUserAvatarUrl] = useState('');
 
   useEffect(() => {
     const loadAdminInfo = async () => {
@@ -93,6 +97,9 @@ const AdminUsersScreen = ({ navigation, route }) => {
             setAdminInstitution(info.institution);
             setSelectedInstitution(info.institution);
           }
+          if (info?.name) setUserName(info.name);
+          const rawAv = info?.avatar_url || info?.profilePicture;
+          if (rawAv) setUserAvatarUrl(getImageUrl(rawAv));
         }
       } catch (err) {
         console.error('Error loading admin info:', err);
@@ -100,6 +107,19 @@ const AdminUsersScreen = ({ navigation, route }) => {
     };
     loadAdminInfo();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      AsyncStorage.getItem('userInfo').then(infoStr => {
+        if (infoStr) {
+          const info = JSON.parse(infoStr);
+          if (info?.name) setUserName(info.name);
+          const rawAv = info?.avatar_url || info?.profilePicture;
+          if (rawAv) setUserAvatarUrl(getImageUrl(rawAv));
+        }
+      }).catch(() => {});
+    }, [])
+  );
 
   const fetchPendingUsers = async () => {
     try {
@@ -317,10 +337,17 @@ const AdminUsersScreen = ({ navigation, route }) => {
   const renderHeader = () => (
     <View style={styles.header}>
       <TouchableOpacity
-        style={[styles.headerAvatar, isSuperAdmin && { backgroundColor: '#D97706' }]}
+        style={[styles.headerAvatar, { overflow: 'hidden', justifyContent: 'center', alignItems: 'center' }, isSuperAdmin && { backgroundColor: '#D97706' }]}
         onPress={() => navigation && navigation.navigate('AdminProfile')}
       >
-        <Text style={styles.headerAvatarText}>{isSuperAdmin ? 'SA' : 'AD'}</Text>
+        {userAvatarUrl ? (
+          <Image 
+            source={{ uri: userAvatarUrl }} 
+            style={{ width: '100%', height: '100%', borderRadius: 18 }} 
+          />
+        ) : (
+          <Text style={styles.headerAvatarText}>{isSuperAdmin ? 'SA' : (userName ? getInitials(userName, 'AD') : 'AD')}</Text>
+        )}
       </TouchableOpacity>
       <View style={styles.headerSearchContainer}>
         <Ionicons name="search-outline" size={18} color="#94A3B8" style={styles.headerSearchIcon} />

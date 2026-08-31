@@ -17,7 +17,7 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
-import { getImageUrl } from '../services/api';
+import { getImageUrl } from '../services/uploadService';
 import { 
   getSuggestions, 
   getUsers, 
@@ -39,6 +39,7 @@ const DirectoryScreen = ({ navigation, route }) => {
   const styles = getStyles(theme);
   const { isAlumni, isAdmin, isSuperAdmin, isAdminOrSuper, userRole, userInstitution } = useUserRole();
 
+  const [currentUser, setCurrentUser] = useState(null);
   const [activeTab, setActiveTab] = useState(route?.params?.tab || 'directory');
   const [searchQuery, setSearchQuery] = useState('');
   const [requests, setRequests] = useState([]);
@@ -50,6 +51,14 @@ const DirectoryScreen = ({ navigation, route }) => {
       setActiveTab(route.params.tab);
     }
   }, [route?.params?.tab]);
+
+  useFocusEffect(
+    useCallback(() => {
+      AsyncStorage.getItem('userInfo').then(str => {
+        if (str) setCurrentUser(JSON.parse(str));
+      }).catch(() => {});
+    }, [])
+  );
 
   const fetchConnectionRequests = async () => {
     try {
@@ -695,11 +704,20 @@ const DirectoryScreen = ({ navigation, route }) => {
       {/* ───── Header ───── */}
       <View style={styles.header}>
         <TouchableOpacity 
-          style={styles.headerAvatar} 
+          style={[styles.headerAvatar, { overflow: 'hidden', backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center' }]} 
           activeOpacity={0.7}
           onPress={() => navigation.navigate('Profile')}
         >
-          <Ionicons name="person" size={18} color="#FFFFFF" />
+          {(currentUser?.avatar_url || currentUser?.profilePicture) ? (
+            <Image 
+              source={{ uri: getImageUrl(currentUser.avatar_url || currentUser.profilePicture) }} 
+              style={{ width: '100%', height: '100%', borderRadius: 17 }} 
+            />
+          ) : (
+            <Text style={{ fontSize: 13, fontWeight: '700', color: '#FFFFFF' }}>
+              {getInitials(currentUser?.name, 'AL')}
+            </Text>
+          )}
         </TouchableOpacity>
 
         <View style={styles.searchBar}>

@@ -3,8 +3,10 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, use
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 import { getPosts, createPost, reportItem } from '../services/postService';
-import { blockUser, getSuggestions, getEvents, getFollowing, toggleFollowUser } from '../services/authService';
+import { blockUser, getSuggestions, getEvents, getFollowing, toggleFollowUser, getProfile } from '../services/authService';
+import { getImageUrl } from '../services/uploadService';
 import getInitials from '../lib/getInitials';
 
 const EngageScreen = ({ navigation }) => {
@@ -439,11 +441,18 @@ const EngageScreen = ({ navigation }) => {
         <View style={styles.header}>
           {/* Left – User avatar */}
           <TouchableOpacity
-            style={styles.headerAvatar}
+            style={[styles.headerAvatar, { overflow: 'hidden', backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center' }]}
             activeOpacity={0.8}
             onPress={() => navigation.navigate('Profile')}
           >
-            <Text style={styles.headerAvatarText}>{getInitials(currentUser?.name, 'AL')}</Text>
+            {(currentUser?.avatar_url || currentUser?.profilePicture) ? (
+              <Image 
+                source={{ uri: getImageUrl(currentUser.avatar_url || currentUser.profilePicture) }} 
+                style={{ width: '100%', height: '100%', borderRadius: 17 }} 
+              />
+            ) : (
+              <Text style={styles.headerAvatarText}>{getInitials(currentUser?.name, 'AL')}</Text>
+            )}
           </TouchableOpacity>
 
           {/* Center – Search bar */}

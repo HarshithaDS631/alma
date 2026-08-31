@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, StatusBar, ScrollView, TextInput, Platform } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, StatusBar, ScrollView, TextInput, Platform, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
+import { getImageUrl } from '../services/uploadService';
 import useUserRole from '../hooks/useUserRole';
 import getInitials from '../lib/getInitials';
 
@@ -12,6 +14,7 @@ const ContributeScreen = ({ navigation }) => {
   const { isAlumni, isAdmin, isSuperAdmin, isAdminOrSuper, userRole } = useUserRole();
 
   const [userInitials, setUserInitials] = useState('MA');
+  const [userAvatarUrl, setUserAvatarUrl] = useState('');
 
   useEffect(() => {
     const loadUser = async () => {
@@ -22,11 +25,26 @@ const ContributeScreen = ({ navigation }) => {
           if (u?.name) {
             setUserInitials(getInitials(u.name));
           }
+          const rawAv = u?.avatar_url || u?.profilePicture;
+          if (rawAv) setUserAvatarUrl(getImageUrl(rawAv));
         }
       } catch (e) {}
     };
     loadUser();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      AsyncStorage.getItem('userInfo').then(userInfoStr => {
+        if (userInfoStr) {
+          const u = JSON.parse(userInfoStr);
+          if (u?.name) setUserInitials(getInitials(u.name));
+          const rawAv = u?.avatar_url || u?.profilePicture;
+          if (rawAv) setUserAvatarUrl(getImageUrl(rawAv));
+        }
+      }).catch(() => {});
+    }, [])
+  );
 
   // Admin/Super Admin: 'review' | 'support'; Alumni: 'mentorship' | 'support'
   const [activeTab, setActiveTab] = useState('mentorship');
@@ -267,8 +285,19 @@ const ContributeScreen = ({ navigation }) => {
       
       {/* Header exactly like Dashboard/Jobs flow */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.headerAvatar} activeOpacity={0.8} onPress={() => navigation.navigate('Profile')}>
-          <Text style={styles.headerAvatarText}>{userInitials}</Text>
+        <TouchableOpacity 
+          style={[styles.headerAvatar, { overflow: 'hidden', backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center' }]} 
+          activeOpacity={0.8} 
+          onPress={() => navigation.navigate('Profile')}
+        >
+          {userAvatarUrl ? (
+            <Image 
+              source={{ uri: userAvatarUrl }} 
+              style={{ width: '100%', height: '100%', borderRadius: 17 }} 
+            />
+          ) : (
+            <Text style={styles.headerAvatarText}>{userInitials}</Text>
+          )}
         </TouchableOpacity>
 
         <View style={styles.searchBar}>

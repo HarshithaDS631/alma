@@ -355,6 +355,18 @@ const DashboardScreen = ({ navigation }) => {
     fetchUserInfo();
   }, []);
 
+  useFocusEffect(
+    useCallback(() => {
+      AsyncStorage.getItem('userInfo').then(str => {
+        if (str) {
+          const u = JSON.parse(str);
+          setCurrentUser(u);
+          if (u.name) setUserName(u.name);
+        }
+      }).catch(() => {});
+    }, [])
+  );
+
   // Real-time WebSocket synchronization across mobile & web apps
   useEffect(() => {
     const userId = currentUser?._id || currentUser?.id;
