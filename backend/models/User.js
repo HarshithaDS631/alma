@@ -19,6 +19,8 @@ const userSchema = new mongoose.Schema({
     linkedin: { type: String },
     avatar_url: { type: String },
     dateOfBirth: { type: Date },
+    phone: { type: String, default: '' },
+    countryCode: { type: String, default: '+91' },
     role: { type: String, enum: ['Alumni', 'Admin', 'Super Admin'], default: 'Alumni' },
     is_approved: { type: Boolean, default: false },
     isVerifiedByMediacell: { type: Boolean, default: false },

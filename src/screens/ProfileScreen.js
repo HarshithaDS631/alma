@@ -55,6 +55,45 @@ const BRANCHES_LIST = [
 
 const BATCH_YEARS_LIST = Array.from({ length: 61 }, (_, i) => String(2030 - i));
 
+const COUNTRY_CODES = [
+  { code: '+91', country: 'India', flag: '🇮🇳' },
+  { code: '+1', country: 'United States / Canada', flag: '🇺🇸' },
+  { code: '+44', country: 'United Kingdom', flag: '🇬🇧' },
+  { code: '+971', country: 'United Arab Emirates', flag: '🇦🇪' },
+  { code: '+65', country: 'Singapore', flag: '🇸🇬' },
+  { code: '+61', country: 'Australia', flag: '🇦🇺' },
+  { code: '+49', country: 'Germany', flag: '🇩🇪' },
+  { code: '+33', country: 'France', flag: '🇫🇷' },
+  { code: '+81', country: 'Japan', flag: '🇯🇵' },
+  { code: '+966', country: 'Saudi Arabia', flag: '🇸🇦' },
+  { code: '+974', country: 'Qatar', flag: '🇶🇦' },
+  { code: '+968', country: 'Oman', flag: '🇴🇲' },
+  { code: '+965', country: 'Kuwait', flag: '🇰🇼' },
+  { code: '+973', country: 'Bahrain', flag: '🇧🇭' },
+  { code: '+60', country: 'Malaysia', flag: '🇲🇾' },
+  { code: '+41', country: 'Switzerland', flag: '🇨🇭' },
+  { code: '+31', country: 'Netherlands', flag: '🇳🇱' },
+  { code: '+46', country: 'Sweden', flag: '🇸🇪' },
+  { code: '+353', country: 'Ireland', flag: '🇮🇪' },
+  { code: '+64', country: 'New Zealand', flag: '🇳🇿' },
+  { code: '+27', country: 'South Africa', flag: '🇿🇦' },
+  { code: '+55', country: 'Brazil', flag: '🇧🇷' },
+  { code: '+86', country: 'China', flag: '🇨🇳' },
+  { code: '+82', country: 'South Korea', flag: '🇰🇷' },
+  { code: '+39', country: 'Italy', flag: '🇮🇹' },
+  { code: '+34', country: 'Spain', flag: '🇪🇸' },
+  { code: '+52', country: 'Mexico', flag: '🇲🇽' },
+  { code: '+62', country: 'Indonesia', flag: '🇮🇩' },
+  { code: '+63', country: 'Philippines', flag: '🇵🇭' },
+  { code: '+92', country: 'Pakistan', flag: '🇵🇰' },
+  { code: '+880', country: 'Bangladesh', flag: '🇧🇩' },
+  { code: '+977', country: 'Nepal', flag: '🇳🇵' },
+  { code: '+94', country: 'Sri Lanka', flag: '🇱🇰' },
+  { code: '+234', country: 'Nigeria', flag: '🇳🇬' },
+  { code: '+254', country: 'Kenya', flag: '🇰🇪' },
+  { code: '+20', country: 'Egypt', flag: '🇪🇬' }
+];
+
 const ProfileScreen = ({ navigation }) => {
   const { theme, isDarkMode } = useTheme();
   const styles = getStyles(theme);
@@ -81,6 +120,10 @@ const DEFAULT_CONNECTIONS = [];
   const [profileData, setProfileData] = useState({
     username: '',
     name: '',
+    email: '',
+    phone: '',
+    countryCode: '+91',
+    dateOfBirth: '',
     branch: '',
     batch: '',
     bio: '',
@@ -117,10 +160,15 @@ const DEFAULT_CONNECTIONS = [];
           const safeEmail = (cached.email && typeof cached.email === 'string') ? cached.email : '';
           const uName = cached.name || (safeEmail ? safeEmail.split('@')[0] : 'Alumni Member');
           const uHandle = cached.username || (cached.name ? cached.name.toLowerCase().replace(/\s+/g, '_') : (safeEmail ? safeEmail.split('@')[0] : 'alumni'));
+          const rawDob = cached.dateOfBirth ? (typeof cached.dateOfBirth === 'string' ? cached.dateOfBirth.substring(0, 10) : new Date(cached.dateOfBirth).toISOString().substring(0, 10)) : '';
           setProfileData(prev => ({
             ...prev,
             name: uName,
             username: uName, // Keep full user display name at top
+            email: safeEmail,
+            phone: cached.phone || '',
+            countryCode: cached.countryCode || '+91',
+            dateOfBirth: rawDob,
             branch: cached.department || cached.branch || 'Alumni Network',
             batch: cached.batchYear || cached.batch_year || '',
             bio: cached.bio || '',
@@ -143,6 +191,9 @@ const DEFAULT_CONNECTIONS = [];
           setEditDomain(cached.domain || '');
           setEditExperienceYears(cached.experienceYears || '');
           setEditSkills(Array.isArray(cached.skills) ? cached.skills.join(', ') : (cached.skills || ''));
+          setEditPhone(cached.phone || '');
+          setEditCountryCode(cached.countryCode || '+91');
+          if (rawDob) setEditDob(rawDob);
 
           if (cachedProfile.userPosts && Array.isArray(cachedProfile.userPosts) && cachedProfile.userPosts.length > 0) {
             setUserPosts(cachedProfile.userPosts);
@@ -241,10 +292,15 @@ const DEFAULT_TAGGED_POSTS = [];
             const uName = activeUser.name || (safeEmail ? safeEmail.split('@')[0] : 'Alumni Member');
             const uHandle = activeUser.username || (activeUser.name ? activeUser.name.toLowerCase().replace(/\s+/g, '_') : (safeEmail ? safeEmail.split('@')[0] : 'alumni'));
 
+            const rawDob = activeUser.dateOfBirth ? (typeof activeUser.dateOfBirth === 'string' ? activeUser.dateOfBirth.substring(0, 10) : new Date(activeUser.dateOfBirth).toISOString().substring(0, 10)) : '';
             setProfileData(prev => ({
               ...prev,
               name: uName,
               username: uName, // Display real name at top
+              email: safeEmail,
+              phone: activeUser.phone || '',
+              countryCode: activeUser.countryCode || '+91',
+              dateOfBirth: rawDob,
               branch: activeUser.department || activeUser.branch || 'Alumni Network',
               batch: activeUser.batchYear || activeUser.batch_year || '',
               bio: activeUser.bio || '',
@@ -264,6 +320,9 @@ const DEFAULT_TAGGED_POSTS = [];
             setEditDomain(activeUser.domain || '');
             setEditExperienceYears(activeUser.experienceYears || '');
             setEditSkills(Array.isArray(activeUser.skills) ? activeUser.skills.join(', ') : (activeUser.skills || ''));
+            setEditPhone(activeUser.phone || '');
+            setEditCountryCode(activeUser.countryCode || '+91');
+            if (rawDob) setEditDob(rawDob);
 
             // 2. Fetch connections
             const [followersData, followingData] = await Promise.all([
@@ -461,11 +520,62 @@ const DEFAULT_TAGGED_POSTS = [];
   const [editExperienceYears, setEditExperienceYears] = useState(profileData.experienceYears || '');
   const [editSkills, setEditSkills] = useState(Array.isArray(profileData.skills) ? profileData.skills.join(', ') : (profileData.skills || ''));
   const [editIsJobSeeker, setEditIsJobSeeker] = useState(profileData.isJobSeeker ?? false);
-  const [uploadingResume, setUploadingResume] = useState(false);
+  const [editPhone, setEditPhone] = useState(profileData.phone || '');
+  const [editCountryCode, setEditCountryCode] = useState(profileData.countryCode || '+91');
+  const [contactModalVisible, setContactModalVisible] = useState(false);
+  const [countryPickerModalVisible, setCountryPickerModalVisible] = useState(false);
+  const [countrySearch, setCountrySearch] = useState('');
+  const [savingContact, setSavingContact] = useState(false);
   const [branchModalVisible, setBranchModalVisible] = useState(false);
   const [batchModalVisible, setBatchModalVisible] = useState(false);
   const [dobCalendarVisible, setDobCalendarVisible] = useState(false);
   const [branchSearch, setBranchSearch] = useState('');
+
+  const handleSaveContactInfo = async () => {
+    setSavingContact(true);
+    try {
+      await updateProfile({
+        phone: editPhone.trim(),
+        countryCode: editCountryCode
+      });
+      setProfileData(prev => ({
+        ...prev,
+        phone: editPhone.trim(),
+        countryCode: editCountryCode
+      }));
+      const cachedStr = await AsyncStorage.getItem('userInfo');
+      if (cachedStr) {
+        const cached = JSON.parse(cachedStr);
+        cached.phone = editPhone.trim();
+        cached.countryCode = editCountryCode;
+        await AsyncStorage.setItem('userInfo', JSON.stringify(cached));
+      }
+      setContactModalVisible(false);
+      if (Platform.OS === 'web') alert('Contact info updated successfully!');
+      else Alert.alert('Success', 'Contact info updated successfully!');
+    } catch (e) {
+      console.error('Error saving contact info:', e);
+      alert('Could not update contact info: ' + (e.message || 'Error'));
+    } finally {
+      setSavingContact(false);
+    }
+  };
+
+  const handleSaveDob = async (newDate) => {
+    setEditDob(newDate);
+    setProfileData(prev => ({ ...prev, dateOfBirth: newDate }));
+    try {
+      await updateProfile({ dateOfBirth: newDate });
+      const cachedStr = await AsyncStorage.getItem('userInfo');
+      if (cachedStr) {
+        const cached = JSON.parse(cachedStr);
+        cached.dateOfBirth = newDate;
+        await AsyncStorage.setItem('userInfo', JSON.stringify(cached));
+      }
+    } catch (e) {
+      console.error('Error saving DOB:', e);
+    }
+  };
 
   const handlePickResume = async () => {
     try {
@@ -634,6 +744,8 @@ const DEFAULT_TAGGED_POSTS = [];
         department: editBranch,
         batchYear: editBatch,
         linkedin: editLinkedin.trim(),
+        phone: editPhone.trim(),
+        countryCode: editCountryCode,
         avatar_url: editAvatarUrl || profileData.avatar_url,
         profilePicture: editAvatarUrl || profileData.avatar_url
       };
@@ -657,6 +769,8 @@ const DEFAULT_TAGGED_POSTS = [];
         branch: editBranch,
         batch: editBatch,
         linkedin: editLinkedin.trim(),
+        phone: editPhone.trim(),
+        countryCode: editCountryCode,
         avatar_url: editAvatarUrl,
         avatar: getInitials(editName)
       }));
@@ -1162,6 +1276,38 @@ const DEFAULT_TAGGED_POSTS = [];
                   onChangeText={setEditLinkedin}
                 />
 
+                <Text style={styles.editLabel}>Mobile / WhatsApp Number 📱</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                  <TouchableOpacity
+                    style={[
+                      styles.securityInput,
+                      {
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        paddingHorizontal: 12,
+                        minWidth: 105,
+                        justifyContent: 'space-between'
+                      }
+                    ]}
+                    onPress={() => setCountryPickerModalVisible(true)}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={{ fontSize: 14, marginRight: 4 }}>
+                      {COUNTRY_CODES.find(c => c.code === editCountryCode)?.flag || '🌐'} {editCountryCode}
+                    </Text>
+                    <Ionicons name="chevron-down" size={16} color="#64748B" />
+                  </TouchableOpacity>
+
+                  <TextInput
+                    style={[styles.securityInput, { flex: 1, fontSize: 14 }]}
+                    placeholder="Mobile Number"
+                    placeholderTextColor="#94A3B8"
+                    keyboardType="phone-pad"
+                    value={editPhone}
+                    onChangeText={setEditPhone}
+                  />
+                </View>
+
                 <Text style={styles.editLabel}>Date of Birth 🎂</Text>
                 {Platform.OS === 'web' ? (
                   <View style={[styles.securityInput, { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, position: 'relative' }]}>
@@ -1330,6 +1476,8 @@ const DEFAULT_TAGGED_POSTS = [];
                       batch: editBatch,
                       bio: editBio,
                       linkedin: editLinkedin,
+                      phone: editPhone,
+                      countryCode: editCountryCode,
                       avatar_url: editAvatarUrl,
                       dateOfBirth: editDob,
                       resumeUrl: editResumeUrl,
@@ -1349,6 +1497,8 @@ const DEFAULT_TAGGED_POSTS = [];
                           batch_year: editBatch,
                           bio: editBio,
                           linkedin: editLinkedin,
+                          phone: editPhone,
+                          countryCode: editCountryCode,
                           avatar_url: editAvatarUrl,
                           dateOfBirth: editDob,
                           resumeUrl: editResumeUrl,
@@ -1373,6 +1523,8 @@ const DEFAULT_TAGGED_POSTS = [];
                           cached.batch_year = editBatch;
                           cached.bio = editBio;
                           cached.linkedin = editLinkedin;
+                          cached.phone = editPhone;
+                          cached.countryCode = editCountryCode;
                           cached.dateOfBirth = editDob;
                           cached.resumeUrl = editResumeUrl;
                           cached.resumeFileName = editResumeFileName;
@@ -2474,11 +2626,11 @@ const DEFAULT_TAGGED_POSTS = [];
         </View>
       </Modal>
 
-      {/* Mobile Real-time DOB Calendar Picker Modal */}
+      {/* Interactive DOB Calendar Picker Modal */}
       <Modal visible={dobCalendarVisible} transparent animationType="slide" onRequestClose={() => setDobCalendarVisible(false)}>
         <View style={styles.modalOverlay}>
           <TouchableOpacity style={StyleSheet.absoluteFillObject} activeOpacity={1} onPress={() => setDobCalendarVisible(false)} />
-          <View style={[styles.modalContent, { paddingBottom: 24, zIndex: 10 }]}>
+          <View style={[styles.modalContent, { maxWidth: 440, paddingBottom: 24, zIndex: 10 }]}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Select Date of Birth 🎂</Text>
               <TouchableOpacity onPress={() => setDobCalendarVisible(false)}>
@@ -2486,23 +2638,208 @@ const DEFAULT_TAGGED_POSTS = [];
               </TouchableOpacity>
             </View>
 
-            <View style={{ padding: 16, alignItems: 'center' }}>
-              <Text style={{ fontSize: 13, color: '#64748B', marginBottom: 12 }}>Enter date formatted as YYYY-MM-DD</Text>
-              <TextInput
-                style={[styles.securityInput, { width: '100%', textAlign: 'center', fontSize: 18, fontWeight: '700', letterSpacing: 2 }]}
-                placeholder="YYYY-MM-DD"
-                placeholderTextColor="#94A3B8"
-                maxLength={10}
-                value={editDob}
-                onChangeText={setEditDob}
-              />
+            <View style={{ padding: 18, alignItems: 'center' }}>
+              <Text style={{ fontSize: 13, color: '#64748B', marginBottom: 14 }}>
+                {Platform.OS === 'web' ? 'Pick from calendar or enter YYYY-MM-DD' : 'Enter your date of birth (YYYY-MM-DD)'}
+              </Text>
+
+              {Platform.OS === 'web' ? (
+                <View style={[styles.securityInput, { width: '100%', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, height: 48, marginBottom: 14 }]}>
+                  <Ionicons name="calendar-sharp" size={20} color="#003366" style={{ marginRight: 10 }} />
+                  <input
+                    type="date"
+                    value={editDob}
+                    onChange={(e) => {
+                      setEditDob(e.target.value);
+                      handleSaveDob(e.target.value);
+                    }}
+                    style={{
+                      flex: 1,
+                      height: '100%',
+                      border: 'none',
+                      outline: 'none',
+                      background: 'transparent',
+                      color: theme.text,
+                      fontSize: '16px',
+                      fontWeight: '600',
+                      fontFamily: 'inherit',
+                      cursor: 'pointer'
+                    }}
+                  />
+                </View>
+              ) : (
+                <TextInput
+                  style={[styles.securityInput, { width: '100%', textAlign: 'center', fontSize: 18, fontWeight: '700', letterSpacing: 2, marginBottom: 14 }]}
+                  placeholder="YYYY-MM-DD"
+                  placeholderTextColor="#94A3B8"
+                  maxLength={10}
+                  value={editDob}
+                  onChangeText={setEditDob}
+                />
+              )}
+
               <TouchableOpacity
-                style={[styles.saveSettingsBtn, { width: '100%', marginTop: 16 }]}
-                onPress={() => setDobCalendarVisible(false)}
+                style={[styles.saveSettingsBtn, { width: '100%', marginTop: 6 }]}
+                onPress={() => {
+                  if (editDob) handleSaveDob(editDob);
+                  setDobCalendarVisible(false);
+                }}
               >
                 <Text style={styles.saveSettingsBtnText}>Confirm Date</Text>
               </TouchableOpacity>
             </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Contact Info Edit Modal */}
+      <Modal visible={contactModalVisible} transparent animationType="slide" onRequestClose={() => setContactModalVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity style={StyleSheet.absoluteFillObject} activeOpacity={1} onPress={() => setContactModalVisible(false)} />
+          <View style={[styles.modalContent, { maxWidth: 440, paddingBottom: 24, zIndex: 10 }]}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Contact info</Text>
+              <TouchableOpacity onPress={() => setContactModalVisible(false)}>
+                <Ionicons name="close" size={24} color="#0F172A" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={{ padding: 18 }}>
+              {/* Email (Registered) */}
+              <Text style={styles.editLabel}>Email Address</Text>
+              <View style={[styles.securityInput, { flexDirection: 'row', alignItems: 'center', backgroundColor: isDarkMode ? '#1E1E1E' : '#F1F5F9' }]}>
+                <Ionicons name="mail-outline" size={18} color="#64748B" style={{ marginRight: 8 }} />
+                <Text style={{ fontSize: 14, color: theme.text, flex: 1 }}>{profileData.email || 'Registered Email'}</Text>
+                <View style={{ backgroundColor: '#DEF7EC', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 }}>
+                  <Text style={{ fontSize: 11, fontWeight: '700', color: '#03543F' }}>Verified</Text>
+                </View>
+              </View>
+
+              {/* Phone Number with Country-wise Selector */}
+              <Text style={[styles.editLabel, { marginTop: 14 }]}>Mobile / WhatsApp Number</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                {/* Country Code Picker Trigger */}
+                <TouchableOpacity
+                  style={[
+                    styles.securityInput,
+                    {
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      paddingHorizontal: 12,
+                      paddingVertical: 12,
+                      minWidth: 105,
+                      justifyContent: 'space-between'
+                    }
+                  ]}
+                  onPress={() => setCountryPickerModalVisible(true)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={{ fontSize: 15, marginRight: 4 }}>
+                    {COUNTRY_CODES.find(c => c.code === editCountryCode)?.flag || '🌐'} {editCountryCode}
+                  </Text>
+                  <Ionicons name="chevron-down" size={16} color="#64748B" />
+                </TouchableOpacity>
+
+                {/* Phone Number Input */}
+                <TextInput
+                  style={[styles.securityInput, { flex: 1, fontSize: 15, fontWeight: '600' }]}
+                  placeholder="9876543210"
+                  placeholderTextColor="#94A3B8"
+                  keyboardType="phone-pad"
+                  value={editPhone}
+                  onChangeText={setEditPhone}
+                />
+              </View>
+
+              <Text style={{ fontSize: 12, color: '#64748B', marginTop: 6, marginBottom: 16 }}>
+                Select your country dial code and enter your primary contact number.
+              </Text>
+
+              <TouchableOpacity
+                style={styles.saveSettingsBtn}
+                onPress={handleSaveContactInfo}
+                disabled={savingContact}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.saveSettingsBtnText}>
+                  {savingContact ? 'Saving...' : 'Save Contact Info'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Country Code Selection Modal */}
+      <Modal visible={countryPickerModalVisible} transparent animationType="slide" onRequestClose={() => setCountryPickerModalVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity style={StyleSheet.absoluteFillObject} activeOpacity={1} onPress={() => setCountryPickerModalVisible(false)} />
+          <View style={[styles.modalContent, { maxHeight: 520, maxWidth: 440, zIndex: 12 }]}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Country / Region</Text>
+              <TouchableOpacity onPress={() => { setCountryPickerModalVisible(false); setCountrySearch(''); }}>
+                <Ionicons name="close" size={24} color="#0F172A" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Search Input */}
+            <View style={{ paddingHorizontal: 16, paddingTop: 10, paddingBottom: 6 }}>
+              <View style={[styles.securityInput, { flexDirection: 'row', alignItems: 'center', height: 42, paddingHorizontal: 12 }]}>
+                <Ionicons name="search" size={16} color="#64748B" style={{ marginRight: 8 }} />
+                <TextInput
+                  style={{ flex: 1, fontSize: 14, color: theme.text, padding: 0 }}
+                  placeholder="Search country or code (e.g. India, +91)..."
+                  placeholderTextColor="#94A3B8"
+                  value={countrySearch}
+                  onChangeText={setCountrySearch}
+                />
+                {countrySearch ? (
+                  <TouchableOpacity onPress={() => setCountrySearch('')}>
+                    <Ionicons name="close-circle" size={16} color="#94A3B8" />
+                  </TouchableOpacity>
+                ) : null}
+              </View>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, paddingHorizontal: 16 }}>
+              {COUNTRY_CODES.filter(c => 
+                c.country.toLowerCase().includes(countrySearch.toLowerCase()) || 
+                c.code.includes(countrySearch)
+              ).map((item, idx) => {
+                const isSelected = editCountryCode === item.code;
+                return (
+                  <TouchableOpacity
+                    key={idx}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      paddingVertical: 12,
+                      borderBottomWidth: 0.5,
+                      borderColor: 'rgba(0,0,0,0.06)'
+                    }}
+                    onPress={() => {
+                      setEditCountryCode(item.code);
+                      setCountryPickerModalVisible(false);
+                      setCountrySearch('');
+                    }}
+                  >
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <Text style={{ fontSize: 20, marginRight: 12 }}>{item.flag}</Text>
+                      <Text style={{ fontSize: 14, color: isSelected ? theme.primary : theme.text, fontWeight: isSelected ? '700' : '500' }}>
+                        {item.country}
+                      </Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <Text style={{ fontSize: 14, color: isSelected ? theme.primary : '#64748B', fontWeight: isSelected ? '700' : '600', marginRight: 8 }}>
+                        {item.code}
+                      </Text>
+                      {isSelected && <Ionicons name="checkmark-circle" size={18} color={theme.primary} />}
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
           </View>
         </View>
       </Modal>
@@ -2722,25 +3059,80 @@ const DEFAULT_TAGGED_POSTS = [];
             <View style={{ backgroundColor: isDarkMode ? '#1E1E1E' : '#F8FAFC', borderRadius: 16, borderWidth: 1, borderColor: theme.border, padding: 16 }}>
               <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text, marginBottom: 12 }}>Personal details</Text>
 
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10 }}>
-                <View>
+              {/* Contact Info Row */}
+              <TouchableOpacity 
+                style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10 }}
+                onPress={() => setContactModalVisible(true)}
+                activeOpacity={0.7}
+              >
+                <View style={{ flex: 1, marginRight: 10 }}>
                   <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>Contact info</Text>
-                  <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 2 }}>{profileData.email || 'No email specified'}</Text>
+                  <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 2 }}>
+                    {profileData.email || 'No email specified'}
+                  </Text>
+                  {profileData.phone ? (
+                    <Text style={{ fontSize: 12.5, color: '#003366', fontWeight: '700', marginTop: 4 }}>
+                      📱 {profileData.countryCode || '+91'} {profileData.phone}
+                    </Text>
+                  ) : (
+                    <Text style={{ fontSize: 12, color: '#0095F6', fontWeight: '600', marginTop: 4 }}>
+                      + Add Phone Number (Country-wise selection)
+                    </Text>
+                  )}
                 </View>
-              </View>
+                <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
+              </TouchableOpacity>
 
               <View style={{ height: 1, backgroundColor: theme.border, marginVertical: 8 }} />
 
-              <TouchableOpacity 
-                style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10 }}
-                onPress={() => setDobCalendarVisible(true)}
-              >
-                <View>
-                  <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>Date of Birth</Text>
-                  <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 2 }}>{editDob || 'Not specified'}</Text>
+              {/* Date of Birth with Calendar Option */}
+              {Platform.OS === 'web' ? (
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10, position: 'relative' }}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>Date of Birth</Text>
+                    <Text style={{ fontSize: 13, color: editDob ? theme.text : theme.textSecondary, marginTop: 2 }}>
+                      {editDob || 'Not specified (Click calendar to pick)'}
+                    </Text>
+                  </View>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', position: 'relative' }}>
+                    <input
+                      type="date"
+                      value={editDob}
+                      onChange={(e) => handleSaveDob(e.target.value)}
+                      style={{
+                        position: 'absolute',
+                        right: 0,
+                        top: -10,
+                        bottom: -10,
+                        width: 44,
+                        opacity: 0,
+                        cursor: 'pointer',
+                        zIndex: 10
+                      }}
+                    />
+                    <TouchableOpacity 
+                      onPress={() => setDobCalendarVisible(true)}
+                      style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#EFF6FF', justifyContent: 'center', alignItems: 'center' }}
+                    >
+                      <Ionicons name="calendar" size={18} color="#003366" />
+                    </TouchableOpacity>
+                  </View>
                 </View>
-                <Ionicons name="calendar-outline" size={18} color={theme.textMuted} />
-              </TouchableOpacity>
+              ) : (
+                <TouchableOpacity 
+                  style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10 }}
+                  onPress={() => setDobCalendarVisible(true)}
+                  activeOpacity={0.7}
+                >
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>Date of Birth</Text>
+                    <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 2 }}>{editDob || 'Not specified'}</Text>
+                  </View>
+                  <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#EFF6FF', justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name="calendar-outline" size={18} color="#003366" />
+                  </View>
+                </TouchableOpacity>
+              )}
             </View>
           </ScrollView>
         </SafeAreaView>

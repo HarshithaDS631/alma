@@ -469,6 +469,13 @@ exports.updateUserProfile = async (req, res) => {
                 user.isJobSeeker = Boolean(req.body.isJobSeeker);
             }
 
+            if (req.body.phone !== undefined) {
+                user.phone = req.body.phone;
+            }
+            if (req.body.countryCode !== undefined) {
+                user.countryCode = req.body.countryCode;
+            }
+
             if (req.body.avatar_url || req.body.profilePicture) {
                 user.avatar_url = req.body.avatar_url || req.body.profilePicture;
                 user.profilePicture = user.avatar_url;
@@ -487,6 +494,8 @@ exports.updateUserProfile = async (req, res) => {
                 _id: updatedUser._id,
                 name: updatedUser.name,
                 email: updatedUser.email,
+                phone: updatedUser.phone || '',
+                countryCode: updatedUser.countryCode || '+91',
                 institution: updatedUser.institution,
                 branch: updatedUser.branch,
                 department: updatedUser.department,
