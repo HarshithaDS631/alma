@@ -56,42 +56,43 @@ const BRANCHES_LIST = [
 const BATCH_YEARS_LIST = Array.from({ length: 61 }, (_, i) => String(2030 - i));
 
 const COUNTRY_CODES = [
-  { code: '+91', country: 'India', flag: '🇮🇳' },
-  { code: '+1', country: 'United States / Canada', flag: '🇺🇸' },
-  { code: '+44', country: 'United Kingdom', flag: '🇬🇧' },
-  { code: '+971', country: 'United Arab Emirates', flag: '🇦🇪' },
-  { code: '+65', country: 'Singapore', flag: '🇸🇬' },
-  { code: '+61', country: 'Australia', flag: '🇦🇺' },
-  { code: '+49', country: 'Germany', flag: '🇩🇪' },
-  { code: '+33', country: 'France', flag: '🇫🇷' },
-  { code: '+81', country: 'Japan', flag: '🇯🇵' },
-  { code: '+966', country: 'Saudi Arabia', flag: '🇸🇦' },
-  { code: '+974', country: 'Qatar', flag: '🇶🇦' },
-  { code: '+968', country: 'Oman', flag: '🇴🇲' },
-  { code: '+965', country: 'Kuwait', flag: '🇰🇼' },
-  { code: '+973', country: 'Bahrain', flag: '🇧🇭' },
-  { code: '+60', country: 'Malaysia', flag: '🇲🇾' },
-  { code: '+41', country: 'Switzerland', flag: '🇨🇭' },
-  { code: '+31', country: 'Netherlands', flag: '🇳🇱' },
-  { code: '+46', country: 'Sweden', flag: '🇸🇪' },
-  { code: '+353', country: 'Ireland', flag: '🇮🇪' },
-  { code: '+64', country: 'New Zealand', flag: '🇳🇿' },
-  { code: '+27', country: 'South Africa', flag: '🇿🇦' },
-  { code: '+55', country: 'Brazil', flag: '🇧🇷' },
-  { code: '+86', country: 'China', flag: '🇨🇳' },
-  { code: '+82', country: 'South Korea', flag: '🇰🇷' },
-  { code: '+39', country: 'Italy', flag: '🇮🇹' },
-  { code: '+34', country: 'Spain', flag: '🇪🇸' },
-  { code: '+52', country: 'Mexico', flag: '🇲🇽' },
-  { code: '+62', country: 'Indonesia', flag: '🇮🇩' },
-  { code: '+63', country: 'Philippines', flag: '🇵🇭' },
-  { code: '+92', country: 'Pakistan', flag: '🇵🇰' },
-  { code: '+880', country: 'Bangladesh', flag: '🇧🇩' },
-  { code: '+977', country: 'Nepal', flag: '🇳🇵' },
-  { code: '+94', country: 'Sri Lanka', flag: '🇱🇰' },
-  { code: '+234', country: 'Nigeria', flag: '🇳🇬' },
-  { code: '+254', country: 'Kenya', flag: '🇰🇪' },
-  { code: '+20', country: 'Egypt', flag: '🇪🇬' }
+  { code: '+91', country: 'India', flag: '🇮🇳', short: 'IN' },
+  { code: '+1', country: 'United States', flag: '🇺🇸', short: 'US' },
+  { code: '+1', country: 'Canada', flag: '🇨🇦', short: 'CA' },
+  { code: '+44', country: 'United Kingdom', flag: '🇬🇧', short: 'UK' },
+  { code: '+971', country: 'United Arab Emirates', flag: '🇦🇪', short: 'UAE' },
+  { code: '+65', country: 'Singapore', flag: '🇸🇬', short: 'SG' },
+  { code: '+61', country: 'Australia', flag: '🇦🇺', short: 'AU' },
+  { code: '+49', country: 'Germany', flag: '🇩🇪', short: 'DE' },
+  { code: '+33', country: 'France', flag: '🇫🇷', short: 'FR' },
+  { code: '+81', country: 'Japan', flag: '🇯🇵', short: 'JP' },
+  { code: '+966', country: 'Saudi Arabia', flag: '🇸🇦', short: 'SA' },
+  { code: '+974', country: 'Qatar', flag: '🇶🇦', short: 'QA' },
+  { code: '+968', country: 'Oman', flag: '🇴🇲', short: 'OM' },
+  { code: '+965', country: 'Kuwait', flag: '🇰🇼', short: 'KW' },
+  { code: '+973', country: 'Bahrain', flag: '🇧🇭', short: 'BH' },
+  { code: '+60', country: 'Malaysia', flag: '🇲🇾', short: 'MY' },
+  { code: '+41', country: 'Switzerland', flag: '🇨🇭', short: 'CH' },
+  { code: '+31', country: 'Netherlands', flag: '🇳🇱', short: 'NL' },
+  { code: '+46', country: 'Sweden', flag: '🇸🇪', short: 'SE' },
+  { code: '+353', country: 'Ireland', flag: '🇮🇪', short: 'IE' },
+  { code: '+64', country: 'New Zealand', flag: '🇳🇿', short: 'NZ' },
+  { code: '+27', country: 'South Africa', flag: '🇿🇦', short: 'ZA' },
+  { code: '+55', country: 'Brazil', flag: '🇧🇷', short: 'BR' },
+  { code: '+86', country: 'China', flag: '🇨🇳', short: 'CN' },
+  { code: '+82', country: 'South Korea', flag: '🇰🇷', short: 'KR' },
+  { code: '+39', country: 'Italy', flag: '🇮🇹', short: 'IT' },
+  { code: '+34', country: 'Spain', flag: '🇪🇸', short: 'ES' },
+  { code: '+52', country: 'Mexico', flag: '🇲🇽', short: 'MX' },
+  { code: '+62', country: 'Indonesia', flag: '🇮🇩', short: 'ID' },
+  { code: '+63', country: 'Philippines', flag: '🇵🇭', short: 'PH' },
+  { code: '+92', country: 'Pakistan', flag: '🇵🇰', short: 'PK' },
+  { code: '+880', country: 'Bangladesh', flag: '🇧🇩', short: 'BD' },
+  { code: '+977', country: 'Nepal', flag: '🇳🇵', short: 'NP' },
+  { code: '+94', country: 'Sri Lanka', flag: '🇱🇰', short: 'LK' },
+  { code: '+234', country: 'Nigeria', flag: '🇳🇬', short: 'NG' },
+  { code: '+254', country: 'Kenya', flag: '🇰🇪', short: 'KE' },
+  { code: '+20', country: 'Egypt', flag: '🇪🇬', short: 'EG' }
 ];
 
 const ProfileScreen = ({ navigation }) => {
@@ -534,20 +535,22 @@ const DEFAULT_TAGGED_POSTS = [];
   const handleSaveContactInfo = async () => {
     setSavingContact(true);
     try {
+      const cleanPhone = (editPhone || '').trim();
+      const cleanCode = editCountryCode || '+91';
       await updateProfile({
-        phone: editPhone.trim(),
-        countryCode: editCountryCode
+        phone: cleanPhone,
+        countryCode: cleanCode
       });
       setProfileData(prev => ({
         ...prev,
-        phone: editPhone.trim(),
-        countryCode: editCountryCode
+        phone: cleanPhone,
+        countryCode: cleanCode
       }));
       const cachedStr = await AsyncStorage.getItem('userInfo');
       if (cachedStr) {
         const cached = JSON.parse(cachedStr);
-        cached.phone = editPhone.trim();
-        cached.countryCode = editCountryCode;
+        cached.phone = cleanPhone;
+        cached.countryCode = cleanCode;
         await AsyncStorage.setItem('userInfo', JSON.stringify(cached));
       }
       setContactModalVisible(false);
@@ -2725,25 +2728,37 @@ const DEFAULT_TAGGED_POSTS = [];
                     {
                       flexDirection: 'row',
                       alignItems: 'center',
-                      paddingHorizontal: 12,
-                      paddingVertical: 12,
-                      minWidth: 105,
-                      justifyContent: 'space-between'
+                      paddingHorizontal: 10,
+                      height: 48,
+                      minWidth: 115,
+                      justifyContent: 'space-between',
+                      backgroundColor: isDarkMode ? '#262626' : '#FFFFFF'
                     }
                   ]}
                   onPress={() => setCountryPickerModalVisible(true)}
                   activeOpacity={0.7}
                 >
-                  <Text style={{ fontSize: 15, marginRight: 4 }}>
-                    {COUNTRY_CODES.find(c => c.code === editCountryCode)?.flag || '🌐'} {editCountryCode}
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>
+                    {editCountryCode} ({COUNTRY_CODES.find(c => c.code === editCountryCode)?.short || 'IN'})
                   </Text>
                   <Ionicons name="chevron-down" size={16} color="#64748B" />
                 </TouchableOpacity>
 
                 {/* Phone Number Input */}
                 <TextInput
-                  style={[styles.securityInput, { flex: 1, fontSize: 15, fontWeight: '600' }]}
-                  placeholder="9876543210"
+                  style={[
+                    styles.securityInput,
+                    {
+                      flex: 1,
+                      height: 48,
+                      fontSize: 15,
+                      fontWeight: '600',
+                      color: theme.text,
+                      backgroundColor: isDarkMode ? '#262626' : '#FFFFFF',
+                      paddingHorizontal: 12
+                    }
+                  ]}
+                  placeholder="Enter phone number"
                   placeholderTextColor="#94A3B8"
                   keyboardType="phone-pad"
                   value={editPhone}
@@ -2804,7 +2819,8 @@ const DEFAULT_TAGGED_POSTS = [];
             <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, paddingHorizontal: 16 }}>
               {COUNTRY_CODES.filter(c => 
                 c.country.toLowerCase().includes(countrySearch.toLowerCase()) || 
-                c.code.includes(countrySearch)
+                c.code.includes(countrySearch) ||
+                c.short.toLowerCase().includes(countrySearch.toLowerCase())
               ).map((item, idx) => {
                 const isSelected = editCountryCode === item.code;
                 return (
@@ -2825,7 +2841,9 @@ const DEFAULT_TAGGED_POSTS = [];
                     }}
                   >
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                      <Text style={{ fontSize: 20, marginRight: 12 }}>{item.flag}</Text>
+                      <View style={{ width: 34, height: 24, borderRadius: 4, backgroundColor: isDarkMode ? '#333' : '#E2E8F0', justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
+                        <Text style={{ fontSize: 11, fontWeight: '800', color: theme.text }}>{item.short}</Text>
+                      </View>
                       <Text style={{ fontSize: 14, color: isSelected ? theme.primary : theme.text, fontWeight: isSelected ? '700' : '500' }}>
                         {item.country}
                       </Text>
@@ -3062,7 +3080,11 @@ const DEFAULT_TAGGED_POSTS = [];
               {/* Contact Info Row */}
               <TouchableOpacity 
                 style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10 }}
-                onPress={() => setContactModalVisible(true)}
+                onPress={() => {
+                  setEditPhone(profileData.phone || '');
+                  setEditCountryCode(profileData.countryCode || '+91');
+                  setContactModalVisible(true);
+                }}
                 activeOpacity={0.7}
               >
                 <View style={{ flex: 1, marginRight: 10 }}>
