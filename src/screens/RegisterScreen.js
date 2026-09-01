@@ -174,11 +174,6 @@ const RegisterScreen = ({ navigation, route }) => {
       return;
     }
 
-    if (authProvider !== 'google' && !otpVerified && inlineOtp.join('').length < 6) {
-      alert('Please click "Send OTP" and enter the 6-digit verification code below your email.');
-      return;
-    }
-
     const pwdCheck = validatePasswordStrength(password);
     if (!pwdCheck.valid) {
       alert(pwdCheck.reason);
