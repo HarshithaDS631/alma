@@ -3337,6 +3337,184 @@ const DEFAULT_TAGGED_POSTS = [];
               </TouchableOpacity>
             </View>
           </ScrollView>
+
+          {/* In-Modal Branch / Department Picker Overlay */}
+          {branchModalVisible && (
+            <View style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 100, justifyContent: 'center', alignItems: 'center', padding: 20 }]}>
+              <View style={{ width: '100%', maxWidth: 480, maxHeight: '80%', backgroundColor: theme.card, borderRadius: 16, overflow: 'hidden', borderWidth: 1, borderColor: theme.border }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, borderBottomWidth: 1, borderBottomColor: theme.border }}>
+                  <Text style={{ fontSize: 17, fontWeight: '700', color: theme.text }}>Select Department</Text>
+                  <TouchableOpacity onPress={() => { setBranchModalVisible(false); setBranchSearch(''); }}>
+                    <Ionicons name="close" size={24} color={theme.text} />
+                  </TouchableOpacity>
+                </View>
+
+                <View style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 6 }}>
+                  <View style={[styles.securityInput, { flexDirection: 'row', alignItems: 'center', height: 42, paddingHorizontal: 12, backgroundColor: isDarkMode ? '#262626' : '#F1F5F9' }]}>
+                    <Ionicons name="search" size={16} color="#64748B" style={{ marginRight: 8 }} />
+                    <TextInput
+                      style={{ flex: 1, fontSize: 14, color: theme.text, padding: 0 }}
+                      placeholder="Search branch or department..."
+                      placeholderTextColor="#94A3B8"
+                      value={branchSearch}
+                      onChangeText={setBranchSearch}
+                    />
+                    {branchSearch ? (
+                      <TouchableOpacity onPress={() => setBranchSearch('')}>
+                        <Ionicons name="close-circle" size={16} color="#94A3B8" />
+                      </TouchableOpacity>
+                    ) : null}
+                  </View>
+                </View>
+
+                <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, paddingHorizontal: 16 }}>
+                  {BRANCHES_LIST.filter(b => b.toLowerCase().includes(branchSearch.toLowerCase())).map((branch, idx) => {
+                    const isSelected = editBranch === branch;
+                    return (
+                      <TouchableOpacity
+                        key={idx}
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          paddingVertical: 14,
+                          borderBottomWidth: 0.5,
+                          borderColor: theme.border
+                        }}
+                        onPress={() => {
+                          setEditBranch(branch);
+                          setBranchModalVisible(false);
+                          setBranchSearch('');
+                        }}
+                      >
+                        <Text style={{ fontSize: 14, color: isSelected ? theme.primary : theme.text, fontWeight: isSelected ? '700' : '500', flex: 1, marginRight: 8 }}>
+                          {branch}
+                        </Text>
+                        {isSelected && <Ionicons name="checkmark-circle" size={20} color={theme.primary} />}
+                      </TouchableOpacity>
+                    );
+                  })}
+                </ScrollView>
+              </View>
+            </View>
+          )}
+
+          {/* In-Modal Batch Year Picker Overlay */}
+          {batchModalVisible && (
+            <View style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 100, justifyContent: 'center', alignItems: 'center', padding: 20 }]}>
+              <View style={{ width: '100%', maxWidth: 440, maxHeight: '80%', backgroundColor: theme.card, borderRadius: 16, overflow: 'hidden', borderWidth: 1, borderColor: theme.border }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, borderBottomWidth: 1, borderBottomColor: theme.border }}>
+                  <Text style={{ fontSize: 17, fontWeight: '700', color: theme.text }}>Select Batch Year</Text>
+                  <TouchableOpacity onPress={() => setBatchModalVisible(false)}>
+                    <Ionicons name="close" size={24} color={theme.text} />
+                  </TouchableOpacity>
+                </View>
+
+                <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, paddingHorizontal: 16 }}>
+                  {BATCH_YEARS_LIST.map((year, idx) => {
+                    const isSelected = editBatch === year;
+                    return (
+                      <TouchableOpacity
+                        key={idx}
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          paddingVertical: 14,
+                          borderBottomWidth: 0.5,
+                          borderColor: theme.border
+                        }}
+                        onPress={() => {
+                          setEditBatch(year);
+                          setBatchModalVisible(false);
+                        }}
+                      >
+                        <Text style={{ fontSize: 15, color: isSelected ? theme.primary : theme.text, fontWeight: isSelected ? '700' : '500' }}>
+                          Class of {year}
+                        </Text>
+                        {isSelected && <Ionicons name="checkmark-circle" size={20} color={theme.primary} />}
+                      </TouchableOpacity>
+                    );
+                  })}
+                </ScrollView>
+              </View>
+            </View>
+          )}
+
+          {/* In-Modal Country Code Picker Overlay */}
+          {countryPickerModalVisible && (
+            <View style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 100, justifyContent: 'center', alignItems: 'center', padding: 20 }]}>
+              <View style={{ width: '100%', maxWidth: 440, maxHeight: '80%', backgroundColor: theme.card, borderRadius: 16, overflow: 'hidden', borderWidth: 1, borderColor: theme.border }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, borderBottomWidth: 1, borderBottomColor: theme.border }}>
+                  <Text style={{ fontSize: 17, fontWeight: '700', color: theme.text }}>Select Country / Region</Text>
+                  <TouchableOpacity onPress={() => { setCountryPickerModalVisible(false); setCountrySearch(''); }}>
+                    <Ionicons name="close" size={24} color={theme.text} />
+                  </TouchableOpacity>
+                </View>
+
+                <View style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 6 }}>
+                  <View style={[styles.securityInput, { flexDirection: 'row', alignItems: 'center', height: 42, paddingHorizontal: 12, backgroundColor: isDarkMode ? '#262626' : '#F1F5F9' }]}>
+                    <Ionicons name="search" size={16} color="#64748B" style={{ marginRight: 8 }} />
+                    <TextInput
+                      style={{ flex: 1, fontSize: 14, color: theme.text, padding: 0 }}
+                      placeholder="Search country or code (e.g. India, +91)..."
+                      placeholderTextColor="#94A3B8"
+                      value={countrySearch}
+                      onChangeText={setCountrySearch}
+                    />
+                    {countrySearch ? (
+                      <TouchableOpacity onPress={() => setCountrySearch('')}>
+                        <Ionicons name="close-circle" size={16} color="#94A3B8" />
+                      </TouchableOpacity>
+                    ) : null}
+                  </View>
+                </View>
+
+                <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, paddingHorizontal: 16 }}>
+                  {COUNTRY_CODES.filter(c => 
+                    c.country.toLowerCase().includes(countrySearch.toLowerCase()) || 
+                    c.code.includes(countrySearch) ||
+                    c.short.toLowerCase().includes(countrySearch.toLowerCase())
+                  ).map((item, idx) => {
+                    const isSelected = editCountryCode === item.code;
+                    return (
+                      <TouchableOpacity
+                        key={idx}
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          paddingVertical: 12,
+                          borderBottomWidth: 0.5,
+                          borderColor: theme.border
+                        }}
+                        onPress={() => {
+                          setEditCountryCode(item.code);
+                          setCountryPickerModalVisible(false);
+                          setCountrySearch('');
+                        }}
+                      >
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                          <View style={{ width: 34, height: 24, borderRadius: 4, backgroundColor: isDarkMode ? '#333' : '#E2E8F0', justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
+                            <Text style={{ fontSize: 11, fontWeight: '800', color: theme.text }}>{item.short}</Text>
+                          </View>
+                          <Text style={{ fontSize: 14, color: isSelected ? theme.primary : theme.text, fontWeight: isSelected ? '700' : '500' }}>
+                            {item.country}
+                          </Text>
+                        </View>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                          <Text style={{ fontSize: 14, color: isSelected ? theme.primary : '#64748B', fontWeight: isSelected ? '700' : '600', marginRight: 8 }}>
+                            {item.code}
+                          </Text>
+                          {isSelected && <Ionicons name="checkmark-circle" size={18} color={theme.primary} />}
+                        </View>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </ScrollView>
+              </View>
+            </View>
+          )}
         </SafeAreaView>
       </Modal>
 
