@@ -426,7 +426,13 @@ const linking = {
 function RootNavigator() {
   const { theme, isDarkMode } = useTheme();
   return (
-    <NavigationContainer linking={linking}>
+    <NavigationContainer 
+      linking={linking}
+      fallback={<View style={{ flex: 1, backgroundColor: theme.background }} />}
+      documentTitle={{
+        formatter: (options, route) => `${options?.title || route?.name || 'Alumni'} - RV Alumni Network`
+      }}
+    >
       <Stack.Navigator 
         initialRouteName="Welcome"
         screenOptions={{
