@@ -334,8 +334,6 @@ const RegisterScreen = ({ navigation, route }) => {
                   <Text style={styles.label}>Full Name</Text>
                   <TextInput 
                     style={styles.input}
-                    placeholder="Enter your full name"
-                    placeholderTextColor={theme.textMuted}
                     value={formData.name}
                     onChangeText={(text) => setFormData({ ...formData, name: text })}
                   />
@@ -350,8 +348,6 @@ const RegisterScreen = ({ navigation, route }) => {
                         { flex: 1 }, 
                         emailState === 'verified' && { borderColor: '#10B981', backgroundColor: isDarkMode ? '#064E3B20' : '#ECFDF5' }
                       ]}
-                      placeholder="college or personal email"
-                      placeholderTextColor={theme.textMuted}
                       value={formData.email}
                       onChangeText={(text) => {
                         setFormData({ ...formData, email: text });
@@ -589,8 +585,6 @@ const RegisterScreen = ({ navigation, route }) => {
                   <View style={{ position: 'relative', justifyContent: 'center' }}>
                     <TextInput 
                       style={[styles.input, { paddingRight: 50 }]}
-                      placeholder="Create a strong password"
-                      placeholderTextColor={theme.textMuted}
                       value={formData.password}
                       onChangeText={(text) => setFormData(prev => ({ ...prev, password: text }))}
                       secureTextEntry={!showPassword}
