@@ -11,7 +11,8 @@ import {
   ScrollView, 
   Modal, 
   FlatList, 
-  ActivityIndicator 
+  ActivityIndicator,
+  StatusBar
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../theme/ThemeContext';
