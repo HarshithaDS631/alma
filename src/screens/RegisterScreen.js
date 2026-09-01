@@ -326,8 +326,7 @@ const RegisterScreen = ({ navigation, route }) => {
               </TouchableOpacity>
 
               <View style={styles.header}>
-                <Text style={styles.title}>Join Network</Text>
-                <Text style={styles.subtitle}>Create an account to connect with alumni, faculty, and institutional opportunities.</Text>
+                <Text style={styles.title}>Sign Up</Text>
               </View>
 
               <View style={styles.form}>
