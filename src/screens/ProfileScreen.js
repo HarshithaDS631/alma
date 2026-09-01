@@ -1485,20 +1485,6 @@ const DEFAULT_TAGGED_POSTS = [];
                     value={editSkills}
                     onChangeText={setEditSkills}
                   />
-
-                  {/* Job Seeker Resume Book Toggle */}
-                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#E2E8F0' }}>
-                    <View style={{ flex: 1, marginRight: 10 }}>
-                      <Text style={{ fontSize: 13.5, fontWeight: '700', color: '#002144' }}>Include in Resume Book</Text>
-                      <Text style={{ fontSize: 11.5, color: '#64748B', marginTop: 2 }}>Allow admins and recruiters to discover and share your resume</Text>
-                    </View>
-                    <Switch
-                      value={editIsJobSeeker}
-                      onValueChange={setEditIsJobSeeker}
-                      trackColor={{ false: '#CBD5E1', true: '#003366' }}
-                      thumbColor="#FFFFFF"
-                    />
-                  </View>
                 </View>
 
                 <TouchableOpacity 
@@ -3297,19 +3283,6 @@ const DEFAULT_TAGGED_POSTS = [];
                 value={editSkills}
                 onChangeText={setEditSkills}
               />
-
-              {/* Job Seeker Resume Book Toggle */}
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 14, paddingTop: 12, borderTopWidth: 1, borderTopColor: theme.border }}>
-                <View style={{ flex: 1, marginRight: 10 }}>
-                  <Text style={{ fontSize: 13.5, fontWeight: '700', color: theme.text }}>Include in Resume Book</Text>
-                  <Text style={{ fontSize: 11.5, color: theme.textSecondary, marginTop: 2 }}>Allow admins and recruiters to discover and share your resume</Text>
-                </View>
-                <Switch
-                  value={editIsJobSeeker}
-                  onValueChange={setEditIsJobSeeker}
-                  trackColor={{ false: '#767577', true: '#003366' }}
-                />
-              </View>
             </View>
 
             {/* Show Threads Badge (Matching Image 3) */}
