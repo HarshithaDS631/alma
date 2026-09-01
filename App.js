@@ -340,28 +340,45 @@ function SuperAdminTabs() {
   );
 }
 
-const linking = {
-  prefixes: [
-    'http://localhost:19006',
-    'http://localhost:3000',
+const getPrefixes = () => {
+  const list = [
+    'https://alma-orpin-delta.vercel.app',
     'https://almafrontend-eight.vercel.app',
     'https://alumni-app-nine.vercel.app',
     'https://alma-connect.vercel.app',
-    'alumni://'
-  ],
+    'http://localhost:8081',
+    'http://localhost:19006',
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'alumni://',
+    'alma://'
+  ];
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    if (!list.includes(window.location.origin)) {
+      list.unshift(window.location.origin);
+    }
+  }
+  return list;
+};
+
+const linking = {
+  prefixes: getPrefixes(),
   config: {
     screens: {
-      Splash: '',
+      Welcome: '',
+      Splash: 'splash',
       PortalSelection: 'portal-selection',
-      Welcome: 'welcome',
       Login: 'login',
       Signup: 'signup',
+      Register: 'register',
       ForgotPassword: 'forgot-password',
       ResetPassword: 'reset-password',
       OTPVerification: 'otp-verification',
       ProfileSetup: 'profile-setup',
       SelectInstitution: 'select-institution',
       DemoCarousel: 'demo-carousel',
+      Legal: 'legal',
+      CareerInsights: 'career-insights',
       Main: {
         path: 'main',
         screens: {
