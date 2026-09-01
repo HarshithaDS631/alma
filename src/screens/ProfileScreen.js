@@ -948,16 +948,9 @@ const DEFAULT_TAGGED_POSTS = [];
 
           {/* Bio */}
           <View style={styles.bioContainer}>
-            <Text style={styles.nameText}>
-              {profileData.name} <Text style={{fontSize: 14, color: '#3B82F6', fontWeight: 'bold'}}>• Alumni</Text>
-            </Text>
+            <Text style={styles.nameText}>{profileData.name}</Text>
             <Text style={styles.occupationText}>{profileData.branch} Class of {profileData.batch}</Text>
             <Text style={styles.bioText}>{profileData.bio}</Text>
-            {profileData.phone ? (
-              <Text style={{ color: '#003366', fontWeight: '600', fontSize: 13, marginTop: 4 }}>
-                📱 {profileData.countryCode || '+91'} {profileData.phone}
-              </Text>
-            ) : null}
             {profileData.linkedin ? (
               <TouchableOpacity onPress={() => Platform.OS === 'web' && window.open(profileData.linkedin, '_blank')}>
                 <Text style={{ color: '#0A66C2', fontWeight: '600', fontSize: 13, marginTop: 4 }}>
