@@ -208,7 +208,9 @@ exports.registerUser = async (req, res) => {
         return res.status(400).json({ message: 'Please select your Institution' });
     }
     
-    if (authProvider !== 'google' && !otp) {
+    const isSocialAuth = ['google', 'linkedin', 'facebook', 'apple'].includes(authProvider);
+    
+    if (!isSocialAuth && !otp) {
         return res.status(400).json({ message: 'OTP verification code is required' });
     }
 
@@ -236,8 +238,8 @@ exports.registerUser = async (req, res) => {
             return res.status(400).json({ message: 'An account with this email already exists. Please log in.' });
         }
 
-        // 2. Verify OTP only if not verified via Google OAuth
-        if (authProvider !== 'google') {
+        // 2. Verify OTP only if not verified via OAuth
+        if (!isSocialAuth) {
             let validOtp = false;
             try {
                 const dbOtp = await OTP.findOne({ email: emailClean, otp: otpClean });
