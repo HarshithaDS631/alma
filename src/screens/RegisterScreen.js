@@ -19,7 +19,7 @@ import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import { register, checkEmailExists, sendOtp, verifyOtp } from '../services/authService';
-import { handleGoogleLogin } from '../services/googleAuthService';
+import { handleGoogleLogin, googleSignInWeb, googleSignInMobile } from '../services/googleAuthService';
 import { handleLinkedInLogin } from '../services/linkedinAuthService';
 import { handleFacebookLogin } from '../services/facebookAuthService';
 import { handleAppleLogin } from '../services/appleAuthService';

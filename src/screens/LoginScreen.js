@@ -53,7 +53,7 @@ const LoginScreen = ({ navigation }) => {
 
       if (result?.notRegistered && result?.googleUser) {
         alert(`👋 Welcome ${result.googleUser.name || 'Alumni'}!\n\nPlease select your Institution, Department, and Graduation Year to complete your registration.`);
-        navigation.navigate('Register', {
+        navigation.navigate('Signup', {
           prefill: result.googleUser
         });
         return;
