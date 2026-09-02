@@ -284,50 +284,58 @@ const RegisterScreen = ({ navigation, route }) => {
   };
 
   const isWeb = Platform.OS === 'web';
-  const webWrapperStyle = isWeb ? { flex: 1, backgroundColor: theme.background, justifyContent: 'center', paddingVertical: 24 } : { flex: 1 };
-  const webContainerStyle = isWeb ? { 
-    alignSelf: 'center', 
+  const webCardStyle = isWeb ? { 
     width: '100%', 
     maxWidth: 540, 
     backgroundColor: theme.card,
-    borderRadius: 16,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: theme.border,
     padding: 32,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06,
+    shadowOpacity: 0.08,
     shadowRadius: 16,
-    elevation: 4
-  } : { flex: 1, paddingHorizontal: 20 };
+    elevation: 4,
+    marginVertical: 24,
+  } : { width: '100%', paddingHorizontal: 16, paddingVertical: 12 };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <View style={webWrapperStyle}>
-        <View style={webContainerStyle}>
-          <KeyboardAvoidingView 
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={styles.content}
-          >
-            <ScrollView showsVerticalScrollIndicator={false}>
-              <TouchableOpacity 
-                style={styles.backButton}
-                onPress={() => {
-                  if (navigation.canGoBack()) {
-                    navigation.goBack();
-                  } else {
-                    navigation.navigate('Welcome');
-                  }
-                }}
-              >
-                <Ionicons name="arrow-back" size={22} color={theme.text} style={{ marginRight: 6 }} />
-                <Text style={styles.backButtonText}>Back</Text>
-              </TouchableOpacity>
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={{ flex: 1 }}
+      >
+        <ScrollView 
+          contentContainerStyle={{
+            flexGrow: 1,
+            alignItems: 'center',
+            justifyContent: 'flex-start',
+            paddingVertical: isWeb ? 24 : 12,
+            paddingHorizontal: 16,
+          }}
+          showsVerticalScrollIndicator={true}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={webCardStyle}>
+            <TouchableOpacity 
+              style={styles.backButton}
+              onPress={() => {
+                if (navigation.canGoBack()) {
+                  navigation.goBack();
+                } else {
+                  navigation.navigate('Welcome');
+                }
+              }}
+            >
+              <Ionicons name="arrow-back" size={22} color={theme.text} style={{ marginRight: 6 }} />
+              <Text style={styles.backButtonText}>Back</Text>
+            </TouchableOpacity>
 
-              <View style={styles.header}>
-                <Text style={styles.title}>Sign Up</Text>
-              </View>
+            <View style={styles.header}>
+              <Text style={styles.title}>Sign Up</Text>
+            </View>
 
               <View style={styles.form}>
                 <View style={styles.inputContainer}>
@@ -714,10 +722,9 @@ const RegisterScreen = ({ navigation, route }) => {
               <Text style={{ textAlign: 'center', color: theme.textMuted, fontSize: 11, marginTop: 12, marginBottom: 20 }}>
                 By registering, you confirm your agreement to our End User License Agreement.
               </Text>
-            </ScrollView>
-          </KeyboardAvoidingView>
-        </View>
-      </View>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
 
       <Modal
         visible={modalVisible}
