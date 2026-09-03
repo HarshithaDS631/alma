@@ -128,19 +128,81 @@ export default function LegalScreen({ navigation, route }) {
               <Ionicons name="shield-checkmark" size={32} color="#002144" />
               <View style={styles.docHeaderText}>
                 <Text style={[styles.sectionTitle, { color: theme.text }]}>Privacy Policy</Text>
-                <Text style={[styles.effectiveDate, { color: theme.subtext }]}>Effective Date: 7 August 2026</Text>
+                <Text style={[styles.effectiveDate, { color: theme.subtext }]}>Effective Date: 7 August 2026 • Last Updated: 3 September 2026</Text>
               </View>
             </View>
 
-            {renderSection('Data We Collect', 'We collect your name, email, graduation year, employment history, profile photo, messages, posts, and device identifiers for push notifications.')}
-            {renderSection('How We Use Your Data', 'To operate the App, verify identity, enable networking features, send OTP emails, push notifications, and generate anonymized analytics. We do not sell your data.')}
-            {renderSection('Data Sharing', 'Data is shared only with institution administrators for approval, and third-party infrastructure services (MongoDB Atlas, Firebase, SendGrid, Vercel) necessary to operate the App.')}
-            {renderSection('Data Security', 'All data is transmitted via HTTPS/TLS. Passwords are hashed using bcrypt. MongoDB Atlas provides encryption at rest. JWT authentication with refresh token rotation is enforced.')}
-            {renderSection('Your Rights', 'You can access, correct, export, or delete your personal data at any time. Contact us at rvmediadevelopers@gmail.com to exercise your rights.')}
+            {/* Privacy at a Glance Banner */}
+            <View style={{ backgroundColor: theme.card, borderWidth: 1, borderColor: '#00214430', borderRadius: 12, padding: 16, marginBottom: 20 }}>
+              <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text, marginBottom: 6 }}>🌟 Privacy at a Glance</Text>
+              <Text style={{ fontSize: 13, color: theme.subtext, lineHeight: 18 }}>
+                We believe privacy is a fundamental right. We never sell your personal data to advertisers. We collect only what is necessary to connect alumni, faculty, and students with career opportunities and institutional initiatives.
+              </Text>
+            </View>
 
-            <TouchableOpacity style={[styles.linkButton, { borderColor: '#002144' }]} onPress={() => openURL(PRIVACY_URL)}>
+            {renderSection('1. Information You Choose to Give Us', '')}
+            {renderBullet([
+              'Registration Data: Name, email address, password, institution, branch/department, and graduation batch year.',
+              'Profile & Career Info: Organization, job title, industry domain, experience, skills, bio, LinkedIn URL, and profile photo.',
+              'Documents: Resume PDF files uploaded for recruiter discovery and job applications.',
+              'Communications: Direct chat messages, feed posts, comments, event signups, and support queries.',
+            ])}
+
+            {renderSection('2. Information We Get When You Use the App', '')}
+            {renderBullet([
+              'Usage & Activity: Pages visited (Directory, Jobs, Feed), features accessed, and interaction timestamps.',
+              'Device & Technical: Device model, operating system version, browser type, and IP address.',
+              'Push Tokens: Firebase Cloud Messaging (FCM) device tokens used to send message and job notifications.',
+              'Session Data: Secure local authentication tokens to keep you logged in.',
+            ])}
+
+            {renderSection('3. Information from Third Parties', '')}
+            {renderBullet([
+              'Social Sign-In: When authenticating via Google, Apple, or LinkedIn OAuth, we receive your name, verified email, and profile picture directly from the provider. We never receive your third-party password.',
+            ])}
+
+            {renderSection('4. How We Use Your Information', '')}
+            {renderBullet([
+              'Provide core alumni networking, messaging, mentorship, and directory discovery.',
+              'Match alumni with job vacancies, internship opportunities, and institutional programs.',
+              'Authenticate identity, prevent fraud, and verify alumni credentials via Institution Administrators.',
+              'Deliver transactional notifications, OTP codes, and critical security alerts.',
+              'Generate aggregated, anonymized insights to help RV institutions improve academic curricula.',
+            ])}
+
+            {renderSection('5. How We Share Information', '')}
+            {renderBullet([
+              'With Verified Alumni: Name, batch, and headline are visible to authenticated peers in the directory.',
+              'With Administrators: Designated institution admins review registrations and moderate content.',
+              'With Trusted Infrastructure: MongoDB Atlas (encrypted database), Firebase (auth/push), SendGrid (emails), and Vercel (hosting).',
+              'Legal Compliance: Disclosed only if mandated by court order or statutory requirements.',
+            ])}
+
+            {renderSection('6. Data Retention & Deletion', '')}
+            {renderBullet([
+              'Active Profiles: Maintained while your account remains active.',
+              'Security & Activity Logs: Retained for up to 12 months.',
+              'Account Deletion: Upon requesting deletion, all personal data is permanently purged within 30 days.',
+              'Encrypted Backups: Fully overwritten and removed within 90 days.',
+            ])}
+
+            {renderSection('7. Your Controls & Data Rights', '')}
+            {renderBullet([
+              'Access & Edit: Update profile and career information anytime in Profile settings.',
+              'Data Export: Request a machine-readable export of your data via rvmediadevelopers@gmail.com.',
+              'Delete Account: Permanently delete your account under the Data Rights tab or by written request.',
+              'Notifications: Toggle push and email notification preferences at any time.',
+            ])}
+
+            {renderSection('8. Security & Encryption', 'All communication is encrypted via HTTPS/TLS 1.3. Passwords are salted and hashed with bcrypt. Databases are encrypted at rest with AES-256.')}
+
+            {renderSection('9. Regulatory Compliance', 'Fully compliant with the India Digital Personal Data Protection Act (DPDPA 2023) and GDPR principles.')}
+
+            {renderSection('10. Contact Us & Grievance Redressal', 'For any privacy concerns or data requests, contact our Privacy Officer at rvmediadevelopers@gmail.com (RV Educational Institutions, Bengaluru, Karnataka, India).')}
+
+            <TouchableOpacity style={[styles.linkButton, { borderColor: '#002144', marginTop: 16 }]} onPress={() => openURL(PRIVACY_URL)}>
               <Ionicons name="open-outline" size={16} color="#002144" />
-              <Text style={[styles.linkButtonText, { color: '#002144' }]}>View Full Privacy Policy</Text>
+              <Text style={[styles.linkButtonText, { color: '#002144' }]}>View Full Markdown Policy on GitHub</Text>
             </TouchableOpacity>
           </View>
         )}
