@@ -298,47 +298,83 @@ const LoginScreen = ({ navigation }) => {
             </Text>
           </View>
 
-          {/* ── Mode Selector: Password vs Instant OTP ── */}
-          <View style={{ flexDirection: 'row', backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9', borderRadius: 12, padding: 4, marginBottom: 20 }}>
+          {/* ── Standard Segmented Auth Mode Switcher ── */}
+          <View style={{
+            flexDirection: 'row',
+            backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9',
+            borderRadius: 12,
+            padding: 4,
+            marginBottom: 20,
+            borderWidth: 1,
+            borderColor: isDarkMode ? '#334155' : '#E2E8F0'
+          }}>
             <TouchableOpacity
               style={{
                 flex: 1,
-                paddingVertical: 10,
-                borderRadius: 10,
-                backgroundColor: authMode === 'password' ? (isDarkMode ? '#334155' : '#FFFFFF') : 'transparent',
+                flexDirection: 'row',
                 alignItems: 'center',
+                justifyContent: 'center',
+                paddingVertical: 10,
+                borderRadius: 9,
+                backgroundColor: authMode === 'password' ? (isDarkMode ? '#243054' : '#FFFFFF') : 'transparent',
+                borderWidth: authMode === 'password' ? 1 : 0,
+                borderColor: authMode === 'password' ? (isDarkMode ? '#38BDF8' : '#CBD5E1') : 'transparent',
                 shadowColor: authMode === 'password' ? '#000' : 'transparent',
                 shadowOffset: { width: 0, height: 1 },
-                shadowOpacity: 0.1,
+                shadowOpacity: authMode === 'password' ? 0.08 : 0,
                 shadowRadius: 2,
                 elevation: authMode === 'password' ? 2 : 0,
               }}
               onPress={() => setAuthMode('password')}
               activeOpacity={0.8}
             >
-              <Text style={{ fontSize: 13, fontWeight: authMode === 'password' ? '700' : '500', color: authMode === 'password' ? theme.text : theme.textMuted }}>
-                🔑 Password Login
+              <Ionicons 
+                name="key-outline" 
+                size={16} 
+                color={authMode === 'password' ? (isDarkMode ? '#38BDF8' : '#003366') : (theme.textSecondary || '#64748B')} 
+                style={{ marginRight: 6 }}
+              />
+              <Text style={{
+                fontSize: 13.5,
+                fontWeight: authMode === 'password' ? '700' : '600',
+                color: authMode === 'password' ? (isDarkMode ? '#38BDF8' : '#003366') : (theme.textSecondary || '#64748B')
+              }}>
+                Password
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={{
                 flex: 1,
-                paddingVertical: 10,
-                borderRadius: 10,
-                backgroundColor: authMode === 'otp' ? (isDarkMode ? '#334155' : '#FFFFFF') : 'transparent',
+                flexDirection: 'row',
                 alignItems: 'center',
+                justifyContent: 'center',
+                paddingVertical: 10,
+                borderRadius: 9,
+                backgroundColor: authMode === 'otp' ? (isDarkMode ? '#243054' : '#FFFFFF') : 'transparent',
+                borderWidth: authMode === 'otp' ? 1 : 0,
+                borderColor: authMode === 'otp' ? (isDarkMode ? '#38BDF8' : '#CBD5E1') : 'transparent',
                 shadowColor: authMode === 'otp' ? '#000' : 'transparent',
                 shadowOffset: { width: 0, height: 1 },
-                shadowOpacity: 0.1,
+                shadowOpacity: authMode === 'otp' ? 0.08 : 0,
                 shadowRadius: 2,
                 elevation: authMode === 'otp' ? 2 : 0,
               }}
               onPress={() => setAuthMode('otp')}
               activeOpacity={0.8}
             >
-              <Text style={{ fontSize: 13, fontWeight: authMode === 'otp' ? '700' : '500', color: authMode === 'otp' ? theme.text : theme.textMuted }}>
-                💬 OTP Verification
+              <Ionicons 
+                name="shield-checkmark-outline" 
+                size={16} 
+                color={authMode === 'otp' ? (isDarkMode ? '#38BDF8' : '#003366') : (theme.textSecondary || '#64748B')} 
+                style={{ marginRight: 6 }}
+              />
+              <Text style={{
+                fontSize: 13.5,
+                fontWeight: authMode === 'otp' ? '700' : '600',
+                color: authMode === 'otp' ? (isDarkMode ? '#38BDF8' : '#003366') : (theme.textSecondary || '#64748B')
+              }}>
+                OTP Verification
               </Text>
             </TouchableOpacity>
           </View>
@@ -398,7 +434,7 @@ const LoginScreen = ({ navigation }) => {
                 {loading ? (
                   <ActivityIndicator color="#FFFFFF" size="small" />
                 ) : (
-                  <Text style={styles.primaryButtonText}>Login with Password</Text>
+                  <Text style={styles.primaryButtonText}>Sign In</Text>
                 )}
               </TouchableOpacity>
             </View>
@@ -408,13 +444,13 @@ const LoginScreen = ({ navigation }) => {
           {authMode === 'otp' && (
             <View style={styles.form}>
               {/* Channel Selector */}
-              <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textMuted, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+              <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>
                 Send OTP Verification via:
               </Text>
               <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
                 {[
                   { id: 'email', label: 'Email', icon: 'mail-outline' },
-                  { id: 'mobile', label: 'Mobile SMS', icon: 'phone-portrait-outline' },
+                  { id: 'mobile', label: 'SMS', icon: 'phone-portrait-outline' },
                   { id: 'whatsapp', label: 'WhatsApp', icon: 'logo-whatsapp' }
                 ].map(ch => {
                   const isSelected = otpChannel === ch.id;
@@ -426,12 +462,12 @@ const LoginScreen = ({ navigation }) => {
                         flexDirection: 'row',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        paddingVertical: 9,
+                        paddingVertical: 10,
                         paddingHorizontal: 6,
                         borderRadius: 8,
-                        backgroundColor: isSelected ? '#EFF6FF' : (isDarkMode ? '#1E293B' : '#F8FAFC'),
+                        backgroundColor: isSelected ? (isDarkMode ? '#243054' : '#EFF6FF') : (isDarkMode ? '#1E293B' : '#F8FAFC'),
                         borderWidth: 1.5,
-                        borderColor: isSelected ? '#002144' : (isDarkMode ? '#334155' : '#E2E8F0')
+                        borderColor: isSelected ? (isDarkMode ? '#38BDF8' : '#003366') : (isDarkMode ? '#334155' : '#E2E8F0')
                       }}
                       onPress={() => {
                         setOtpChannel(ch.id);
@@ -442,10 +478,10 @@ const LoginScreen = ({ navigation }) => {
                       <Ionicons 
                         name={ch.icon} 
                         size={15} 
-                        color={isSelected ? '#002144' : (ch.id === 'whatsapp' ? '#25D366' : theme.textMuted)} 
-                        style={{ marginRight: 4 }} 
+                        color={isSelected ? (isDarkMode ? '#38BDF8' : '#003366') : (ch.id === 'whatsapp' ? '#25D366' : theme.textMuted)} 
+                        style={{ marginRight: 5 }} 
                       />
-                      <Text style={{ fontSize: 12, fontWeight: isSelected ? '700' : '500', color: isSelected ? '#002144' : theme.text }}>
+                      <Text style={{ fontSize: 12.5, fontWeight: isSelected ? '700' : '600', color: isSelected ? (isDarkMode ? '#38BDF8' : '#003366') : theme.textSecondary }}>
                         {ch.label}
                       </Text>
                     </TouchableOpacity>
