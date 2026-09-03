@@ -67,7 +67,11 @@ const JobsScreen = ({ navigation, route }) => {
   const [openToWork, setOpenToWork] = useState(false);
   const [targetTitles, setTargetTitles] = useState('');
   const [targetLocations, setTargetLocations] = useState('');
+  const [targetKeywords, setTargetKeywords] = useState('');
   const [savingPrefs, setSavingPrefs] = useState(false);
+
+  // Suggested keywords for quick preference selection
+  const POPULAR_SKILLS = ['Python', 'React', 'Java', 'Machine Learning', 'AWS', 'Node.js', 'SQL', 'Data Science', 'Flutter', 'DevOps'];
 
   // Job Posting Form State
   const [pTitle, setPTitle] = useState('');
@@ -106,6 +110,7 @@ const JobsScreen = ({ navigation, route }) => {
           setOpenToWork(prefs.openToWork ?? true);
           setTargetTitles((prefs.targetTitles || []).join(', '));
           setTargetLocations((prefs.targetLocations || []).join(', '));
+          setTargetKeywords((prefs.keywords || prefs.skills || []).join(', '));
         }
       }
     } catch (e) {
@@ -140,17 +145,28 @@ const JobsScreen = ({ navigation, route }) => {
     }
   };
 
+  const handleToggleKeyword = (skill) => {
+    const current = targetKeywords.split(',').map(s => s.trim()).filter(Boolean);
+    if (current.some(c => c.toLowerCase() === skill.toLowerCase())) {
+      setTargetKeywords(current.filter(c => c.toLowerCase() !== skill.toLowerCase()).join(', '));
+    } else {
+      setTargetKeywords([...current, skill].join(', '));
+    }
+  };
+
   const handleSavePreferences = async () => {
     setSavingPrefs(true);
     try {
       const titlesArray = targetTitles.split(',').map(s => s.trim()).filter(Boolean);
       const locsArray = targetLocations.split(',').map(s => s.trim()).filter(Boolean);
+      const keywordsArray = targetKeywords.split(',').map(s => s.trim()).filter(Boolean);
       await updateJobPreferences({
         openToWork,
         targetTitles: titlesArray,
-        targetLocations: locsArray
+        targetLocations: locsArray,
+        keywords: keywordsArray
       });
-      Alert.alert('Preferences Saved ⚙️', 'Your LinkedIn job preferences have been updated!');
+      Alert.alert('Preferences Saved 🎯', 'Your skill & keyword preferences have been saved! Jobs matching keywords in their descriptions will now appear in your Recommended tab.');
     } catch (e) {
       Alert.alert('Error', 'Failed to save preferences.');
     } finally {
@@ -186,6 +202,8 @@ const JobsScreen = ({ navigation, route }) => {
 
   const renderJobCard = (job, isAppliedTab = false) => {
     const isSaved = (job.savedBy || []).includes('current_user') || savedJobs.some(s => s._id === job._id);
+    const hasKeywordMatch = job.matchingKeywords && job.matchingKeywords.length > 0;
+    const matchScore = job.matchScore || job.matchPercentage;
 
     return (
       <View key={job._id || job.id} style={st.card}>
@@ -211,6 +229,24 @@ const JobsScreen = ({ navigation, route }) => {
                 </View>
               ) : null}
             </View>
+
+            {/* Smart Keyword & Match Detection Highlight */}
+            {hasKeywordMatch ? (
+              <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#EFF6FF', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6, marginTop: 8, alignSelf: 'flex-start', borderWidth: 1, borderColor: '#BFDBFE' }}>
+                <Ionicons name="sparkles" size={13} color="#2563EB" style={{ marginRight: 5 }} />
+                <Text style={{ fontSize: 12, fontWeight: '700', color: '#1D4ED8' }}>
+                  🎯 {matchScore ? `${matchScore}% Match` : 'Smart Match'} • Matched Keyword: {job.matchingKeywords.join(', ')}
+                </Text>
+              </View>
+            ) : (job.keywords && job.keywords.length > 0 ? (
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
+                {job.keywords.slice(0, 3).map((kw, i) => (
+                  <View key={i} style={{ backgroundColor: '#F8FAFC', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, borderWidth: 1, borderColor: '#E2E8F0' }}>
+                    <Text style={{ fontSize: 11, color: '#475569', fontWeight: '500' }}>#{kw}</Text>
+                  </View>
+                ))}
+              </View>
+            ) : null)}
 
             {isAppliedTab ? (
               <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
@@ -418,13 +454,59 @@ const JobsScreen = ({ navigation, route }) => {
               </View>
             </View>
 
+            {/* Keyword Recommendation Banner */}
+            <View style={{ backgroundColor: '#F0F9FF', borderRadius: 12, padding: 14, marginBottom: 16, borderWidth: 1, borderColor: '#BAE6FD' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                <Ionicons name="bulb-outline" size={18} color="#0284C7" style={{ marginRight: 6 }} />
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#0369A1' }}>Keyword-Based Auto Recommendations</Text>
+              </View>
+              <Text style={{ fontSize: 12, color: '#0C4A6E', lineHeight: 18 }}>
+                When you specify skills like <Text style={{ fontWeight: '700' }}>Python</Text>, <Text style={{ fontWeight: '700' }}>React</Text>, or <Text style={{ fontWeight: '700' }}>Machine Learning</Text>, the system automatically detects these keywords in job postings created by Admins and Alumni, placing matching opportunities right in your Recommended feed!
+              </Text>
+            </View>
+
+            <View style={st.formGroup}>
+              <Text style={st.label}>Preferred Skills & Keywords (e.g. Python, React, AWS) *</Text>
+              <TextInput
+                style={st.input}
+                value={targetKeywords}
+                onChangeText={setTargetKeywords}
+                placeholder="e.g. Python, React, Machine Learning, AWS"
+              />
+              
+              {/* Quick Add Pills */}
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+                {POPULAR_SKILLS.map(skill => {
+                  const isSelected = targetKeywords.toLowerCase().includes(skill.toLowerCase());
+                  return (
+                    <TouchableOpacity
+                      key={skill}
+                      style={{
+                        paddingHorizontal: 10,
+                        paddingVertical: 5,
+                        borderRadius: 16,
+                        backgroundColor: isSelected ? '#003366' : '#F1F5F9',
+                        borderWidth: 1,
+                        borderColor: isSelected ? '#003366' : '#CBD5E1'
+                      }}
+                      onPress={() => handleToggleKeyword(skill)}
+                    >
+                      <Text style={{ fontSize: 12, fontWeight: '600', color: isSelected ? '#FFFFFF' : '#475569' }}>
+                        {isSelected ? `✓ ${skill}` : `+ ${skill}`}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+
             <View style={st.formGroup}>
               <Text style={st.label}>Target Job Titles (comma separated)</Text>
               <TextInput
                 style={st.input}
                 value={targetTitles}
                 onChangeText={setTargetTitles}
-                placeholder="e.g. Software Engineer, Tech Lead"
+                placeholder="e.g. Software Engineer, Tech Lead, Data Scientist"
               />
             </View>
 
@@ -443,7 +525,7 @@ const JobsScreen = ({ navigation, route }) => {
               onPress={handleSavePreferences}
               disabled={savingPrefs}
             >
-              {savingPrefs ? <ActivityIndicator color="#FFFFFF" /> : <Text style={st.saveBtnText}>Save Preferences</Text>}
+              {savingPrefs ? <ActivityIndicator color="#FFFFFF" /> : <Text style={st.saveBtnText}>Save Preferences & Keywords</Text>}
             </TouchableOpacity>
           </ScrollView>
         )}
@@ -451,30 +533,49 @@ const JobsScreen = ({ navigation, route }) => {
         {/* TAB 4: RECOMMENDED JOBS */}
         {activeTab === 'recommended' && (
           <View style={{ flex: 1, padding: 16 }}>
-            <Text style={{ fontSize: 16, fontWeight: '700', color: '#0F172A', marginBottom: 12 }}>
-              🎯 Jobs matching your preferences
-            </Text>
-            <FlatList
-              data={recommendedJobs}
-              keyExtractor={item => item._id || item.id}
-              renderItem={({ item }) => renderJobCard(item)}
-              ListEmptyComponent={() => (
-                <Text style={st.emptyText}>No recommendations currently available.</Text>
-              )}
-            />
+            <View style={{ marginBottom: 12 }}>
+              <Text style={{ fontSize: 17, fontWeight: '800', color: '#0F172A' }}>
+                🎯 Top Recommendations for You
+              </Text>
+              <Text style={{ fontSize: 13, color: '#64748B', marginTop: 2 }}>
+                Auto-matched from keywords detected in job descriptions based on your skill preferences.
+              </Text>
+            </View>
+
+            {loading ? (
+              <ActivityIndicator size="large" color="#003366" style={{ marginTop: 40 }} />
+            ) : (
+              <FlatList
+                data={recommendedJobs}
+                keyExtractor={item => item._id || item.id}
+                renderItem={({ item }) => renderJobCard(item)}
+                ListEmptyComponent={() => (
+                  <View style={st.emptyBox}>
+                    <Ionicons name="sparkles-outline" size={48} color="#CBD5E1" />
+                    <Text style={st.emptyText}>No recommendations currently available.</Text>
+                    <Text style={{ fontSize: 13, color: '#64748B', textAlign: 'center', marginTop: 6 }}>
+                      Set your skill preferences (like Python, React) in the Preferences tab to see personalized matches!
+                    </Text>
+                  </View>
+                )}
+              />
+            )}
           </View>
         )}
 
         {/* TAB 5: POST A JOB */}
         {activeTab === 'post' && (
           <ScrollView contentContainerStyle={{ padding: 20 }}>
-            <Text style={{ fontSize: 18, fontWeight: '700', color: '#0F172A', marginBottom: 16 }}>
+            <Text style={{ fontSize: 18, fontWeight: '700', color: '#0F172A', marginBottom: 6 }}>
               Post a Hiring Opportunity 🚀
+            </Text>
+            <Text style={{ fontSize: 13, color: '#64748B', marginBottom: 16 }}>
+              Our AI engine will automatically parse technical keywords from your job description and notify matching alumni!
             </Text>
 
             <View style={st.formGroup}>
               <Text style={st.label}>Job Title *</Text>
-              <TextInput style={st.input} value={pTitle} onChangeText={setPTitle} placeholder="e.g. Senior Frontend Engineer" />
+              <TextInput style={st.input} value={pTitle} onChangeText={setPTitle} placeholder="e.g. Python Backend Engineer" />
             </View>
 
             <View style={st.formGroup}>
@@ -484,7 +585,7 @@ const JobsScreen = ({ navigation, route }) => {
 
             <View style={st.formGroup}>
               <Text style={st.label}>Location *</Text>
-              <TextInput style={st.input} value={pLocation} onChangeText={setPLocation} placeholder="e.g. Bangalore, India" />
+              <TextInput style={st.input} value={pLocation} onChangeText={setPLocation} placeholder="e.g. Bangalore, India (or Remote)" />
             </View>
 
             <View style={st.formGroup}>
@@ -495,11 +596,11 @@ const JobsScreen = ({ navigation, route }) => {
             <View style={st.formGroup}>
               <Text style={st.label}>Job Description *</Text>
               <TextInput 
-                style={[st.input, { height: 100, textAlignVertical: 'top' }]} 
+                style={[st.input, { height: 110, textAlignVertical: 'top' }]} 
                 multiline 
                 value={pDesc} 
                 onChangeText={setPDesc} 
-                placeholder="Describe role responsibilities, team, requirements..." 
+                placeholder="Describe role responsibilities, required skills (e.g. Python, Django, SQL)..." 
               />
             </View>
 
@@ -511,33 +612,58 @@ const JobsScreen = ({ navigation, route }) => {
 
       </View>
 
-      {/* EASY APPLY MODAL */}
+      {/* EASY APPLY & JOB DETAILS MODAL */}
       {applyModalVisible && selectedJob && (
         <Modal visible={true} transparent={true} animationType="slide">
           <View style={st.modalOverlay}>
             <View style={st.modalCard}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                <Text style={{ fontSize: 18, fontWeight: '700', color: '#0F172A' }}>Easy Apply</Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <Text style={{ fontSize: 18, fontWeight: '700', color: '#0F172A' }}>Job Details & Apply</Text>
                 <TouchableOpacity onPress={() => setApplyModalVisible(false)}>
                   <Ionicons name="close" size={24} color="#64748B" />
                 </TouchableOpacity>
               </View>
 
-              <Text style={{ fontSize: 16, fontWeight: '700', color: '#003366' }}>{selectedJob.title}</Text>
-              <Text style={{ fontSize: 14, color: '#64748B', marginBottom: 16 }}>{selectedJob.company} • {selectedJob.location}</Text>
+              <ScrollView style={{ maxHeight: 420 }}>
+                <Text style={{ fontSize: 17, fontWeight: '800', color: '#003366' }}>{selectedJob.title}</Text>
+                <Text style={{ fontSize: 14, color: '#64748B', marginTop: 2, marginBottom: 12 }}>
+                  {selectedJob.company} • {selectedJob.location} • {selectedJob.workplaceType || 'On-site'}
+                </Text>
 
-              <Text style={st.label}>Cover Note / Introduction</Text>
-              <TextInput
-                style={[st.input, { height: 80, textAlignVertical: 'top', marginBottom: 16 }]}
-                multiline
-                placeholder="Why are you a great fit for this position?"
-                value={coverNote}
-                onChangeText={setCoverNote}
-              />
+                {/* Detected Keywords Pill Row */}
+                {selectedJob.keywords && selectedJob.keywords.length > 0 ? (
+                  <View style={{ marginBottom: 12 }}>
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: '#475569', marginBottom: 6 }}>
+                      🏷️ Detected Keywords:
+                    </Text>
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+                      {selectedJob.keywords.map((kw, i) => (
+                        <View key={i} style={{ backgroundColor: '#EFF6FF', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, borderWidth: 1, borderColor: '#BFDBFE' }}>
+                          <Text style={{ fontSize: 12, fontWeight: '600', color: '#1D4ED8' }}>{kw}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                ) : null}
 
-              <TouchableOpacity style={st.saveBtn} onPress={handleEasyApplySubmit} disabled={isApplying}>
-                {isApplying ? <ActivityIndicator color="#FFFFFF" /> : <Text style={st.saveBtnText}>Submit Application</Text>}
-              </TouchableOpacity>
+                <Text style={{ fontSize: 13, fontWeight: '700', color: '#0F172A', marginTop: 6, marginBottom: 4 }}>Job Description:</Text>
+                <Text style={{ fontSize: 13, color: '#334155', lineHeight: 20, marginBottom: 16 }}>
+                  {selectedJob.description}
+                </Text>
+
+                <Text style={st.label}>Cover Note / Introduction</Text>
+                <TextInput
+                  style={[st.input, { height: 80, textAlignVertical: 'top', marginBottom: 16 }]}
+                  multiline
+                  placeholder="Highlight your experience with the required skills..."
+                  value={coverNote}
+                  onChangeText={setCoverNote}
+                />
+
+                <TouchableOpacity style={st.saveBtn} onPress={handleEasyApplySubmit} disabled={isApplying}>
+                  {isApplying ? <ActivityIndicator color="#FFFFFF" /> : <Text style={st.saveBtnText}>Submit Easy Apply</Text>}
+                </TouchableOpacity>
+              </ScrollView>
             </View>
           </View>
         </Modal>

@@ -5,6 +5,8 @@ const jobPreferenceSchema = new mongoose.Schema({
     openToWork: { type: Boolean, default: true },
     targetTitles: [{ type: String }],
     targetLocations: [{ type: String }],
+    keywords: [{ type: String }], // 'Python', 'React', 'Machine Learning', etc.
+    skills: [{ type: String }],
     jobTypes: [{ type: String }], // 'Full-time', 'Remote', etc.
     preferredIndustry: { type: String, default: 'Technology' },
     minSalary: { type: String, default: '' },

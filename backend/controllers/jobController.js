@@ -1,6 +1,7 @@
 const Job = require('../models/Job');
 const JobPreference = require('../models/JobPreference');
 const User = require('../models/User');
+const { extractKeywords, calculateJobMatch } = require('../utils/keywordExtractor');
 
 // @desc    Get all jobs with filters & search
 // @route   GET /api/jobs
@@ -66,6 +67,10 @@ exports.createJob = async (req, res) => {
         const userDoc = await User.findById(req.user._id).select('institution');
         const jobInstitution = institution || req.user.institution || userDoc?.institution || 'All Institutions';
 
+        const reqList = Array.isArray(requirements) ? requirements : (requirements ? [requirements] : []);
+        // Automatically detect and extract keywords (e.g., Python, React, AWS, AI) from title & description
+        const autoKeywords = extractKeywords(title, description, reqList);
+
         const job = await Job.create({
             title,
             company,
@@ -76,7 +81,8 @@ exports.createJob = async (req, res) => {
             experienceLevel: experienceLevel || 'Mid-Senior',
             salaryRange: salaryRange || '',
             description,
-            requirements: Array.isArray(requirements) ? requirements : (requirements ? [requirements] : []),
+            requirements: reqList,
+            keywords: autoKeywords,
             postedBy: req.user._id
         });
 
@@ -177,6 +183,7 @@ exports.getJobTracker = async (req, res) => {
 // @route   GET /api/jobs/preferences
 exports.getPreferences = async (req, res) => {
     try {
+        const userDoc = await User.findById(req.user._id).select('skills domain branch department');
         let prefs = await JobPreference.findOne({ user: req.user._id });
         if (!prefs) {
             prefs = await JobPreference.create({
@@ -184,6 +191,8 @@ exports.getPreferences = async (req, res) => {
                 openToWork: true,
                 targetTitles: ['Software Engineer', 'Full Stack Developer', 'Data Engineer'],
                 targetLocations: ['Bangalore', 'Remote', 'Hybrid'],
+                keywords: userDoc?.skills?.length ? userDoc.skills : ['Python', 'React', 'Cloud'],
+                skills: userDoc?.skills || [],
                 jobTypes: ['Full-time', 'Contract']
             });
         }
@@ -197,7 +206,7 @@ exports.getPreferences = async (req, res) => {
 // @route   PUT /api/jobs/preferences
 exports.updatePreferences = async (req, res) => {
     try {
-        const { openToWork, targetTitles, targetLocations, jobTypes, preferredIndustry, minSalary } = req.body;
+        const { openToWork, targetTitles, targetLocations, keywords, skills, jobTypes, preferredIndustry, minSalary } = req.body;
 
         let prefs = await JobPreference.findOne({ user: req.user._id });
         if (!prefs) {
@@ -207,39 +216,86 @@ exports.updatePreferences = async (req, res) => {
         if (typeof openToWork === 'boolean') prefs.openToWork = openToWork;
         if (targetTitles) prefs.targetTitles = targetTitles;
         if (targetLocations) prefs.targetLocations = targetLocations;
+        if (keywords) prefs.keywords = keywords;
+        if (skills) prefs.skills = skills;
         if (jobTypes) prefs.jobTypes = jobTypes;
         if (preferredIndustry) prefs.preferredIndustry = preferredIndustry;
         if (minSalary) prefs.minSalary = minSalary;
 
         await prefs.save();
+
+        // Also synchronize keywords to user skills in User profile
+        if (keywords && Array.isArray(keywords) && keywords.length > 0) {
+            await User.findByIdAndUpdate(req.user._id, { $addToSet: { skills: { $each: keywords } } });
+        }
+
         res.json(prefs);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
 
-// @desc    Get Recommended Jobs (LinkedIn Algorithm)
+// @desc    Get Recommended Jobs based on Alumni Preferences & Keywords (e.g. Python, AI)
 // @route   GET /api/jobs/recommended
 exports.getRecommendedJobs = async (req, res) => {
     try {
-        const prefs = await JobPreference.findOne({ user: req.user._id });
-        let titleRegex = prefs && prefs.targetTitles.length > 0
-            ? new RegExp(prefs.targetTitles.join('|'), 'i')
-            : /Engineer|Developer|Manager|Analyst/i;
+        const userId = req.user._id;
+        const [prefs, userDoc] = await Promise.all([
+            JobPreference.findOne({ user: userId }),
+            User.findById(userId).select('skills domain branch department institution')
+        ]);
 
-        const recommended = await Job.find({
-            isActive: true,
-            $or: [
-                { title: titleRegex },
-                { description: titleRegex }
-            ]
-        })
-        .populate('postedBy', 'name company profilePicture')
-        .limit(15)
-        .sort({ createdAt: -1 });
+        const userPreferences = {
+            keywords: prefs?.keywords || [],
+            targetTitles: prefs?.targetTitles || [],
+            targetLocations: prefs?.targetLocations || [],
+            skills: userDoc?.skills || [],
+            branch: userDoc?.branch || '',
+            department: userDoc?.department || '',
+            domain: userDoc?.domain || ''
+        };
+
+        // Query active jobs (considering institution scope)
+        let query = { isActive: true };
+        if (req.user && req.user.role !== 'Super Admin') {
+            const userInstitution = req.user.institution || userDoc?.institution;
+            if (userInstitution) {
+                query.$or = [
+                    { institution: new RegExp(`^${userInstitution.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') },
+                    { institution: 'All Institutions' },
+                    { institution: { $exists: false } }
+                ];
+            }
+        }
+
+        const allJobs = await Job.find(query)
+            .populate('postedBy', 'name company profilePicture role institution')
+            .sort({ createdAt: -1 });
+
+        // Score each job with keyword detection engine
+        const scoredJobs = allJobs.map(job => {
+            const jobObj = job.toObject();
+            if (!jobObj.keywords || jobObj.keywords.length === 0) {
+                jobObj.keywords = extractKeywords(jobObj.title, jobObj.description, jobObj.requirements);
+            }
+            const match = calculateJobMatch(jobObj, userPreferences);
+            return {
+                ...jobObj,
+                matchScore: match.matchScore,
+                isMatch: match.isMatch,
+                matchingKeywords: match.matchingKeywords,
+                matchReasons: match.matchReasons
+            };
+        });
+
+        // Filter and sort by highest matchScore
+        const recommended = scoredJobs
+            .sort((a, b) => b.matchScore - a.matchScore)
+            .slice(0, 25);
 
         res.json(recommended);
     } catch (error) {
+        console.error('Error fetching recommended jobs:', error);
         res.status(500).json({ message: error.message });
     }
 };

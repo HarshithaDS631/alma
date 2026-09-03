@@ -57,17 +57,45 @@ exports.getRecommendedAlumni = async (req, res) => {
     }
 };
 
-// @desc    Get Recommended Jobs based on user skills/branch
+const JobPreference = require('../models/JobPreference');
+const { extractKeywords, calculateJobMatch } = require('../utils/keywordExtractor');
+
+// @desc    Get Recommended Jobs based on user skills/preferences/keywords
 // @route   GET /api/recommendations/jobs
 exports.getRecommendedJobs = async (req, res) => {
     try {
-        const jobs = await Job.find({ status: 'active' }).limit(10).sort({ createdAt: -1 });
+        const userId = req.user?.id || req.user?._id;
+        const [prefs, currentUser] = await Promise.all([
+            userId ? JobPreference.findOne({ user: userId }) : null,
+            userId ? User.findById(userId).select('skills domain branch department institution') : null
+        ]);
 
-        const recommendedJobs = jobs.map(job => ({
-            ...job.toObject(),
-            matchPercentage: Math.floor(Math.random() * 15) + 85,
-            matchingSkills: (job.requirements || ['Problem Solving', 'Teamwork']).slice(0, 3)
-        }));
+        const userPreferences = {
+            keywords: prefs?.keywords || [],
+            targetTitles: prefs?.targetTitles || [],
+            targetLocations: prefs?.targetLocations || [],
+            skills: currentUser?.skills || [],
+            branch: currentUser?.branch || '',
+            department: currentUser?.department || '',
+            domain: currentUser?.domain || ''
+        };
+
+        const jobs = await Job.find({ isActive: { $ne: false } }).limit(25).sort({ createdAt: -1 });
+
+        const recommendedJobs = jobs.map(job => {
+            const jobObj = job.toObject();
+            if (!jobObj.keywords || jobObj.keywords.length === 0) {
+                jobObj.keywords = extractKeywords(jobObj.title, jobObj.description, jobObj.requirements);
+            }
+            const match = calculateJobMatch(jobObj, userPreferences);
+            return {
+                ...jobObj,
+                matchPercentage: match.matchScore,
+                isMatch: match.isMatch,
+                matchingSkills: match.matchingKeywords.length > 0 ? match.matchingKeywords : (jobObj.keywords || []).slice(0, 3),
+                matchReasons: match.matchReasons
+            };
+        }).sort((a, b) => b.matchPercentage - a.matchPercentage);
 
         res.status(200).json({ success: true, count: recommendedJobs.length, jobs: recommendedJobs });
     } catch (error) {

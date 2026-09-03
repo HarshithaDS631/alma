@@ -19,6 +19,7 @@ const jobSchema = new mongoose.Schema({
     salaryRange: { type: String, default: '' },
     description: { type: String, required: true },
     requirements: [{ type: String }],
+    keywords: [{ type: String }],
     postedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     applicants: [{
         user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
