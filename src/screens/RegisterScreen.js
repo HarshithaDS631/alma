@@ -679,26 +679,6 @@ const RegisterScreen = ({ navigation, route }) => {
                       <Ionicons name="logo-google" size={22} color="#EA4335" />
                     </TouchableOpacity>
 
-                    {/* LinkedIn Icon */}
-                    <TouchableOpacity
-                      style={[styles.socialIcon, { backgroundColor: '#0A66C2' }]}
-                      onPress={() => handleOAuthSignUp('linkedin')}
-                      disabled={loading}
-                      activeOpacity={0.7}
-                    >
-                      <Ionicons name="logo-linkedin" size={22} color="#FFFFFF" />
-                    </TouchableOpacity>
-
-                    {/* Facebook Icon */}
-                    <TouchableOpacity
-                      style={[styles.socialIcon, { backgroundColor: '#1877F2' }]}
-                      onPress={() => handleOAuthSignUp('facebook')}
-                      disabled={loading}
-                      activeOpacity={0.7}
-                    >
-                      <Ionicons name="logo-facebook" size={22} color="#FFFFFF" />
-                    </TouchableOpacity>
-
                     {/* Apple Icon */}
                     <TouchableOpacity
                       style={[styles.socialIcon, { backgroundColor: isDarkMode ? '#FFFFFF' : '#000000' }]}

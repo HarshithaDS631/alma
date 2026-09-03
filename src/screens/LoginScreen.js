@@ -4,10 +4,8 @@ import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as WebBrowser from 'expo-web-browser';
-import { login, loginVerify2FA } from '../services/authService';
+import { login, loginVerify2FA, sendLoginOtp, loginWithOtp } from '../services/authService';
 import { handleGoogleLogin } from '../services/googleAuthService';
-import { handleLinkedInLogin } from '../services/linkedinAuthService';
-import { handleFacebookLogin } from '../services/facebookAuthService';
 import { handleAppleLogin } from '../services/appleAuthService';
 
 WebBrowser.maybeCompleteAuthSession();
@@ -16,16 +14,28 @@ const LoginScreen = ({ navigation }) => {
   const { theme, isDarkMode } = useTheme();
   const styles = getStyles(theme);
 
+  // Authentication Mode: 'password' | 'otp'
+  const [authMode, setAuthMode] = useState('password');
+
+  // Password Login States
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [portal, setPortal] = useState(null);
 
-  // 2FA Challenge States
+  // OTP Login States
+  const [otpChannel, setOtpChannel] = useState('email'); // 'email' | 'mobile' | 'whatsapp'
+  const [otpIdentifier, setOtpIdentifier] = useState('');
+  const [otpCode, setOtpCode] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
+  const [maskedDest, setMaskedDest] = useState('');
+  const [countdown, setCountdown] = useState(0);
+
+  // Social & 2FA States
   const [googleLoading, setGoogleLoading] = useState(false);
-  const [linkedinLoading, setLinkedinLoading] = useState(false);
-  const [facebookLoading, setFacebookLoading] = useState(false);
   const [appleLoading, setAppleLoading] = useState(false);
   const [show2FAModal, setShow2FAModal] = useState(false);
   const [twoFactorToken, setTwoFactorToken] = useState('');
@@ -45,6 +55,13 @@ const LoginScreen = ({ navigation }) => {
     };
     fetchPortal();
   }, []);
+
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [countdown]);
 
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
@@ -79,44 +96,6 @@ const LoginScreen = ({ navigation }) => {
     }
   };
 
-  const handleLinkedInSignIn = async () => {
-    setLinkedinLoading(true);
-    try {
-      const userData = await handleLinkedInLogin();
-      const userRole = (userData.role || '').trim().toLowerCase();
-      if (userRole === 'super admin' || userRole === 'superadmin') {
-        navigation.navigate('SuperAdminMain');
-      } else if (userRole === 'admin' || userRole === 'institution admin') {
-        navigation.navigate('AdminMain');
-      } else {
-        navigation.navigate('Main');
-      }
-    } catch (error) {
-      alert(error.message || 'LinkedIn Sign-In failed. Please try again.');
-    } finally {
-      setLinkedinLoading(false);
-    }
-  };
-
-  const handleFacebookSignIn = async () => {
-    setFacebookLoading(true);
-    try {
-      const userData = await handleFacebookLogin();
-      const userRole = (userData.role || '').trim().toLowerCase();
-      if (userRole === 'super admin' || userRole === 'superadmin') {
-        navigation.navigate('SuperAdminMain');
-      } else if (userRole === 'admin' || userRole === 'institution admin') {
-        navigation.navigate('AdminMain');
-      } else {
-        navigation.navigate('Main');
-      }
-    } catch (error) {
-      alert(error.message || 'Facebook Sign-In failed. Please try again.');
-    } finally {
-      setFacebookLoading(false);
-    }
-  };
-
   const handleAppleSignIn = async () => {
     setAppleLoading(true);
     try {
@@ -133,6 +112,57 @@ const LoginScreen = ({ navigation }) => {
       alert(error.message || 'Apple Sign-In failed. Please try again.');
     } finally {
       setAppleLoading(false);
+    }
+  };
+
+  const handleSendLoginOtp = async () => {
+    if (!otpIdentifier.trim()) {
+      alert(otpChannel === 'email' ? 'Please enter your registered email address' : 'Please enter your registered mobile number');
+      return;
+    }
+    setSendingOtp(true);
+    try {
+      const res = await sendLoginOtp(otpIdentifier.trim(), otpChannel);
+      setOtpSent(true);
+      setMaskedDest(res.maskedDestination || otpIdentifier);
+      setCountdown(60);
+      alert(`✅ Verification Code Dispatched!\n\nA 6-digit verification code has been sent via ${otpChannel === 'whatsapp' ? 'WhatsApp' : otpChannel === 'mobile' ? 'SMS' : 'Email'}.`);
+    } catch (err) {
+      alert(err.response?.data?.message || err.message || 'Failed to send OTP code. Please verify your details.');
+    } finally {
+      setSendingOtp(false);
+    }
+  };
+
+  const handleVerifyOtpLogin = async () => {
+    if (!otpCode.trim() || otpCode.trim().length < 4) {
+      alert('Please enter the 6-digit verification code');
+      return;
+    }
+    setVerifyingOtp(true);
+    try {
+      const userData = await loginWithOtp(otpIdentifier.trim(), otpCode.trim());
+      
+      await AsyncStorage.setItem('user', JSON.stringify(userData));
+      if (userData.token) {
+        await AsyncStorage.setItem('userToken', userData.token);
+      }
+      if (userData.refreshToken) {
+        await AsyncStorage.setItem('refreshToken', userData.refreshToken);
+      }
+
+      const userRole = (userData.role || '').trim().toLowerCase();
+      if (userRole === 'super admin' || userRole === 'superadmin') {
+        navigation.navigate('SuperAdminMain');
+      } else if (userRole === 'admin' || userRole === 'institution admin') {
+        navigation.navigate('AdminMain');
+      } else {
+        navigation.navigate('Main');
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || err.message || 'Invalid or expired verification code.');
+    } finally {
+      setVerifyingOtp(false);
     }
   };
 
@@ -264,84 +294,282 @@ const LoginScreen = ({ navigation }) => {
           <View style={styles.header}>
             <Text style={styles.title}>Sign in to your Account</Text>
             <Text style={styles.subtitle}>
-              Enter your email and password to sign in as Alumni, Admin, or Super Admin.
+              Sign in with your password or use instant OTP verification via Email, Mobile SMS, or WhatsApp.
             </Text>
           </View>
 
-          <View style={styles.form}>
-            <View style={styles.inputContainer}>
-              <View style={styles.inputWrapper}>
-                <TextInput 
-                  style={styles.input}
-                  placeholder="Enter Email"
-                  placeholderTextColor="#94A3B8"
-                  value={email}
-                  onChangeText={setEmail}
-                  autoCapitalize="none"
-                  keyboardType="email-address"
-                />
-              </View>
-            </View>
-
-            <View style={styles.inputContainer}>
-              <View style={styles.inputWrapper}>
-                <TextInput 
-                  style={[styles.input, { flex: 1, paddingRight: 10 }]}
-                  placeholder="Enter Password"
-                  placeholderTextColor="#94A3B8"
-                  value={password}
-                  onChangeText={setPassword}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  autoComplete="current-password"
-                  secureTextEntry={!showPassword}
-                />
-                <TouchableOpacity 
-                  onPress={() => setShowPassword(!showPassword)} 
-                  style={{ padding: 8, justifyContent: 'center', alignItems: 'center' }}
-                  activeOpacity={0.7}
-                >
-                  <Ionicons name={showPassword ? "eye" : "eye-off"} size={22} color="#0F2744" />
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            <TouchableOpacity 
-              style={{ alignSelf: 'flex-end', marginBottom: 16 }}
-              onPress={() => navigation.navigate('ForgotPassword', { email: email ? email.trim() : '' })}
+          {/* ── Mode Selector: Password vs Instant OTP ── */}
+          <View style={{ flexDirection: 'row', backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9', borderRadius: 12, padding: 4, marginBottom: 20 }}>
+            <TouchableOpacity
+              style={{
+                flex: 1,
+                paddingVertical: 10,
+                borderRadius: 10,
+                backgroundColor: authMode === 'password' ? (isDarkMode ? '#334155' : '#FFFFFF') : 'transparent',
+                alignItems: 'center',
+                shadowColor: authMode === 'password' ? '#000' : 'transparent',
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.1,
+                shadowRadius: 2,
+                elevation: authMode === 'password' ? 2 : 0,
+              }}
+              onPress={() => setAuthMode('password')}
+              activeOpacity={0.8}
             >
-              <Text style={{ color: theme.primary, fontWeight: '600', fontSize: 13 }}>Forgot Password?</Text>
+              <Text style={{ fontSize: 13, fontWeight: authMode === 'password' ? '700' : '500', color: authMode === 'password' ? theme.text : theme.textMuted }}>
+                🔑 Password Login
+              </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity 
-              style={[styles.primaryButton, loading && styles.disabledButton]} 
-              onPress={handleLogin}
-              disabled={loading}
+            <TouchableOpacity
+              style={{
+                flex: 1,
+                paddingVertical: 10,
+                borderRadius: 10,
+                backgroundColor: authMode === 'otp' ? (isDarkMode ? '#334155' : '#FFFFFF') : 'transparent',
+                alignItems: 'center',
+                shadowColor: authMode === 'otp' ? '#000' : 'transparent',
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.1,
+                shadowRadius: 2,
+                elevation: authMode === 'otp' ? 2 : 0,
+              }}
+              onPress={() => setAuthMode('otp')}
+              activeOpacity={0.8}
             >
-              {loading ? (
-                <ActivityIndicator color="#FFFFFF" size="small" />
-              ) : (
-                <Text style={styles.primaryButtonText}>Login</Text>
-              )}
+              <Text style={{ fontSize: 13, fontWeight: authMode === 'otp' ? '700' : '500', color: authMode === 'otp' ? theme.text : theme.textMuted }}>
+                💬 OTP Verification
+              </Text>
             </TouchableOpacity>
           </View>
 
-          {/* ── Social OAuth Sign-In Icons Row ── */}
-          <View style={{ marginBottom: 16 }}>
+          {/* ── MODE 1: PASSWORD LOGIN ── */}
+          {authMode === 'password' && (
+            <View style={styles.form}>
+              <View style={styles.inputContainer}>
+                <View style={styles.inputWrapper}>
+                  <TextInput 
+                    style={styles.input}
+                    placeholder="Enter Email"
+                    placeholderTextColor="#94A3B8"
+                    value={email}
+                    onChangeText={setEmail}
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                  />
+                </View>
+              </View>
+
+              <View style={styles.inputContainer}>
+                <View style={styles.inputWrapper}>
+                  <TextInput 
+                    style={[styles.input, { flex: 1, paddingRight: 10 }]}
+                    placeholder="Enter Password"
+                    placeholderTextColor="#94A3B8"
+                    value={password}
+                    onChangeText={setPassword}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    autoComplete="current-password"
+                    secureTextEntry={!showPassword}
+                  />
+                  <TouchableOpacity 
+                    onPress={() => setShowPassword(!showPassword)} 
+                    style={{ padding: 8, justifyContent: 'center', alignItems: 'center' }}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons name={showPassword ? "eye" : "eye-off"} size={22} color="#0F2744" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <TouchableOpacity 
+                style={{ alignSelf: 'flex-end', marginBottom: 16 }}
+                onPress={() => navigation.navigate('ForgotPassword', { email: email ? email.trim() : '' })}
+              >
+                <Text style={{ color: theme.primary, fontWeight: '600', fontSize: 13 }}>Forgot Password?</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={[styles.primaryButton, loading && styles.disabledButton]} 
+                onPress={handleLogin}
+                disabled={loading}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#FFFFFF" size="small" />
+                ) : (
+                  <Text style={styles.primaryButtonText}>Login with Password</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* ── MODE 2: MULTI-CHANNEL OTP LOGIN (Email, Mobile, WhatsApp) ── */}
+          {authMode === 'otp' && (
+            <View style={styles.form}>
+              {/* Channel Selector */}
+              <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textMuted, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                Send OTP Verification via:
+              </Text>
+              <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
+                {[
+                  { id: 'email', label: 'Email', icon: 'mail-outline' },
+                  { id: 'mobile', label: 'Mobile SMS', icon: 'phone-portrait-outline' },
+                  { id: 'whatsapp', label: 'WhatsApp', icon: 'logo-whatsapp' }
+                ].map(ch => {
+                  const isSelected = otpChannel === ch.id;
+                  return (
+                    <TouchableOpacity
+                      key={ch.id}
+                      style={{
+                        flex: 1,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        paddingVertical: 9,
+                        paddingHorizontal: 6,
+                        borderRadius: 8,
+                        backgroundColor: isSelected ? '#EFF6FF' : (isDarkMode ? '#1E293B' : '#F8FAFC'),
+                        borderWidth: 1.5,
+                        borderColor: isSelected ? '#002144' : (isDarkMode ? '#334155' : '#E2E8F0')
+                      }}
+                      onPress={() => {
+                        setOtpChannel(ch.id);
+                        setOtpSent(false);
+                        setOtpCode('');
+                      }}
+                    >
+                      <Ionicons 
+                        name={ch.icon} 
+                        size={15} 
+                        color={isSelected ? '#002144' : (ch.id === 'whatsapp' ? '#25D366' : theme.textMuted)} 
+                        style={{ marginRight: 4 }} 
+                      />
+                      <Text style={{ fontSize: 12, fontWeight: isSelected ? '700' : '500', color: isSelected ? '#002144' : theme.text }}>
+                        {ch.label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+
+              {/* Identifier Input */}
+              <View style={styles.inputContainer}>
+                <View style={styles.inputWrapper}>
+                  <Ionicons 
+                    name={otpChannel === 'email' ? 'mail-outline' : (otpChannel === 'whatsapp' ? 'logo-whatsapp' : 'phone-portrait-outline')} 
+                    size={20} 
+                    color="#64748B" 
+                    style={{ marginRight: 10 }} 
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder={
+                      otpChannel === 'email'
+                        ? 'Enter registered email address'
+                        : (otpChannel === 'whatsapp' ? 'Enter WhatsApp mobile number' : 'Enter registered mobile number')
+                    }
+                    placeholderTextColor="#94A3B8"
+                    value={otpIdentifier}
+                    onChangeText={setOtpIdentifier}
+                    autoCapitalize="none"
+                    keyboardType={otpChannel === 'email' ? 'email-address' : 'phone-pad'}
+                    editable={!otpSent}
+                  />
+                </View>
+              </View>
+
+              {/* Step 2: OTP Code Input (when sent) */}
+              {otpSent && (
+                <View style={{ marginTop: 6, marginBottom: 12 }}>
+                  <View style={{ backgroundColor: '#F0FDF4', padding: 10, borderRadius: 8, borderWidth: 1, borderColor: '#BBF7D0', marginBottom: 12 }}>
+                    <Text style={{ fontSize: 12, color: '#15803D', fontWeight: '600' }}>
+                      ✅ 6-digit code dispatched to {maskedDest}
+                    </Text>
+                  </View>
+
+                  <View style={styles.inputContainer}>
+                    <View style={styles.inputWrapper}>
+                      <TextInput
+                        style={[styles.input, { letterSpacing: 4, fontWeight: '700', fontSize: 16 }]}
+                        placeholder="Enter 6-digit code"
+                        placeholderTextColor="#94A3B8"
+                        value={otpCode}
+                        onChangeText={setOtpCode}
+                        keyboardType="number-pad"
+                        maxLength={6}
+                        autoFocus={true}
+                      />
+                    </View>
+                  </View>
+
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
+                    <TouchableOpacity
+                      onPress={handleSendLoginOtp}
+                      disabled={countdown > 0 || sendingOtp}
+                    >
+                      <Text style={{ fontSize: 12, fontWeight: '600', color: countdown > 0 ? theme.textMuted : theme.primary }}>
+                        {countdown > 0 ? `Resend code in ${countdown}s` : 'Resend Code'}
+                      </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity onPress={() => { setOtpSent(false); setOtpCode(''); }}>
+                      <Text style={{ fontSize: 12, color: theme.textMuted, textDecorationLine: 'underline' }}>
+                        Change {otpChannel === 'email' ? 'Email' : 'Number'}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )}
+
+              {/* Action Button */}
+              {!otpSent ? (
+                <TouchableOpacity 
+                  style={[styles.primaryButton, sendingOtp && styles.disabledButton]} 
+                  onPress={handleSendLoginOtp}
+                  disabled={sendingOtp}
+                >
+                  {sendingOtp ? (
+                    <ActivityIndicator color="#FFFFFF" size="small" />
+                  ) : (
+                    <Text style={styles.primaryButtonText}>
+                      Send Code via {otpChannel === 'whatsapp' ? 'WhatsApp' : otpChannel === 'mobile' ? 'SMS' : 'Email'}
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity 
+                  style={[styles.primaryButton, verifyingOtp && styles.disabledButton]} 
+                  onPress={handleVerifyOtpLogin}
+                  disabled={verifyingOtp}
+                >
+                  {verifyingOtp ? (
+                    <ActivityIndicator color="#FFFFFF" size="small" />
+                  ) : (
+                    <Text style={styles.primaryButtonText}>Verify & Sign In</Text>
+                  )}
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
+
+          {/* ── Social OAuth Sign-In (Google & Apple Only) ── */}
+          <View style={{ marginTop: 24, marginBottom: 16 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
               <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
               <Text style={{ marginHorizontal: 12, color: theme.textMuted, fontSize: 13, fontWeight: '500' }}>or continue with</Text>
               <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
             </View>
 
-            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 18 }}>
-              {/* Google Icon */}
+            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 16 }}>
+              {/* Google Sign-In */}
               <TouchableOpacity
                 id="google-signin-btn"
                 style={{
-                  width: 52,
-                  height: 52,
-                  borderRadius: 26,
+                  flex: 1,
+                  flexDirection: 'row',
+                  height: 48,
+                  borderRadius: 12,
                   backgroundColor: isDarkMode ? '#1E293B' : '#FFFFFF',
                   justifyContent: 'center',
                   alignItems: 'center',
@@ -351,103 +579,56 @@ const LoginScreen = ({ navigation }) => {
                   shadowOffset: { width: 0, height: 2 },
                   shadowOpacity: 0.08,
                   shadowRadius: 4,
-                  elevation: 3,
+                  elevation: 2,
                 }}
                 onPress={handleGoogleSignIn}
-                disabled={googleLoading || linkedinLoading || facebookLoading || appleLoading}
+                disabled={googleLoading || appleLoading}
                 activeOpacity={0.7}
               >
                 {googleLoading ? (
                   <ActivityIndicator color="#4285F4" size="small" />
                 ) : (
-                  <Ionicons name="logo-google" size={24} color="#EA4335" />
+                  <>
+                    <Ionicons name="logo-google" size={20} color="#EA4335" style={{ marginRight: 8 }} />
+                    <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text }}>Google</Text>
+                  </>
                 )}
               </TouchableOpacity>
 
-              {/* LinkedIn Icon */}
-              <TouchableOpacity
-                id="linkedin-signin-btn"
-                style={{
-                  width: 52,
-                  height: 52,
-                  borderRadius: 26,
-                  backgroundColor: '#0A66C2',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  shadowColor: '#0A66C2',
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.25,
-                  shadowRadius: 4,
-                  elevation: 3,
-                }}
-                onPress={handleLinkedInSignIn}
-                disabled={googleLoading || linkedinLoading || facebookLoading || appleLoading}
-                activeOpacity={0.7}
-              >
-                {linkedinLoading ? (
-                  <ActivityIndicator color="#FFFFFF" size="small" />
-                ) : (
-                  <Ionicons name="logo-linkedin" size={24} color="#FFFFFF" />
-                )}
-              </TouchableOpacity>
-
-              {/* Facebook Icon */}
-              <TouchableOpacity
-                id="facebook-signin-btn"
-                style={{
-                  width: 52,
-                  height: 52,
-                  borderRadius: 26,
-                  backgroundColor: '#1877F2',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  shadowColor: '#1877F2',
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.25,
-                  shadowRadius: 4,
-                  elevation: 3,
-                }}
-                onPress={handleFacebookSignIn}
-                disabled={googleLoading || linkedinLoading || facebookLoading || appleLoading}
-                activeOpacity={0.7}
-              >
-                {facebookLoading ? (
-                  <ActivityIndicator color="#FFFFFF" size="small" />
-                ) : (
-                  <Ionicons name="logo-facebook" size={24} color="#FFFFFF" />
-                )}
-              </TouchableOpacity>
-
-              {/* Apple Icon */}
+              {/* Apple Sign-In */}
               <TouchableOpacity
                 id="apple-signin-btn"
                 style={{
-                  width: 52,
-                  height: 52,
-                  borderRadius: 26,
+                  flex: 1,
+                  flexDirection: 'row',
+                  height: 48,
+                  borderRadius: 12,
                   backgroundColor: isDarkMode ? '#FFFFFF' : '#000000',
                   justifyContent: 'center',
                   alignItems: 'center',
                   shadowColor: '#000',
                   shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.25,
+                  shadowOpacity: 0.2,
                   shadowRadius: 4,
-                  elevation: 3,
+                  elevation: 2,
                 }}
                 onPress={handleAppleSignIn}
-                disabled={googleLoading || linkedinLoading || facebookLoading || appleLoading}
+                disabled={googleLoading || appleLoading}
                 activeOpacity={0.7}
               >
                 {appleLoading ? (
                   <ActivityIndicator color={isDarkMode ? '#000000' : '#FFFFFF'} size="small" />
                 ) : (
-                  <Ionicons name="logo-apple" size={24} color={isDarkMode ? '#000000' : '#FFFFFF'} />
+                  <>
+                    <Ionicons name="logo-apple" size={20} color={isDarkMode ? '#000000' : '#FFFFFF'} style={{ marginRight: 8 }} />
+                    <Text style={{ fontSize: 14, fontWeight: '600', color: isDarkMode ? '#000000' : '#FFFFFF' }}>Apple</Text>
+                  </>
                 )}
               </TouchableOpacity>
             </View>
           </View>
 
-          <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 20, marginBottom: 10 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 16, marginBottom: 10 }}>
             <Text style={{ color: theme.textMuted }}>{"Don't have an account? "}</Text>
             <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
               <Text style={{ color: theme.primary, fontWeight: 'bold' }}>Sign Up</Text>

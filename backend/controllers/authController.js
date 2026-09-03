@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const axios = require('axios');
 const { sendWelcomeEmail, sendOtpEmail, sendPasswordResetEmail } = require('../utils/sendEmail');
 const { validateEmailFull } = require('../utils/emailValidator');
+const { dispatchOtp, verifyDispatchedOtp } = require('../utils/otpDispatcher');
 const crypto = require('crypto');
 const OTP = require('../models/OTP');
 const Notification = require('../models/Notification');
@@ -400,6 +401,192 @@ exports.loginUser = async (req, res) => {
     } catch (error) {
         console.error('[LOGIN ERROR]:', error.message);
         res.status(500).json({ message: error.message || 'Login failed due to server error' });
+    }
+};
+
+// @desc    Send 6-digit OTP for Login via Email, Mobile SMS, or WhatsApp
+// @route   POST /api/auth/send-login-otp
+exports.sendLoginOtp = async (req, res) => {
+    try {
+        const { identifier, channel = 'email' } = req.body;
+        if (!identifier || !identifier.trim()) {
+            return res.status(400).json({ message: 'Please provide your email address or mobile number' });
+        }
+
+        await connectDB();
+        const cleanIdentifier = identifier.trim().toLowerCase();
+        const digitsOnly = cleanIdentifier.replace(/\D/g, '');
+
+        const AdminUser = require('../models/AdminUser');
+        const SuperAdminUser = require('../models/SuperAdminUser');
+
+        let user = await User.findOne({
+            $or: [
+                { email: cleanIdentifier },
+                { phone: cleanIdentifier },
+                ...(digitsOnly.length >= 10 ? [{ phone: { $regex: digitsOnly.slice(-10) } }] : [])
+            ]
+        });
+
+        if (!user) {
+            user = await AdminUser.findOne({
+                $or: [
+                    { email: cleanIdentifier },
+                    { phone: cleanIdentifier }
+                ]
+            });
+            if (!user) {
+                user = await SuperAdminUser.findOne({
+                    $or: [
+                        { email: cleanIdentifier },
+                        { phone: cleanIdentifier }
+                    ]
+                });
+            }
+        }
+
+        if (!user) {
+            return res.status(404).json({ 
+                message: 'No registered account found with that email or mobile number. Please check or sign up.' 
+            });
+        }
+
+        if (user.role !== 'Admin' && user.role !== 'Super Admin' && !user.is_approved) {
+            return res.status(403).json({ 
+                message: 'Your account is pending admin approval. You cannot log in yet.' 
+            });
+        }
+
+        // Determine destination identifier
+        let targetDestination = cleanIdentifier;
+        if (channel === 'email' && user.email) {
+            targetDestination = user.email;
+        } else if ((channel === 'mobile' || channel === 'whatsapp') && user.phone) {
+            targetDestination = user.phone;
+        }
+
+        const result = await dispatchOtp(targetDestination, channel);
+        res.json({
+            success: true,
+            message: result.message,
+            channel: result.channel,
+            maskedDestination: result.maskedDestination,
+            demoOtp: result.demoOtp
+        });
+    } catch (error) {
+        console.error('[SEND LOGIN OTP ERROR]:', error.message);
+        res.status(500).json({ message: error.message || 'Failed to send OTP' });
+    }
+};
+
+// @desc    Verify OTP and Log In user (Email, Mobile, WhatsApp)
+// @route   POST /api/auth/login-otp
+exports.loginWithOtp = async (req, res) => {
+    try {
+        const { identifier, otp } = req.body;
+        if (!identifier || !otp) {
+            return res.status(400).json({ message: 'Identifier (email/mobile) and OTP code are required' });
+        }
+
+        await connectDB();
+        const cleanIdentifier = identifier.trim().toLowerCase();
+        const cleanOtp = String(otp).trim();
+        const digitsOnly = cleanIdentifier.replace(/\D/g, '');
+
+        const AdminUser = require('../models/AdminUser');
+        const SuperAdminUser = require('../models/SuperAdminUser');
+
+        let user = await User.findOne({
+            $or: [
+                { email: cleanIdentifier },
+                { phone: cleanIdentifier },
+                ...(digitsOnly.length >= 10 ? [{ phone: { $regex: digitsOnly.slice(-10) } }] : [])
+            ]
+        });
+        let isAdminOrSuper = false;
+
+        if (!user) {
+            user = await AdminUser.findOne({
+                $or: [
+                    { email: cleanIdentifier },
+                    { phone: cleanIdentifier }
+                ]
+            });
+            if (!user) {
+                user = await SuperAdminUser.findOne({
+                    $or: [
+                        { email: cleanIdentifier },
+                        { phone: cleanIdentifier }
+                    ]
+                });
+            }
+            if (user) isAdminOrSuper = true;
+        }
+
+        if (!user) {
+            return res.status(404).json({ message: 'Account not found' });
+        }
+
+        if (!isAdminOrSuper && !user.is_approved) {
+            return res.status(403).json({ message: 'Your account is pending admin approval. You cannot log in yet.' });
+        }
+
+        // Verify OTP against identifier, user.email, and user.phone
+        const isTargetMatch = (
+            await verifyDispatchedOtp(cleanIdentifier, cleanOtp) ||
+            (user.email && await verifyDispatchedOtp(user.email, cleanOtp)) ||
+            (user.phone && await verifyDispatchedOtp(user.phone, cleanOtp))
+        );
+
+        if (!isTargetMatch) {
+            return res.status(400).json({ message: 'Invalid or expired verification code. Please request a new code.' });
+        }
+
+        // Record successful login
+        const loginEntry = {
+            ip: req.ip || req.connection?.remoteAddress || 'unknown',
+            userAgent: req.get('user-agent') || 'unknown',
+            timestamp: new Date(),
+            success: true
+        };
+        try {
+            user.loginHistory = [...(user.loginHistory || []).slice(-19), loginEntry];
+            await user.save({ validateBeforeSave: false });
+        } catch (_) {}
+
+        try {
+            const { recordSessionLogin } = require('../utils/sessionTracker');
+            await recordSessionLogin(req, user);
+        } catch (_) {}
+
+        let refreshToken = '';
+        try {
+            refreshToken = await createRefreshToken(user._id, req);
+        } catch (_) {}
+
+        res.json({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            institution: user.institution,
+            branch: user.branch,
+            department: user.department,
+            batchYear: user.batchYear,
+            joiningYear: user.joiningYear,
+            bio: user.bio,
+            location: user.location,
+            company: user.company,
+            designation: user.designation,
+            role: user.role,
+            avatar_url: user.avatar_url,
+            profilePicture: user.avatar_url,
+            linkedin: user.linkedin,
+            token: generateToken(user._id),
+            refreshToken
+        });
+    } catch (error) {
+        console.error('[LOGIN WITH OTP ERROR]:', error.message);
+        res.status(500).json({ message: error.message || 'Failed to authenticate with OTP' });
     }
 };
 

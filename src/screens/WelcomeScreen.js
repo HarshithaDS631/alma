@@ -8,8 +8,6 @@ import { API_URL } from '../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { handleGoogleLogin } from '../services/googleAuthService';
-import { handleLinkedInLogin } from '../services/linkedinAuthService';
-import { handleFacebookLogin } from '../services/facebookAuthService';
 import { handleAppleLogin } from '../services/appleAuthService';
 
 WebBrowser.maybeCompleteAuthSession();
@@ -41,14 +39,10 @@ const WelcomeScreen = ({ navigation }) => {
       let userData;
       if (provider === 'google') {
         userData = await handleGoogleLogin();
-      } else if (provider === 'linkedin') {
-        userData = await handleLinkedInLogin();
-      } else if (provider === 'facebook') {
-        userData = await handleFacebookLogin();
       } else if (provider === 'apple') {
         userData = await handleAppleLogin();
       } else {
-        alert(`${provider} sign-in is coming soon.`);
+        alert(`${provider} sign-in is not supported.`);
         return;
       }
 
@@ -136,48 +130,6 @@ const WelcomeScreen = ({ navigation }) => {
               disabled={socialLoading}
             >
               <Ionicons name="logo-google" size={24} color="#EA4335" />
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={{
-                width: 52,
-                height: 52,
-                borderRadius: 26,
-                backgroundColor: '#0A66C2',
-                justifyContent: 'center',
-                alignItems: 'center',
-                shadowColor: '#0A66C2',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.25,
-                shadowRadius: 4,
-                elevation: 3,
-              }} 
-              activeOpacity={0.7} 
-              onPress={() => handleOAuthLogin('linkedin')}
-              disabled={socialLoading}
-            >
-              <Ionicons name="logo-linkedin" size={24} color="#FFFFFF" />
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={{
-                width: 52,
-                height: 52,
-                borderRadius: 26,
-                backgroundColor: '#1877F2',
-                justifyContent: 'center',
-                alignItems: 'center',
-                shadowColor: '#1877F2',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.25,
-                shadowRadius: 4,
-                elevation: 3,
-              }} 
-              activeOpacity={0.7} 
-              onPress={() => handleOAuthLogin('facebook')}
-              disabled={socialLoading}
-            >
-              <Ionicons name="logo-facebook" size={24} color="#FFFFFF" />
             </TouchableOpacity>
 
             <TouchableOpacity 

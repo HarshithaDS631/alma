@@ -25,6 +25,16 @@ export const verifyOtp = async (email, otp) => {
     return data;
 };
 
+export const sendLoginOtp = async (identifier, channel = 'email') => {
+    const { data } = await api.post('/auth/send-login-otp', { identifier, channel });
+    return data;
+};
+
+export const loginWithOtp = async (identifier, otp) => {
+    const { data } = await api.post('/auth/login-otp', { identifier, otp });
+    return data;
+};
+
 export const getProfile = async () => {
     const { data } = await api.get('/auth/profile');
     return data;
