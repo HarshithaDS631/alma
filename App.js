@@ -379,6 +379,7 @@ const linking = {
       DemoCarousel: 'demo-carousel',
       Legal: 'legal',
       PrivacyPolicy: 'privacy-policy',
+      TermsOfService: 'terms-of-service',
       Terms: 'terms',
       CareerInsights: 'career-insights',
       Main: {
@@ -480,6 +481,7 @@ function RootNavigator() {
         <Stack.Screen name="AdminPlacementDetails" component={AdminPlacementDetailsScreen} />
         <Stack.Screen name="Legal" component={LegalScreen} />
         <Stack.Screen name="PrivacyPolicy" component={LegalScreen} initialParams={{ tab: 'privacy' }} />
+        <Stack.Screen name="TermsOfService" component={LegalScreen} initialParams={{ tab: 'terms' }} />
         <Stack.Screen name="Terms" component={LegalScreen} initialParams={{ tab: 'terms' }} />
         <Stack.Screen name="CareerInsights" component={CareerInsightsScreen} />
       </Stack.Navigator>

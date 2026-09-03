@@ -635,12 +635,22 @@ const LoginScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>
 
-          <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 30 }}>
-            <TouchableOpacity onPress={() => navigation.navigate('Legal')}>
-              <Text style={{ color: theme.textMuted, fontSize: 12, textDecorationLine: 'underline' }}>
-                Terms of Service • Privacy Policy • Legal Rights
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', marginBottom: 30, paddingHorizontal: 16 }}>
+            <Text style={{ color: theme.textSecondary || '#64748B', fontSize: 12, textAlign: 'center' }}>
+              By continuing, you agree to our{' '}
+            </Text>
+            <TouchableOpacity onPress={() => navigation.navigate('TermsOfService')}>
+              <Text style={{ color: isDarkMode ? '#38BDF8' : '#003366', fontSize: 12, fontWeight: '700', textDecorationLine: 'underline' }}>
+                Terms of Service
               </Text>
             </TouchableOpacity>
+            <Text style={{ color: theme.textSecondary || '#64748B', fontSize: 12 }}> and </Text>
+            <TouchableOpacity onPress={() => navigation.navigate('PrivacyPolicy')}>
+              <Text style={{ color: isDarkMode ? '#38BDF8' : '#003366', fontSize: 12, fontWeight: '700', textDecorationLine: 'underline' }}>
+                Privacy Policy
+              </Text>
+            </TouchableOpacity>
+            <Text style={{ color: theme.textSecondary || '#64748B', fontSize: 12 }}>.</Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

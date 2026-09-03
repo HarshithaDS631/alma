@@ -699,9 +699,23 @@ const RegisterScreen = ({ navigation, route }) => {
                 </TouchableOpacity>
               </View>
               
-              <Text style={{ textAlign: 'center', color: theme.textMuted, fontSize: 11, marginTop: 12, marginBottom: 20 }}>
-                By registering, you confirm your agreement to our End User License Agreement.
-              </Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', marginTop: 12, marginBottom: 24, paddingHorizontal: 10 }}>
+                <Text style={{ textAlign: 'center', color: theme.textSecondary || '#64748B', fontSize: 12 }}>
+                  By continuing, you agree to our{' '}
+                </Text>
+                <TouchableOpacity onPress={() => navigation.navigate('TermsOfService')}>
+                  <Text style={{ color: isDarkMode ? '#38BDF8' : '#003366', fontSize: 12, fontWeight: '700', textDecorationLine: 'underline' }}>
+                    Terms of Service
+                  </Text>
+                </TouchableOpacity>
+                <Text style={{ color: theme.textSecondary || '#64748B', fontSize: 12 }}> and </Text>
+                <TouchableOpacity onPress={() => navigation.navigate('PrivacyPolicy')}>
+                  <Text style={{ color: isDarkMode ? '#38BDF8' : '#003366', fontSize: 12, fontWeight: '700', textDecorationLine: 'underline' }}>
+                    Privacy Policy
+                  </Text>
+                </TouchableOpacity>
+                <Text style={{ color: theme.textSecondary || '#64748B', fontSize: 12 }}>.</Text>
+              </View>
             </View>
           </ScrollView>
         </KeyboardAvoidingView>

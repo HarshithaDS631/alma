@@ -25,7 +25,7 @@ const TABS = [
 ];
 
 export default function LegalScreen({ navigation, route }) {
-  const { theme } = useTheme();
+  const { theme, isDarkMode } = useTheme();
   const initialTab = route?.params?.tab || (route?.name === 'PrivacyPolicy' ? 'privacy' : 'terms');
   const [activeTab, setActiveTab] = useState(initialTab);
 
@@ -53,13 +53,13 @@ export default function LegalScreen({ navigation, route }) {
 
   const renderSection = (title, content) => (
     <View style={styles.section} key={title}>
-      <Text style={[styles.subHeading, { color: theme.text }]}>{title}</Text>
-      <Text style={[styles.paragraph, { color: theme.subtext }]}>{content}</Text>
+      <Text style={[styles.subHeading, { color: isDarkMode ? '#38BDF8' : '#003366' }]}>{title}</Text>
+      {content ? <Text style={[styles.paragraph, { color: theme.textSecondary || '#475569' }]}>{content}</Text> : null}
     </View>
   );
 
   const renderBullet = (items) => items.map((item, i) => (
-    <Text key={i} style={[styles.bullet, { color: theme.subtext }]}>• {item}</Text>
+    <Text key={i} style={[styles.bullet, { color: theme.textSecondary || '#475569' }]}>• {item}</Text>
   ));
 
   return (
@@ -78,45 +78,102 @@ export default function LegalScreen({ navigation, route }) {
         {TABS.map(tab => (
           <TouchableOpacity
             key={tab.id}
-            style={[styles.tabItem, activeTab === tab.id && { borderBottomColor: '#002144', borderBottomWidth: 2.5 }]}
+            style={[styles.tabItem, activeTab === tab.id && { borderBottomColor: isDarkMode ? '#38BDF8' : '#003366', borderBottomWidth: 2.5 }]}
             onPress={() => setActiveTab(tab.id)}
           >
-            <Ionicons name={tab.icon} size={16} color={activeTab === tab.id ? '#002144' : theme.subtext} />
-            <Text style={[styles.tabText, { color: activeTab === tab.id ? '#002144' : theme.subtext }]}>{tab.label}</Text>
+            <Ionicons name={tab.icon} size={16} color={activeTab === tab.id ? (isDarkMode ? '#38BDF8' : '#003366') : (theme.textMuted || '#94A3B8')} />
+            <Text style={[styles.tabText, { color: activeTab === tab.id ? (isDarkMode ? '#38BDF8' : '#003366') : (theme.textMuted || '#94A3B8'), fontWeight: activeTab === tab.id ? '700' : '500' }]}>{tab.label}</Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
 
       {/* Content */}
-      <ScrollView contentContainerStyle={styles.contentContainer}>
+      <ScrollView contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
 
-        {/* ─── TERMS ─── */}
+        {/* ─── TERMS OF SERVICE (19 Institutional Sections) ─── */}
         {activeTab === 'terms' && (
           <View>
             <View style={styles.docHeader}>
-              <Ionicons name="document-text" size={32} color="#002144" />
+              <Ionicons name="document-text" size={34} color={isDarkMode ? '#38BDF8' : '#003366'} />
               <View style={styles.docHeaderText}>
-                <Text style={[styles.sectionTitle, { color: theme.text }]}>Terms & Conditions</Text>
-                <Text style={[styles.effectiveDate, { color: theme.subtext }]}>Effective Date: 7 August 2026</Text>
+                <Text style={[styles.sectionTitle, { color: theme.text }]}>Terms of Service</Text>
+                <Text style={[styles.effectiveDate, { color: theme.textMuted }]}>
+                  Effective Date: 7 August 2026 • RV Educational Institutions
+                </Text>
               </View>
             </View>
 
-            {renderSection('1. Acceptance of Terms', 'By downloading, installing, or using Alumni Network, you agree to be legally bound by these Terms. If you do not agree, you must not use the App.')}
-            {renderSection('2. Who May Use This App', 'This App is for verified alumni, administrators, and super administrators of RV Institutions. You must be at least 13 years of age to use this App.')}
-            {renderSection('3. User Account', 'You must register with a valid institutional email. Your account requires admin approval before access is granted. You are responsible for maintaining the security of your credentials.')}
-            {renderSection('4. Prohibited Activities', '')}
-            {renderBullet([
-              'Hacking, reverse engineering, or compromising the App',
-              'Impersonating other users or administrators',
-              'Uploading harmful content, malware, or spam',
-              'Using the App for unauthorized commercial solicitation',
-            ])}
-            {renderSection('5. Termination', 'We reserve the right to suspend or terminate your account at any time for violation of these Terms without prior notice.')}
-            {renderSection('6. Governing Law', 'These Terms are governed by the laws of India. Disputes shall be resolved in courts of Bengaluru, Karnataka.')}
+            {/* Summary Highlights Card */}
+            <View style={{ backgroundColor: theme.card, borderWidth: 1, borderColor: isDarkMode ? '#334155' : '#E2E8F0', borderRadius: 12, padding: 16, marginBottom: 20 }}>
+              <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text, marginBottom: 6 }}>🏛️ Institutional Agreement</Text>
+              <Text style={{ fontSize: 13, color: theme.textSecondary, lineHeight: 19 }}>
+                These Terms of Service govern your access to and use of the Alumni Network mobile application and web portal operated by RV Educational Institutions. Please review our terms and privacy practices carefully before using the platform.
+              </Text>
+            </View>
 
-            <TouchableOpacity style={[styles.linkButton, { borderColor: '#002144' }]} onPress={() => openURL(TERMS_URL)}>
-              <Ionicons name="open-outline" size={16} color="#002144" />
-              <Text style={[styles.linkButtonText, { color: '#002144' }]}>View Full Terms of Service</Text>
+            {renderSection('1. Introduction', 'Welcome to the Alumni Network platform ("Platform" or "Service"), operated and managed by RV Educational Institutions ("Institution", "we", "us", or "our"). The Alumni Network is a dedicated alumni engagement, professional networking, and career mentorship platform created for students, alumni, faculty, institution administrators, and authorized institutional partners.')}
+            
+            {renderSection('2. Acceptance of Terms', 'By creating an account, clicking "Sign In", "Sign Up", or accessing any part of the Platform, you express your full and unconditional acceptance of these Terms of Service and our Privacy Policy. If you do not agree to these Terms, you must not access or use the Platform.')}
+
+            {renderSection('3. Eligibility', 'To access and use the Alumni Network, you represent and warrant that (a) you are a current student, alumnus/alumna, faculty member, administrator, or authorized representative of RV Educational Institutions; (b) you are at least thirteen (13) years of age; (c) your account has not been previously suspended or terminated for violations of institutional policies; and (d) your use complies with all applicable laws in India.')}
+
+            {renderSection('4. Account Registration and Account Security', 'Users must provide accurate, current, and verifiable information during registration. All accounts require institutional email verification and administrator approval. You must not impersonate any person or create fraudulent profiles. You are solely responsible for maintaining the confidentiality of your credentials and OTP tokens, and for all activities occurring under your account.')}
+
+            {renderSection('5. User Profile and Information', 'Users may maintain profile details including biography, work history, skills, portfolios, resumes (PDF format), and external links. You are responsible for ensuring all educational qualifications and work history listed on your profile are genuine and accurate.')}
+
+            {renderSection('6. Alumni Networking and Communication', 'Communication features (direct messaging, discussions, and mentorship matchmaking) are provided exclusively for educational, career advancement, and community networking. Users must maintain professional courtesy and respect. Harvesting, scraping, or misusing other members\' contact details for unauthorized commercial solicitations or spam is strictly prohibited.')}
+
+            {renderSection('7. Job Opportunities and Job Recommendations', 'Job listings and recruitment notices may be posted by alumni, administrators, employers, or authorized partners. RV Educational Institutions does not operate as an employment agency and does not guarantee employment outcomes, job availability, or the accuracy of third-party postings. Job descriptions and recruiter identities should be independently verified by users before sharing confidential documents. Keyword-based job recommendations are algorithmic aids and do not constitute institutional endorsements.')}
+
+            {renderSection('8. User-Generated Content', 'You retain ownership of any text, images, articles, comments, or media you publish on the Platform. By submitting content, you grant RV Educational Institutions a royalty-free, worldwide license to host, display, and distribute such content strictly for operating the alumni portal. You are solely responsible for ensuring your content does not violate third-party intellectual property or privacy rights.')}
+
+            {renderSection('9. Acceptable Use and Prohibited Activities', '')}
+            {renderBullet([
+              'Posting unlawful, abusive, harassing, defamatory, obscene, or hateful content.',
+              'Engaging in cyberbullying, stalking, or unauthorized surveillance.',
+              'Uploading files containing malware, viruses, worms, or disruptive code.',
+              'Distributing spam, pyramid schemes, or unsolicited commercial advertisements.',
+              'Attempting unauthorized access to servers, user databases, or security layers.',
+              'Scraping, crawling, decompiling, or data-mining platform databases without permission.',
+            ])}
+
+            {renderSection('10. Intellectual Property Rights', 'The Platform design, trademarks, logos, database architecture, and educational branding are the exclusive intellectual property of RV Educational Institutions. Users are granted a limited, revocable, non-exclusive license for personal, non-commercial institutional networking.')}
+
+            {renderSection('11. Privacy and Personal Data', 'Your privacy is paramount. Data collection, usage, encryption, retention, and deletion practices are governed by our Privacy Policy (/privacy-policy) in full compliance with the Digital Personal Data Protection Act (DPDPA), 2023.')}
+            
+            <TouchableOpacity 
+              style={[styles.linkButton, { borderColor: isDarkMode ? '#38BDF8' : '#003366', marginVertical: 12 }]} 
+              onPress={() => setActiveTab('privacy')}
+            >
+              <Ionicons name="shield-checkmark-outline" size={16} color={isDarkMode ? '#38BDF8' : '#003366'} />
+              <Text style={[styles.linkButtonText, { color: isDarkMode ? '#38BDF8' : '#003366' }]}>Read Full Privacy Policy (/privacy-policy)</Text>
+            </TouchableOpacity>
+
+            {renderSection('12. Third-Party Services and External Links', 'The Platform may integrate third-party services such as Google Sign-In, Apple Sign-In, Firebase, SendGrid, and external job sites. These third-party services operate under their own independent terms and privacy policies.')}
+
+            {renderSection('13. Notifications and Communications', 'By registering, you consent to receive administrative notices, account security alerts, and multi-factor authentication OTP codes via email, SMS, push notifications, or WhatsApp.')}
+
+            {renderSection('14. Disclaimer of Warranties', 'THE PLATFORM AND SERVICES ARE PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS. RV EDUCATIONAL INSTITUTIONS EXPRESSLY DISCLAIMS ALL WARRANTIES, WHETHER EXPRESS OR IMPLIED, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.')}
+
+            {renderSection('15. Limitation of Liability', 'TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL RV EDUCATIONAL INSTITUTIONS, ITS TRUSTEES, OFFICERS, DIRECTORS, OR EMPLOYEES BE LIABLE FOR ANY INDIRECT, INCIDENTAL, CONSEQUENTIAL, SPECIAL, OR PUNITIVE DAMAGES ARISING OUT OF YOUR USE OF THE PLATFORM.')}
+
+            {renderSection('16. Account Suspension and Termination', 'RV Educational Institutions reserves the right to suspend or terminate accounts that violate these Terms or institutional codes of conduct. Users may request account deletion at any time via Settings > Account Center or by contacting support.')}
+
+            {renderSection('17. Changes to the Terms', 'We may revise these Terms from time to time. When changes are made, the Effective Date will be updated. Continued use of the Platform after the effective date constitutes your agreement to the modified Terms.')}
+
+            {renderSection('18. Governing Law and Jurisdiction', 'These Terms shall be governed by and construed in accordance with the laws of India. The appropriate courts in Bengaluru, Karnataka, India shall have exclusive jurisdiction over any dispute arising hereunder.')}
+
+            {renderSection('19. Contact Information', '')}
+            <View style={{ backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, borderRadius: 10, padding: 14, marginBottom: 20 }}>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>RV Educational Institutions</Text>
+              <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 4 }}>Alumni Network Administration & Legal Cell</Text>
+              <Text style={{ fontSize: 13, color: isDarkMode ? '#38BDF8' : '#003366', fontWeight: '600', marginTop: 4 }}>Email: rvmediadevelopers@gmail.com</Text>
+              <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 2 }}>Location: Bengaluru, Karnataka, India</Text>
+            </View>
+
+            <TouchableOpacity style={[styles.linkButton, { borderColor: isDarkMode ? '#38BDF8' : '#003366' }]} onPress={() => openURL(TERMS_URL)}>
+              <Ionicons name="open-outline" size={16} color={isDarkMode ? '#38BDF8' : '#003366'} />
+              <Text style={[styles.linkButtonText, { color: isDarkMode ? '#38BDF8' : '#003366' }]}>View Terms Repository on GitHub</Text>
             </TouchableOpacity>
           </View>
         )}
