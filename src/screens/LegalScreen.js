@@ -24,9 +24,10 @@ const TABS = [
   { id: 'retention', label: 'Data Rights', icon: 'trash-outline' },
 ];
 
-export default function LegalScreen({ navigation }) {
+export default function LegalScreen({ navigation, route }) {
   const { theme } = useTheme();
-  const [activeTab, setActiveTab] = useState('terms');
+  const initialTab = route?.params?.tab || (route?.name === 'PrivacyPolicy' ? 'privacy' : 'terms');
+  const [activeTab, setActiveTab] = useState(initialTab);
 
   const openURL = (url) => Linking.openURL(url).catch(() => {});
 
