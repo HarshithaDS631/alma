@@ -75,6 +75,16 @@
           "data": [
             {
               "scheme": "https",
+              "host": "alma-orpin-delta.vercel.app",
+              "pathPrefix": "/"
+            },
+            {
+              "scheme": "https",
+              "host": "almafrontend-eight.vercel.app",
+              "pathPrefix": "/"
+            },
+            {
+              "scheme": "https",
               "host": "alumni-app-nine.vercel.app",
               "pathPrefix": "/"
             }
