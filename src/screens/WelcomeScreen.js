@@ -72,31 +72,31 @@ const WelcomeScreen = ({ navigation }) => {
       
       <View style={styles.content}>
         {/* Large Logo */}
-        <View style={styles.logoCircle}>
-          <Ionicons name="school" size={60} color="#003366" />
+        <View style={[styles.logoCircle, { backgroundColor: isDarkMode ? '#1E293B' : '#EFF6FF', borderColor: isDarkMode ? '#38BDF8' : '#BFDBFE' }]}>
+          <Ionicons name="school" size={64} color={isDarkMode ? '#38BDF8' : '#003366'} />
         </View>
         
-        <Text style={styles.title}>Welcome to RV Educational Institutions</Text>
-        <Text style={styles.subtitle}>Official Alumni Portal Network</Text>
+        <Text style={[styles.title, { color: isDarkMode ? '#FFFFFF' : '#003366' }]}>Welcome to RV Educational Institutions</Text>
+        <Text style={[styles.subtitle, { color: isDarkMode ? '#CBD5E1' : '#475569' }]}>Official Alumni Portal Network</Text>
       </View>
 
       <View style={styles.bottomSection}>
         {/* Action Buttons */}
         <View style={styles.buttonContainer}>
           <TouchableOpacity 
-            style={styles.primaryButton}
+            style={[styles.primaryButton, { backgroundColor: isDarkMode ? '#38BDF8' : '#003366' }]}
             onPress={() => navigation.navigate('Login')}
             activeOpacity={0.8}
           >
-            <Text style={styles.primaryButtonText}>Login</Text>
+            <Text style={[styles.primaryButtonText, { color: isDarkMode ? '#0B132B' : '#FFFFFF' }]}>Login</Text>
           </TouchableOpacity>
           
           <TouchableOpacity 
-            style={styles.secondaryButton}
+            style={[styles.secondaryButton, { backgroundColor: isDarkMode ? 'transparent' : '#FFFFFF', borderColor: isDarkMode ? '#38BDF8' : '#003366' }]}
             onPress={() => navigation.navigate('Signup')}
             activeOpacity={0.8}
           >
-            <Text style={styles.secondaryButtonText}>Sign up</Text>
+            <Text style={[styles.secondaryButtonText, { color: isDarkMode ? '#38BDF8' : '#003366' }]}>Sign up</Text>
           </TouchableOpacity>
         </View>
 
@@ -163,7 +163,7 @@ const WelcomeScreen = ({ navigation }) => {
 const getStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.card,
+    backgroundColor: theme.background,
   },
   content: {
     flex: 1,
@@ -175,11 +175,9 @@ const getStyles = (theme) => StyleSheet.create({
     width: 140,
     height: 140,
     borderRadius: 70,
-    backgroundColor: theme.background,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: theme.border,
     marginBottom: 30,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -195,12 +193,12 @@ const getStyles = (theme) => StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: '800',
-    color: theme.primary,
+    textAlign: 'center',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: theme.textSecondary,
+    textAlign: 'center',
     fontWeight: '500',
   },
   bottomSection: {
@@ -212,28 +210,23 @@ const getStyles = (theme) => StyleSheet.create({
     marginBottom: 30,
   },
   primaryButton: {
-    backgroundColor: theme.primary,
     height: 52,
     borderRadius: 26,
     justifyContent: 'center',
     alignItems: 'center',
   },
   primaryButtonText: {
-    color: theme.card,
     fontSize: 16,
     fontWeight: '700',
   },
   secondaryButton: {
-    backgroundColor: theme.card,
     height: 52,
     borderRadius: 26,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: theme.primary,
+    borderWidth: 1.5,
   },
   secondaryButtonText: {
-    color: theme.primary,
     fontSize: 16,
     fontWeight: '700',
   },
