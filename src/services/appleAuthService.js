@@ -157,9 +157,14 @@ export const handleAppleLogin = async () => {
     return userData;
   } catch (error) {
     // Handle Apple Sign-In cancellation gracefully
-    if (error.code === 'ERR_REQUEST_CANCELED' || error.code === 'ERR_CANCELED') {
+    if (error.code === 'ERR_REQUEST_CANCELED' || error.code === 'ERR_CANCELED' || error.code === 'auth/popup-closed-by-user') {
       const cancelErr = new Error('Apple Sign-In was cancelled.');
       throw cancelErr;
+    }
+
+    if (error.code === 'auth/operation-not-allowed' || error.message?.includes('operation-not-allowed')) {
+      const configErr = new Error('Apple Sign-In is currently disabled on your Firebase project. Please enable Apple under Firebase Console > Authentication > Sign-in method.');
+      throw configErr;
     }
 
     const errorMsg =
