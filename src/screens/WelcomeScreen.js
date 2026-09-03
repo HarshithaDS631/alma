@@ -72,27 +72,27 @@ const WelcomeScreen = ({ navigation }) => {
       
       <View style={styles.content}>
         {/* Large Logo */}
-        <View style={[styles.logoCircle, { backgroundColor: isDarkMode ? '#1E293B' : '#EFF6FF', borderColor: isDarkMode ? '#38BDF8' : '#BFDBFE' }]}>
+        <View style={[styles.logoCircle, { backgroundColor: isDarkMode ? '#1E293B' : '#EFF6FF', borderColor: isDarkMode ? '#0284C7' : '#BFDBFE' }]}>
           <Ionicons name="school" size={64} color={isDarkMode ? '#38BDF8' : '#003366'} />
         </View>
         
         <Text style={[styles.title, { color: isDarkMode ? '#FFFFFF' : '#003366' }]}>Welcome to RV Educational Institutions</Text>
-        <Text style={[styles.subtitle, { color: isDarkMode ? '#CBD5E1' : '#475569' }]}>Official Alumni Portal Network</Text>
+        <Text style={[styles.subtitle, { color: isDarkMode ? '#94A3B8' : '#475569' }]}>Official Alumni Portal Network</Text>
       </View>
 
       <View style={styles.bottomSection}>
         {/* Action Buttons */}
         <View style={styles.buttonContainer}>
           <TouchableOpacity 
-            style={[styles.primaryButton, { backgroundColor: isDarkMode ? '#38BDF8' : '#003366' }]}
+            style={[styles.primaryButton, { backgroundColor: isDarkMode ? '#0284C7' : '#003366' }]}
             onPress={() => navigation.navigate('Login')}
             activeOpacity={0.8}
           >
-            <Text style={[styles.primaryButtonText, { color: isDarkMode ? '#0B132B' : '#FFFFFF' }]}>Login</Text>
+            <Text style={[styles.primaryButtonText, { color: '#FFFFFF' }]}>Login</Text>
           </TouchableOpacity>
           
           <TouchableOpacity 
-            style={[styles.secondaryButton, { backgroundColor: isDarkMode ? 'transparent' : '#FFFFFF', borderColor: isDarkMode ? '#38BDF8' : '#003366' }]}
+            style={[styles.secondaryButton, { backgroundColor: isDarkMode ? '#1E293B' : '#FFFFFF', borderColor: isDarkMode ? '#0284C7' : '#003366' }]}
             onPress={() => navigation.navigate('Signup')}
             activeOpacity={0.8}
           >

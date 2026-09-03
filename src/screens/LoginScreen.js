@@ -288,7 +288,7 @@ const LoginScreen = ({ navigation }) => {
               }
             }}
           >
-            <Ionicons name="arrow-back" size={24} color="#002144" />
+            <Ionicons name="arrow-back" size={24} color={theme.text} />
           </TouchableOpacity>
 
           <View style={styles.header}>
@@ -306,7 +306,7 @@ const LoginScreen = ({ navigation }) => {
             padding: 4,
             marginBottom: 20,
             borderWidth: 1,
-            borderColor: isDarkMode ? '#334155' : '#E2E8F0'
+            borderColor: theme.border
           }}>
             <TouchableOpacity
               style={{
@@ -316,7 +316,7 @@ const LoginScreen = ({ navigation }) => {
                 justifyContent: 'center',
                 paddingVertical: 10,
                 borderRadius: 9,
-                backgroundColor: authMode === 'password' ? (isDarkMode ? '#243054' : '#FFFFFF') : 'transparent',
+                backgroundColor: authMode === 'password' ? (isDarkMode ? '#334155' : '#FFFFFF') : 'transparent',
                 borderWidth: authMode === 'password' ? 1 : 0,
                 borderColor: authMode === 'password' ? (isDarkMode ? '#38BDF8' : '#CBD5E1') : 'transparent',
                 shadowColor: authMode === 'password' ? '#000' : 'transparent',
@@ -331,13 +331,13 @@ const LoginScreen = ({ navigation }) => {
               <Ionicons 
                 name="key-outline" 
                 size={16} 
-                color={authMode === 'password' ? (isDarkMode ? '#38BDF8' : '#003366') : (theme.textSecondary || '#64748B')} 
+                color={authMode === 'password' ? (isDarkMode ? '#38BDF8' : '#003366') : theme.textSecondary} 
                 style={{ marginRight: 6 }}
               />
               <Text style={{
                 fontSize: 13.5,
                 fontWeight: authMode === 'password' ? '700' : '600',
-                color: authMode === 'password' ? (isDarkMode ? '#38BDF8' : '#003366') : (theme.textSecondary || '#64748B')
+                color: authMode === 'password' ? (isDarkMode ? '#38BDF8' : '#003366') : theme.textSecondary
               }}>
                 Password
               </Text>
@@ -351,7 +351,7 @@ const LoginScreen = ({ navigation }) => {
                 justifyContent: 'center',
                 paddingVertical: 10,
                 borderRadius: 9,
-                backgroundColor: authMode === 'otp' ? (isDarkMode ? '#243054' : '#FFFFFF') : 'transparent',
+                backgroundColor: authMode === 'otp' ? (isDarkMode ? '#334155' : '#FFFFFF') : 'transparent',
                 borderWidth: authMode === 'otp' ? 1 : 0,
                 borderColor: authMode === 'otp' ? (isDarkMode ? '#38BDF8' : '#CBD5E1') : 'transparent',
                 shadowColor: authMode === 'otp' ? '#000' : 'transparent',
@@ -366,13 +366,13 @@ const LoginScreen = ({ navigation }) => {
               <Ionicons 
                 name="shield-checkmark-outline" 
                 size={16} 
-                color={authMode === 'otp' ? (isDarkMode ? '#38BDF8' : '#003366') : (theme.textSecondary || '#64748B')} 
+                color={authMode === 'otp' ? (isDarkMode ? '#38BDF8' : '#003366') : theme.textSecondary} 
                 style={{ marginRight: 6 }}
               />
               <Text style={{
                 fontSize: 13.5,
                 fontWeight: authMode === 'otp' ? '700' : '600',
-                color: authMode === 'otp' ? (isDarkMode ? '#38BDF8' : '#003366') : (theme.textSecondary || '#64748B')
+                color: authMode === 'otp' ? (isDarkMode ? '#38BDF8' : '#003366') : theme.textSecondary
               }}>
                 OTP Verification
               </Text>
@@ -763,7 +763,7 @@ const LoginScreen = ({ navigation }) => {
 const getStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.card,
+    backgroundColor: theme.background,
   },
   keyboardView: {
     flex: 1,
@@ -774,7 +774,7 @@ const getStyles = (theme) => StyleSheet.create({
   },
   backButton: {
     marginTop: 16,
-    marginBottom: 24,
+    marginBottom: 20,
     width: 40,
     height: 40,
     borderRadius: 20,
@@ -782,15 +782,21 @@ const getStyles = (theme) => StyleSheet.create({
     alignItems: 'flex-start',
   },
   header: {
-    marginBottom: 40,
+    marginBottom: 28,
   },
   title: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: '800',
-    color: theme.primary,
+    color: theme.text,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: theme.textSecondary,
+    marginTop: 8,
+    lineHeight: 20,
   },
   form: {
-    marginBottom: 40,
+    marginBottom: 30,
   },
   inputContainer: {
     marginBottom: 16,
@@ -798,7 +804,7 @@ const getStyles = (theme) => StyleSheet.create({
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.background,
+    backgroundColor: theme.card,
     borderWidth: 1,
     borderColor: theme.border,
     borderRadius: 12,
@@ -808,10 +814,10 @@ const getStyles = (theme) => StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 15,
-    color: theme.primary,
+    color: theme.text,
   },
   primaryButton: {
-    backgroundColor: theme.primary,
+    backgroundColor: theme.buttonBackground || theme.primary,
     height: 52,
     borderRadius: 12,
     alignItems: 'center',
@@ -822,7 +828,7 @@ const getStyles = (theme) => StyleSheet.create({
     backgroundColor: theme.textMuted,
   },
   primaryButtonText: {
-    color: theme.card,
+    color: theme.buttonText || '#FFFFFF',
     fontSize: 16,
     fontWeight: '700',
   },
