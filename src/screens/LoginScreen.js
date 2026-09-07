@@ -318,7 +318,7 @@ const LoginScreen = ({ navigation }) => {
           {/* ── Standard Segmented Auth Mode Switcher ── */}
           <View style={{
             flexDirection: 'row',
-            backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9',
+            backgroundColor: isDarkMode ? '#1E2025' : '#F1F5F9',
             borderRadius: 12,
             padding: 4,
             marginBottom: 20,
@@ -333,9 +333,9 @@ const LoginScreen = ({ navigation }) => {
                 justifyContent: 'center',
                 paddingVertical: 10,
                 borderRadius: 9,
-                backgroundColor: authMode === 'password' ? (isDarkMode ? '#334155' : '#FFFFFF') : 'transparent',
+                backgroundColor: authMode === 'password' ? (isDarkMode ? '#282A30' : '#FFFFFF') : 'transparent',
                 borderWidth: authMode === 'password' ? 1 : 0,
-                borderColor: authMode === 'password' ? (isDarkMode ? '#38BDF8' : '#CBD5E1') : 'transparent',
+                borderColor: authMode === 'password' ? (isDarkMode ? '#3B82F6' : '#CBD5E1') : 'transparent',
                 shadowColor: authMode === 'password' ? '#000' : 'transparent',
                 shadowOffset: { width: 0, height: 1 },
                 shadowOpacity: authMode === 'password' ? 0.08 : 0,
@@ -348,13 +348,13 @@ const LoginScreen = ({ navigation }) => {
               <Ionicons 
                 name="key-outline" 
                 size={16} 
-                color={authMode === 'password' ? (isDarkMode ? '#38BDF8' : '#003366') : theme.textSecondary} 
+                color={authMode === 'password' ? (isDarkMode ? '#60A5FA' : '#003366') : theme.textSecondary} 
                 style={{ marginRight: 6 }}
               />
               <Text style={{
                 fontSize: 13.5,
                 fontWeight: authMode === 'password' ? '700' : '600',
-                color: authMode === 'password' ? (isDarkMode ? '#38BDF8' : '#003366') : theme.textSecondary
+                color: authMode === 'password' ? (isDarkMode ? '#60A5FA' : '#003366') : theme.textSecondary
               }}>
                 Password
               </Text>
@@ -368,9 +368,9 @@ const LoginScreen = ({ navigation }) => {
                 justifyContent: 'center',
                 paddingVertical: 10,
                 borderRadius: 9,
-                backgroundColor: authMode === 'otp' ? (isDarkMode ? '#334155' : '#FFFFFF') : 'transparent',
+                backgroundColor: authMode === 'otp' ? (isDarkMode ? '#282A30' : '#FFFFFF') : 'transparent',
                 borderWidth: authMode === 'otp' ? 1 : 0,
-                borderColor: authMode === 'otp' ? (isDarkMode ? '#38BDF8' : '#CBD5E1') : 'transparent',
+                borderColor: authMode === 'otp' ? (isDarkMode ? '#3B82F6' : '#CBD5E1') : 'transparent',
                 shadowColor: authMode === 'otp' ? '#000' : 'transparent',
                 shadowOffset: { width: 0, height: 1 },
                 shadowOpacity: authMode === 'otp' ? 0.08 : 0,
@@ -383,13 +383,13 @@ const LoginScreen = ({ navigation }) => {
               <Ionicons 
                 name="shield-checkmark-outline" 
                 size={16} 
-                color={authMode === 'otp' ? (isDarkMode ? '#38BDF8' : '#003366') : theme.textSecondary} 
+                color={authMode === 'otp' ? (isDarkMode ? '#60A5FA' : '#003366') : theme.textSecondary} 
                 style={{ marginRight: 6 }}
               />
               <Text style={{
                 fontSize: 13.5,
                 fontWeight: authMode === 'otp' ? '700' : '600',
-                color: authMode === 'otp' ? (isDarkMode ? '#38BDF8' : '#003366') : theme.textSecondary
+                color: authMode === 'otp' ? (isDarkMode ? '#60A5FA' : '#003366') : theme.textSecondary
               }}>
                 OTP Verification
               </Text>
@@ -404,7 +404,7 @@ const LoginScreen = ({ navigation }) => {
                   <TextInput 
                     style={styles.input}
                     placeholder="Enter Email"
-                    placeholderTextColor="#94A3B8"
+                    placeholderTextColor="#9CA3AF"
                     value={email}
                     onChangeText={setEmail}
                     autoCapitalize="none"
@@ -418,7 +418,7 @@ const LoginScreen = ({ navigation }) => {
                   <TextInput 
                     style={[styles.input, { flex: 1, paddingRight: 10 }]}
                     placeholder="Enter Password"
-                    placeholderTextColor="#94A3B8"
+                    placeholderTextColor="#9CA3AF"
                     value={password}
                     onChangeText={setPassword}
                     autoCapitalize="none"
@@ -431,7 +431,7 @@ const LoginScreen = ({ navigation }) => {
                     style={{ padding: 8, justifyContent: 'center', alignItems: 'center' }}
                     activeOpacity={0.7}
                   >
-                    <Ionicons name={showPassword ? "eye" : "eye-off"} size={22} color="#0F2744" />
+                    <Ionicons name={showPassword ? "eye" : "eye-off"} size={22} color={theme.icon} />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -481,10 +481,9 @@ const LoginScreen = ({ navigation }) => {
                         justifyContent: 'center',
                         paddingVertical: 10,
                         paddingHorizontal: 6,
-                        borderRadius: 8,
-                        backgroundColor: isSelected ? (isDarkMode ? '#243054' : '#EFF6FF') : (isDarkMode ? '#1E293B' : '#F8FAFC'),
+                            backgroundColor: isSelected ? (isDarkMode ? '#282A30' : '#EFF6FF') : (isDarkMode ? '#1E2025' : '#F8FAFC'),
                         borderWidth: 1.5,
-                        borderColor: isSelected ? (isDarkMode ? '#38BDF8' : '#003366') : (isDarkMode ? '#334155' : '#E2E8F0')
+                        borderColor: isSelected ? (isDarkMode ? '#3B82F6' : '#003366') : (isDarkMode ? '#2D3139' : '#E2E8F0')
                       }}
                       onPress={() => {
                         setOtpChannel(ch.id);
@@ -495,10 +494,10 @@ const LoginScreen = ({ navigation }) => {
                       <Ionicons 
                         name={ch.icon} 
                         size={15} 
-                        color={isSelected ? (isDarkMode ? '#38BDF8' : '#003366') : (ch.id === 'whatsapp' ? '#25D366' : theme.textMuted)} 
+                        color={isSelected ? (isDarkMode ? '#60A5FA' : '#003366') : (ch.id === 'whatsapp' ? '#25D366' : theme.textMuted)} 
                         style={{ marginRight: 5 }} 
                       />
-                      <Text style={{ fontSize: 12.5, fontWeight: isSelected ? '700' : '600', color: isSelected ? (isDarkMode ? '#38BDF8' : '#003366') : theme.textSecondary }}>
+                      <Text style={{ fontSize: 12.5, fontWeight: isSelected ? '700' : '600', color: isSelected ? (isDarkMode ? '#60A5FA' : '#003366') : theme.textSecondary }}>
                         {ch.label}
                       </Text>
                     </TouchableOpacity>
@@ -512,7 +511,7 @@ const LoginScreen = ({ navigation }) => {
                   <Ionicons 
                     name={otpChannel === 'email' ? 'mail-outline' : (otpChannel === 'whatsapp' ? 'logo-whatsapp' : 'phone-portrait-outline')} 
                     size={20} 
-                    color="#64748B" 
+                    color={theme.icon} 
                     style={{ marginRight: 10 }} 
                   />
                   <TextInput
@@ -522,7 +521,7 @@ const LoginScreen = ({ navigation }) => {
                         ? 'Enter registered email address'
                         : (otpChannel === 'whatsapp' ? 'Enter WhatsApp mobile number' : 'Enter registered mobile number')
                     }
-                    placeholderTextColor="#94A3B8"
+                    placeholderTextColor="#9CA3AF"
                     value={otpIdentifier}
                     onChangeText={setOtpIdentifier}
                     autoCapitalize="none"
@@ -546,7 +545,7 @@ const LoginScreen = ({ navigation }) => {
                       <TextInput
                         style={[styles.input, { letterSpacing: 4, fontWeight: '700', fontSize: 16 }]}
                         placeholder="Enter 6-digit code"
-                        placeholderTextColor="#94A3B8"
+                        placeholderTextColor="#9CA3AF"
                         value={otpCode}
                         onChangeText={setOtpCode}
                         keyboardType="number-pad"
@@ -586,7 +585,7 @@ const LoginScreen = ({ navigation }) => {
                     <ActivityIndicator color="#FFFFFF" size="small" />
                   ) : (
                     <Text style={styles.primaryButtonText}>
-                      Send Code via {otpChannel === 'whatsapp' ? 'WhatsApp' : otpChannel === 'mobile' ? 'SMS' : 'Email'}
+                      Send Code via {otpChannel === 'whatsapp' ? 'WhatsApp' : (otpChannel === 'mobile' ? 'SMS' : 'Email')}
                     </Text>
                   )}
                 </TouchableOpacity>
@@ -623,11 +622,11 @@ const LoginScreen = ({ navigation }) => {
                   flexDirection: 'row',
                   height: 48,
                   borderRadius: 12,
-                  backgroundColor: isDarkMode ? '#1E293B' : '#FFFFFF',
+                  backgroundColor: isDarkMode ? '#1E2025' : '#FFFFFF',
                   justifyContent: 'center',
                   alignItems: 'center',
                   borderWidth: 1.5,
-                  borderColor: isDarkMode ? '#334155' : '#E2E8F0',
+                  borderColor: isDarkMode ? '#2D3139' : '#E2E8F0',
                   shadowColor: '#000',
                   shadowOffset: { width: 0, height: 2 },
                   shadowOpacity: 0.08,
@@ -656,7 +655,7 @@ const LoginScreen = ({ navigation }) => {
                   flexDirection: 'row',
                   height: 48,
                   borderRadius: 12,
-                  backgroundColor: isDarkMode ? '#FFFFFF' : '#000000',
+                  backgroundColor: isDarkMode ? '#F9FAFB' : '#000000',
                   justifyContent: 'center',
                   alignItems: 'center',
                   shadowColor: '#000',
@@ -670,11 +669,11 @@ const LoginScreen = ({ navigation }) => {
                 activeOpacity={0.7}
               >
                 {appleLoading ? (
-                  <ActivityIndicator color={isDarkMode ? '#000000' : '#FFFFFF'} size="small" />
+                  <ActivityIndicator color={isDarkMode ? '#121316' : '#FFFFFF'} size="small" />
                 ) : (
                   <>
-                    <Ionicons name="logo-apple" size={20} color={isDarkMode ? '#000000' : '#FFFFFF'} style={{ marginRight: 8 }} />
-                    <Text style={{ fontSize: 14, fontWeight: '600', color: isDarkMode ? '#000000' : '#FFFFFF' }}>Apple</Text>
+                    <Ionicons name="logo-apple" size={20} color={isDarkMode ? '#121316' : '#FFFFFF'} style={{ marginRight: 8 }} />
+                    <Text style={{ fontSize: 14, fontWeight: '600', color: isDarkMode ? '#121316' : '#FFFFFF' }}>Apple</Text>
                   </>
                 )}
               </TouchableOpacity>
@@ -693,13 +692,13 @@ const LoginScreen = ({ navigation }) => {
               By continuing, you agree to our{' '}
             </Text>
             <TouchableOpacity onPress={() => navigation.navigate('TermsOfService')}>
-              <Text style={{ color: isDarkMode ? '#38BDF8' : '#003366', fontSize: 12, fontWeight: '700', textDecorationLine: 'underline' }}>
+              <Text style={{ color: isDarkMode ? '#60A5FA' : '#003366', fontSize: 12, fontWeight: '700', textDecorationLine: 'underline' }}>
                 Terms of Service
               </Text>
             </TouchableOpacity>
             <Text style={{ color: theme.textSecondary || '#64748B', fontSize: 12 }}> and </Text>
             <TouchableOpacity onPress={() => navigation.navigate('PrivacyPolicy')}>
-              <Text style={{ color: isDarkMode ? '#38BDF8' : '#003366', fontSize: 12, fontWeight: '700', textDecorationLine: 'underline' }}>
+              <Text style={{ color: isDarkMode ? '#60A5FA' : '#003366', fontSize: 12, fontWeight: '700', textDecorationLine: 'underline' }}>
                 Privacy Policy
               </Text>
             </TouchableOpacity>

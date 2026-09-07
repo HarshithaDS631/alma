@@ -72,19 +72,19 @@ const WelcomeScreen = ({ navigation }) => {
       
       <View style={styles.content}>
         {/* Large Logo */}
-        <View style={[styles.logoCircle, { backgroundColor: isDarkMode ? '#1E293B' : '#EFF6FF', borderColor: isDarkMode ? '#0284C7' : '#BFDBFE' }]}>
-          <Ionicons name="school" size={64} color={isDarkMode ? '#38BDF8' : '#003366'} />
+        <View style={[styles.logoCircle, { backgroundColor: isDarkMode ? '#1E2025' : '#EFF6FF', borderColor: isDarkMode ? '#2D3139' : '#BFDBFE' }]}>
+          <Ionicons name="school" size={64} color={isDarkMode ? '#3B82F6' : '#003366'} />
         </View>
         
-        <Text style={[styles.title, { color: isDarkMode ? '#FFFFFF' : '#003366' }]}>Welcome to RV Educational Institutions</Text>
-        <Text style={[styles.subtitle, { color: isDarkMode ? '#94A3B8' : '#475569' }]}>Official Alumni Portal Network</Text>
+        <Text style={[styles.title, { color: isDarkMode ? '#F9FAFB' : '#003366' }]}>Welcome to RV Educational Institutions</Text>
+        <Text style={[styles.subtitle, { color: isDarkMode ? '#9CA3AF' : '#475569' }]}>Official Alumni Portal Network</Text>
       </View>
 
       <View style={styles.bottomSection}>
         {/* Action Buttons */}
         <View style={styles.buttonContainer}>
           <TouchableOpacity 
-            style={[styles.primaryButton, { backgroundColor: isDarkMode ? '#0284C7' : '#003366' }]}
+            style={[styles.primaryButton, { backgroundColor: isDarkMode ? '#2563EB' : '#003366' }]}
             onPress={() => navigation.navigate('Login')}
             activeOpacity={0.8}
           >
@@ -92,11 +92,11 @@ const WelcomeScreen = ({ navigation }) => {
           </TouchableOpacity>
           
           <TouchableOpacity 
-            style={[styles.secondaryButton, { backgroundColor: isDarkMode ? '#1E293B' : '#FFFFFF', borderColor: isDarkMode ? '#0284C7' : '#003366' }]}
+            style={[styles.secondaryButton, { backgroundColor: isDarkMode ? '#1E2025' : '#FFFFFF', borderColor: isDarkMode ? '#3B82F6' : '#003366' }]}
             onPress={() => navigation.navigate('Signup')}
             activeOpacity={0.8}
           >
-            <Text style={[styles.secondaryButtonText, { color: isDarkMode ? '#38BDF8' : '#003366' }]}>Sign up</Text>
+            <Text style={[styles.secondaryButtonText, { color: isDarkMode ? '#60A5FA' : '#003366' }]}>Sign up</Text>
           </TouchableOpacity>
         </View>
 
@@ -109,35 +109,37 @@ const WelcomeScreen = ({ navigation }) => {
           </View>
 
           <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 18 }}>
+            {/* Google */}
             <TouchableOpacity 
               style={{
                 width: 52,
                 height: 52,
                 borderRadius: 26,
-                backgroundColor: isDarkMode ? '#1E293B' : '#FFFFFF',
+                backgroundColor: isDarkMode ? '#1E2025' : '#FFFFFF',
                 justifyContent: 'center',
                 alignItems: 'center',
                 borderWidth: 1.5,
-                borderColor: isDarkMode ? '#334155' : '#E2E8F0',
+                borderColor: isDarkMode ? '#2D3139' : '#E2E8F0',
                 shadowColor: '#000',
                 shadowOffset: { width: 0, height: 2 },
                 shadowOpacity: 0.08,
                 shadowRadius: 4,
                 elevation: 3,
-              }} 
-              activeOpacity={0.7} 
+              }}
+              activeOpacity={0.7}
               onPress={() => handleOAuthLogin('google')}
               disabled={socialLoading}
             >
               <Ionicons name="logo-google" size={24} color="#EA4335" />
             </TouchableOpacity>
 
+            {/* Apple */}
             <TouchableOpacity 
               style={{
                 width: 52,
                 height: 52,
                 borderRadius: 26,
-                backgroundColor: isDarkMode ? '#FFFFFF' : '#000000',
+                backgroundColor: isDarkMode ? '#F9FAFB' : '#000000',
                 justifyContent: 'center',
                 alignItems: 'center',
                 shadowColor: '#000',
@@ -145,12 +147,12 @@ const WelcomeScreen = ({ navigation }) => {
                 shadowOpacity: 0.25,
                 shadowRadius: 4,
                 elevation: 3,
-              }} 
-              activeOpacity={0.7} 
+              }}
+              activeOpacity={0.7}
               onPress={() => handleOAuthLogin('apple')}
               disabled={socialLoading}
             >
-              <Ionicons name="logo-apple" size={24} color={isDarkMode ? '#000000' : '#FFFFFF'} />
+              <Ionicons name="logo-apple" size={24} color={isDarkMode ? '#121316' : '#FFFFFF'} />
             </TouchableOpacity>
           </View>
         </View>
