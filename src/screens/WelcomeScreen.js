@@ -71,27 +71,6 @@ const WelcomeScreen = ({ navigation }) => {
         bounces={false}
       >
         <View style={styles.webWrapper}>
-          
-          {/* Top Header Row with Icon-Only Theme Switcher */}
-          <View style={styles.headerRow}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <View style={styles.statusDot} />
-              <Text style={styles.networkStatusText}>RV Network Live</Text>
-            </View>
-
-            <TouchableOpacity
-              onPress={toggleTheme}
-              style={styles.themeToggleBtn}
-              activeOpacity={0.7}
-              accessibilityLabel="Toggle Theme"
-            >
-              <Ionicons 
-                name={isDarkMode ? 'moon' : 'sunny'} 
-                size={18} 
-                color={isDarkMode ? '#60A5FA' : '#D97706'} 
-              />
-            </TouchableOpacity>
-          </View>
 
           {/* Hero Branding Section */}
           <View style={styles.heroSection}>
@@ -190,42 +169,10 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     paddingHorizontal: 22,
     justifyContent: 'space-between',
   },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: 16,
-    paddingBottom: 8,
-  },
-  statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#10B981',
-  },
-  networkStatusText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: isDarkMode ? '#9CA3AF' : '#64748B',
-  },
-  themeToggleBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: isDarkMode ? '#1E2025' : '#FFFFFF',
-    borderWidth: 1,
-    borderColor: isDarkMode ? '#2D3139' : '#E2E8F0',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 3,
-    elevation: 2,
-  },
   heroSection: {
     alignItems: 'center',
-    paddingVertical: 24,
+    paddingTop: 36,
+    paddingBottom: 20,
   },
   logoContainer: {
     width: 104,
