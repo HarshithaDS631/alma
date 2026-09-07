@@ -62,19 +62,38 @@ const RegisterScreen = ({ navigation, route }) => {
     branch: '',
     batchYear: '',
     joiningYear: '',
-    authProvider: route?.params?.prefill ? 'google' : 'local',
+    authProvider: route?.params?.prefill?.authProvider || (route?.params?.prefill ? 'google' : 'local'),
     avatar_url: route?.params?.prefill?.photoURL || ''
   });
 
   useEffect(() => {
     if (route?.params?.prefill) {
-      const { name, email, photoURL } = route.params.prefill;
+      const { name, email, photoURL, detectedInstitution, authProvider } = route.params.prefill;
+      const cleanEmail = email ? email.toLowerCase().trim() : '';
+      let autoInst = detectedInstitution || '';
+      if (!autoInst && cleanEmail) {
+        if (cleanEmail.endsWith('@rvce.edu.in')) autoInst = 'RV College of Engineering';
+        else if (cleanEmail.endsWith('@rvitm.edu.in')) autoInst = 'RV Institute of Technology and Management';
+        else if (cleanEmail.endsWith('@rvca.edu.in')) autoInst = 'RV College of Architecture';
+        else if (cleanEmail.endsWith('@rvim.edu.in')) autoInst = 'RV Institute of Management';
+        else if (cleanEmail.endsWith('@rvils.edu.in')) autoInst = 'MKPM RV Institute of Legal Studies';
+        else if (cleanEmail.endsWith('@rvdental.edu.in')) autoInst = 'D.A. Pandu Memorial RV Dental College';
+        else if (cleanEmail.endsWith('@rvcpt.edu.in')) autoInst = 'RV College of Physiotherapy';
+        else if (cleanEmail.endsWith('@rvcn.edu.in')) autoInst = 'RV College of Nursing';
+        else if (cleanEmail.endsWith('@rvtc.edu.in')) autoInst = 'RV Teachers College';
+        else if (cleanEmail.endsWith('@nmkrv.edu.in')) autoInst = 'NMKRV College for Women';
+        else if (cleanEmail.endsWith('@ssmrv.edu.in')) autoInst = 'SSMRV College';
+        else if (cleanEmail.endsWith('@rvpu.edu.in') || cleanEmail.endsWith('@rvpuc.edu.in')) autoInst = 'RV PU College Jayanagar';
+        else if (cleanEmail.endsWith('@rvei.edu.in') || cleanEmail.endsWith('@mediacell.com')) autoInst = 'Mediacell';
+      }
+
       setFormData(prev => ({
         ...prev,
         name: name || prev.name,
-        email: email ? email.toLowerCase().trim() : prev.email,
+        email: cleanEmail || prev.email,
         avatar_url: photoURL || prev.avatar_url,
-        authProvider: 'google'
+        institution: autoInst || prev.institution,
+        authProvider: authProvider || 'google'
       }));
       if (email) {
         setEmailState('verified');

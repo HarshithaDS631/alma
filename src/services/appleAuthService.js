@@ -149,7 +149,39 @@ export const handleAppleLogin = async () => {
     }
 
     // Exchange with our backend to get Alumni JWT
-    const userData = await exchangeAppleTokenWithBackend(appleUser);
+    let userData;
+    try {
+      userData = await exchangeAppleTokenWithBackend(appleUser);
+    } catch (backendErr) {
+      const status = backendErr?.response?.status;
+      const data = backendErr?.response?.data;
+
+      if (status === 403 || data?.status === 'PENDING_APPROVAL') {
+        const approvalErr = new Error(
+          data?.message || 'Your account is pending administrator approval. You will be able to log in once approved by your institution admin.'
+        );
+        approvalErr.isPendingApproval = true;
+        approvalErr.response = backendErr.response;
+        throw approvalErr;
+      }
+
+      if (status === 404 || data?.status === 'NOT_REGISTERED') {
+        return {
+          notRegistered: true,
+          appleUser: {
+            name: appleUser.name,
+            email: appleUser.email,
+            photoURL: appleUser.photoURL,
+            idToken: appleUser.idToken,
+            detectedInstitution: data?.detectedInstitution || null
+          }
+        };
+      }
+
+      const err = new Error(data?.message || backendErr.message || 'Apple authentication failed.');
+      err.response = backendErr.response;
+      throw err;
+    }
 
     // Persist session
     await saveUserSession(userData, appleUser);
@@ -174,6 +206,7 @@ export const handleAppleLogin = async () => {
     console.error('[Apple Login Error]:', errorMsg);
     const err = new Error(errorMsg);
     err.response = error.response;
+    err.isPendingApproval = error.isPendingApproval;
     throw err;
   }
 };

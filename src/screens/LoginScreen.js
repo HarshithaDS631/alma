@@ -99,8 +99,21 @@ const LoginScreen = ({ navigation }) => {
   const handleAppleSignIn = async () => {
     setAppleLoading(true);
     try {
-      const userData = await handleAppleLogin();
-      const userRole = (userData.role || '').trim().toLowerCase();
+      const result = await handleAppleLogin();
+
+      if (result?.notRegistered && result?.appleUser) {
+        alert(`👋 Welcome ${result.appleUser.name || 'Alumni'}!\n\nPlease select your Institution, Department, and Graduation Year to complete your registration.`);
+        navigation.navigate('Signup', {
+          prefill: {
+            ...result.appleUser,
+            authProvider: 'apple'
+          }
+        });
+        return;
+      }
+
+      const userData = result;
+      const userRole = (userData?.role || '').trim().toLowerCase();
       if (userRole === 'super admin' || userRole === 'superadmin') {
         navigation.navigate('SuperAdminMain');
       } else if (userRole === 'admin' || userRole === 'institution admin') {
@@ -109,7 +122,11 @@ const LoginScreen = ({ navigation }) => {
         navigation.navigate('Main');
       }
     } catch (error) {
-      alert(error.message || 'Apple Sign-In failed. Please try again.');
+      if (error.isPendingApproval || error.message?.includes('pending')) {
+        alert(`⏳ Account Pending Approval\n\n${error.message}`);
+      } else if (!error.message?.includes('cancelled') && !error.message?.includes('popup-closed')) {
+        alert(error.message || 'Apple Sign-In failed. Please try again.');
+      }
     } finally {
       setAppleLoading(false);
     }

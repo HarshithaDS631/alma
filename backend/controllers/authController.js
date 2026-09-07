@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const StudentData = require('../models/StudentData');
+const AlumniVerification = require('../models/AlumniVerification');
 const connectDB = require('../config/db');
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
@@ -19,6 +20,26 @@ const { OAuth2Client } = require('google-auth-library');
 const { sendFCMNotification } = require('../utils/fcmService');
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+// ─── Automatic Institutional Domain Matcher ───────────────────────
+const detectInstitutionFromEmail = (email) => {
+    if (!email) return null;
+    const clean = email.toLowerCase().trim();
+    if (clean.endsWith('@rvce.edu.in')) return 'RV College of Engineering';
+    if (clean.endsWith('@rvitm.edu.in')) return 'RV Institute of Technology and Management';
+    if (clean.endsWith('@rvca.edu.in')) return 'RV College of Architecture';
+    if (clean.endsWith('@rvim.edu.in')) return 'RV Institute of Management';
+    if (clean.endsWith('@rvils.edu.in')) return 'MKPM RV Institute of Legal Studies';
+    if (clean.endsWith('@rvdental.edu.in')) return 'D.A. Pandu Memorial RV Dental College';
+    if (clean.endsWith('@rvcpt.edu.in')) return 'RV College of Physiotherapy';
+    if (clean.endsWith('@rvcn.edu.in')) return 'RV College of Nursing';
+    if (clean.endsWith('@rvtc.edu.in')) return 'RV Teachers College';
+    if (clean.endsWith('@nmkrv.edu.in')) return 'NMKRV College for Women';
+    if (clean.endsWith('@ssmrv.edu.in')) return 'SSMRV College';
+    if (clean.endsWith('@rvpu.edu.in') || clean.endsWith('@rvpuc.edu.in')) return 'RV PU College Jayanagar';
+    if (clean.endsWith('@rvei.edu.in') || clean.endsWith('@mediacell.com')) return 'Mediacell';
+    return null;
+};
 
 // Helper function to dispatch Push Notifications
 const sendPushToUser = async (recipientId, title, body, dataPayload = {}) => {
@@ -248,12 +269,21 @@ exports.registerUser = async (req, res) => {
             }
         }
 
-        // 3. Complete Registration (Default is_approved: false -> Strict Admin Approval Required)
+        // 3. Complete Registration (Auto-approve if matched in institution master registry, else require Admin Approval)
+        const detectedInst = detectInstitutionFromEmail(emailClean);
+        let isAutoApproved = false;
+        try {
+            const masterRecord = await StudentData.findOne({ email: emailClean }) || await AlumniVerification.findOne({ email: emailClean });
+            if (masterRecord) {
+                isAutoApproved = true;
+            }
+        } catch (_) {}
+
         const user = await User.create({
             name,
             email: emailClean,
             password,
-            institution,
+            institution: institution || detectedInst || 'RV Educational Institutions',
             branch: branch || department,
             department: department || branch,
             batchYear,
@@ -262,7 +292,7 @@ exports.registerUser = async (req, res) => {
             authProvider: authProvider || 'local',
             providerId: providerId || '',
             avatar_url: avatar_url || '',
-            is_approved: false
+            is_approved: isAutoApproved
         });
         
         // Delete OTP after successful registration
@@ -272,12 +302,16 @@ exports.registerUser = async (req, res) => {
         // Fire and forget welcome email
         sendWelcomeEmail(user.email, user.name);
 
+        const responseMsg = isAutoApproved
+            ? `Registration verified! Your alumni record was matched with ${user.institution} records. You can now sign in.`
+            : `Registration submitted! Your account under '${user.institution}' is now pending approval by your Institution Admin. You will be able to sign in once approved.`;
+
         res.status(201).json({
-            message: `Registration submitted! Your account under '${institution}' is now pending approval by your Institution Admin. You will be able to sign in once approved.`,
+            message: responseMsg,
             _id: user._id,
             email: user.email,
             institution: user.institution,
-            is_approved: false
+            is_approved: isAutoApproved
         });
     } catch (error) {
         console.error('[REGISTER ERROR]:', error.message);
@@ -1314,14 +1348,40 @@ exports.googleAuth = async (req, res) => {
             user = await User.findOne({ email: email.toLowerCase() });
 
             if (!user) {
-                // If user is not yet registered with an Institution, return 404 so UI opens the registration form
-                return res.status(404).json({
-                    message: 'No alumni profile found for this Google email. Please complete the registration form to select your Institution and Department.',
-                    status: 'NOT_REGISTERED',
-                    name: name || 'Google User',
-                    email: email.toLowerCase(),
-                    picture: picture || ''
-                });
+                // Check if user is in StudentData or AlumniVerification master registry
+                const detectedInst = detectInstitutionFromEmail(email);
+                let masterRecord = null;
+                try {
+                    masterRecord = await StudentData.findOne({ email: email.toLowerCase() }) || await AlumniVerification.findOne({ email: email.toLowerCase() });
+                } catch (_) {}
+
+                if (masterRecord) {
+                    // Pre-verified student/alumni in the master database! Automatically create, link, and approve!
+                    user = await User.create({
+                        name: name || masterRecord.name || 'Alumni User',
+                        email: email.toLowerCase(),
+                        institution: masterRecord.institution || detectedInst || 'RV College of Engineering',
+                        department: masterRecord.department || masterRecord.branch || 'Engineering',
+                        branch: masterRecord.branch || masterRecord.department || 'Engineering',
+                        batchYear: masterRecord.batchYear || masterRecord.gradYear || new Date().getFullYear().toString(),
+                        joiningYear: masterRecord.joiningYear || '',
+                        authProvider: 'google',
+                        providerId: sub,
+                        avatar_url: picture || '',
+                        is_approved: true, // Pre-verified from master database!
+                        role: 'Alumni'
+                    });
+                } else {
+                    // If user is not yet registered with an Institution, return 404 so UI opens the registration form
+                    return res.status(404).json({
+                        message: 'No alumni profile found for this Google email. Please complete the registration form to select your Institution and Department.',
+                        status: 'NOT_REGISTERED',
+                        name: name || 'Google User',
+                        email: email.toLowerCase(),
+                        picture: picture || '',
+                        detectedInstitution: detectedInst || null
+                    });
+                }
             } else {
                 const isAdminOrSuper = ['admin', 'super admin', 'superadmin', 'institution admin'].includes((user.role || '').toLowerCase());
                 if (!isAdminOrSuper && !user.is_approved) {
@@ -1630,21 +1690,39 @@ exports.appleAuth = async (req, res) => {
         let user = await User.findOne({ email: email.toLowerCase() });
 
         if (!user) {
-            user = await User.create({
-                name: name || 'Apple User',
-                email: email.toLowerCase(),
-                avatar_url: picture || '',
-                authProvider: 'apple',
-                providerId: sub || 'apple_' + Date.now(),
-                is_approved: false, // Default to false -> Requires Admin Approval
-                role: 'Alumni',
-                institution: req.body.institution || 'RV Educational Institutions'
-            });
+            // Check if user is in StudentData or AlumniVerification master registry
+            const detectedInst = detectInstitutionFromEmail(email);
+            let masterRecord = null;
+            try {
+                masterRecord = await StudentData.findOne({ email: email.toLowerCase() }) || await AlumniVerification.findOne({ email: email.toLowerCase() });
+            } catch (_) {}
 
-            return res.status(403).json({
-                message: 'Your Apple account has been registered in the database and is pending administrator approval. You will be able to log in once approved by the admin.',
-                status: 'PENDING_APPROVAL'
-            });
+            if (masterRecord) {
+                user = await User.create({
+                    name: name || masterRecord.name || 'Apple User',
+                    email: email.toLowerCase(),
+                    institution: masterRecord.institution || detectedInst || 'RV College of Engineering',
+                    department: masterRecord.department || masterRecord.branch || 'Engineering',
+                    branch: masterRecord.branch || masterRecord.department || 'Engineering',
+                    batchYear: masterRecord.batchYear || masterRecord.gradYear || new Date().getFullYear().toString(),
+                    joiningYear: masterRecord.joiningYear || '',
+                    authProvider: 'apple',
+                    providerId: sub || 'apple_' + Date.now(),
+                    avatar_url: picture || '',
+                    is_approved: true, // Auto-approve pre-verified alumni
+                    role: 'Alumni'
+                });
+            } else {
+                // Return 404 with prefill & detected institution so UI completes registration
+                return res.status(404).json({
+                    message: 'No alumni profile found for this Apple ID. Please complete the registration form to select your Institution and Department.',
+                    status: 'NOT_REGISTERED',
+                    name: name || 'Apple User',
+                    email: email.toLowerCase(),
+                    picture: picture || '',
+                    detectedInstitution: detectedInst || null
+                });
+            }
         } else {
             const isAdminOrSuper = ['admin', 'super admin', 'superadmin', 'institution admin'].includes((user.role || '').toLowerCase());
             if (!isAdminOrSuper && !user.is_approved) {
