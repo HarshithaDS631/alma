@@ -816,6 +816,15 @@ const DEFAULT_TAGGED_POSTS = [];
       alert('✨ Profile updated successfully!');
     } catch (error) {
       console.error('Update profile error:', error);
+      if (error.response?.status === 401 || error.response?.data?.message?.includes('revoked') || error.response?.data?.message?.includes('expired')) {
+        setEditProfileModalVisible(false);
+        alert('🔒 Your session has expired or was revoked. Please log in again to continue.');
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Login' }],
+        });
+        return;
+      }
       alert(error.response?.data?.message || error.message || 'Failed to update profile');
     } finally {
       setSavingProfile(false);

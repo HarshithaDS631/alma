@@ -84,13 +84,13 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Automatic Refresh Token Interceptor
+// Automatic Refresh Token & Revocation Recovery Interceptor
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
     
-    // If 401 error, not already retrying, and not login/auth attempt
+    // If 401 Unauthorized, not already retried, and not an auth/refresh endpoint
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
@@ -99,29 +99,58 @@ api.interceptors.response.use(
     ) {
       originalRequest._retry = true;
       try {
-        const userInfoRaw = await AsyncStorage.getItem('userInfo');
-        if (userInfoRaw) {
-          const userInfo = JSON.parse(userInfoRaw);
-          if (userInfo.refreshToken) {
-            // Call refresh-token endpoint directly with plain axios
-            const res = await axios.post(`${BASE_URL}/auth/refresh-token`, {
-              refreshToken: userInfo.refreshToken
-            });
+        let refreshToken = await AsyncStorage.getItem('refreshToken');
+        if (!refreshToken) {
+          const userInfoRaw = await AsyncStorage.getItem('userInfo');
+          if (userInfoRaw) {
+            const userInfo = JSON.parse(userInfoRaw);
+            refreshToken = userInfo.refreshToken;
+          }
+        }
+        if (!refreshToken && Platform.OS === 'web' && typeof window !== 'undefined' && window.localStorage) {
+          refreshToken = window.localStorage.getItem('refreshToken');
+        }
 
-            if (res.data?.token) {
-              userInfo.token = res.data.token;
-              if (res.data.refreshToken) {
-                userInfo.refreshToken = res.data.refreshToken;
-              }
+        if (refreshToken) {
+          const res = await axios.post(`${BASE_URL}/auth/refresh-token`, { refreshToken });
+          if (res.data?.token) {
+            const newToken = res.data.token;
+            await AsyncStorage.setItem('userToken', newToken);
+            await AsyncStorage.setItem('token', newToken);
+
+            const userInfoRaw = await AsyncStorage.getItem('userInfo');
+            if (userInfoRaw) {
+              const userInfo = JSON.parse(userInfoRaw);
+              userInfo.token = newToken;
+              if (res.data.refreshToken) userInfo.refreshToken = res.data.refreshToken;
               await AsyncStorage.setItem('userInfo', JSON.stringify(userInfo));
-
-              originalRequest.headers.Authorization = `Bearer ${res.data.token}`;
-              return axios(originalRequest);
             }
+
+            if (Platform.OS === 'web' && typeof window !== 'undefined' && window.localStorage) {
+              window.localStorage.setItem('userToken', newToken);
+              window.localStorage.setItem('token', newToken);
+            }
+
+            if (originalRequest.headers && typeof originalRequest.headers.set === 'function') {
+              originalRequest.headers.set('Authorization', `Bearer ${newToken}`);
+            } else {
+              originalRequest.headers.Authorization = `Bearer ${newToken}`;
+              originalRequest.headers.authorization = `Bearer ${newToken}`;
+            }
+            return axios(originalRequest);
           }
         }
       } catch (refreshErr) {
-        console.warn('Token refresh error:', refreshErr?.message);
+        console.warn('Token refresh failed:', refreshErr?.message);
+      }
+
+      // If token refresh failed or token is revoked, remove stale tokens to prevent repeated 401 loops
+      const staleKeys = ['userToken', 'token', 'jwtToken', 'firebase_id_token', 'auth_token'];
+      for (const k of staleKeys) {
+        try { await AsyncStorage.removeItem(k); } catch (e) {}
+        if (Platform.OS === 'web' && typeof window !== 'undefined' && window.localStorage) {
+          try { window.localStorage.removeItem(k); } catch (e) {}
+        }
       }
     }
     return Promise.reject(error);
