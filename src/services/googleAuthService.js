@@ -220,6 +220,20 @@ export const handleGoogleLogin = async () => {
       error.response?.data?.message ||
       error.message ||
       'Google Sign-In failed. Please try again.';
+
+    const isCancelled = 
+      error.code === 'auth/popup-closed-by-user' ||
+      error.code === 'auth/cancelled-popup-request' ||
+      errorMsg.includes('popup-closed-by-user') ||
+      errorMsg.includes('auth/popup-closed-by-user') ||
+      errorMsg.includes('popup-closed') ||
+      errorMsg.includes('cancelled');
+
+    if (isCancelled) {
+      console.log('[Google Sign-In] Popup closed or cancelled by user.');
+      return null;
+    }
+
     console.error('[Google Login Error]:', errorMsg);
     const err = new Error(errorMsg);
     err.response = error.response;

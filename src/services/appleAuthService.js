@@ -189,9 +189,16 @@ export const handleAppleLogin = async () => {
     return userData;
   } catch (error) {
     // Handle Apple Sign-In cancellation gracefully
-    if (error.code === 'ERR_REQUEST_CANCELED' || error.code === 'ERR_CANCELED' || error.code === 'auth/popup-closed-by-user') {
-      const cancelErr = new Error('Apple Sign-In was cancelled.');
-      throw cancelErr;
+    if (
+      error.code === 'ERR_REQUEST_CANCELED' || 
+      error.code === 'ERR_CANCELED' || 
+      error.code === 'auth/popup-closed-by-user' ||
+      error.code === 'auth/cancelled-popup-request' ||
+      error.message?.includes('popup-closed-by-user') ||
+      error.message?.includes('cancelled')
+    ) {
+      console.log('[Apple Sign-In] Popup closed or cancelled by user.');
+      return null;
     }
 
     if (error.code === 'auth/operation-not-allowed' || error.message?.includes('operation-not-allowed')) {

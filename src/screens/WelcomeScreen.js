@@ -34,16 +34,36 @@ const WelcomeScreen = ({ navigation }) => {
   const handleOAuthLogin = async (provider) => {
     setSocialLoading(true);
     try {
-      let userData;
+      let result;
       if (provider === 'google') {
-        userData = await handleGoogleLogin();
+        result = await handleGoogleLogin();
       } else if (provider === 'apple') {
-        userData = await handleAppleLogin();
+        result = await handleAppleLogin();
       } else {
         alert(`${provider} sign-in is not supported.`);
         return;
       }
 
+      if (!result) {
+        // User closed the popup or cancelled — quietly exit
+        return;
+      }
+
+      if (result.notRegistered) {
+        const userToPrefill = result.googleUser || result.appleUser;
+        if (userToPrefill) {
+          alert(`👋 Welcome ${userToPrefill.name || 'Alumni'}!\n\nPlease select your Institution, Department, and Graduation Year to complete your registration.`);
+          navigation.navigate('Signup', {
+            prefill: {
+              ...userToPrefill,
+              authProvider: provider
+            }
+          });
+          return;
+        }
+      }
+
+      const userData = result;
       const userRole = (userData.role || '').trim().toLowerCase();
       if (userRole === 'super admin' || userRole === 'superadmin') {
         navigation.navigate('SuperAdminMain');
@@ -53,8 +73,21 @@ const WelcomeScreen = ({ navigation }) => {
         navigation.navigate('Main');
       }
     } catch (error) {
-      console.error(`${provider} Login Error:`, error);
-      alert(`${provider.charAt(0).toUpperCase() + provider.slice(1)} Login Error: ` + error.message);
+      const errMsg = error?.message || '';
+      const isCancellation = 
+        error?.code === 'auth/popup-closed-by-user' ||
+        error?.code === 'auth/cancelled-popup-request' ||
+        errMsg.includes('popup-closed-by-user') ||
+        errMsg.includes('cancelled') ||
+        errMsg.includes('popup-closed');
+
+      if (!isCancellation) {
+        if (error.isPendingApproval || errMsg.includes('pending')) {
+          alert(`⏳ Account Pending Approval\n\n${errMsg}`);
+        } else {
+          alert(`${provider.charAt(0).toUpperCase() + provider.slice(1)} Login Error: ${errMsg}`);
+        }
+      }
     } finally {
       setSocialLoading(false);
     }
