@@ -318,22 +318,19 @@ const LoginScreen = ({ navigation }) => {
             <TouchableOpacity
               onPress={toggleTheme}
               style={{
-                flexDirection: 'row',
+                width: 38,
+                height: 38,
+                borderRadius: 19,
+                justifyContent: 'center',
                 alignItems: 'center',
                 backgroundColor: isDarkMode ? '#1E2025' : '#F1F5F9',
-                paddingHorizontal: 12,
-                paddingVertical: 7,
-                borderRadius: 20,
                 borderWidth: 1,
                 borderColor: isDarkMode ? '#2D3139' : '#E2E8F0',
-                gap: 6,
               }}
               activeOpacity={0.7}
+              accessibilityLabel="Toggle Theme"
             >
-              <Ionicons name={isDarkMode ? 'moon' : 'sunny'} size={16} color={isDarkMode ? '#60A5FA' : '#D97706'} />
-              <Text style={{ fontSize: 12, fontWeight: '600', color: isDarkMode ? '#F9FAFB' : '#0F172A' }}>
-                {isDarkMode ? 'Dark' : 'Light'}
-              </Text>
+              <Ionicons name={isDarkMode ? 'moon' : 'sunny'} size={18} color={isDarkMode ? '#60A5FA' : '#D97706'} />
             </TouchableOpacity>
           </View>
 

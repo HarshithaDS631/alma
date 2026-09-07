@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, StatusBar, Platform } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, StatusBar, Platform, ScrollView } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
-import * as Linking from 'expo-linking';
-import { API_URL } from '../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { handleGoogleLogin } from '../services/googleAuthService';
@@ -14,7 +12,7 @@ WebBrowser.maybeCompleteAuthSession();
 
 const WelcomeScreen = ({ navigation }) => {
   const { theme, isDarkMode, toggleTheme } = useTheme();
-  const styles = getStyles(theme);
+  const styles = getStyles(theme, isDarkMode);
 
   const [portal, setPortal] = useState(null);
   const [socialLoading, setSocialLoading] = useState(false);
@@ -63,214 +61,349 @@ const WelcomeScreen = ({ navigation }) => {
   };
 
   const isWeb = Platform.OS === 'web';
-  const webContainerStyle = isWeb ? { alignSelf: 'center', width: '100%', maxWidth: 500, flex: 1 } : { flex: 1 };
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <View style={webContainerStyle}>
-        
-        {/* Top Header with Theme Switcher */}
-        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingHorizontal: 20, paddingTop: 12 }}>
-          <TouchableOpacity
-            onPress={toggleTheme}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              backgroundColor: isDarkMode ? '#1E2025' : '#F1F5F9',
-              paddingHorizontal: 12,
-              paddingVertical: 7,
-              borderRadius: 20,
-              borderWidth: 1,
-              borderColor: isDarkMode ? '#2D3139' : '#E2E8F0',
-              gap: 6,
-            }}
-            activeOpacity={0.7}
-          >
-            <Ionicons name={isDarkMode ? 'moon' : 'sunny'} size={16} color={isDarkMode ? '#60A5FA' : '#D97706'} />
-            <Text style={{ fontSize: 12, fontWeight: '600', color: isDarkMode ? '#F9FAFB' : '#0F172A' }}>
-              {isDarkMode ? 'Dark' : 'Light'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      
-      <View style={styles.content}>
-        {/* Large Logo */}
-        <View style={[styles.logoCircle, { backgroundColor: isDarkMode ? '#1E2025' : '#EFF6FF', borderColor: isDarkMode ? '#2D3139' : '#BFDBFE' }]}>
-          <Ionicons name="school" size={64} color={isDarkMode ? '#3B82F6' : '#003366'} />
-        </View>
-        
-        <Text style={[styles.title, { color: isDarkMode ? '#F9FAFB' : '#003366' }]}>Welcome to RV Educational Institutions</Text>
-        <Text style={[styles.subtitle, { color: isDarkMode ? '#9CA3AF' : '#475569' }]}>Official Alumni Portal Network</Text>
-      </View>
-
-      <View style={styles.bottomSection}>
-        {/* Action Buttons */}
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity 
-            style={[styles.primaryButton, { backgroundColor: isDarkMode ? '#2563EB' : '#003366' }]}
-            onPress={() => navigation.navigate('Login')}
-            activeOpacity={0.8}
-          >
-            <Text style={[styles.primaryButtonText, { color: '#FFFFFF' }]}>Login</Text>
-          </TouchableOpacity>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+        bounces={false}
+      >
+        <View style={styles.webWrapper}>
           
-          <TouchableOpacity 
-            style={[styles.secondaryButton, { backgroundColor: isDarkMode ? '#1E2025' : '#FFFFFF', borderColor: isDarkMode ? '#3B82F6' : '#003366' }]}
-            onPress={() => navigation.navigate('Signup')}
-            activeOpacity={0.8}
-          >
-            <Text style={[styles.secondaryButtonText, { color: isDarkMode ? '#60A5FA' : '#003366' }]}>Sign up</Text>
-          </TouchableOpacity>
-        </View>
+          {/* Top Header Row with Icon-Only Theme Switcher */}
+          <View style={styles.headerRow}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <View style={styles.statusDot} />
+              <Text style={styles.networkStatusText}>RV Network Live</Text>
+            </View>
 
-        {/* Social Login Icons */}
-        <View style={{ marginBottom: 10 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
-            <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
-            <Text style={{ marginHorizontal: 12, color: theme.textSecondary, fontSize: 13, fontWeight: '500' }}>or continue with</Text>
-            <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
-          </View>
-
-          <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 18 }}>
-            {/* Google */}
-            <TouchableOpacity 
-              style={{
-                width: 52,
-                height: 52,
-                borderRadius: 26,
-                backgroundColor: isDarkMode ? '#1E2025' : '#FFFFFF',
-                justifyContent: 'center',
-                alignItems: 'center',
-                borderWidth: 1.5,
-                borderColor: isDarkMode ? '#2D3139' : '#E2E8F0',
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.08,
-                shadowRadius: 4,
-                elevation: 3,
-              }}
+            <TouchableOpacity
+              onPress={toggleTheme}
+              style={styles.themeToggleBtn}
               activeOpacity={0.7}
-              onPress={() => handleOAuthLogin('google')}
-              disabled={socialLoading}
+              accessibilityLabel="Toggle Theme"
             >
-              <Ionicons name="logo-google" size={24} color="#EA4335" />
-            </TouchableOpacity>
-
-            {/* Apple */}
-            <TouchableOpacity 
-              style={{
-                width: 52,
-                height: 52,
-                borderRadius: 26,
-                backgroundColor: isDarkMode ? '#F9FAFB' : '#000000',
-                justifyContent: 'center',
-                alignItems: 'center',
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.25,
-                shadowRadius: 4,
-                elevation: 3,
-              }}
-              activeOpacity={0.7}
-              onPress={() => handleOAuthLogin('apple')}
-              disabled={socialLoading}
-            >
-              <Ionicons name="logo-apple" size={24} color={isDarkMode ? '#121316' : '#FFFFFF'} />
+              <Ionicons 
+                name={isDarkMode ? 'moon' : 'sunny'} 
+                size={18} 
+                color={isDarkMode ? '#60A5FA' : '#D97706'} 
+              />
             </TouchableOpacity>
           </View>
+
+          {/* Hero Branding Section */}
+          <View style={styles.heroSection}>
+            <View style={styles.logoContainer}>
+              <View style={styles.logoInnerGlow}>
+                <Ionicons name="school" size={54} color={isDarkMode ? '#3B82F6' : '#003366'} />
+              </View>
+            </View>
+
+            <Text style={styles.title}>RV Educational Institutions</Text>
+            <Text style={styles.subtitle}>
+              {portal?.name || 'Official Alumni & Career Network'}
+            </Text>
+
+            {/* Feature Pills */}
+            <View style={styles.featurePillsRow}>
+              <View style={styles.featurePill}>
+                <Ionicons name="shield-checkmark" size={13} color={isDarkMode ? '#60A5FA' : '#003366'} />
+                <Text style={styles.featurePillText}>Verified Alumni</Text>
+              </View>
+              <View style={styles.featurePill}>
+                <Ionicons name="briefcase" size={13} color={isDarkMode ? '#60A5FA' : '#003366'} />
+                <Text style={styles.featurePillText}>Job Referrals</Text>
+              </View>
+              <View style={styles.featurePill}>
+                <Ionicons name="people" size={13} color={isDarkMode ? '#60A5FA' : '#003366'} />
+                <Text style={styles.featurePillText}>Mentorship</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Action & Auth Section */}
+          <View style={styles.actionSection}>
+            <TouchableOpacity 
+              style={styles.primaryButton}
+              onPress={() => navigation.navigate('Login')}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.primaryButtonText}>Sign In</Text>
+              <Ionicons name="arrow-forward" size={18} color="#FFFFFF" style={{ marginLeft: 6 }} />
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.secondaryButton}
+              onPress={() => navigation.navigate('Signup')}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.secondaryButtonText}>Create New Account</Text>
+            </TouchableOpacity>
+
+            {/* Social Auth Divider */}
+            <View style={styles.dividerRow}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>or continue with</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            {/* Social Login Buttons */}
+            <View style={styles.socialButtonsRow}>
+              <TouchableOpacity 
+                style={styles.socialButton}
+                activeOpacity={0.75}
+                onPress={() => handleOAuthLogin('google')}
+                disabled={socialLoading}
+              >
+                <Ionicons name="logo-google" size={20} color="#EA4335" style={{ marginRight: 8 }} />
+                <Text style={styles.socialButtonText}>Google</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={[styles.socialButton, styles.appleButton]}
+                activeOpacity={0.75}
+                onPress={() => handleOAuthLogin('apple')}
+                disabled={socialLoading}
+              >
+                <Ionicons name="logo-apple" size={20} color={isDarkMode ? '#121316' : '#FFFFFF'} style={{ marginRight: 8 }} />
+                <Text style={[styles.socialButtonText, styles.appleButtonText]}>Apple</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Footer Notice */}
+            <View style={styles.footerContainer}>
+              <Text style={styles.footerText}>
+                Trusted platform for students, alumni & faculty of RV Institutions.
+              </Text>
+            </View>
+          </View>
+
         </View>
-      </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
 
-const getStyles = (theme) => StyleSheet.create({
+const getStyles = (theme, isDarkMode) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.background,
   },
-  content: {
+  scrollContainer: {
+    flexGrow: 1,
+    minHeight: '100%',
+    backgroundColor: theme.background,
+    justifyContent: 'space-between',
+    paddingBottom: 24,
+  },
+  webWrapper: {
     flex: 1,
+    width: '100%',
+    maxWidth: 480,
+    alignSelf: 'center',
+    paddingHorizontal: 22,
+    justifyContent: 'space-between',
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: 16,
+    paddingBottom: 8,
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#10B981',
+  },
+  networkStatusText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: isDarkMode ? '#9CA3AF' : '#64748B',
+  },
+  themeToggleBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 24,
+    backgroundColor: isDarkMode ? '#1E2025' : '#FFFFFF',
+    borderWidth: 1,
+    borderColor: isDarkMode ? '#2D3139' : '#E2E8F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+    elevation: 2,
   },
-  logoCircle: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
+  heroSection: {
+    alignItems: 'center',
+    paddingVertical: 24,
+  },
+  logoContainer: {
+    width: 104,
+    height: 104,
+    borderRadius: 52,
+    backgroundColor: isDarkMode ? '#1E2025' : '#EFF6FF',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    marginBottom: 30,
+    borderColor: isDarkMode ? '#2D3139' : '#BFDBFE',
+    marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
+    shadowOpacity: isDarkMode ? 0.3 : 0.08,
     shadowRadius: 10,
     elevation: 4,
   },
-  logoText: {
-    fontSize: 26,
-    fontWeight: '900',
-    color: theme.primary,
+  logoInnerGlow: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: isDarkMode ? '#282A30' : '#DBEAFE',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: '800',
     textAlign: 'center',
+    color: theme.text,
+    letterSpacing: -0.3,
     marginBottom: 8,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 15,
     textAlign: 'center',
-    fontWeight: '500',
+    color: theme.textSecondary,
+    lineHeight: 22,
+    paddingHorizontal: 12,
   },
-  bottomSection: {
-    paddingHorizontal: 24,
-    paddingBottom: 40,
+  featurePillsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 20,
   },
-  buttonContainer: {
-    gap: 16,
-    marginBottom: 30,
+  featurePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: isDarkMode ? '#1E2025' : '#F1F5F9',
+    paddingHorizontal: 11,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: isDarkMode ? '#2D3139' : '#E2E8F0',
+    gap: 5,
+  },
+  featurePillText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: theme.textSecondary,
+  },
+  actionSection: {
+    width: '100%',
+    paddingTop: 12,
   },
   primaryButton: {
+    flexDirection: 'row',
     height: 52,
-    borderRadius: 26,
+    borderRadius: 14,
+    backgroundColor: isDarkMode ? '#2563EB' : '#003366',
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: 12,
+    shadowColor: isDarkMode ? '#2563EB' : '#003366',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 4,
   },
   primaryButtonText: {
     fontSize: 16,
     fontWeight: '700',
+    color: '#FFFFFF',
+    letterSpacing: 0.2,
   },
   secondaryButton: {
     height: 52,
-    borderRadius: 26,
+    borderRadius: 14,
+    backgroundColor: isDarkMode ? '#1E2025' : '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: isDarkMode ? '#2D3139' : '#CBD5E1',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1.5,
+    marginBottom: 20,
   },
   secondaryButtonText: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
+    color: theme.text,
   },
-  socialContainer: {
+  dividerRow: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 20,
+    alignItems: 'center',
+    marginBottom: 18,
   },
-  socialIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#F1F5F9',
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: theme.border,
+  },
+  dividerText: {
+    marginHorizontal: 12,
+    color: theme.textMuted,
+    fontSize: 12.5,
+    fontWeight: '500',
+  },
+  socialButtonsRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  socialButton: {
+    flex: 1,
+    flexDirection: 'row',
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: isDarkMode ? '#1E2025' : '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: theme.border,
+    borderWidth: 1.2,
+    borderColor: isDarkMode ? '#2D3139' : '#E2E8F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  socialButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: theme.text,
+  },
+  appleButton: {
+    backgroundColor: isDarkMode ? '#F9FAFB' : '#000000',
+    borderColor: isDarkMode ? '#F9FAFB' : '#000000',
+  },
+  appleButtonText: {
+    color: isDarkMode ? '#121316' : '#FFFFFF',
+  },
+  footerContainer: {
+    marginTop: 24,
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  footerText: {
+    fontSize: 11.5,
+    color: theme.textMuted,
+    textAlign: 'center',
+    lineHeight: 16,
   },
 });
 
 export default WelcomeScreen;
+

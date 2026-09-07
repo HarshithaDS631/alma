@@ -36,6 +36,7 @@ const JOB_TYPES = ['All', 'Full-time', 'Part-time', 'Contract', 'Internship'];
 const JobsScreen = ({ navigation, route }) => {
   const { theme, isDarkMode } = useTheme();
   const { isAlumni, isAdmin, isSuperAdmin, isAdminOrSuper } = useUserRole();
+  const styles = getStyles(theme, isDarkMode);
 
   const { width: screenWidth } = useWindowDimensions();
   const isSmallScreen = screenWidth < 400;
@@ -206,43 +207,63 @@ const JobsScreen = ({ navigation, route }) => {
     const matchScore = job.matchScore || job.matchPercentage;
 
     return (
-      <View key={job._id || job.id} style={st.card}>
+      <View key={job._id || job.id} style={styles.card}>
         <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
-          <View style={st.logoBox}>
-            <Ionicons name="business-outline" size={24} color="#003366" />
+          <View style={styles.logoBox}>
+            <Ionicons name="business-outline" size={24} color={isDarkMode ? '#60A5FA' : '#003366'} />
           </View>
 
           <View style={{ flex: 1, marginLeft: 12 }}>
-            <Text style={st.titleText}>{job.title}</Text>
-            <Text style={st.companyText}>{job.company} • <Text style={{ color: '#64748B' }}>{job.location}</Text></Text>
+            <Text style={styles.titleText}>{job.title}</Text>
+            <Text style={styles.companyText}>
+              {job.company} <Text style={{ color: theme.textMuted }}>•</Text> <Text style={{ color: theme.textSecondary }}>{job.location}</Text>
+            </Text>
 
-            <View style={st.tagRow}>
-              <View style={st.tagPill}>
-                <Text style={st.tagText}>{job.workplaceType || 'On-site'}</Text>
+            <View style={styles.tagRow}>
+              <View style={styles.tagPill}>
+                <Text style={styles.tagText}>{job.workplaceType || 'On-site'}</Text>
               </View>
-              <View style={[st.tagPill, { backgroundColor: '#F1F5F9' }]}>
-                <Text style={[st.tagText, { color: '#475569' }]}>{job.jobType || 'Full-time'}</Text>
+              <View style={[styles.tagPill, { backgroundColor: isDarkMode ? '#282A30' : '#F1F5F9' }]}>
+                <Text style={[styles.tagText, { color: theme.textSecondary }]}>{job.jobType || 'Full-time'}</Text>
               </View>
               {job.salaryRange ? (
-                <View style={[st.tagPill, { backgroundColor: '#ECFDF5' }]}>
-                  <Text style={[st.tagText, { color: '#059669' }]}>{job.salaryRange}</Text>
+                <View style={[styles.tagPill, { backgroundColor: isDarkMode ? 'rgba(16, 185, 129, 0.15)' : '#ECFDF5' }]}>
+                  <Text style={[styles.tagText, { color: '#10B981' }]}>{job.salaryRange}</Text>
                 </View>
               ) : null}
             </View>
 
             {/* Smart Keyword & Match Detection Highlight */}
             {hasKeywordMatch ? (
-              <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#EFF6FF', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6, marginTop: 8, alignSelf: 'flex-start', borderWidth: 1, borderColor: '#BFDBFE' }}>
-                <Ionicons name="sparkles" size={13} color="#2563EB" style={{ marginRight: 5 }} />
-                <Text style={{ fontSize: 12, fontWeight: '700', color: '#1D4ED8' }}>
-                  🎯 {matchScore ? `${matchScore}% Match` : 'Smart Match'} • Matched Keyword: {job.matchingKeywords.join(', ')}
+              <View style={{ 
+                flexDirection: 'row', 
+                alignItems: 'center', 
+                backgroundColor: isDarkMode ? 'rgba(59, 130, 246, 0.15)' : '#EFF6FF', 
+                paddingHorizontal: 10, 
+                paddingVertical: 5, 
+                borderRadius: 8, 
+                marginTop: 10, 
+                alignSelf: 'flex-start', 
+                borderWidth: 1, 
+                borderColor: isDarkMode ? 'rgba(59, 130, 246, 0.3)' : '#BFDBFE' 
+              }}>
+                <Ionicons name="sparkles" size={13} color={isDarkMode ? '#60A5FA' : '#2563EB'} style={{ marginRight: 5 }} />
+                <Text style={{ fontSize: 12, fontWeight: '700', color: isDarkMode ? '#93C5FD' : '#1D4ED8' }}>
+                  🎯 {matchScore ? `${matchScore}% Match` : 'Smart Match'} • {job.matchingKeywords.join(', ')}
                 </Text>
               </View>
             ) : (job.keywords && job.keywords.length > 0 ? (
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
-                {job.keywords.slice(0, 3).map((kw, i) => (
-                  <View key={i} style={{ backgroundColor: '#F8FAFC', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, borderWidth: 1, borderColor: '#E2E8F0' }}>
-                    <Text style={{ fontSize: 11, color: '#475569', fontWeight: '500' }}>#{kw}</Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+                {job.keywords.slice(0, 4).map((kw, i) => (
+                  <View key={i} style={{ 
+                    backgroundColor: isDarkMode ? '#282A30' : '#F8FAFC', 
+                    paddingHorizontal: 8, 
+                    paddingVertical: 3, 
+                    borderRadius: 6, 
+                    borderWidth: 1, 
+                    borderColor: theme.border 
+                  }}>
+                    <Text style={{ fontSize: 11, color: theme.textSecondary, fontWeight: '500' }}>#{kw}</Text>
                   </View>
                 ))}
               </View>
@@ -251,7 +272,7 @@ const JobsScreen = ({ navigation, route }) => {
             {isAppliedTab ? (
               <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
                 <Ionicons name="checkmark-circle" size={16} color="#10B981" style={{ marginRight: 4 }} />
-                <Text style={{ fontSize: 13, fontWeight: '700', color: '#059669' }}>
+                <Text style={{ fontSize: 13, fontWeight: '700', color: '#10B981' }}>
                   Status: {job.status || 'Applied'}
                 </Text>
               </View>
@@ -259,26 +280,28 @@ const JobsScreen = ({ navigation, route }) => {
           </View>
 
           <TouchableOpacity onPress={() => handleToggleSave(job._id || job.id)} style={{ padding: 6 }}>
-            <Ionicons name={isSaved ? "bookmark" : "bookmark-outline"} size={22} color={isSaved ? "#003366" : "#94A3B8"} />
+            <Ionicons name={isSaved ? "bookmark" : "bookmark-outline"} size={22} color={isSaved ? (isDarkMode ? '#60A5FA' : '#003366') : theme.textMuted} />
           </TouchableOpacity>
         </View>
 
         {/* Action Row */}
         {!isAppliedTab && (
-          <View style={st.cardActionRow}>
+          <View style={styles.cardActionRow}>
             <TouchableOpacity 
-              style={st.easyApplyBtn}
+              style={styles.easyApplyBtn}
               onPress={() => { setSelectedJob(job); setApplyModalVisible(true); }}
+              activeOpacity={0.8}
             >
-              <Ionicons name="flash" size={14} color="#FFFFFF" style={{ marginRight: 4 }} />
-              <Text style={st.easyApplyText}>Easy Apply</Text>
+              <Ionicons name="flash" size={14} color="#FFFFFF" style={{ marginRight: 5 }} />
+              <Text style={styles.easyApplyText}>Easy Apply</Text>
             </TouchableOpacity>
 
             <TouchableOpacity 
-              style={st.detailsBtn}
+              style={styles.detailsBtn}
               onPress={() => { setSelectedJob(job); setApplyModalVisible(true); }}
+              activeOpacity={0.8}
             >
-              <Text style={st.detailsText}>View Details</Text>
+              <Text style={styles.detailsText}>View Details</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -287,52 +310,60 @@ const JobsScreen = ({ navigation, route }) => {
   };
 
   return (
-    <SafeAreaView style={[st.container, { backgroundColor: isDarkMode ? '#0F172A' : '#F8FAFC' }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
 
       {/* LinkedIn Jobs Navigation Header */}
-      <View style={[st.headerContainer, { backgroundColor: isDarkMode ? '#1E293B' : '#FFFFFF' }]}>
-        <Text style={[st.headerTitle, { color: isDarkMode ? '#F8FAFC' : '#0F172A' }]}>LinkedIn Jobs</Text>
+      <View style={styles.headerContainer}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+          <Text style={styles.headerTitle}>Career & Job Hub</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: isDarkMode ? '#282A30' : '#EFF6FF', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, borderWidth: 1, borderColor: isDarkMode ? '#2D3139' : '#BFDBFE' }}>
+            <Ionicons name="briefcase-outline" size={14} color={isDarkMode ? '#60A5FA' : '#003366'} style={{ marginRight: 4 }} />
+            <Text style={{ fontSize: 12, fontWeight: '700', color: isDarkMode ? '#93C5FD' : '#003366' }}>
+              {jobs.length} Active Jobs
+            </Text>
+          </View>
+        </View>
         
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={st.tabBar}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabBar}>
           <TouchableOpacity 
-            style={[st.tabItem, activeTab === 'search' && st.tabItemActive]}
+            style={[styles.tabItem, activeTab === 'search' && styles.tabItemActive]}
             onPress={() => setActiveTab('search')}
           >
-            <Ionicons name="search" size={16} color={activeTab === 'search' ? '#003366' : '#64748B'} />
-            <Text style={[st.tabText, activeTab === 'search' && st.tabTextActive]}>Search Jobs</Text>
+            <Ionicons name="search" size={16} color={activeTab === 'search' ? (isDarkMode ? '#60A5FA' : '#003366') : theme.textMuted} />
+            <Text style={[styles.tabText, activeTab === 'search' && styles.tabTextActive]}>Search Jobs</Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
-            style={[st.tabItem, activeTab === 'tracker' && st.tabItemActive]}
+            style={[styles.tabItem, activeTab === 'tracker' && styles.tabItemActive]}
             onPress={() => setActiveTab('tracker')}
           >
-            <Ionicons name="bookmark" size={16} color={activeTab === 'tracker' ? '#003366' : '#64748B'} />
-            <Text style={[st.tabText, activeTab === 'tracker' && st.tabTextActive]}>Job Tracker</Text>
+            <Ionicons name="bookmark" size={16} color={activeTab === 'tracker' ? (isDarkMode ? '#60A5FA' : '#003366') : theme.textMuted} />
+            <Text style={[styles.tabText, activeTab === 'tracker' && styles.tabTextActive]}>Job Tracker</Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
-            style={[st.tabItem, activeTab === 'preferences' && st.tabItemActive]}
+            style={[styles.tabItem, activeTab === 'preferences' && styles.tabItemActive]}
             onPress={() => setActiveTab('preferences')}
           >
-            <Ionicons name="options" size={16} color={activeTab === 'preferences' ? '#003366' : '#64748B'} />
-            <Text style={[st.tabText, activeTab === 'preferences' && st.tabTextActive]}>Preferences</Text>
+            <Ionicons name="options" size={16} color={activeTab === 'preferences' ? (isDarkMode ? '#60A5FA' : '#003366') : theme.textMuted} />
+            <Text style={[styles.tabText, activeTab === 'preferences' && styles.tabTextActive]}>Preferences</Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
-            style={[st.tabItem, activeTab === 'recommended' && st.tabItemActive]}
+            style={[styles.tabItem, activeTab === 'recommended' && styles.tabItemActive]}
             onPress={() => setActiveTab('recommended')}
           >
-            <Ionicons name="sparkles" size={16} color={activeTab === 'recommended' ? '#003366' : '#64748B'} />
-            <Text style={[st.tabText, activeTab === 'recommended' && st.tabTextActive]}>Recommended</Text>
+            <Ionicons name="sparkles" size={16} color={activeTab === 'recommended' ? (isDarkMode ? '#60A5FA' : '#003366') : theme.textMuted} />
+            <Text style={[styles.tabText, activeTab === 'recommended' && styles.tabTextActive]}>Recommended</Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
-            style={[st.tabItem, activeTab === 'post' && st.tabItemActive]}
+            style={[styles.tabItem, activeTab === 'post' && styles.tabItemActive]}
             onPress={() => setActiveTab('post')}
           >
-            <Ionicons name="add-circle" size={16} color={activeTab === 'post' ? '#003366' : '#64748B'} />
-            <Text style={[st.tabText, activeTab === 'post' && st.tabTextActive]}>Post a Job</Text>
+            <Ionicons name="add-circle" size={16} color={activeTab === 'post' ? (isDarkMode ? '#60A5FA' : '#003366') : theme.textMuted} />
+            <Text style={[styles.tabText, activeTab === 'post' && styles.tabTextActive]}>Post a Job</Text>
           </TouchableOpacity>
         </ScrollView>
       </View>
@@ -344,34 +375,42 @@ const JobsScreen = ({ navigation, route }) => {
         {activeTab === 'search' && (
           <View style={{ flex: 1 }}>
             {/* Filter Bar */}
-            <View style={st.filterSection}>
-              <View style={st.searchBox}>
-                <Ionicons name="search" size={18} color="#64748B" style={{ marginRight: 8 }} />
+            <View style={styles.filterSection}>
+              <View style={styles.searchBox}>
+                <Ionicons name="search" size={18} color={theme.textMuted} style={{ marginRight: 8 }} />
                 <TextInput
-                  style={st.searchInput}
+                  style={styles.searchInput}
                   placeholder="Search title, company, or skills..."
-                  placeholderTextColor="#94A3B8"
+                  placeholderTextColor="#9CA3AF"
                   value={searchQuery}
                   onChangeText={setSearchQuery}
                   onSubmitEditing={loadAllData}
                 />
+                {searchQuery ? (
+                  <TouchableOpacity onPress={() => { setSearchQuery(''); loadAllData(); }}>
+                    <Ionicons name="close-circle" size={18} color={theme.textMuted} />
+                  </TouchableOpacity>
+                ) : null}
               </View>
 
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 10 }}>
-                {WORKPLACE_TYPES.map(type => (
-                  <TouchableOpacity
-                    key={type}
-                    style={[st.chip, selectedWorkplace === type && st.chipActive]}
-                    onPress={() => setSelectedWorkplace(type)}
-                  >
-                    <Text style={[st.chipText, selectedWorkplace === type && st.chipTextActive]}>{type}</Text>
-                  </TouchableOpacity>
-                ))}
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 12 }}>
+                {WORKPLACE_TYPES.map(type => {
+                  const isActive = selectedWorkplace === type;
+                  return (
+                    <TouchableOpacity
+                      key={type}
+                      style={[styles.chip, isActive && styles.chipActive]}
+                      onPress={() => setSelectedWorkplace(type)}
+                    >
+                      <Text style={[styles.chipText, isActive && styles.chipTextActive]}>{type}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
               </ScrollView>
             </View>
 
             {loading ? (
-              <ActivityIndicator size="large" color="#003366" style={{ marginTop: 40 }} />
+              <ActivityIndicator size="large" color={isDarkMode ? '#3B82F6' : '#003366'} style={{ marginTop: 40 }} />
             ) : (
               <FlatList
                 data={jobs}
@@ -379,9 +418,9 @@ const JobsScreen = ({ navigation, route }) => {
                 renderItem={({ item }) => renderJobCard(item)}
                 contentContainerStyle={{ padding: 16 }}
                 ListEmptyComponent={() => (
-                  <View style={st.emptyBox}>
-                    <Ionicons name="briefcase-outline" size={48} color="#CBD5E1" />
-                    <Text style={st.emptyText}>No jobs found matching your filter criteria.</Text>
+                  <View style={styles.emptyBox}>
+                    <Ionicons name="briefcase-outline" size={48} color={theme.textMuted} />
+                    <Text style={styles.emptyText}>No jobs found matching your filter criteria.</Text>
                   </View>
                 )}
               />
@@ -392,21 +431,21 @@ const JobsScreen = ({ navigation, route }) => {
         {/* TAB 2: JOB TRACKER (SAVED & APPLIED) */}
         {activeTab === 'tracker' && (
           <View style={{ flex: 1, padding: 16 }}>
-            <View style={st.subTabBar}>
+            <View style={styles.subTabBar}>
               <TouchableOpacity 
-                style={[st.subTab, trackerSubTab === 'saved' && st.subTabActive]}
+                style={[styles.subTab, trackerSubTab === 'saved' && styles.subTabActive]}
                 onPress={() => setTrackerSubTab('saved')}
               >
-                <Text style={[st.subTabText, trackerSubTab === 'saved' && st.subTabTextActive]}>
+                <Text style={[styles.subTabText, trackerSubTab === 'saved' && styles.subTabTextActive]}>
                   Saved Jobs ({savedJobs.length})
                 </Text>
               </TouchableOpacity>
 
               <TouchableOpacity 
-                style={[st.subTab, trackerSubTab === 'applied' && st.subTabActive]}
+                style={[styles.subTab, trackerSubTab === 'applied' && styles.subTabActive]}
                 onPress={() => setTrackerSubTab('applied')}
               >
-                <Text style={[st.subTabText, trackerSubTab === 'applied' && st.subTabTextActive]}>
+                <Text style={[styles.subTabText, trackerSubTab === 'applied' && styles.subTabTextActive]}>
                   Applied Jobs ({appliedJobs.length})
                 </Text>
               </TouchableOpacity>
@@ -418,7 +457,10 @@ const JobsScreen = ({ navigation, route }) => {
                 keyExtractor={item => item._id || item.id}
                 renderItem={({ item }) => renderJobCard(item)}
                 ListEmptyComponent={() => (
-                  <Text style={st.emptyText}>You haven&apos;t saved any jobs yet.</Text>
+                  <View style={styles.emptyBox}>
+                    <Ionicons name="bookmark-outline" size={44} color={theme.textMuted} />
+                    <Text style={styles.emptyText}>You haven&apos;t saved any jobs yet.</Text>
+                  </View>
                 )}
               />
             ) : (
@@ -427,7 +469,10 @@ const JobsScreen = ({ navigation, route }) => {
                 keyExtractor={item => item._id || item.id}
                 renderItem={({ item }) => renderJobCard(item, true)}
                 ListEmptyComponent={() => (
-                  <Text style={st.emptyText}>You haven&apos;t applied to any jobs yet.</Text>
+                  <View style={styles.emptyBox}>
+                    <Ionicons name="checkmark-done-circle-outline" size={44} color={theme.textMuted} />
+                    <Text style={styles.emptyText}>You haven&apos;t applied to any jobs yet.</Text>
+                  </View>
                 )}
               />
             )}
@@ -438,60 +483,70 @@ const JobsScreen = ({ navigation, route }) => {
         {activeTab === 'preferences' && (
           <ScrollView contentContainerStyle={{ padding: 20 }}>
             {/* Open to Work Banner */}
-            <View style={st.openToWorkCard}>
+            <View style={styles.openToWorkCard}>
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                 <View style={{ flex: 1, marginRight: 12 }}>
-                  <Text style={{ fontSize: 17, fontWeight: '700', color: '#0F172A' }}>#OpenToWork</Text>
-                  <Text style={{ fontSize: 13, color: '#475569', marginTop: 2 }}>
-                    Show recruiters & alumni that you are actively seeking job opportunities.
+                  <Text style={{ fontSize: 17, fontWeight: '700', color: isDarkMode ? '#10B981' : '#065F46' }}>#OpenToWork</Text>
+                  <Text style={{ fontSize: 13, color: isDarkMode ? '#9CA3AF' : '#047857', marginTop: 3, lineHeight: 18 }}>
+                    Signal to recruiters, companies, and alumni that you are open to career opportunities.
                   </Text>
                 </View>
                 <Switch
                   value={openToWork}
                   onValueChange={setOpenToWork}
-                  trackColor={{ false: '#CBD5E1', true: '#10B981' }}
+                  trackColor={{ false: isDarkMode ? '#2D3139' : '#CBD5E1', true: '#10B981' }}
                 />
               </View>
             </View>
 
             {/* Keyword Recommendation Banner */}
-            <View style={{ backgroundColor: '#F0F9FF', borderRadius: 12, padding: 14, marginBottom: 16, borderWidth: 1, borderColor: '#BAE6FD' }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
-                <Ionicons name="bulb-outline" size={18} color="#0284C7" style={{ marginRight: 6 }} />
-                <Text style={{ fontSize: 14, fontWeight: '700', color: '#0369A1' }}>Keyword-Based Auto Recommendations</Text>
+            <View style={{ 
+              backgroundColor: isDarkMode ? '#1E2025' : '#F0F9FF', 
+              borderRadius: 12, 
+              padding: 16, 
+              marginBottom: 20, 
+              borderWidth: 1, 
+              borderColor: isDarkMode ? '#2D3139' : '#BAE6FD' 
+            }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+                <Ionicons name="bulb-outline" size={18} color={isDarkMode ? '#60A5FA' : '#0284C7'} style={{ marginRight: 8 }} />
+                <Text style={{ fontSize: 14, fontWeight: '700', color: isDarkMode ? '#93C5FD' : '#0369A1' }}>
+                  Smart Keyword Recommendation Engine
+                </Text>
               </View>
-              <Text style={{ fontSize: 12, color: '#0C4A6E', lineHeight: 18 }}>
-                When you specify skills like <Text style={{ fontWeight: '700' }}>Python</Text>, <Text style={{ fontWeight: '700' }}>React</Text>, or <Text style={{ fontWeight: '700' }}>Machine Learning</Text>, the system automatically detects these keywords in job postings created by Admins and Alumni, placing matching opportunities right in your Recommended feed!
+              <Text style={{ fontSize: 12.5, color: theme.textSecondary, lineHeight: 19 }}>
+                When you specify skills like <Text style={{ fontWeight: '700', color: theme.text }}>Python</Text>, <Text style={{ fontWeight: '700', color: theme.text }}>React</Text>, or <Text style={{ fontWeight: '700', color: theme.text }}>AWS</Text>, the platform scans job postings and highlights matching roles in your Recommended feed!
               </Text>
             </View>
 
-            <View style={st.formGroup}>
-              <Text style={st.label}>Preferred Skills & Keywords (e.g. Python, React, AWS) *</Text>
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Preferred Skills & Keywords *</Text>
               <TextInput
-                style={st.input}
+                style={styles.input}
                 value={targetKeywords}
                 onChangeText={setTargetKeywords}
                 placeholder="e.g. Python, React, Machine Learning, AWS"
+                placeholderTextColor="#9CA3AF"
               />
               
               {/* Quick Add Pills */}
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
                 {POPULAR_SKILLS.map(skill => {
                   const isSelected = targetKeywords.toLowerCase().includes(skill.toLowerCase());
                   return (
                     <TouchableOpacity
                       key={skill}
                       style={{
-                        paddingHorizontal: 10,
-                        paddingVertical: 5,
+                        paddingHorizontal: 12,
+                        paddingVertical: 6,
                         borderRadius: 16,
-                        backgroundColor: isSelected ? '#003366' : '#F1F5F9',
+                        backgroundColor: isSelected ? (isDarkMode ? '#2563EB' : '#003366') : (isDarkMode ? '#282A30' : '#F1F5F9'),
                         borderWidth: 1,
-                        borderColor: isSelected ? '#003366' : '#CBD5E1'
+                        borderColor: isSelected ? (isDarkMode ? '#3B82F6' : '#003366') : theme.border
                       }}
                       onPress={() => handleToggleKeyword(skill)}
                     >
-                      <Text style={{ fontSize: 12, fontWeight: '600', color: isSelected ? '#FFFFFF' : '#475569' }}>
+                      <Text style={{ fontSize: 12, fontWeight: '600', color: isSelected ? '#FFFFFF' : theme.textSecondary }}>
                         {isSelected ? `✓ ${skill}` : `+ ${skill}`}
                       </Text>
                     </TouchableOpacity>
@@ -500,32 +555,34 @@ const JobsScreen = ({ navigation, route }) => {
               </View>
             </View>
 
-            <View style={st.formGroup}>
-              <Text style={st.label}>Target Job Titles (comma separated)</Text>
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Target Job Titles (comma separated)</Text>
               <TextInput
-                style={st.input}
+                style={styles.input}
                 value={targetTitles}
                 onChangeText={setTargetTitles}
                 placeholder="e.g. Software Engineer, Tech Lead, Data Scientist"
+                placeholderTextColor="#9CA3AF"
               />
             </View>
 
-            <View style={st.formGroup}>
-              <Text style={st.label}>Target Locations</Text>
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Target Locations</Text>
               <TextInput
-                style={st.input}
+                style={styles.input}
                 value={targetLocations}
                 onChangeText={setTargetLocations}
                 placeholder="e.g. Bangalore, Remote, Hybrid"
+                placeholderTextColor="#9CA3AF"
               />
             </View>
 
             <TouchableOpacity 
-              style={st.saveBtn} 
+              style={styles.saveBtn} 
               onPress={handleSavePreferences}
               disabled={savingPrefs}
             >
-              {savingPrefs ? <ActivityIndicator color="#FFFFFF" /> : <Text style={st.saveBtnText}>Save Preferences & Keywords</Text>}
+              {savingPrefs ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.saveBtnText}>Save Preferences & Keywords</Text>}
             </TouchableOpacity>
           </ScrollView>
         )}
@@ -533,27 +590,27 @@ const JobsScreen = ({ navigation, route }) => {
         {/* TAB 4: RECOMMENDED JOBS */}
         {activeTab === 'recommended' && (
           <View style={{ flex: 1, padding: 16 }}>
-            <View style={{ marginBottom: 12 }}>
-              <Text style={{ fontSize: 17, fontWeight: '800', color: '#0F172A' }}>
+            <View style={{ marginBottom: 14 }}>
+              <Text style={{ fontSize: 18, fontWeight: '800', color: theme.text }}>
                 🎯 Top Recommendations for You
               </Text>
-              <Text style={{ fontSize: 13, color: '#64748B', marginTop: 2 }}>
+              <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 3 }}>
                 Auto-matched from keywords detected in job descriptions based on your skill preferences.
               </Text>
             </View>
 
             {loading ? (
-              <ActivityIndicator size="large" color="#003366" style={{ marginTop: 40 }} />
+              <ActivityIndicator size="large" color={isDarkMode ? '#3B82F6' : '#003366'} style={{ marginTop: 40 }} />
             ) : (
               <FlatList
                 data={recommendedJobs}
                 keyExtractor={item => item._id || item.id}
                 renderItem={({ item }) => renderJobCard(item)}
                 ListEmptyComponent={() => (
-                  <View style={st.emptyBox}>
-                    <Ionicons name="sparkles-outline" size={48} color="#CBD5E1" />
-                    <Text style={st.emptyText}>No recommendations currently available.</Text>
-                    <Text style={{ fontSize: 13, color: '#64748B', textAlign: 'center', marginTop: 6 }}>
+                  <View style={styles.emptyBox}>
+                    <Ionicons name="sparkles-outline" size={48} color={theme.textMuted} />
+                    <Text style={styles.emptyText}>No recommendations currently available.</Text>
+                    <Text style={{ fontSize: 13, color: theme.textSecondary, textAlign: 'center', marginTop: 6, maxWidth: 360 }}>
                       Set your skill preferences (like Python, React) in the Preferences tab to see personalized matches!
                     </Text>
                   </View>
@@ -566,46 +623,47 @@ const JobsScreen = ({ navigation, route }) => {
         {/* TAB 5: POST A JOB */}
         {activeTab === 'post' && (
           <ScrollView contentContainerStyle={{ padding: 20 }}>
-            <Text style={{ fontSize: 18, fontWeight: '700', color: '#0F172A', marginBottom: 6 }}>
+            <Text style={{ fontSize: 18, fontWeight: '800', color: theme.text, marginBottom: 4 }}>
               Post a Hiring Opportunity 🚀
             </Text>
-            <Text style={{ fontSize: 13, color: '#64748B', marginBottom: 16 }}>
+            <Text style={{ fontSize: 13, color: theme.textSecondary, marginBottom: 18 }}>
               Our AI engine will automatically parse technical keywords from your job description and notify matching alumni!
             </Text>
 
-            <View style={st.formGroup}>
-              <Text style={st.label}>Job Title *</Text>
-              <TextInput style={st.input} value={pTitle} onChangeText={setPTitle} placeholder="e.g. Python Backend Engineer" />
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Job Title *</Text>
+              <TextInput style={styles.input} value={pTitle} onChangeText={setPTitle} placeholder="e.g. Python Backend Engineer" placeholderTextColor="#9CA3AF" />
             </View>
 
-            <View style={st.formGroup}>
-              <Text style={st.label}>Company *</Text>
-              <TextInput style={st.input} value={pCompany} onChangeText={setPCompany} placeholder="e.g. Google" />
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Company *</Text>
+              <TextInput style={styles.input} value={pCompany} onChangeText={setPCompany} placeholder="e.g. Google" placeholderTextColor="#9CA3AF" />
             </View>
 
-            <View style={st.formGroup}>
-              <Text style={st.label}>Location *</Text>
-              <TextInput style={st.input} value={pLocation} onChangeText={setPLocation} placeholder="e.g. Bangalore, India (or Remote)" />
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Location *</Text>
+              <TextInput style={styles.input} value={pLocation} onChangeText={setPLocation} placeholder="e.g. Bangalore, India (or Remote)" placeholderTextColor="#9CA3AF" />
             </View>
 
-            <View style={st.formGroup}>
-              <Text style={st.label}>Salary Range (Optional)</Text>
-              <TextInput style={st.input} value={pSalary} onChangeText={setPSalary} placeholder="e.g. ₹15L - ₹25L PA" />
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Salary Range (Optional)</Text>
+              <TextInput style={styles.input} value={pSalary} onChangeText={setPSalary} placeholder="e.g. ₹15L - ₹25L PA" placeholderTextColor="#9CA3AF" />
             </View>
 
-            <View style={st.formGroup}>
-              <Text style={st.label}>Job Description *</Text>
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Job Description *</Text>
               <TextInput 
-                style={[st.input, { height: 110, textAlignVertical: 'top' }]} 
+                style={[styles.input, { height: 110, textAlignVertical: 'top' }]} 
                 multiline 
                 value={pDesc} 
                 onChangeText={setPDesc} 
                 placeholder="Describe role responsibilities, required skills (e.g. Python, Django, SQL)..." 
+                placeholderTextColor="#9CA3AF"
               />
             </View>
 
-            <TouchableOpacity style={st.saveBtn} onPress={handleCreateJob} disabled={postingJob}>
-              {postingJob ? <ActivityIndicator color="#FFFFFF" /> : <Text style={st.saveBtnText}>Post Job Opportunity</Text>}
+            <TouchableOpacity style={styles.saveBtn} onPress={handleCreateJob} disabled={postingJob}>
+              {postingJob ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.saveBtnText}>Post Job Opportunity</Text>}
             </TouchableOpacity>
           </ScrollView>
         )}
@@ -615,53 +673,54 @@ const JobsScreen = ({ navigation, route }) => {
       {/* EASY APPLY & JOB DETAILS MODAL */}
       {applyModalVisible && selectedJob && (
         <Modal visible={true} transparent={true} animationType="slide">
-          <View style={st.modalOverlay}>
-            <View style={st.modalCard}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                <Text style={{ fontSize: 18, fontWeight: '700', color: '#0F172A' }}>Job Details & Apply</Text>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalCard}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>Job Details & Apply</Text>
                 <TouchableOpacity onPress={() => setApplyModalVisible(false)}>
-                  <Ionicons name="close" size={24} color="#64748B" />
+                  <Ionicons name="close" size={24} color={theme.textMuted} />
                 </TouchableOpacity>
               </View>
 
               <ScrollView style={{ maxHeight: 420 }}>
-                <Text style={{ fontSize: 17, fontWeight: '800', color: '#003366' }}>{selectedJob.title}</Text>
-                <Text style={{ fontSize: 14, color: '#64748B', marginTop: 2, marginBottom: 12 }}>
+                <Text style={{ fontSize: 18, fontWeight: '800', color: isDarkMode ? '#60A5FA' : '#003366' }}>{selectedJob.title}</Text>
+                <Text style={{ fontSize: 14, color: theme.textSecondary, marginTop: 3, marginBottom: 14 }}>
                   {selectedJob.company} • {selectedJob.location} • {selectedJob.workplaceType || 'On-site'}
                 </Text>
 
                 {/* Detected Keywords Pill Row */}
                 {selectedJob.keywords && selectedJob.keywords.length > 0 ? (
-                  <View style={{ marginBottom: 12 }}>
-                    <Text style={{ fontSize: 12, fontWeight: '700', color: '#475569', marginBottom: 6 }}>
+                  <View style={{ marginBottom: 14 }}>
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, marginBottom: 6 }}>
                       🏷️ Detected Keywords:
                     </Text>
                     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
                       {selectedJob.keywords.map((kw, i) => (
-                        <View key={i} style={{ backgroundColor: '#EFF6FF', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, borderWidth: 1, borderColor: '#BFDBFE' }}>
-                          <Text style={{ fontSize: 12, fontWeight: '600', color: '#1D4ED8' }}>{kw}</Text>
+                        <View key={i} style={{ backgroundColor: isDarkMode ? '#282A30' : '#EFF6FF', paddingHorizontal: 9, paddingVertical: 4, borderRadius: 6, borderWidth: 1, borderColor: isDarkMode ? '#2D3139' : '#BFDBFE' }}>
+                          <Text style={{ fontSize: 12, fontWeight: '600', color: isDarkMode ? '#93C5FD' : '#1D4ED8' }}>{kw}</Text>
                         </View>
                       ))}
                     </View>
                   </View>
                 ) : null}
 
-                <Text style={{ fontSize: 13, fontWeight: '700', color: '#0F172A', marginTop: 6, marginBottom: 4 }}>Job Description:</Text>
-                <Text style={{ fontSize: 13, color: '#334155', lineHeight: 20, marginBottom: 16 }}>
+                <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text, marginTop: 6, marginBottom: 4 }}>Job Description:</Text>
+                <Text style={{ fontSize: 13.5, color: theme.textSecondary, lineHeight: 21, marginBottom: 18 }}>
                   {selectedJob.description}
                 </Text>
 
-                <Text style={st.label}>Cover Note / Introduction</Text>
+                <Text style={styles.label}>Cover Note / Introduction</Text>
                 <TextInput
-                  style={[st.input, { height: 80, textAlignVertical: 'top', marginBottom: 16 }]}
+                  style={[styles.input, { height: 85, textAlignVertical: 'top', marginBottom: 16 }]}
                   multiline
                   placeholder="Highlight your experience with the required skills..."
+                  placeholderTextColor="#9CA3AF"
                   value={coverNote}
                   onChangeText={setCoverNote}
                 />
 
-                <TouchableOpacity style={st.saveBtn} onPress={handleEasyApplySubmit} disabled={isApplying}>
-                  {isApplying ? <ActivityIndicator color="#FFFFFF" /> : <Text style={st.saveBtnText}>Submit Easy Apply</Text>}
+                <TouchableOpacity style={styles.saveBtn} onPress={handleEasyApplySubmit} disabled={isApplying}>
+                  {isApplying ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.saveBtnText}>Submit Easy Apply</Text>}
                 </TouchableOpacity>
               </ScrollView>
             </View>
@@ -672,49 +731,286 @@ const JobsScreen = ({ navigation, route }) => {
   );
 };
 
-const st = StyleSheet.create({
-  container: { flex: 1 },
-  headerContainer: { paddingVertical: 12, paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: '#E2E8F0' },
-  headerTitle: { fontSize: 20, fontWeight: '800', marginBottom: 10 },
-  tabBar: { flexDirection: 'row', gap: 12 },
-  tabItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8, paddingHorizontal: 14, borderRadius: 20, backgroundColor: '#F1F5F9' },
-  tabItemActive: { backgroundColor: '#EFF6FF', borderWidth: 1, borderColor: '#BFDBFE' },
-  tabText: { fontSize: 13, fontWeight: '600', color: '#64748B', marginLeft: 6 },
-  tabTextActive: { color: '#003366', fontWeight: '700' },
-  filterSection: { padding: 16, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#E2E8F0' },
-  searchBox: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F1F5F9', borderRadius: 10, paddingHorizontal: 12, height: 42 },
-  searchInput: { flex: 1, fontSize: 14, color: '#0F172A' },
-  chip: { paddingVertical: 6, paddingHorizontal: 12, borderRadius: 16, backgroundColor: '#F1F5F9', marginRight: 8 },
-  chipActive: { backgroundColor: '#003366' },
-  chipText: { fontSize: 12, fontWeight: '600', color: '#475569' },
-  chipTextActive: { color: '#FFFFFF' },
-  card: { backgroundColor: '#FFFFFF', borderRadius: 12, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: '#E2E8F0' },
-  logoBox: { width: 44, height: 44, borderRadius: 8, backgroundColor: '#EFF6FF', justifyContent: 'center', alignItems: 'center' },
-  titleText: { fontSize: 16, fontWeight: '700', color: '#0F172A' },
-  companyText: { fontSize: 13, color: '#475569', marginTop: 2 },
-  tagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 },
-  tagPill: { paddingVertical: 4, paddingHorizontal: 8, borderRadius: 6, backgroundColor: '#EFF6FF' },
-  tagText: { fontSize: 11, fontWeight: '600', color: '#003366' },
-  cardActionRow: { flexDirection: 'row', marginTop: 14, gap: 10 },
-  easyApplyBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#003366', paddingVertical: 8, paddingHorizontal: 16, borderRadius: 20 },
-  easyApplyText: { fontSize: 13, fontWeight: '700', color: '#FFFFFF' },
-  detailsBtn: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 20, borderBottomWidth: 1, borderColor: '#CBD5E1' },
-  detailsText: { fontSize: 13, fontWeight: '600', color: '#475569' },
-  subTabBar: { flexDirection: 'row', backgroundColor: '#F1F5F9', borderRadius: 10, padding: 4, marginBottom: 16 },
-  subTab: { flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 8 },
-  subTabActive: { backgroundColor: '#FFFFFF', shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 },
-  subTabText: { fontSize: 13, fontWeight: '600', color: '#64748B' },
-  subTabTextActive: { color: '#003366', fontWeight: '700' },
-  emptyBox: { alignItems: 'center', marginTop: 40 },
-  emptyText: { fontSize: 14, color: '#94A3B8', marginTop: 10, textAlign: 'center' },
-  openToWorkCard: { backgroundColor: '#ECFDF5', borderWidth: 1, borderColor: '#A7F3D0', padding: 16, borderRadius: 12, marginBottom: 20 },
-  formGroup: { marginBottom: 16 },
-  label: { fontSize: 13, fontWeight: '700', color: '#0F172A', marginBottom: 6 },
-  input: { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#CBD5E1', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#0F172A' },
-  saveBtn: { backgroundColor: '#003366', paddingVertical: 12, borderRadius: 10, alignItems: 'center' },
-  saveBtnText: { color: '#FFFFFF', fontSize: 15, fontWeight: '700' },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 },
-  modalCard: { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 20 }
+const getStyles = (theme, isDarkMode) => StyleSheet.create({
+  container: { 
+    flex: 1,
+    backgroundColor: theme.background,
+  },
+  headerContainer: { 
+    paddingVertical: 14, 
+    paddingHorizontal: 16, 
+    backgroundColor: theme.card,
+    borderBottomWidth: 1, 
+    borderBottomColor: theme.border,
+  },
+  headerTitle: { 
+    fontSize: 22, 
+    fontWeight: '800', 
+    color: theme.text,
+  },
+  tabBar: { 
+    flexDirection: 'row', 
+    gap: 10,
+  },
+  tabItem: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    paddingVertical: 8, 
+    paddingHorizontal: 14, 
+    borderRadius: 20, 
+    backgroundColor: isDarkMode ? '#1E2025' : '#F1F5F9',
+    borderWidth: 1,
+    borderColor: isDarkMode ? '#2D3139' : 'transparent',
+  },
+  tabItemActive: { 
+    backgroundColor: isDarkMode ? '#282A30' : '#EFF6FF', 
+    borderWidth: 1, 
+    borderColor: isDarkMode ? '#3B82F6' : '#BFDBFE',
+  },
+  tabText: { 
+    fontSize: 13, 
+    fontWeight: '600', 
+    color: theme.textMuted, 
+    marginLeft: 6,
+  },
+  tabTextActive: { 
+    color: isDarkMode ? '#60A5FA' : '#003366', 
+    fontWeight: '700',
+  },
+  filterSection: { 
+    padding: 16, 
+    backgroundColor: theme.card, 
+    borderBottomWidth: 1, 
+    borderBottomColor: theme.border,
+  },
+  searchBox: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: isDarkMode ? '#181A1F' : '#F1F5F9', 
+    borderRadius: 12, 
+    paddingHorizontal: 14, 
+    height: 44,
+    borderWidth: 1,
+    borderColor: isDarkMode ? '#2D3139' : '#E2E8F0',
+  },
+  searchInput: { 
+    flex: 1, 
+    fontSize: 14, 
+    color: theme.text,
+  },
+  chip: { 
+    paddingVertical: 6, 
+    paddingHorizontal: 14, 
+    borderRadius: 18, 
+    backgroundColor: isDarkMode ? '#1E2025' : '#F1F5F9', 
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: isDarkMode ? '#2D3139' : '#E2E8F0',
+  },
+  chipActive: { 
+    backgroundColor: isDarkMode ? '#2563EB' : '#003366',
+    borderColor: isDarkMode ? '#2563EB' : '#003366',
+  },
+  chipText: { 
+    fontSize: 12.5, 
+    fontWeight: '600', 
+    color: theme.textSecondary,
+  },
+  chipTextActive: { 
+    color: '#FFFFFF',
+    fontWeight: '700',
+  },
+  card: { 
+    backgroundColor: theme.card, 
+    borderRadius: 14, 
+    padding: 16, 
+    marginBottom: 14, 
+    borderWidth: 1, 
+    borderColor: theme.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: isDarkMode ? 0.2 : 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  logoBox: { 
+    width: 46, 
+    height: 46, 
+    borderRadius: 10, 
+    backgroundColor: isDarkMode ? '#282A30' : '#EFF6FF', 
+    justifyContent: 'center', 
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: isDarkMode ? '#2D3139' : '#DBEAFE',
+  },
+  titleText: { 
+    fontSize: 16.5, 
+    fontWeight: '700', 
+    color: theme.text,
+  },
+  companyText: { 
+    fontSize: 13, 
+    color: theme.textSecondary, 
+    marginTop: 3,
+  },
+  tagRow: { 
+    flexDirection: 'row', 
+    flexWrap: 'wrap', 
+    gap: 6, 
+    marginTop: 10,
+  },
+  tagPill: { 
+    paddingVertical: 4, 
+    paddingHorizontal: 9, 
+    borderRadius: 6, 
+    backgroundColor: isDarkMode ? '#1E2025' : '#EFF6FF',
+    borderWidth: 1,
+    borderColor: isDarkMode ? '#2D3139' : '#DBEAFE',
+  },
+  tagText: { 
+    fontSize: 11.5, 
+    fontWeight: '600', 
+    color: isDarkMode ? '#60A5FA' : '#003366',
+  },
+  cardActionRow: { 
+    flexDirection: 'row', 
+    marginTop: 16, 
+    gap: 10,
+  },
+  easyApplyBtn: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: isDarkMode ? '#2563EB' : '#003366', 
+    paddingVertical: 9, 
+    paddingHorizontal: 18, 
+    borderRadius: 20,
+    shadowColor: isDarkMode ? '#2563EB' : '#003366',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  easyApplyText: { 
+    fontSize: 13, 
+    fontWeight: '700', 
+    color: '#FFFFFF',
+  },
+  detailsBtn: { 
+    paddingVertical: 9, 
+    paddingHorizontal: 18, 
+    borderRadius: 20, 
+    borderWidth: 1, 
+    borderColor: theme.border,
+    backgroundColor: isDarkMode ? '#1E2025' : '#FFFFFF',
+  },
+  detailsText: { 
+    fontSize: 13, 
+    fontWeight: '600', 
+    color: theme.text,
+  },
+  subTabBar: { 
+    flexDirection: 'row', 
+    backgroundColor: isDarkMode ? '#1E2025' : '#F1F5F9', 
+    borderRadius: 12, 
+    padding: 4, 
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: theme.border,
+  },
+  subTab: { 
+    flex: 1, 
+    paddingVertical: 9, 
+    alignItems: 'center', 
+    borderRadius: 9,
+  },
+  subTabActive: { 
+    backgroundColor: isDarkMode ? '#282A30' : '#FFFFFF', 
+    shadowColor: '#000', 
+    shadowOpacity: 0.08, 
+    shadowRadius: 4, 
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: isDarkMode ? '#3B82F6' : 'transparent',
+  },
+  subTabText: { 
+    fontSize: 13, 
+    fontWeight: '600', 
+    color: theme.textMuted,
+  },
+  subTabTextActive: { 
+    color: isDarkMode ? '#60A5FA' : '#003366', 
+    fontWeight: '700',
+  },
+  emptyBox: { 
+    alignItems: 'center', 
+    marginTop: 40,
+    paddingHorizontal: 20,
+  },
+  emptyText: { 
+    fontSize: 14, 
+    color: theme.textMuted, 
+    marginTop: 10, 
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  openToWorkCard: { 
+    backgroundColor: isDarkMode ? '#1E2025' : '#ECFDF5', 
+    borderWidth: 1, 
+    borderColor: isDarkMode ? '#059669' : '#A7F3D0', 
+    padding: 16, 
+    borderRadius: 14, 
+    marginBottom: 20,
+  },
+  formGroup: { 
+    marginBottom: 18,
+  },
+  label: { 
+    fontSize: 13, 
+    fontWeight: '700', 
+    color: theme.text, 
+    marginBottom: 7,
+  },
+  input: { 
+    backgroundColor: isDarkMode ? '#181A1F' : '#FFFFFF', 
+    borderWidth: 1, 
+    borderColor: theme.border, 
+    borderRadius: 10, 
+    paddingHorizontal: 14, 
+    paddingVertical: 11, 
+    fontSize: 14, 
+    color: theme.text,
+  },
+  saveBtn: { 
+    backgroundColor: isDarkMode ? '#2563EB' : '#003366', 
+    paddingVertical: 13, 
+    borderRadius: 12, 
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  saveBtnText: { 
+    color: '#FFFFFF', 
+    fontSize: 15, 
+    fontWeight: '700',
+  },
+  modalOverlay: { 
+    flex: 1, 
+    backgroundColor: 'rgba(0,0,0,0.65)', 
+    justifyContent: 'center', 
+    padding: 20,
+  },
+  modalCard: { 
+    backgroundColor: theme.card, 
+    borderRadius: 18, 
+    padding: 22,
+    borderWidth: 1,
+    borderColor: theme.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
+  },
 });
 
 export default JobsScreen;
+
