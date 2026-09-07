@@ -13,7 +13,7 @@ import { handleAppleLogin } from '../services/appleAuthService';
 WebBrowser.maybeCompleteAuthSession();
 
 const WelcomeScreen = ({ navigation }) => {
-  const { theme, isDarkMode } = useTheme();
+  const { theme, isDarkMode, toggleTheme } = useTheme();
   const styles = getStyles(theme);
 
   const [portal, setPortal] = useState(null);
@@ -69,6 +69,30 @@ const WelcomeScreen = ({ navigation }) => {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <View style={webContainerStyle}>
+        
+        {/* Top Header with Theme Switcher */}
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingHorizontal: 20, paddingTop: 12 }}>
+          <TouchableOpacity
+            onPress={toggleTheme}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              backgroundColor: isDarkMode ? '#1E2025' : '#F1F5F9',
+              paddingHorizontal: 12,
+              paddingVertical: 7,
+              borderRadius: 20,
+              borderWidth: 1,
+              borderColor: isDarkMode ? '#2D3139' : '#E2E8F0',
+              gap: 6,
+            }}
+            activeOpacity={0.7}
+          >
+            <Ionicons name={isDarkMode ? 'moon' : 'sunny'} size={16} color={isDarkMode ? '#60A5FA' : '#D97706'} />
+            <Text style={{ fontSize: 12, fontWeight: '600', color: isDarkMode ? '#F9FAFB' : '#0F172A' }}>
+              {isDarkMode ? 'Dark' : 'Light'}
+            </Text>
+          </TouchableOpacity>
+        </View>
       
       <View style={styles.content}>
         {/* Large Logo */}

@@ -11,7 +11,7 @@ import { handleAppleLogin } from '../services/appleAuthService';
 WebBrowser.maybeCompleteAuthSession();
 
 const LoginScreen = ({ navigation }) => {
-  const { theme, isDarkMode } = useTheme();
+  const { theme, isDarkMode, toggleTheme } = useTheme();
   const styles = getStyles(theme);
 
   // Authentication Mode: 'password' | 'otp'
@@ -295,18 +295,47 @@ const LoginScreen = ({ navigation }) => {
         style={styles.keyboardView}
       >
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={() => {
-              if (navigation.canGoBack()) {
-                navigation.goBack();
-              } else {
-                navigation.navigate('Welcome');
-              }
-            }}
-          >
-            <Ionicons name="arrow-back" size={24} color={theme.text} />
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 16, marginBottom: 12 }}>
+            <TouchableOpacity 
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 20,
+                justifyContent: 'center',
+                alignItems: 'flex-start',
+              }}
+              onPress={() => {
+                if (navigation.canGoBack()) {
+                  navigation.goBack();
+                } else {
+                  navigation.navigate('Welcome');
+                }
+              }}
+            >
+              <Ionicons name="arrow-back" size={24} color={theme.text} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={toggleTheme}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                backgroundColor: isDarkMode ? '#1E2025' : '#F1F5F9',
+                paddingHorizontal: 12,
+                paddingVertical: 7,
+                borderRadius: 20,
+                borderWidth: 1,
+                borderColor: isDarkMode ? '#2D3139' : '#E2E8F0',
+                gap: 6,
+              }}
+              activeOpacity={0.7}
+            >
+              <Ionicons name={isDarkMode ? 'moon' : 'sunny'} size={16} color={isDarkMode ? '#60A5FA' : '#D97706'} />
+              <Text style={{ fontSize: 12, fontWeight: '600', color: isDarkMode ? '#F9FAFB' : '#0F172A' }}>
+                {isDarkMode ? 'Dark' : 'Light'}
+              </Text>
+            </TouchableOpacity>
+          </View>
 
           <View style={styles.header}>
             <Text style={styles.title}>Sign in to your Account</Text>
