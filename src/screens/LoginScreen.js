@@ -284,7 +284,9 @@ const LoginScreen = ({ navigation }) => {
   };
 
   const isWeb = Platform.OS === 'web';
-  const webContainerStyle = isWeb ? { alignSelf: 'center', width: '100%', maxWidth: 500, flex: 1 } : { flex: 1 };
+  const webContainerStyle = isWeb 
+    ? { alignSelf: 'center', width: '100%', maxWidth: 500, flex: 1, minHeight: '100%', backgroundColor: theme.background } 
+    : { flex: 1, minHeight: '100%', backgroundColor: theme.background };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -805,14 +807,20 @@ const LoginScreen = ({ navigation }) => {
 const getStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
+    minHeight: '100%',
     backgroundColor: theme.background,
   },
   keyboardView: {
     flex: 1,
+    minHeight: '100%',
+    backgroundColor: theme.background,
   },
   scrollContent: {
+    flexGrow: 1,
+    minHeight: '100%',
     paddingHorizontal: 24,
     paddingBottom: 40,
+    backgroundColor: theme.background,
   },
   backButton: {
     marginTop: 16,

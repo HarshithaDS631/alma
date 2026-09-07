@@ -29,6 +29,22 @@ export const ThemeProvider = ({ children }) => {
   const [isDarkMode, setIsDarkMode] = useState(() => getInitialDarkMode(systemColorScheme));
 
   useEffect(() => {
+    if (typeof document !== 'undefined') {
+      const bg = isDarkMode ? '#121316' : '#F8FAFC';
+      document.documentElement.style.backgroundColor = bg;
+      document.body.style.backgroundColor = bg;
+      const rootEl = document.getElementById('root');
+      if (rootEl) {
+        rootEl.style.backgroundColor = bg;
+      }
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+      if (metaThemeColor) {
+        metaThemeColor.setAttribute('content', bg);
+      }
+    }
+  }, [isDarkMode]);
+
+  useEffect(() => {
     const loadThemePreference = async () => {
       try {
         if (typeof window !== 'undefined') {

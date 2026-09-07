@@ -105,22 +105,6 @@ const WelcomeScreen = ({ navigation }) => {
             <Text style={styles.subtitle}>
               {portal?.name || 'Official Alumni & Career Network'}
             </Text>
-
-            {/* Feature Pills */}
-            <View style={styles.featurePillsRow}>
-              <View style={styles.featurePill}>
-                <Ionicons name="shield-checkmark" size={13} color={isDarkMode ? '#60A5FA' : '#003366'} />
-                <Text style={styles.featurePillText}>Verified Alumni</Text>
-              </View>
-              <View style={styles.featurePill}>
-                <Ionicons name="briefcase" size={13} color={isDarkMode ? '#60A5FA' : '#003366'} />
-                <Text style={styles.featurePillText}>Job Referrals</Text>
-              </View>
-              <View style={styles.featurePill}>
-                <Ionicons name="people" size={13} color={isDarkMode ? '#60A5FA' : '#003366'} />
-                <Text style={styles.featurePillText}>Mentorship</Text>
-              </View>
-            </View>
           </View>
 
           {/* Action & Auth Section */}
@@ -281,29 +265,6 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     color: theme.textSecondary,
     lineHeight: 22,
     paddingHorizontal: 12,
-  },
-  featurePillsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: 8,
-    marginTop: 20,
-  },
-  featurePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: isDarkMode ? '#1E2025' : '#F1F5F9',
-    paddingHorizontal: 11,
-    paddingVertical: 6,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: isDarkMode ? '#2D3139' : '#E2E8F0',
-    gap: 5,
-  },
-  featurePillText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: theme.textSecondary,
   },
   actionSection: {
     width: '100%',
