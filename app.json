@@ -30,7 +30,7 @@
       "buildNumber": "1.0.0",
       "appStoreUrl": "",
       "requireFullScreen": false,
-      "usesAppleSignIn": false,
+      "usesAppleSignIn": true,
       "config": {
         "usesNonExemptEncryption": false
       },

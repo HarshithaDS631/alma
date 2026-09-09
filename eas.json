@@ -20,7 +20,20 @@
     "preview": {
       "distribution": "internal",
       "env": {
-        "APP_VARIANT": "preview"
+        "APP_VARIANT": "preview",
+        "EXPO_PUBLIC_API_URL": "https://alma-orpin-delta.vercel.app/api",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://hdqpmawlhhvnioxkxvpj.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_iBN9uFB_xdemug-BLp85-g_qBHO8YJj",
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyAqQ3YEanICCnbifvSkwnuHH6jzPtW7c-g",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "alumni-app-956c6.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "alumni-app-956c6",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "alumni-app-956c6.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "768299462386",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:768299462386:web:1008da97ccf4a0efd3ea6b",
+        "EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID": "G-5G5CH95JXH",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "768299462386-msp42kcf0lsbk83ao6fnu5ns8h0mnajk.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "768299462386-th9t5pb5r2fbvt46o1b0iadcr8tva9fd.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": "768299462386-vacrklnip0qim7nuhto5lo6asr6a36b3.apps.googleusercontent.com"
       },
       "android": {
         "buildType": "apk"
@@ -30,13 +43,19 @@
       "autoIncrement": true,
       "env": {
         "APP_VARIANT": "production",
-        "EXPO_PUBLIC_API_URL": "https://backend-pi-bice-97.vercel.app/api",
+        "EXPO_PUBLIC_API_URL": "https://alma-orpin-delta.vercel.app/api",
         "EXPO_PUBLIC_SUPABASE_URL": "https://hdqpmawlhhvnioxkxvpj.supabase.co",
         "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_iBN9uFB_xdemug-BLp85-g_qBHO8YJj",
-        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyBeYSmgQ3zbqVl__gEszJpaPausQt2_Fc0",
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyAqQ3YEanICCnbifvSkwnuHH6jzPtW7c-g",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "alumni-app-956c6.firebaseapp.com",
         "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "alumni-app-956c6",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "alumni-app-956c6.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "768299462386",
         "EXPO_PUBLIC_FIREBASE_APP_ID": "1:768299462386:web:1008da97ccf4a0efd3ea6b",
-        "EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID": "G-5G5CH95JXH"
+        "EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID": "G-5G5CH95JXH",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "768299462386-msp42kcf0lsbk83ao6fnu5ns8h0mnajk.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "768299462386-th9t5pb5r2fbvt46o1b0iadcr8tva9fd.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": "768299462386-vacrklnip0qim7nuhto5lo6asr6a36b3.apps.googleusercontent.com"
       },
       "android": {
         "buildType": "app-bundle"
