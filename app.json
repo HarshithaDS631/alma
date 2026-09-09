@@ -1,5 +1,6 @@
 {
   "expo": {
+    "owner": "rv_education",
     "name": "Alumni Network",
     "slug": "alumni-portal",
     "version": "1.0.0",
@@ -8,13 +9,8 @@
     "scheme": "alumniportal",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-
     "description": "The official Alumni Network app for RV Institutions. Connect with alumni, explore career opportunities, find mentors, attend events, and stay engaged with your college community.",
-
     "githubUrl": "https://github.com/HarshithaDS631/alma",
-
-    "privacy": "unlisted",
-
     "web": {
       "favicon": "./assets/images/favicon.png",
       "name": "Alumni Network",
@@ -23,7 +19,6 @@
       "themeColor": "#002144",
       "backgroundColor": "#ffffff"
     },
-
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.mediacell.alumni",
@@ -46,7 +41,6 @@
         "aps-environment": "production"
       }
     },
-
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
@@ -55,7 +49,7 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "package": "com.mediacell.alumni",
-      "versionCode": 1,
+      "versionCode": 2,
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "googleServicesFile": "./google-services.json",
@@ -89,11 +83,13 @@
               "pathPrefix": "/"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
-
     "plugins": [
       [
         "expo-splash-screen",
@@ -116,10 +112,14 @@
         }
       ]
     ],
-
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": false
+    },
+    "extra": {
+      "eas": {
+        "projectId": "97c992ba-adfc-4062-9e97-e3b8e6135885"
+      }
     }
   }
 }

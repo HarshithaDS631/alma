@@ -70,8 +70,7 @@
       "android": {
         "serviceAccountKeyPath": "./google-play-key.json",
         "track": "internal",
-        "releaseStatus": "draft",
-        "rollout": 1
+        "releaseStatus": "draft"
       },
       "ios": {
         "appleId": "your-apple-id@email.com",

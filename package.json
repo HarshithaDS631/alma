@@ -5,8 +5,8 @@
   "scripts": {
     "start": "expo start",
     "web": "expo start --web",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "reset-project": "node ./scripts/reset-project.js",
     "lint": "expo lint",
     "build": "npx expo export --platform web && node copy-vercel-config.js",
@@ -48,7 +48,6 @@
     "expo-image": "~3.0.11",
     "expo-image-picker": "~17.0.11",
     "expo-linking": "~8.0.11",
-    "expo-modules-core": "^2.5.0",
     "expo-notifications": "~0.32.17",
     "expo-router": "~6.0.24",
     "expo-splash-screen": "~31.0.13",

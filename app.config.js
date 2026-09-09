@@ -18,6 +18,7 @@ const BUNDLE_ID = IS_DEV
 
 export default {
   expo: {
+    owner: 'rv_education',
     name: APP_NAME,
     slug: 'alumni-portal',
     version: '1.0.0',
@@ -29,8 +30,6 @@ export default {
 
     description:
       'The official Alumni Network app for RV Institutions. Connect with alumni, explore career opportunities, find mentors, attend events, and stay engaged with your college community.',
-
-    privacy: 'unlisted',
 
     web: {
       favicon: './assets/images/favicon.png',
@@ -51,11 +50,6 @@ export default {
         process.env.GOOGLE_SERVICES_PLIST ?? './GoogleService-Info.plist',
       config: {
         usesNonExemptEncryption: false,
-        googleSignIn: {
-          // iOS Client ID from Google Cloud Console (alumni-app-956c6)
-          reservedClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID ||
-            '768299462386-th9t5pb5r2fbvt46o1b0iadcr8tva9fd.apps.googleusercontent.com',
-        },
       },
       infoPlist: {
         NSPhotoLibraryUsageDescription:
@@ -149,7 +143,7 @@ export default {
       [
         'expo-updates',
         {
-          username: 'mediacell',
+          username: 'rv_education',
         },
       ],
       // Native Apple Sign-In for iOS
@@ -168,11 +162,11 @@ export default {
     extra: {
       apiUrl:
         process.env.EXPO_PUBLIC_API_URL ??
-        'https://backend-pi-bice-97.vercel.app/api',
+        'https://alma-orpin-delta.vercel.app/api',
       supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL ?? '',
       supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '',
       eas: {
-        projectId: '9f81aff3-c755-41bd-8bcd-9be07110ba45',
+        projectId: '97c992ba-adfc-4062-9e97-e3b8e6135885',
       },
     },
 
