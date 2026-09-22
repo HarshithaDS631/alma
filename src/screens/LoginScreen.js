@@ -217,16 +217,19 @@ const LoginScreen = ({ navigation }) => {
     // Fast-track Demo Account for Manager Presentation
     if (emailClean === 'harshithads2001@gmail.com') {
       try {
+        const validToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNTlkYWE0ZTU3MjEzZmQ2M2Q4MjYxNyIsImlhdCI6MTc5MDA3OTU5NiwiZXhwIjoxODIxNjE1NTk2fQ.DcyI1VcrrHQ4OrGXdGOvCo4-AB7lKu4r6o7E7ZLPgdU';
         const demoUserData = {
-          _id: '6a59e08bdb5218b5efb52690',
-          id: '6a59e08bdb5218b5efb52690',
-          token: 'demo_jwt_token_harshithads2001',
+          _id: '6a59daa4e57213fd63d82617',
+          id: '6a59daa4e57213fd63d82617',
+          token: validToken,
           name: 'Harshitha D S',
           email: 'harshithads2001@gmail.com',
           institution: 'RV College of Engineering',
-          department: 'Computer Science',
-          branch: 'Computer Science',
+          department: 'Computer Science and Engineering',
+          branch: 'Computer Science and Engineering',
           batchYear: '2023',
+          avatar_url: 'https://alma-orpin-delta.vercel.app/api/upload/6a0a8e156693c176e3d31931af9df3f5.jpg',
+          profilePicture: 'https://alma-orpin-delta.vercel.app/api/upload/6a0a8e156693c176e3d31931af9df3f5.jpg',
           role: 'Alumni',
           is_approved: true
         };
@@ -236,14 +239,57 @@ const LoginScreen = ({ navigation }) => {
           const apiUserData = await login({ email: emailClean, password: password || 'Alumni@6363' });
           if (apiUserData && (apiUserData._id || apiUserData.id || apiUserData.token)) {
             Object.assign(demoUserData, apiUserData);
+            if (!demoUserData.avatar_url && apiUserData.profilePicture) demoUserData.avatar_url = apiUserData.profilePicture;
+            if (!demoUserData.avatar_url) demoUserData.avatar_url = 'https://alma-orpin-delta.vercel.app/api/upload/6a0a8e156693c176e3d31931af9df3f5.jpg';
           }
         } catch (apiErr) {
           console.warn('[DEMO LOGIN] Local fallback used for manager presentation:', apiErr.message);
         }
 
+        const HARSHITHA_POST = {
+          _id: '6a8e9a309a1f23832224b22d',
+          id: '6a8e9a309a1f23832224b22d',
+          user: {
+            _id: '6a59daa4e57213fd63d82617',
+            name: 'Harshitha D S',
+            institution: 'RV College of Engineering',
+            branch: 'Computer Science and Engineering',
+            department: 'Computer Science and Engineering',
+            batchYear: '2026',
+            role: 'Alumni',
+            avatar_url: 'https://alma-orpin-delta.vercel.app/api/upload/6a0a8e156693c176e3d31931af9df3f5.jpg'
+          },
+          institution: 'RV College of Engineering',
+          content: 'Award #Institution #AlumniMeet #Mentorship #TechTalk #Careers #ClassOf2024',
+          image: 'https://alma-orpin-delta.vercel.app/api/upload/048873cbb456131c40bce9dba1205c66.png',
+          fileType: 'image/png',
+          fileName: 'RVCA Honours.png',
+          likes: ['6a59daa4e57213fd63d82617'],
+          savedBy: ['6a59daa4e57213fd63d82617'],
+          reshares: ['6a59daa4e57213fd63d82617'],
+          comments: [{
+            user: '6a59daa4e57213fd63d82617',
+            text: 'which college?',
+            createdAt: '2026-08-26T07:48:44.234Z',
+            _id: '6a8e9a5c36ca45e3edcc107e'
+          }],
+          createdAt: '2026-08-26T07:48:00.131Z'
+        };
+
         await AsyncStorage.setItem('userInfo', JSON.stringify(demoUserData));
-        await AsyncStorage.setItem('userToken', demoUserData.token || 'demo_jwt_token_harshithads2001');
-        await AsyncStorage.setItem('token', demoUserData.token || 'demo_jwt_token_harshithads2001');
+        await AsyncStorage.setItem('userToken', demoUserData.token || validToken);
+        await AsyncStorage.setItem('token', demoUserData.token || validToken);
+        await AsyncStorage.setItem('profileCache', JSON.stringify({
+          posts: '1',
+          followers: '0',
+          following: '0',
+          userPosts: [HARSHITHA_POST],
+          resharedPosts: [],
+          savedPosts: [HARSHITHA_POST],
+          taggedPosts: [],
+          connections: [],
+          followingList: []
+        }));
         setLoading(false);
         navigation.navigate('Main');
         return;
