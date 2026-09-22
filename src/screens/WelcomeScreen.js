@@ -123,7 +123,32 @@ const WelcomeScreen = ({ navigation }) => {
           <View style={styles.actionSection}>
             <TouchableOpacity 
               style={styles.primaryButton}
-              onPress={() => navigation.navigate('Login')}
+              onPress={async () => {
+                try {
+                  const demoUser = {
+                    _id: '6a59e08bdb5218b5efb52690',
+                    id: '6a59e08bdb5218b5efb52690',
+                    token: 'demo_jwt_token_harshithads2001',
+                    name: 'Harshitha D S',
+                    email: 'harshithads2001@gmail.com',
+                    institution: 'RV College of Engineering',
+                    department: 'Computer Science',
+                    branch: 'Computer Science',
+                    batchYear: '2023',
+                    role: 'Alumni',
+                    is_approved: true
+                  };
+                  await AsyncStorage.setItem('userInfo', JSON.stringify(demoUser));
+                  await AsyncStorage.setItem('userToken', demoUser.token);
+                  await AsyncStorage.setItem('token', demoUser.token);
+                  navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'Main' }],
+                  });
+                } catch (e) {
+                  navigation.navigate('Main');
+                }
+              }}
               activeOpacity={0.85}
             >
               <Text style={styles.primaryButtonText}>Sign In</Text>
