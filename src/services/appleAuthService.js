@@ -109,10 +109,11 @@ export const exchangeAppleTokenWithBackend = async ({ idToken, authorizationCode
 
 // ─── Save user session to AsyncStorage ────────────────────────────
 const saveUserSession = async (userData, appleUser) => {
+  const token = userData.token || userData.accessToken;
   await AsyncStorage.setItem('userInfo', JSON.stringify({
     _id: userData._id || userData.id,
     id: userData._id || userData.id,
-    token: userData.token,
+    token: token,
     refreshToken: userData.refreshToken,
     name: userData.name || (appleUser && appleUser.name) || 'Apple User',
     email: userData.email || (appleUser && appleUser.email),
@@ -124,6 +125,13 @@ const saveUserSession = async (userData, appleUser) => {
     role: userData.role || 'Alumni',
     authProvider: 'apple',
   }));
+  if (token) {
+    await AsyncStorage.setItem('userToken', token);
+    await AsyncStorage.setItem('token', token);
+  }
+  if (userData.refreshToken) {
+    await AsyncStorage.setItem('refreshToken', userData.refreshToken);
+  }
 };
 
 // ─── Main export: handleAppleLogin ────────────────────────────────

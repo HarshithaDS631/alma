@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const Job = require('../models/Job');
+const connectDB = require('../config/db');
 
 /**
  * Calculate similarity match score between two profiles
@@ -29,6 +30,7 @@ const calculateMatchScore = (userA, userB) => {
 // @route   GET /api/recommendations/alumni
 exports.getRecommendedAlumni = async (req, res) => {
     try {
+        await connectDB();
         const userId = req.user?.id;
         const currentUser = userId ? await User.findById(userId) : null;
 
@@ -64,6 +66,7 @@ const { extractKeywords, calculateJobMatch } = require('../utils/keywordExtracto
 // @route   GET /api/recommendations/jobs
 exports.getRecommendedJobs = async (req, res) => {
     try {
+        await connectDB();
         const userId = req.user?.id || req.user?._id;
         const [prefs, currentUser] = await Promise.all([
             userId ? JobPreference.findOne({ user: userId }) : null,

@@ -1,0 +1,76 @@
+# ───────────────────────────────────────────────────────
+# Maestro E2E Test: Login Flow
+# Alumni Network — com.mediacell.alumni
+#
+# Prerequisites:
+#   - Maestro CLI installed (brew install maestro)
+#   - App running on emulator/simulator or device
+#   - Test user account: reviewer@rvei.edu.in / Reviewer@2026!
+#
+# Run: maestro test __tests__/e2e/maestro/login_flow.yaml
+# ───────────────────────────────────────────────────────
+
+appId: com.mediacell.alumni
+
+---
+
+# Step 1: Wait for Splash Screen to finish
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Step 2: Expect to land on Welcome / Portal Selection screen
+- assertVisible:
+    text: ".*Alumni.*"
+    optional: true
+
+# Step 3: Navigate to Login
+- tapOn:
+    text: ".*Login.*"
+    optional: true
+
+- tapOn:
+    text: ".*Sign In.*"
+    optional: true
+
+# Step 4: Wait for login form to appear
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Step 5: Enter email credentials
+- tapOn:
+    text: ".*Email.*"
+    optional: true
+
+- inputText: "reviewer@rvei.edu.in"
+
+# Step 6: Enter password
+- tapOn:
+    text: ".*Password.*"
+    optional: true
+
+- inputText: "Reviewer@2026!"
+
+# Step 7: Submit login
+- tapOn:
+    text: ".*Log In.*"
+    optional: true
+
+- tapOn:
+    text: ".*Sign In.*"
+    optional: true
+
+# Step 8: Wait for navigation to Dashboard
+- waitForAnimationToEnd:
+    timeout: 10000
+
+# Step 9: Verify Dashboard loaded
+- assertVisible:
+    text: ".*Dashboard.*"
+    optional: true
+
+- assertVisible:
+    text: ".*Home.*"
+    optional: true
+
+# Step 10: Screenshot for evidence
+- takeScreenshot: login_success

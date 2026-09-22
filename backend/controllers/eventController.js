@@ -1,10 +1,12 @@
 const Event = require('../models/Event');
 const User = require('../models/User');
+const connectDB = require('../config/db');
 
 // @desc    Get all events
 // @route   GET /api/events
 exports.getEvents = async (req, res) => {
     try {
+        await connectDB();
         let query = {};
         
         // Non-super-admins only see events for their institution or global events
@@ -32,6 +34,7 @@ exports.getEvents = async (req, res) => {
 // @route   POST /api/events
 exports.createEvent = async (req, res) => {
     try {
+        await connectDB();
         const { title, description, date, location, type, image, maxCapacity, price, institution } = req.body;
         
         const userDoc = await User.findById(req.user._id).select('institution');
@@ -60,6 +63,7 @@ exports.createEvent = async (req, res) => {
 // @route   POST /api/events/:id/register
 exports.registerForEvent = async (req, res) => {
     try {
+        await connectDB();
         const event = await Event.findById(req.params.id);
 
         if (!event) {

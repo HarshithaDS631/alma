@@ -25,6 +25,7 @@ node_modules/
 # Build & compiled outputs
 dist/
 **/dist/
+coverage/
 .vite/
 **/.vite/
 *.tsbuildinfo
@@ -60,3 +61,6 @@ store-assets/*.png
 store-assets/*.jpg
 store-assets/*.jpeg
 
+# Binaries & Scratch
+*.apk
+scratch/

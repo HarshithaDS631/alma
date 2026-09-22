@@ -127,6 +127,7 @@ const DEFAULT_CONNECTIONS = [];
     dateOfBirth: '',
     branch: '',
     batch: '',
+    institution: '',
     bio: '',
     linkedin: '',
     resumeUrl: '',
@@ -138,7 +139,7 @@ const DEFAULT_CONNECTIONS = [];
     posts: '0',
     followers: '0',
     following: '0',
-    avatar: 'AL',
+    avatar: '',
     avatar_url: ''
   });
 
@@ -172,6 +173,7 @@ const DEFAULT_CONNECTIONS = [];
             dateOfBirth: rawDob,
             branch: cached.department || cached.branch || 'Alumni Network',
             batch: cached.batchYear || cached.batch_year || '',
+            institution: cached.institution || 'RV College of Engineering',
             bio: cached.bio || '',
             linkedin: cached.linkedin || '',
             resumeUrl: cached.resumeUrl || '',
@@ -304,6 +306,7 @@ const DEFAULT_TAGGED_POSTS = [];
               dateOfBirth: rawDob,
               branch: activeUser.department || activeUser.branch || 'Alumni Network',
               batch: activeUser.batchYear || activeUser.batch_year || '',
+              institution: activeUser.institution || cachedObj.institution || 'RV College of Engineering',
               bio: activeUser.bio || '',
               linkedin: activeUser.linkedin || '',
               resumeUrl: activeUser.resumeUrl || '',
@@ -915,7 +918,7 @@ const DEFAULT_TAGGED_POSTS = [];
                       onError={() => setProfileData(p => ({ ...p, avatar_url: '' }))}
                     />
                   ) : (
-                    <Text style={styles.avatarText}>{profileData.avatar || getInitials(profileData.name || 'Harshitha D S', 'HS')}</Text>
+                    <Text style={styles.avatarText}>{profileData.avatar || getInitials(profileData.name || profileData.email || 'User')}</Text>
                   )}
                 </View>
                 <TouchableOpacity 
@@ -957,8 +960,22 @@ const DEFAULT_TAGGED_POSTS = [];
 
           {/* Bio */}
           <View style={styles.bioContainer}>
-            <Text style={styles.nameText}>{profileData.name}</Text>
-            <Text style={styles.occupationText}>{profileData.branch} Class of {profileData.batch}</Text>
+            <Text style={styles.nameText}>{profileData.name || profileData.email || 'Alumni Member'}</Text>
+            {profileData.institution ? (
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 3, marginBottom: 2 }}>
+                <Ionicons name="school-outline" size={14} color="#003366" style={{ marginRight: 5 }} />
+                <Text style={{ fontSize: 13.5, fontWeight: '700', color: '#003366' }}>
+                  {profileData.institution}
+                </Text>
+              </View>
+            ) : null}
+            {(profileData.branch || profileData.batch) ? (
+              <Text style={styles.occupationText}>
+                {profileData.branch ? profileData.branch : ''}
+                {profileData.branch && profileData.batch ? ' • ' : ''}
+                {profileData.batch ? `Class of ${profileData.batch}` : ''}
+              </Text>
+            ) : null}
             <Text style={styles.bioText}>{profileData.bio}</Text>
             {profileData.linkedin ? (
               <TouchableOpacity onPress={() => Platform.OS === 'web' && window.open(profileData.linkedin, '_blank')}>
@@ -1274,6 +1291,17 @@ const DEFAULT_TAGGED_POSTS = [];
                   value={editUsername}
                   onChangeText={setEditUsername}
                 />
+
+                <Text style={styles.editLabel}>Institution / College 🎓</Text>
+                <View style={[styles.securityInput, { flexDirection: 'row', alignItems: 'center', backgroundColor: isDarkMode ? '#1E293B' : '#F0F9FF', borderColor: '#BAE6FD' }]}>
+                  <Ionicons name="school" size={18} color="#0284C7" style={{ marginRight: 8 }} />
+                  <Text style={{ fontSize: 14, color: theme.text, fontWeight: '700', flex: 1 }} numberOfLines={1}>
+                    {profileData.institution || 'RV College of Engineering'}
+                  </Text>
+                  <View style={{ backgroundColor: '#E0F2FE', paddingHorizontal: 7, paddingVertical: 2, borderRadius: 5 }}>
+                    <Text style={{ fontSize: 10, fontWeight: '700', color: '#0284C7' }}>Verified</Text>
+                  </View>
+                </View>
 
                 <Text style={styles.editLabel}>Branch / Department</Text>
                 <TouchableOpacity 
@@ -3105,6 +3133,36 @@ const DEFAULT_TAGGED_POSTS = [];
               <Text style={{ alignSelf: 'flex-end', fontSize: 12, color: theme.textMuted, marginTop: 4 }}>
                 {editBio.length} / 150
               </Text>
+            </View>
+
+            {/* Institution / College Display Row */}
+            <View 
+              style={{ 
+                marginHorizontal: 16, 
+                marginTop: 14, 
+                backgroundColor: isDarkMode ? '#1E293B' : '#F0F9FF', 
+                borderWidth: 1, 
+                borderColor: '#BAE6FD', 
+                borderRadius: 10, 
+                paddingHorizontal: 14, 
+                paddingVertical: 12, 
+                flexDirection: 'row', 
+                alignItems: 'center', 
+                justifyContent: 'space-between' 
+              }}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 8 }}>
+                <Ionicons name="school" size={20} color="#0284C7" style={{ marginRight: 10 }} />
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 11, color: '#0369A1', fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 }}>Institution / College</Text>
+                  <Text style={{ fontSize: 14, color: theme.text, fontWeight: '700', marginTop: 2 }} numberOfLines={2}>
+                    {profileData.institution || 'RV College of Engineering'}
+                  </Text>
+                </View>
+              </View>
+              <View style={{ backgroundColor: '#E0F2FE', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 }}>
+                <Text style={{ fontSize: 10.5, fontWeight: '700', color: '#0284C7' }}>Verified</Text>
+              </View>
             </View>
 
             {/* Department / Branch Row */}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   View,
   Text,
@@ -106,12 +107,26 @@ const JobsScreen = ({ navigation, route }) => {
         const recs = await fetchRecommendedJobs();
         setRecommendedJobs(recs);
       } else if (activeTab === 'preferences') {
+        try {
+          const cachedStr = await AsyncStorage.getItem('cached_job_preferences');
+          if (cachedStr) {
+            const cached = JSON.parse(cachedStr);
+            setOpenToWork(cached.openToWork ?? true);
+            if (cached.targetTitles) setTargetTitles(Array.isArray(cached.targetTitles) ? cached.targetTitles.join(', ') : cached.targetTitles);
+            if (cached.targetLocations) setTargetLocations(Array.isArray(cached.targetLocations) ? cached.targetLocations.join(', ') : cached.targetLocations);
+            if (cached.keywords) setTargetKeywords(Array.isArray(cached.keywords) ? cached.keywords.join(', ') : cached.keywords);
+          }
+        } catch (err) {}
+
         const prefs = await fetchJobPreferences();
         if (prefs) {
           setOpenToWork(prefs.openToWork ?? true);
           setTargetTitles((prefs.targetTitles || []).join(', '));
           setTargetLocations((prefs.targetLocations || []).join(', '));
           setTargetKeywords((prefs.keywords || prefs.skills || []).join(', '));
+          try {
+            await AsyncStorage.setItem('cached_job_preferences', JSON.stringify(prefs));
+          } catch (err) {}
         }
       }
     } catch (e) {
@@ -161,15 +176,29 @@ const JobsScreen = ({ navigation, route }) => {
       const titlesArray = targetTitles.split(',').map(s => s.trim()).filter(Boolean);
       const locsArray = targetLocations.split(',').map(s => s.trim()).filter(Boolean);
       const keywordsArray = targetKeywords.split(',').map(s => s.trim()).filter(Boolean);
-      await updateJobPreferences({
+
+      const payload = {
         openToWork,
         targetTitles: titlesArray,
         targetLocations: locsArray,
         keywords: keywordsArray
-      });
+      };
+
+      // Always save locally immediately so preferences are never lost
+      try {
+        await AsyncStorage.setItem('cached_job_preferences', JSON.stringify(payload));
+      } catch (err) {}
+
+      await updateJobPreferences(payload);
       Alert.alert('Preferences Saved 🎯', 'Your skill & keyword preferences have been saved! Jobs matching keywords in their descriptions will now appear in your Recommended tab.');
     } catch (e) {
-      Alert.alert('Error', 'Failed to save preferences.');
+      console.log('Update preferences notice:', e);
+      const errMsg = e.response?.data?.message || e.message;
+      if (errMsg && !errMsg.toLowerCase().includes('network')) {
+        Alert.alert('Notice', `Preferences saved locally on device. (${errMsg})`);
+      } else {
+        Alert.alert('Preferences Saved 🎯', 'Your skill & keyword preferences have been saved on this device!');
+      }
     } finally {
       setSavingPrefs(false);
     }

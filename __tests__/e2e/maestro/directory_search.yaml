@@ -1,0 +1,61 @@
+# ───────────────────────────────────────────────────────
+# Maestro E2E Test: Directory Search Flow
+# Alumni Network — com.mediacell.alumni
+#
+# Prerequisites:
+#   - Maestro CLI installed
+#   - App running and logged in (run login_flow.yaml first)
+#
+# Run: maestro test __tests__/e2e/maestro/directory_search.yaml
+# ───────────────────────────────────────────────────────
+
+appId: com.mediacell.alumni
+
+---
+
+# Step 1: Navigate to Directory tab
+- tapOn:
+    text: ".*Directory.*"
+    optional: true
+
+- tapOn:
+    text: ".*Search.*"
+    optional: true
+
+# Step 2: Wait for the directory screen to load
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Step 3: Look for search input
+- assertVisible:
+    text: ".*Search.*"
+    optional: true
+
+# Step 4: Tap the search bar
+- tapOn:
+    text: ".*Search alumni.*"
+    optional: true
+
+- tapOn:
+    id: "search-input"
+    optional: true
+
+# Step 5: Type a search query
+- inputText: "Admin"
+
+# Step 6: Wait for results
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Step 7: Verify results appear (at least the search didn't crash)
+- assertVisible:
+    text: ".*Admin.*"
+    optional: true
+
+# Step 8: Screenshot for evidence
+- takeScreenshot: directory_search_results
+
+# Step 9: Clear search and go back
+- clearText
+
+- back

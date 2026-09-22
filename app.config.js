@@ -40,6 +40,7 @@ export default {
       backgroundColor: '#ffffff',
     },
 
+    // ─── iOS Configuration ────────────────────────────────────────
     ios: {
       supportsTablet: true,
       bundleIdentifier: BUNDLE_ID,
@@ -62,7 +63,10 @@ export default {
           'Allow Alumni Network to access contacts to help you connect with alumni.',
         NSUserNotificationsUsageDescription:
           'Allow Alumni Network to send you notifications for messages, events, and job updates.',
+        NSFaceIDUsageDescription:
+          'Allow Alumni Network to use Face ID for secure and quick authentication.',
         ITSAppUsesNonExemptEncryption: false,
+        UIBackgroundModes: ['remote-notification', 'fetch'],
         CFBundleURLTypes: [
           {
             CFBundleURLSchemes: [
@@ -78,9 +82,15 @@ export default {
         'aps-environment': IS_DEV ? 'development' : 'production',
         // Required for native Apple Sign-In on iOS
         'com.apple.developer.applesignin': ['Default'],
+        // Universal links for deep linking
+        'com.apple.developer.associated-domains': [
+          'applinks:alma-orpin-delta.vercel.app',
+          'applinks:alumni-app-nine.vercel.app',
+        ],
       },
     },
 
+    // ─── Android Configuration ────────────────────────────────────
     android: {
       adaptiveIcon: {
         backgroundColor: '#E6F4FE',
@@ -89,9 +99,10 @@ export default {
         monochromeImage: './assets/images/android-icon-monochrome.png',
       },
       package: BUNDLE_ID,
-      versionCode: 1,
-      edgeToEdgeEnabled: true,
+      versionCode: 2,
+      edgeToEdgeEnabled: false,
       predictiveBackGestureEnabled: false,
+      allowBackup: false,
       googleServicesFile:
         process.env.GOOGLE_SERVICES_JSON ?? './google-services.json',
       permissions: [
@@ -102,12 +113,41 @@ export default {
         'android.permission.RECEIVE_BOOT_COMPLETED',
         'android.permission.VIBRATE',
         'android.permission.POST_NOTIFICATIONS',
+        'android.permission.ACCESS_FINE_LOCATION',
+      ],
+      blockedPermissions: [
+        'android.permission.READ_PHONE_STATE',
+        'android.permission.RECORD_AUDIO',
+        'android.permission.READ_CALL_LOG',
       ],
       intentFilters: [
         {
           action: 'VIEW',
+          data: [
+            {
+              scheme: 'com.googleusercontent.apps.768299462386-vacrklnip0qim7nuhto5lo6asr6a36b3',
+              path: '/oauthredirect',
+            },
+            {
+              scheme: 'com.mediacell.alumni',
+              path: '/oauthredirect',
+            },
+            {
+              scheme: 'com.mediacell.alumni',
+              path: '/oauth-callback',
+            },
+          ],
+          category: ['BROWSABLE', 'DEFAULT'],
+        },
+        {
+          action: 'VIEW',
           autoVerify: true,
           data: [
+            {
+              scheme: 'https',
+              host: 'alma-orpin-delta.vercel.app',
+              pathPrefix: '/',
+            },
             {
               scheme: 'https',
               host: 'alumni-app-nine.vercel.app',
@@ -119,6 +159,7 @@ export default {
       ],
     },
 
+    // ─── Plugins ──────────────────────────────────────────────────
     plugins: [
       [
         'expo-splash-screen',
@@ -150,15 +191,17 @@ export default {
       'expo-apple-authentication',
     ],
 
+    // ─── OTA Updates ──────────────────────────────────────────────
     updates: {
-      url: 'https://u.expo.dev/alumni-network',
+      url: 'https://u.expo.dev/97c992ba-adfc-4062-9e97-e3b8e6135885',
       fallbackToCacheTimeout: 0,
     },
 
     runtimeVersion: {
-      policy: 'appVersion',
+      policy: 'nativeVersion',
     },
 
+    // ─── Extra / EAS ──────────────────────────────────────────────
     extra: {
       apiUrl:
         process.env.EXPO_PUBLIC_API_URL ??

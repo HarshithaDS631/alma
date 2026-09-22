@@ -9,6 +9,7 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import { useWindowDimensions } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { View, Platform, Text, Alert } from 'react-native';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // Polyfill Alert for web to prevent crashes and ensure button interactivity
 if (Platform.OS === 'web') {
@@ -84,8 +85,10 @@ const SuperAdminDrawer = createDrawerNavigator();
 // ===== ALUMNI TABS/DRAWER =====
 function MainTabs() {
   const { theme, isDarkMode } = useTheme();
+  const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const showDrawer = Platform.OS === 'web' && width >= 768;
+  const bottomPadding = Math.max(insets.bottom, Platform.OS === 'ios' ? 24 : 10);
 
   if (showDrawer) {
     return (
@@ -158,7 +161,7 @@ function MainTabs() {
             </View>
           );
         },
-        tabBarStyle: { borderTopWidth: 1, borderTopColor: theme.border, paddingBottom: Platform.OS === 'ios' ? 24 : 8, paddingTop: 8, height: Platform.OS === 'ios' ? 88 : 65, backgroundColor: theme.card },
+        tabBarStyle: { borderTopWidth: 1, borderTopColor: theme.border, paddingBottom: bottomPadding, paddingTop: 8, height: 60 + bottomPadding, backgroundColor: theme.card },
       })}
     >
       <Tab.Screen name="Home" component={DashboardScreen} />
@@ -173,8 +176,10 @@ function MainTabs() {
 // ===== ADMIN TABS/DRAWER =====
 function AdminTabs() {
   const { theme, isDarkMode } = useTheme();
+  const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const showDrawer = Platform.OS === 'web' && width >= 768;
+  const bottomPadding = Math.max(insets.bottom, Platform.OS === 'ios' ? 24 : 10);
 
   if (showDrawer) {
     return (
@@ -243,7 +248,7 @@ function AdminTabs() {
             </View>
           );
         },
-        tabBarStyle: { borderTopWidth: 1, borderTopColor: theme.border, paddingBottom: Platform.OS === 'ios' ? 24 : 8, paddingTop: 8, height: Platform.OS === 'ios' ? 88 : 65, backgroundColor: theme.card },
+        tabBarStyle: { borderTopWidth: 1, borderTopColor: theme.border, paddingBottom: bottomPadding, paddingTop: 8, height: 60 + bottomPadding, backgroundColor: theme.card },
       })}
     >
       <AdminTab.Screen name="AdminHome" component={AdminHomeScreen} />
@@ -258,8 +263,10 @@ function AdminTabs() {
 // ===== SUPER ADMIN TABS/DRAWER =====
 function SuperAdminTabs() {
   const { theme, isDarkMode } = useTheme();
+  const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const showDrawer = Platform.OS === 'web' && width >= 768;
+  const bottomPadding = Math.max(insets.bottom, Platform.OS === 'ios' ? 24 : 10);
 
   if (showDrawer) {
     return (
@@ -328,7 +335,7 @@ function SuperAdminTabs() {
             </View>
           );
         },
-        tabBarStyle: { borderTopWidth: 1, borderTopColor: theme.border, paddingBottom: Platform.OS === 'ios' ? 24 : 8, paddingTop: 8, height: Platform.OS === 'ios' ? 88 : 65, backgroundColor: theme.card },
+        tabBarStyle: { borderTopWidth: 1, borderTopColor: theme.border, paddingBottom: bottomPadding, paddingTop: 8, height: 60 + bottomPadding, backgroundColor: theme.card },
       })}
     >
       <SuperAdminTab.Screen name="SADashboard" component={SuperAdminDashboardScreen} initialParams={{ initialModule: 'dashboard_home' }} />
@@ -492,9 +499,11 @@ function RootNavigator() {
 export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <ThemeProvider>
-        <RootNavigator />
-      </ThemeProvider>
+      <SafeAreaProvider>
+        <ThemeProvider>
+          <RootNavigator />
+        </ThemeProvider>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }

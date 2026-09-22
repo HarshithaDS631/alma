@@ -2,11 +2,13 @@ const Job = require('../models/Job');
 const JobPreference = require('../models/JobPreference');
 const User = require('../models/User');
 const { extractKeywords, calculateJobMatch } = require('../utils/keywordExtractor');
+const connectDB = require('../config/db');
 
 // @desc    Get all jobs with filters & search
 // @route   GET /api/jobs
 exports.getJobs = async (req, res) => {
     try {
+        await connectDB();
         const { search, workplaceType, jobType, location } = req.query;
         let query = { isActive: true };
 
@@ -62,6 +64,7 @@ exports.getJobs = async (req, res) => {
 // @route   POST /api/jobs
 exports.createJob = async (req, res) => {
     try {
+        await connectDB();
         const { title, company, location, workplaceType, jobType, experienceLevel, salaryRange, description, requirements, institution } = req.body;
 
         const userDoc = await User.findById(req.user._id).select('institution');
@@ -96,6 +99,7 @@ exports.createJob = async (req, res) => {
 // @route   POST /api/jobs/:id/save
 exports.toggleSaveJob = async (req, res) => {
     try {
+        await connectDB();
         const job = await Job.findById(req.params.id);
         if (!job) return res.status(404).json({ message: 'Job not found' });
 
@@ -119,6 +123,7 @@ exports.toggleSaveJob = async (req, res) => {
 // @route   POST /api/jobs/:id/apply
 exports.applyToJob = async (req, res) => {
     try {
+        await connectDB();
         const { resumeUrl, coverNote } = req.body;
         const job = await Job.findById(req.params.id);
         if (!job) return res.status(404).json({ message: 'Job not found' });
@@ -147,6 +152,7 @@ exports.applyToJob = async (req, res) => {
 // @route   GET /api/jobs/tracker
 exports.getJobTracker = async (req, res) => {
     try {
+        await connectDB();
         const userId = req.user._id;
 
         const savedJobs = await Job.find({ savedBy: userId })
@@ -183,6 +189,7 @@ exports.getJobTracker = async (req, res) => {
 // @route   GET /api/jobs/preferences
 exports.getPreferences = async (req, res) => {
     try {
+        await connectDB();
         const userDoc = await User.findById(req.user._id).select('skills domain branch department');
         let prefs = await JobPreference.findOne({ user: req.user._id });
         if (!prefs) {
@@ -206,6 +213,7 @@ exports.getPreferences = async (req, res) => {
 // @route   PUT /api/jobs/preferences
 exports.updatePreferences = async (req, res) => {
     try {
+        await connectDB();
         const { openToWork, targetTitles, targetLocations, keywords, skills, jobTypes, preferredIndustry, minSalary } = req.body;
 
         let prefs = await JobPreference.findOne({ user: req.user._id });
@@ -239,6 +247,7 @@ exports.updatePreferences = async (req, res) => {
 // @route   GET /api/jobs/recommended
 exports.getRecommendedJobs = async (req, res) => {
     try {
+        await connectDB();
         const userId = req.user._id;
         const [prefs, userDoc] = await Promise.all([
             JobPreference.findOne({ user: userId }),
@@ -304,6 +313,7 @@ exports.getRecommendedJobs = async (req, res) => {
 // @route   GET /api/jobs/resume-book
 exports.getResumeBook = async (req, res) => {
     try {
+        await connectDB();
         const { search, institution, domain } = req.query;
         let query = {
             is_approved: true,
@@ -362,6 +372,7 @@ exports.getResumeBook = async (req, res) => {
 // @route   POST /api/jobs/resume-book/share
 exports.shareResumeViaEmail = async (req, res) => {
     try {
+        await connectDB();
         const { sendCandidateResumeEmail } = require('../utils/sendEmail');
         const { candidateId, recipientEmail, subject, message } = req.body;
 

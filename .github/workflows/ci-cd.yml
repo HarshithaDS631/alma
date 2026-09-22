@@ -16,10 +16,32 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
+          cache: 'npm'
 
       - name: Install Frontend Dependencies
         run: npm install --legacy-peer-deps
+
+      - name: Lint
+        run: npx expo lint
+        continue-on-error: true
+
+      - name: Run Unit & Integration Tests
+        run: npm test -- --ci --reporters=default --forceExit
+        env:
+          EXPO_PUBLIC_API_URL: https://alma-orpin-delta.vercel.app/api
+
+      - name: Run Tests with Coverage
+        run: npm run test:coverage -- --ci --forceExit
+        continue-on-error: true
+
+      - name: Upload Coverage Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 14
 
       - name: Verify Frontend Web Build
         run: npm run build
@@ -31,4 +53,3 @@ jobs:
         run: |
           cd backend
           node -e "require('./models/User.js'); require('./controllers/authController.js'); require('./controllers/postController.js'); console.log('Backend syntax clean!');"
-

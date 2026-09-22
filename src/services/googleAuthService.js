@@ -72,12 +72,17 @@ export const googleSignInWeb = async () => {
 
 // ─── Mobile: expo-auth-session Google OAuth ───────────────────────
 export const googleSignInMobile = async () => {
-  const redirectUri = AuthSession.makeRedirectUri({
-    scheme: 'alumniportal',
-    path: 'oauth-callback',
-  });
-
   const clientId = Platform.OS === 'ios' ? GOOGLE_IOS_CLIENT_ID : GOOGLE_ANDROID_CLIENT_ID;
+
+  // Google OAuth 2.0 RFC 8252 policy strictly requires reverse client ID scheme or package name scheme
+  const redirectUri = Platform.select({
+    ios: `com.googleusercontent.apps.768299462386-th9t5pb5r2fbvt46o1b0iadcr8tva9fd:/oauthredirect`,
+    android: `com.googleusercontent.apps.768299462386-vacrklnip0qim7nuhto5lo6asr6a36b3:/oauthredirect`,
+    default: AuthSession.makeRedirectUri({
+      scheme: 'com.mediacell.alumni',
+      path: 'oauthredirect',
+    }),
+  });
 
   const discovery = {
     authorizationEndpoint: 'https://accounts.google.com/o/oauth2/v2/auth',
@@ -95,6 +100,12 @@ export const googleSignInMobile = async () => {
 
   await request.makeAuthUrlAsync(discovery);
   const result = await request.promptAsync(discovery);
+
+  if (result.type === 'cancel' || result.type === 'dismiss') {
+    const cancelErr = new Error('Google Sign-In was cancelled by user.');
+    cancelErr.code = 'auth/popup-closed-by-user';
+    throw cancelErr;
+  }
 
   if (result.type !== 'success') {
     throw new Error('Google Sign-In was cancelled or failed on mobile.');
@@ -144,10 +155,11 @@ export const exchangeGoogleTokenWithBackend = async ({ idToken, accessToken, ema
 
 // ─── Save user session to AsyncStorage ────────────────────────────
 const saveUserSession = async (userData, googleUser) => {
+  const token = userData.token || userData.accessToken;
   await AsyncStorage.setItem('userInfo', JSON.stringify({
     _id: userData._id || userData.id,
     id: userData._id || userData.id,
-    token: userData.token,
+    token: token,
     refreshToken: userData.refreshToken,
     name: userData.name || googleUser.name || 'User',
     email: userData.email || googleUser.email,
@@ -159,6 +171,13 @@ const saveUserSession = async (userData, googleUser) => {
     role: userData.role,
     authProvider: 'google',
   }));
+  if (token) {
+    await AsyncStorage.setItem('userToken', token);
+    await AsyncStorage.setItem('token', token);
+  }
+  if (userData.refreshToken) {
+    await AsyncStorage.setItem('refreshToken', userData.refreshToken);
+  }
 };
 
 // ─── Main export: handleGoogleLogin ───────────────────────────────

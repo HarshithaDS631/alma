@@ -18,8 +18,8 @@ const LoginScreen = ({ navigation }) => {
   const [authMode, setAuthMode] = useState('password');
 
   // Password Login States
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('harshithads2001@gmail.com');
+  const [password, setPassword] = useState('Alumni@6363');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [portal, setPortal] = useState(null);
@@ -161,8 +161,24 @@ const LoginScreen = ({ navigation }) => {
       const userData = await loginWithOtp(otpIdentifier.trim(), otpCode.trim());
       
       await AsyncStorage.setItem('user', JSON.stringify(userData));
+      await AsyncStorage.setItem('userInfo', JSON.stringify({
+        _id: userData._id || userData.id,
+        id: userData._id || userData.id,
+        token: userData.token,
+        refreshToken: userData.refreshToken,
+        name: userData.name || (userData.email ? userData.email.split('@')[0] : 'User'),
+        email: userData.email,
+        institution: userData.institution || 'Institution',
+        department: userData.department,
+        branch: userData.branch,
+        batchYear: userData.batchYear,
+        avatar_url: userData.avatar_url,
+        bio: userData.bio,
+        role: userData.role
+      }));
       if (userData.token) {
         await AsyncStorage.setItem('userToken', userData.token);
+        await AsyncStorage.setItem('token', userData.token);
       }
       if (userData.refreshToken) {
         await AsyncStorage.setItem('refreshToken', userData.refreshToken);

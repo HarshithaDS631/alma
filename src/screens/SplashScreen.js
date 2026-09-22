@@ -10,17 +10,23 @@ const SplashScreen = ({ navigation }) => {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const userInfoStr = await AsyncStorage.getItem('userInfo');
+        const [userInfoStr, userToken] = await Promise.all([
+          AsyncStorage.getItem('userInfo'),
+          AsyncStorage.getItem('userToken')
+        ]);
         if (userInfoStr) {
           const userInfo = JSON.parse(userInfoStr);
-          if (userInfo && userInfo.role) {
-            if (userInfo.role === 'superadmin') {
+          const hasToken = userInfo.token || userToken;
+          const hasIdentity = userInfo.email || (userInfo.name && userInfo.name !== 'User');
+          if (userInfo && userInfo.role && hasToken && hasIdentity) {
+            const role = (userInfo.role || '').toLowerCase();
+            if (role === 'superadmin' || role === 'super admin') {
               navigation.replace('SuperAdminMain');
               return;
-            } else if (userInfo.role === 'admin') {
+            } else if (role === 'admin' || role === 'institution admin') {
               navigation.replace('AdminMain');
               return;
-            } else if (userInfo.role === 'Alumni') {
+            } else if (role === 'alumni' || role === 'student') {
               navigation.replace('Main');
               return;
             }

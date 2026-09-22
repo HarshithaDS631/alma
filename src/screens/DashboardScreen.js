@@ -1070,7 +1070,7 @@ const DashboardScreen = ({ navigation }) => {
             {userAvatarUrl ? (
               <Image source={{ uri: userAvatarUrl }} style={{ width: '100%', height: '100%', borderRadius: 17 }} />
             ) : (
-              <Text style={{ fontSize: 13, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(userName || currentUser?.name || 'Harshitha D S', 'HS')}</Text>
+              <Text style={{ fontSize: 13, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(userName || currentUser?.name || currentUser?.email || 'User')}</Text>
             )}
           </TouchableOpacity>
 
@@ -1139,7 +1139,7 @@ const DashboardScreen = ({ navigation }) => {
                   {userAvatarUrl ? (
                     <Image source={{ uri: userAvatarUrl }} style={{ width: 72, height: 72, borderRadius: 36 }} />
                   ) : (
-                    <Text style={{ fontSize: 24, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(userName || currentUser?.name || 'Harshitha D S', 'HS')}</Text>
+                    <Text style={{ fontSize: 24, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(userName || currentUser?.name || currentUser?.email || 'User')}</Text>
                   )}
                 </TouchableOpacity>
                 <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>{userName || 'Alumni Member'}</Text>
@@ -1175,7 +1175,7 @@ const DashboardScreen = ({ navigation }) => {
                   {userAvatarUrl ? (
                     <Image source={{ uri: userAvatarUrl }} style={{ width: 44, height: 44, borderRadius: 22 }} />
                   ) : (
-                    <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(userName || currentUser?.name || 'Harshitha D S', 'HS')}</Text>
+                    <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(userName || currentUser?.name || currentUser?.email || 'User')}</Text>
                   )}
                 </TouchableOpacity>
                 <TouchableOpacity 
