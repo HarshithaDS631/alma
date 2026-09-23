@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Image, ScrollView, useWindowDimensions, Alert, StatusBar, Modal, TextInput, Platform, Share, Switch } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Image, ScrollView, useWindowDimensions, Alert, StatusBar, Modal, TextInput, Platform, Share, Switch, Linking } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
@@ -12,6 +12,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import { institutionDepartments, defaultDepartments } from '../constants/institutionDepartments';
 import getInitials from '../lib/getInitials';
+import InstagramProfileShareModal from '../components/InstagramProfileShareModal';
 
 const validatePasswordStrength = (password) => {
   if (password.length < 8) {
@@ -138,6 +139,7 @@ const ProfileScreen = ({ navigation }) => {
   const [settingsSubView, setSettingsSubView] = useState('menu'); // 'menu' | 'profile_edit' | 'profile_settings' | 'security'
   const [activeTab, setActiveTab] = useState('post'); // 'post' | 'messages' | 'reshare' | 'saved' | 'tags'
   const [listModalType, setListModalType] = useState(null); // 'connections' | 'following'
+  const [profileShareModalVisible, setProfileShareModalVisible] = useState(false);
   
 const DEFAULT_FOLLOWING = [];
 const DEFAULT_CONNECTIONS = [];
@@ -199,7 +201,7 @@ const DEFAULT_CONNECTIONS = [];
           const uHandle = cached.username || (cached.name ? cached.name.toLowerCase().replace(/\s+/g, '_') : (safeEmail ? safeEmail.split('@')[0] : 'alumni'));
           const rawDob = cached.dateOfBirth ? (typeof cached.dateOfBirth === 'string' ? cached.dateOfBirth.substring(0, 10) : new Date(cached.dateOfBirth).toISOString().substring(0, 10)) : '';
           
-          let initialPosts = cachedProfile.posts || prev.posts || '0';
+          let initialPosts = cachedProfile.posts || '0';
           if (isHarshitha && (!initialPosts || initialPosts === '0')) {
             initialPosts = '1';
           }
@@ -1059,16 +1061,10 @@ const DEFAULT_TAGGED_POSTS = [];
             </TouchableOpacity>
             <TouchableOpacity 
               style={[styles.actionButton, { flex: 1, marginRight: 8, backgroundColor: 'rgba(0, 33, 68, 0.08)' }]} 
-              onPress={() => {
-                if (Platform.OS === 'web' && navigator.clipboard) {
-                  navigator.clipboard.writeText(window.location.href);
-                  alert('Profile link copied to clipboard!');
-                } else {
-                  alert(`Profile link: https://alma-connect.vercel.app/profile/${profileData.username}`);
-                }
-              }} 
+              onPress={() => setProfileShareModalVisible(true)} 
               activeOpacity={0.7}
             >
+              <Ionicons name="share-social-outline" size={15} color={theme.primary} style={{ marginRight: 6 }} />
               <Text style={[styles.actionButtonText, { color: theme.primary }]}>Share Profile</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.smallIconBtn} onPress={handleLogout} activeOpacity={0.7}>
@@ -3771,6 +3767,23 @@ const DEFAULT_TAGGED_POSTS = [];
           </ScrollView>
         </SafeAreaView>
       </Modal>
+
+      {/* Instagram-Style Profile Share Modal with WhatsApp Integration */}
+      <InstagramProfileShareModal
+        visible={profileShareModalVisible}
+        onClose={() => setProfileShareModalVisible(false)}
+        user={{
+          name: profileData.name || profileData.email,
+          username: profileData.username,
+          avatar_url: profileData.avatar_url,
+          avatar: profileData.avatar,
+          institution: profileData.institution,
+          branch: profileData.branch,
+          batch: profileData.batch,
+          role: profileData.isJobSeeker ? 'Looking for Opportunities' : (profileData.domain || 'Alumni Member'),
+          bio: profileData.bio
+        }}
+      />
 
     </View>
     </SafeAreaView>

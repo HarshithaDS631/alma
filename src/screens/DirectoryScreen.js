@@ -30,6 +30,7 @@ import {
 } from '../services/authService';
 import useUserRole from '../hooks/useUserRole';
 import getInitials from '../lib/getInitials';
+import InstagramProfileShareModal from '../components/InstagramProfileShareModal';
 
 
 const DEFAULT_ALUMNI_MEMBERS = [];
@@ -85,6 +86,7 @@ const DirectoryScreen = ({ navigation, route }) => {
 
   const [currentUserId, setCurrentUserId] = useState(null);
   const [followingMap, setFollowingMap] = useState({});
+  const [sharedAlumni, setSharedAlumni] = useState(null);
 
   const [loadingDirectory, setLoadingDirectory] = useState(false);
 
@@ -598,6 +600,14 @@ const DirectoryScreen = ({ navigation, route }) => {
                         {isFollowing ? 'Following ✓' : 'Follow'}
                       </Text>
                     </TouchableOpacity>
+                    <TouchableOpacity
+                      style={{ padding: 6, backgroundColor: '#E8FDF0', borderRadius: 6, justifyContent: 'center', alignItems: 'center' }}
+                      onPress={() => setSharedAlumni(item)}
+                      activeOpacity={0.7}
+                      title="Share to WhatsApp"
+                    >
+                      <Ionicons name="logo-whatsapp" size={16} color="#25D366" />
+                    </TouchableOpacity>
                   </View>
                 </View>
               );
@@ -682,6 +692,13 @@ const DirectoryScreen = ({ navigation, route }) => {
                   activeOpacity={0.7}
                 >
                   <Ionicons name="chatbubble-ellipses-outline" size={16} color="#003366" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.messageIconBtn, { backgroundColor: '#E8FDF0' }]}
+                  onPress={() => setSharedAlumni(item)}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="logo-whatsapp" size={16} color="#25D366" />
                 </TouchableOpacity>
               </View>
             </View>
@@ -943,6 +960,13 @@ const DirectoryScreen = ({ navigation, route }) => {
           </View>
         </View>
       </Modal>
+
+      {/* Instagram-Style Profile Share Modal for Alumni Members */}
+      <InstagramProfileShareModal
+        visible={!!sharedAlumni}
+        onClose={() => setSharedAlumni(null)}
+        user={sharedAlumni || {}}
+      />
       </View>
     </SafeAreaView>
   );

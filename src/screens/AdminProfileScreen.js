@@ -7,6 +7,7 @@ import { changePassword, updateProfile } from '../services/authService';
 import * as ImagePicker from 'expo-image-picker';
 import { uploadFile } from '../services/uploadService';
 import getInitials from '../lib/getInitials';
+import InstagramProfileShareModal from '../components/InstagramProfileShareModal';
 
 // Seed Data for Profile Campus Info Tab
 const INSTITUTIONS = [
@@ -95,6 +96,7 @@ const AdminProfileScreen = ({ navigation }) => {
   const [userRole, setUserRole] = useState('admin');
   const [activeInst, setActiveInst] = useState('Mediacell');
   const [settingsVisible, setSettingsVisible] = useState(false);
+  const [profileShareModalVisible, setProfileShareModalVisible] = useState(false);
   const [settingsSubView, setSettingsSubView] = useState('menu');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -539,7 +541,12 @@ const AdminProfileScreen = ({ navigation }) => {
             <TouchableOpacity style={styles.actionButton} onPress={() => { setSettingsSubView('profile_edit'); setSettingsVisible(true); }} activeOpacity={0.7}>
               <Text style={styles.actionButtonText}>Edit Profile</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton} activeOpacity={0.7}>
+            <TouchableOpacity 
+              style={[styles.actionButton, { flexDirection: 'row' }]} 
+              onPress={() => setProfileShareModalVisible(true)} 
+              activeOpacity={0.7}
+            >
+              <Ionicons name="share-social-outline" size={15} color={theme.text} style={{ marginRight: 6 }} />
               <Text style={styles.actionButtonText}>Share Profile</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.smallIconBtn} onPress={handleLogout} activeOpacity={0.7}>
@@ -947,6 +954,22 @@ const AdminProfileScreen = ({ navigation }) => {
           </View>
         </View>
       </Modal>
+
+      {/* Instagram-Style Profile Share Modal with WhatsApp Integration */}
+      <InstagramProfileShareModal
+        visible={profileShareModalVisible}
+        onClose={() => setProfileShareModalVisible(false)}
+        user={{
+          name: profileData.name,
+          username: profileData.username,
+          avatar_url: profileData.avatar_url,
+          institution: activeInst || 'RV Educational Institutions',
+          branch: profileData.branch || 'Administration',
+          batch: profileData.batch || '2026',
+          role: userRole === 'superadmin' ? 'Super Admin' : 'Institution Admin',
+          bio: profileData.bio
+        }}
+      />
     </SafeAreaView>
   );
 };
