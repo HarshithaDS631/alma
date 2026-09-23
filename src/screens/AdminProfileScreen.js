@@ -514,15 +514,17 @@ const AdminProfileScreen = ({ navigation }) => {
               </TouchableOpacity>
             </View>
             <View style={styles.statsContainer}>
-              <TouchableOpacity style={styles.statBox} onPress={() => setActiveTab('post')} activeOpacity={0.7}>
+              <TouchableOpacity style={styles.statBox} onPress={() => setActiveTab('post')} activeOpacity={0.65}>
                 <Text style={styles.statNumber}>{profileData.posts}</Text>
                 <Text style={styles.statLabel}>Posts</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.statBox} onPress={() => setListModalType('connections')} activeOpacity={0.7}>
+              <View style={styles.statDivider} />
+              <TouchableOpacity style={styles.statBox} onPress={() => setListModalType('connections')} activeOpacity={0.65}>
                 <Text style={styles.statNumber}>{profileData.followers}</Text>
                 <Text style={styles.statLabel}>Connections</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.statBox} onPress={() => setListModalType('following')} activeOpacity={0.7}>
+              <View style={styles.statDivider} />
+              <TouchableOpacity style={styles.statBox} onPress={() => setListModalType('following')} activeOpacity={0.65}>
                 <Text style={styles.statNumber}>{profileData.following}</Text>
                 <Text style={styles.statLabel}>Following</Text>
               </TouchableOpacity>
@@ -984,10 +986,38 @@ const getStyles = (theme) => StyleSheet.create({
   profileInfoContainer: { paddingHorizontal: 20, paddingTop: 16 },
   mainInfoRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   avatarCircle: { width: 80, height: 80, borderRadius: 40, backgroundColor: '#F0F9FF', justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: theme.primary },
-  statsContainer: { flexDirection: 'row', flex: 1, justifyContent: 'space-around', marginLeft: 16 },
-  statBox: { alignItems: 'center' },
-  statNumber: { fontSize: 18, fontWeight: '800', color: theme.text },
-  statLabel: { fontSize: 11, color: theme.textSecondary, fontWeight: '600', marginTop: 2 },
+  statsContainer: {
+    flexDirection: 'row',
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginLeft: 14,
+    backgroundColor: theme.cardSecondary || (theme.card === '#FFFFFF' ? '#F8FAFC' : '#141A29'),
+    borderRadius: 18,
+    paddingVertical: 10,
+    paddingHorizontal: 6,
+    borderWidth: 1,
+    borderColor: theme.border || 'rgba(0, 33, 68, 0.08)',
+    shadowColor: theme.cardShadow || '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  statBox: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 4,
+  },
+  statDivider: {
+    width: 1,
+    height: 26,
+    backgroundColor: theme.border || 'rgba(0, 0, 0, 0.08)',
+    opacity: 0.6,
+  },
+  statNumber: { fontSize: 18, fontWeight: '800', color: theme.text, letterSpacing: -0.3 },
+  statLabel: { fontSize: 11.5, color: theme.textSecondary, fontWeight: '600', marginTop: 2, letterSpacing: 0.2 },
   bioContainer: { marginTop: 14, marginBottom: 14 },
   nameText: { fontSize: 15, fontWeight: '800', color: theme.text },
   occupationText: { fontSize: 13, color: theme.textSecondary, fontWeight: '600', marginTop: 2 },

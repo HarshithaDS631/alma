@@ -93,7 +93,9 @@ export default function InstagramProfileShareModal({
   const institution = user.institution || 'RV College of Engineering';
   const branch = user.branch || user.department || '';
   const batch = user.batch || user.batchYear ? `Class of ${user.batch || user.batchYear}` : '';
-  const role = user.title || user.designation || user.role || 'Alumni Member';
+  const rawRole = user.title || user.designation || user.role || '';
+  const isNumericRole = /^\d+$/.test(String(rawRole).trim());
+  const role = isNumericRole || rawRole === 'Alumni Member' || rawRole === 'Alumni' || rawRole === 'User' ? '' : rawRole;
   const bio = user.bio || '';
   
   // Avatar
@@ -334,75 +336,81 @@ export default function InstagramProfileShareModal({
               </View>
             </TouchableOpacity>
 
-            {/* ─── Share Actions ─── */}
+            {/* ─── Modern Instagram-Style Share Actions ─── */}
             <View style={styles.actionsContainer}>
-              {/* PRIMARY: Share to WhatsApp */}
-              <TouchableOpacity
-                style={styles.whatsappPrimaryBtn}
-                onPress={handleShareToWhatsApp}
-                activeOpacity={0.82}
-              >
-                <View style={styles.whatsappIconCircle}>
-                  <Ionicons name="logo-whatsapp" size={24} color="#FFFFFF" />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.whatsappBtnTitle}>Share to WhatsApp</Text>
-                  <Text style={styles.whatsappBtnSubtitle}>
-                    Send formatted profile card to chat or group
-                  </Text>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.7)" />
-              </TouchableOpacity>
-
-              {/* SECONDARY ROW: Copy Link, More Apps, WhatsApp Status */}
-              <View style={styles.secondaryActionsRow}>
-                {/* Copy Link */}
+              {/* Primary Dual Action Buttons Row: WhatsApp + Copy Link */}
+              <View style={styles.primaryActionRow}>
+                {/* 1. Share to WhatsApp */}
                 <TouchableOpacity
-                  style={[styles.secondaryActionCard, copied && styles.secondaryActionCardCopied]}
-                  onPress={handleCopyLink}
-                  activeOpacity={0.7}
+                  style={styles.whatsappPrimaryBtn}
+                  onPress={handleShareToWhatsApp}
+                  activeOpacity={0.82}
                 >
-                  <View style={[styles.actionIconCircle, { backgroundColor: copied ? '#10B981' : '#334155' }]}>
-                    <Ionicons
-                      name={copied ? 'checkmark' : 'copy-outline'}
-                      size={20}
-                      color="#FFFFFF"
-                    />
-                  </View>
-                  <Text style={styles.actionLabel}>
-                    {copied ? 'Copied! ✓' : 'Copy Link'}
-                  </Text>
+                  <Ionicons name="logo-whatsapp" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
+                  <Text style={styles.whatsappBtnTitle}>WhatsApp</Text>
                 </TouchableOpacity>
 
+                {/* 2. Copy Link */}
+                <TouchableOpacity
+                  style={[styles.copyLinkBtn, copied && styles.copyLinkBtnActive]}
+                  onPress={handleCopyLink}
+                  activeOpacity={0.82}
+                >
+                  <Ionicons
+                    name={copied ? 'checkmark-circle' : 'copy-outline'}
+                    size={19}
+                    color={copied ? '#10B981' : '#FFFFFF'}
+                    style={{ marginRight: 7 }}
+                  />
+                  <Text style={[styles.copyLinkBtnText, copied && { color: '#10B981' }]}>
+                    {copied ? 'Copied!' : 'Copy Link'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Secondary Quick Action Row: Status, Other Apps, Cycle Color */}
+              <View style={styles.secondaryActionsRow}>
                 {/* WhatsApp Status */}
                 <TouchableOpacity
-                  style={styles.secondaryActionCard}
+                  style={styles.quickActionTile}
                   onPress={handleShareToWhatsAppStatus}
                   activeOpacity={0.7}
                 >
-                  <View style={[styles.actionIconCircle, { backgroundColor: '#128C7E' }]}>
-                    <Ionicons name="radio-outline" size={20} color="#FFFFFF" />
+                  <View style={[styles.quickActionIconCircle, { backgroundColor: 'rgba(18, 140, 126, 0.22)', borderColor: 'rgba(18, 140, 126, 0.4)' }]}>
+                    <Ionicons name="radio-outline" size={20} color="#25D366" />
                   </View>
-                  <Text style={styles.actionLabel}>Status</Text>
+                  <Text style={styles.quickActionLabel}>My Status</Text>
                 </TouchableOpacity>
 
                 {/* More / System Share */}
                 <TouchableOpacity
-                  style={styles.secondaryActionCard}
+                  style={styles.quickActionTile}
                   onPress={handleNativeShare}
                   activeOpacity={0.7}
                 >
-                  <View style={[styles.actionIconCircle, { backgroundColor: '#475569' }]}>
-                    <Ionicons name="share-social-outline" size={20} color="#FFFFFF" />
+                  <View style={[styles.quickActionIconCircle, { backgroundColor: 'rgba(100, 116, 139, 0.22)', borderColor: 'rgba(148, 163, 184, 0.3)' }]}>
+                    <Ionicons name="share-social-outline" size={20} color="#F8FAFC" />
                   </View>
-                  <Text style={styles.actionLabel}>More</Text>
+                  <Text style={styles.quickActionLabel}>Other Apps</Text>
+                </TouchableOpacity>
+
+                {/* Theme Palette */}
+                <TouchableOpacity
+                  style={styles.quickActionTile}
+                  onPress={cycleTheme}
+                  activeOpacity={0.7}
+                >
+                  <View style={[styles.quickActionIconCircle, { backgroundColor: 'rgba(245, 158, 11, 0.2)', borderColor: 'rgba(245, 158, 11, 0.4)' }]}>
+                    <Ionicons name="color-palette-outline" size={20} color="#F59E0B" />
+                  </View>
+                  <Text style={styles.quickActionLabel}>Change Color</Text>
                 </TouchableOpacity>
               </View>
 
-              {/* Theme Preview Indicators */}
-              <View style={styles.themeSelectorRow}>
-                <Text style={styles.themeSelectorLabel}>Theme:</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.themeDotsList}>
+              {/* Theme Dots Picker */}
+              <View style={styles.themeSelectorContainer}>
+                <Text style={styles.themeSelectorLabel}>Card Theme:</Text>
+                <View style={styles.themeDotsList}>
                   {CARD_THEMES.map((th, idx) => (
                     <TouchableOpacity
                       key={th.id}
@@ -410,12 +418,12 @@ export default function InstagramProfileShareModal({
                       style={[
                         styles.themeDot,
                         { backgroundColor: th.bg },
-                        themeIndex % CARD_THEMES.length === idx && styles.themeDotActive
+                        themeIndex % CARD_THEMES.length === idx && [styles.themeDotActive, { borderColor: th.accent }]
                       ]}
                       activeOpacity={0.7}
                     />
                   ))}
-                </ScrollView>
+                </View>
               </View>
             </View>
           </ScrollView>
@@ -633,102 +641,118 @@ const styles = StyleSheet.create({
 
   // ── Share Actions ──
   actionsContainer: {
-    width: Math.min(SCREEN_WIDTH - 40, 360)
+    width: Math.min(SCREEN_WIDTH - 40, 350),
+    marginTop: 4,
   },
-  whatsappPrimaryBtn: {
-    backgroundColor: '#25D366',
-    borderRadius: 18,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+  primaryActionRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#25D366',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    elevation: 6,
-    marginBottom: 12
+    gap: 10,
+    marginBottom: 12,
   },
-  whatsappIconCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.15)',
-    justifyContent: 'center',
+  whatsappPrimaryBtn: {
+    flex: 1,
+    height: 48,
+    backgroundColor: '#25D366',
+    borderRadius: 14,
+    flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 14
+    justifyContent: 'center',
+    shadowColor: '#25D366',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   whatsappBtnTitle: {
-    fontSize: 16,
-    fontWeight: '800',
+    fontSize: 15,
+    fontWeight: '700',
     color: '#FFFFFF',
-    letterSpacing: -0.2
+    letterSpacing: -0.2,
   },
-  whatsappBtnSubtitle: {
-    fontSize: 11.5,
-    color: 'rgba(255, 255, 255, 0.88)',
-    marginTop: 2
+  copyLinkBtn: {
+    flex: 1,
+    height: 48,
+    backgroundColor: '#1E293B',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  copyLinkBtnActive: {
+    borderColor: '#10B981',
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+  },
+  copyLinkBtnText: {
+    fontSize: 14.5,
+    fontWeight: '700',
+    color: '#FFFFFF',
   },
   secondaryActionsRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 10,
-    marginBottom: 16
-  },
-  secondaryActionCard: {
-    flex: 1,
-    backgroundColor: '#1E293B',
-    borderRadius: 16,
+    justifyContent: 'space-around',
+    backgroundColor: 'rgba(30, 41, 59, 0.65)',
+    borderRadius: 18,
     paddingVertical: 12,
     paddingHorizontal: 8,
-    alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.06)'
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    marginBottom: 14,
   },
-  secondaryActionCardCopied: {
-    borderColor: '#10B981',
-    backgroundColor: 'rgba(16, 185, 129, 0.1)'
+  quickActionTile: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 8,
   },
-  actionIconCircle: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+  quickActionIconCircle: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    borderWidth: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 6
+    marginBottom: 6,
   },
-  actionLabel: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#E2E8F0',
-    textAlign: 'center'
+  quickActionLabel: {
+    fontSize: 11.5,
+    fontWeight: '600',
+    color: '#CBD5E1',
+    letterSpacing: 0.1,
   },
-  themeSelectorRow: {
+  themeSelectorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 4
+    backgroundColor: 'rgba(15, 23, 42, 0.8)',
+    borderRadius: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.06)',
+    alignSelf: 'center',
   },
   themeSelectorLabel: {
     fontSize: 12,
-    color: '#64748B',
-    marginRight: 10,
-    fontWeight: '600'
+    color: '#94A3B8',
+    marginRight: 12,
+    fontWeight: '600',
   },
   themeDotsList: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8
+    gap: 10,
   },
   themeDot: {
     width: 22,
     height: 22,
     borderRadius: 11,
     borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.2)'
+    borderColor: 'rgba(255, 255, 255, 0.25)',
   },
   themeDotActive: {
-    borderColor: '#FFFFFF',
-    transform: [{ scale: 1.2 }]
+    borderWidth: 2.5,
+    transform: [{ scale: 1.25 }],
   }
 });
