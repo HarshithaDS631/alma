@@ -61,7 +61,7 @@ export default function AdminPanelScreen({ navigation }) {
 
   // Admin User Info
   const [adminEmail, setAdminEmail] = useState('web.rsst@rvei.edu.in');
-  const [adminInstitution, setAdminInstitution] = useState('Mediacell');
+  const [adminInstitution, setAdminInstitution] = useState('RV College of Engineering');
   const [userName, setUserName] = useState('Admin');
   const [userAvatarUrl, setUserAvatarUrl] = useState('');
 
@@ -116,8 +116,7 @@ export default function AdminPanelScreen({ navigation }) {
         if (userInfoStr) {
           const parsed = JSON.parse(userInfoStr);
           const email = parsed.email || 'web.rsst@rvei.edu.in';
-          const inst = parsed.institution || 
-            (email.toLowerCase().includes('mediacell') || email.toLowerCase().includes('web.rsst') ? 'Mediacell' : 'Mediacell');
+          const inst = parsed.institution || 'RV College of Engineering';
           setAdminEmail(email);
           setAdminInstitution(inst);
           if (parsed.name) setUserName(parsed.name);

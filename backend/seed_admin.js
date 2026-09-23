@@ -36,30 +36,31 @@ const seedAdmin = async () => {
             console.log('RVCE Admin created successfully.');
         }
 
-        // Seed Mediacell Admin
+        // Seed RVCE Admin (web.rsst@rvei.edu.in)
         const existingMediaAdmin = await User.findOne({ email: 'web.rsst@rvei.edu.in' });
         if (existingMediaAdmin) {
-            console.log('Mediacell Admin already exists, updating role/institution...');
+            console.log('RVCE Admin already exists, updating role/institution...');
+            existingMediaAdmin.name = 'RVCE Admin';
             existingMediaAdmin.role = 'Admin';
-            existingMediaAdmin.institution = 'Mediacell';
+            existingMediaAdmin.institution = 'RV College of Engineering';
             existingMediaAdmin.password = 'Media@123';
             existingMediaAdmin.is_approved = true;
             existingMediaAdmin.isAdmin = true;
             await existingMediaAdmin.save();
-            console.log('Mediacell Admin updated successfully.');
+            console.log('RVCE Admin updated successfully.');
         } else {
-            console.log('Creating Mediacell Admin...');
+            console.log('Creating RVCE Admin...');
             await User.create({
-                name: 'Mediacell Admin',
+                name: 'RVCE Admin',
                 email: 'web.rsst@rvei.edu.in',
                 password: 'Media@123',
-                institution: 'Mediacell',
+                institution: 'RV College of Engineering',
                 role: 'Admin',
                 isAdmin: true,
                 verified: true,
                 is_approved: true
             });
-            console.log('Mediacell Admin created successfully.');
+            console.log('RVCE Admin created successfully.');
         }
 
         process.exit(0);
