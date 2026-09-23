@@ -601,6 +601,14 @@ const DirectoryScreen = ({ navigation, route }) => {
                       </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
+                      style={{ padding: 6, backgroundColor: '#EFF6FF', borderRadius: 6, justifyContent: 'center', alignItems: 'center' }}
+                      onPress={() => navigation.navigate('Chat', { user: { id: item._id || item.id, name: item.name, role: item.institution || (item.branch ? `${item.branch} • ${item.title}` : item.title) || '', initials: item.initials } })}
+                      activeOpacity={0.7}
+                      title="Send Direct Message"
+                    >
+                      <Ionicons name="chatbubble-ellipses-outline" size={16} color="#1E40AF" />
+                    </TouchableOpacity>
+                    <TouchableOpacity
                       style={{ padding: 6, backgroundColor: '#E8FDF0', borderRadius: 6, justifyContent: 'center', alignItems: 'center' }}
                       onPress={() => setSharedAlumni(item)}
                       activeOpacity={0.7}

@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useIsFocused, useFocusEffect } from '@react-navigation/native';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, TextInput, StatusBar, Alert, Modal, FlatList, Platform, Image } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, TextInput, StatusBar, Alert, Modal, FlatList, Platform, Image, Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
@@ -33,6 +33,7 @@ const AdminEventsScreen = ({ navigation, route }) => {
   const [eventAttachment, setEventAttachment] = useState(null);
 
   const [eventList, setEventList] = useState([]);
+  const [registeredEventIds, setRegisteredEventIds] = useState(new Set());
 
   useFocusEffect(
     useCallback(() => {
@@ -44,6 +45,17 @@ const AdminEventsScreen = ({ navigation, route }) => {
           if (u?.role) setUserRole(u.role);
           const rawAv = u?.avatar_url || u?.profilePicture;
           if (rawAv) setUserAvatarUrl(getImageUrl(rawAv));
+        }
+      }).catch(() => {});
+
+      AsyncStorage.getItem('localRegisteredEvents').then(str => {
+        if (str && isMounted) {
+          try {
+            const arr = JSON.parse(str);
+            if (Array.isArray(arr)) {
+              setRegisteredEventIds(new Set(arr.map(String)));
+            }
+          } catch (_) {}
         }
       }).catch(() => {});
 
@@ -138,6 +150,76 @@ const AdminEventsScreen = ({ navigation, route }) => {
       }
       return ev;
     }));
+  };
+
+  const roleLower = (userRole || '').toLowerCase();
+  const canCreateEvents = isSuperAdmin || roleLower === 'admin' || roleLower === 'superadmin' || roleLower === 'faculty';
+
+  const handleToggleRsvp = async (event) => {
+    if (!event) return;
+    const eventIdStr = String(event.id);
+    const isAlreadyRegistered = registeredEventIds.has(eventIdStr);
+
+    if (isAlreadyRegistered) {
+      const cancelAction = async () => {
+        const nextSet = new Set(registeredEventIds);
+        nextSet.delete(eventIdStr);
+        setRegisteredEventIds(nextSet);
+        try {
+          await AsyncStorage.setItem('localRegisteredEvents', JSON.stringify([...nextSet]));
+        } catch (_) {}
+        if (Platform.OS === 'web') {
+          window.alert(`Cancelled registration for "${event.title}".`);
+        } else {
+          Alert.alert('RSVP Cancelled', `You have cancelled your registration for "${event.title}".`);
+        }
+      };
+
+      if (Platform.OS === 'web') {
+        if (window.confirm(`Cancel your registration for "${event.title}"?`)) {
+          cancelAction();
+        }
+      } else {
+        Alert.alert(
+          'Cancel Registration',
+          `Are you sure you want to cancel your RSVP for "${event.title}"?`,
+          [
+            { text: 'Keep Registration', style: 'cancel' },
+            { text: 'Cancel RSVP', style: 'destructive', onPress: cancelAction }
+          ]
+        );
+      }
+    } else {
+      const nextSet = new Set(registeredEventIds);
+      nextSet.add(eventIdStr);
+      setRegisteredEventIds(nextSet);
+      try {
+        await AsyncStorage.setItem('localRegisteredEvents', JSON.stringify([...nextSet]));
+      } catch (_) {}
+
+      const successMsg = `You're registered for "${event.title}"! Added to your schedule.`;
+      if (Platform.OS === 'web') {
+        window.alert(successMsg);
+      } else {
+        Alert.alert('RSVP Confirmed ✓', successMsg);
+      }
+    }
+  };
+
+  const handleAddToCalendar = (event) => {
+    if (!event) return;
+    const title = encodeURIComponent(event.title || 'Alumni Event');
+    const details = encodeURIComponent(event.description || 'RV Alumni Event');
+    const location = encodeURIComponent(event.location || 'Campus / Online');
+    const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${location}`;
+
+    if (Platform.OS === 'web') {
+      window.open(googleCalendarUrl, '_blank');
+    } else {
+      Linking.openURL(googleCalendarUrl).catch(() => {
+        Alert.alert('Event Schedule', `${event.title}\n\nDate: ${event.date}\nLocation: ${event.location}`);
+      });
+    }
   };
 
   const handleAddComment = () => {
@@ -284,6 +366,73 @@ const AdminEventsScreen = ({ navigation, route }) => {
               </View>
             </View>
           )}
+
+          {/* RSVP & Schedule Card */}
+          {(() => {
+            const isSelectedRsvpd = registeredEventIds.has(String(selectedEvent.id));
+            return (
+              <View style={[styles.detailSection, { backgroundColor: isSelectedRsvpd ? (isDarkMode ? '#064E3B' : '#F0FDF4') : (isDarkMode ? '#1E293B' : '#F8FAFC'), borderWidth: 1.5, borderColor: isSelectedRsvpd ? '#10B981' : theme.border }]}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <Ionicons name={isSelectedRsvpd ? "checkmark-circle" : "calendar"} size={22} color={isSelectedRsvpd ? "#10B981" : theme.primary} />
+                    <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>
+                      {isSelectedRsvpd ? 'Registration Confirmed' : 'Event Attendance'}
+                    </Text>
+                  </View>
+                  <View style={{ backgroundColor: isSelectedRsvpd ? '#DCFCE7' : (isDarkMode ? '#334155' : '#E2E8F0'), paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 }}>
+                    <Text style={{ fontSize: 11, fontWeight: '700', color: isSelectedRsvpd ? '#03543F' : theme.textSecondary }}>
+                      {isSelectedRsvpd ? 'Attending ✓' : 'Open for RSVP'}
+                    </Text>
+                  </View>
+                </View>
+                <Text style={{ fontSize: 13, color: theme.textSecondary, lineHeight: 18, marginBottom: 14 }}>
+                  {isSelectedRsvpd
+                    ? 'You are registered for this event. Your seat is confirmed and added to your schedule.'
+                    : 'Reserve your spot now to connect with alumni, receive event updates, and access meeting sessions.'}
+                </Text>
+                <View style={{ flexDirection: 'row', gap: 10 }}>
+                  <TouchableOpacity
+                    style={{
+                      flex: 1,
+                      backgroundColor: isSelectedRsvpd ? '#FEE2E2' : theme.primary,
+                      paddingVertical: 12,
+                      borderRadius: 10,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexDirection: 'row',
+                      gap: 6
+                    }}
+                    onPress={() => handleToggleRsvp(selectedEvent)}
+                    activeOpacity={0.8}
+                  >
+                    <Ionicons name={isSelectedRsvpd ? "close-circle-outline" : "checkmark-circle"} size={16} color={isSelectedRsvpd ? "#DC2626" : "#FFFFFF"} />
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: isSelectedRsvpd ? "#DC2626" : "#FFFFFF" }}>
+                      {isSelectedRsvpd ? 'Cancel RSVP' : 'Register / RSVP Now'}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={{
+                      backgroundColor: isDarkMode ? '#1E293B' : '#EFF6FF',
+                      borderWidth: 1,
+                      borderColor: isDarkMode ? '#334155' : '#BFDBFE',
+                      paddingHorizontal: 14,
+                      paddingVertical: 12,
+                      borderRadius: 10,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexDirection: 'row',
+                      gap: 6
+                    }}
+                    onPress={() => handleAddToCalendar(selectedEvent)}
+                    activeOpacity={0.8}
+                  >
+                    <Ionicons name="calendar-outline" size={16} color={theme.primary} />
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: theme.primary }}>Add to Calendar</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            );
+          })()}
 
           {/* Engagement Statistics */}
           <View style={styles.detailStatsRow}>
@@ -507,6 +656,58 @@ const AdminEventsScreen = ({ navigation, route }) => {
               <Text style={styles.eventDesc} numberOfLines={2}>{item.description}</Text>
             </TouchableOpacity>
 
+            {/* RSVP & Calendar Action Row */}
+            {(() => {
+              const isItemRsvpd = registeredEventIds.has(String(item.id));
+              return (
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10, borderTopWidth: 1, borderTopColor: theme.border, marginTop: 4 }}>
+                  <TouchableOpacity
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      backgroundColor: isItemRsvpd ? (isDarkMode ? 'rgba(16, 185, 129, 0.2)' : '#DEF7EC') : theme.primary,
+                      borderWidth: isItemRsvpd ? 1 : 0,
+                      borderColor: isItemRsvpd ? '#10B981' : 'transparent',
+                      paddingHorizontal: 14,
+                      paddingVertical: 7,
+                      borderRadius: 8,
+                      gap: 6
+                    }}
+                    onPress={() => handleToggleRsvp(item)}
+                    activeOpacity={0.8}
+                  >
+                    <Ionicons 
+                      name={isItemRsvpd ? "checkmark-circle" : "calendar"} 
+                      size={15} 
+                      color={isItemRsvpd ? (isDarkMode ? '#34D399' : "#03543F") : "#FFFFFF"} 
+                    />
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: isItemRsvpd ? (isDarkMode ? '#34D399' : "#03543F") : "#FFFFFF" }}>
+                      {isItemRsvpd ? 'Attending ✓' : 'RSVP / Register'}
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 5,
+                      paddingHorizontal: 11,
+                      paddingVertical: 7,
+                      backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+                      borderRadius: 8,
+                      borderWidth: 1,
+                      borderColor: theme.border
+                    }}
+                    onPress={() => handleAddToCalendar(item)}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons name="calendar-outline" size={14} color={theme.textSecondary} />
+                    <Text style={{ fontSize: 11, fontWeight: '600', color: theme.textSecondary }}>Add to Cal</Text>
+                  </TouchableOpacity>
+                </View>
+              );
+            })()}
+
             {/* Social Interaction Row */}
             <View style={styles.socialRow}>
               <View style={styles.socialItem}>
@@ -544,10 +745,12 @@ const AdminEventsScreen = ({ navigation, route }) => {
         }
       />
 
-      {/* FAB */}
-      <TouchableOpacity style={styles.fab} onPress={() => setShowEditor(true)} activeOpacity={0.85}>
-        <Ionicons name="add" size={28} color="#FFFFFF" />
-      </TouchableOpacity>
+      {/* FAB - Only for Admin / SuperAdmin / Faculty */}
+      {canCreateEvents && (
+        <TouchableOpacity style={styles.fab} onPress={() => setShowEditor(true)} activeOpacity={0.85}>
+          <Ionicons name="add" size={28} color="#FFFFFF" />
+        </TouchableOpacity>
+      )}
 
       {/* Comment Modal */}
       <Modal visible={!!commentModalEvent} transparent animationType="slide">

@@ -66,6 +66,8 @@ const NotificationsScreen = ({ navigation }) => {
 
     if (item.type === 'job') {
       navigation.navigate('Main', { screen: 'Jobs' });
+    } else if (item.type === 'event') {
+      navigation.navigate('Events');
     } else if (item.type === 'connection' || item.type === 'referral') {
       navigation.navigate('Main', { screen: 'Engage' });
     } else if (item.type === 'birthday' && item.sender) {

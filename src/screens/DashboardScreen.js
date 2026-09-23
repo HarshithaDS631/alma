@@ -654,7 +654,15 @@ const DashboardScreen = ({ navigation }) => {
             combinedOpportunities.push(...formattedEvents);
           }
           setEventsAndJobs(combinedOpportunities);
-          setMyEventsCount(registeredEventsCount);
+          let localRegisteredCount = 0;
+          try {
+            const localRegStr = await AsyncStorage.getItem('localRegisteredEvents');
+            if (localRegStr) {
+              const localRegIds = JSON.parse(localRegStr);
+              if (Array.isArray(localRegIds)) localRegisteredCount = localRegIds.length;
+            }
+          } catch (_) {}
+          setMyEventsCount(Math.max(registeredEventsCount, localRegisteredCount));
 
           // 5. Process Following & Followers connections
           const initialFollowed = {};

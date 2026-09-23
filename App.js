@@ -208,7 +208,16 @@ function MainTabs() {
       >
         <Drawer.Screen name="Home" component={DashboardScreen} />
         <Drawer.Screen name="Engage" component={DirectoryScreen} />
-        <Drawer.Screen name="Post" component={EngageScreen} />
+        <Drawer.Screen 
+          name="Post" 
+          component={EngageScreen} 
+          listeners={({ navigation }) => ({
+            drawerItemPress: (e) => {
+              e.preventDefault();
+              navigation.navigate('PostCreation');
+            }
+          })}
+        />
         <Drawer.Screen name="Jobs" component={JobsScreen} />
         <Drawer.Screen name="Contribute" component={ContributeScreen} />
       </Drawer.Navigator>
@@ -247,7 +256,16 @@ function MainTabs() {
     >
       <Tab.Screen name="Home" component={DashboardScreen} />
       <Tab.Screen name="Engage" component={DirectoryScreen} />
-      <Tab.Screen name="Post" component={EngageScreen} />
+      <Tab.Screen 
+        name="Post" 
+        component={EngageScreen} 
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            e.preventDefault();
+            navigation.navigate('PostCreation');
+          }
+        })}
+      />
       <Tab.Screen name="Jobs" component={JobsScreen} />
       <Tab.Screen name="Contribute" component={ContributeScreen} />
     </Tab.Navigator>
