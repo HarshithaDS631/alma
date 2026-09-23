@@ -129,8 +129,7 @@ const WelcomeScreen = ({ navigation }) => {
               onPress={() => navigation.navigate('Login')}
               activeOpacity={0.85}
             >
-              <Text style={styles.primaryButtonText}>Sign In with Password / OTP</Text>
-              <Ionicons name="arrow-forward" size={18} color="#FFFFFF" style={{ marginLeft: 6 }} />
+              <Text style={styles.primaryButtonText}>Sign In</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
