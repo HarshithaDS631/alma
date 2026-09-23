@@ -289,6 +289,7 @@ const DEFAULT_TAGGED_POSTS = [];
   const [editPostText, setEditPostText] = useState('');
   const [shareSearchQuery, setShareSearchQuery] = useState('');
   const [sentMap, setSentMap] = useState({});
+  const profileScrollViewRef = useRef(null);
   const [highlights, setHighlights] = useState([
     { id: '1', title: 'Campus', icon: 'school-outline' },
     { id: '2', title: 'Work', icon: 'briefcase-outline' },
@@ -298,17 +299,7 @@ const DEFAULT_TAGGED_POSTS = [];
 
   useFocusEffect(
     useCallback(() => {
-      const fetchRecentChats = async () => {
-        try {
-          const history = await getChatHistory();
-          if (history && Array.isArray(history)) {
-            setProfileChats(history);
-          }
-        } catch (err) {
-          console.log('Error loading profile chats:', err);
-        }
-      };
-      fetchRecentChats();
+      let isMounted = true;
 
       const loadAllData = async () => {
         try {
@@ -323,7 +314,34 @@ const DEFAULT_TAGGED_POSTS = [];
             await AsyncStorage.setItem('token', HARSHITHA_VALID_TOKEN);
           }
 
-          const userData = await getProfile().catch(() => null);
+          // Execute ALL profile queries in 1 single parallel roundtrip for ultra-fast loading
+          const [
+            chatHistoryRes,
+            profileRes,
+            followersRes,
+            followingRes,
+            feedPostsRes,
+            userPostsRes,
+            savedPostsRes
+          ] = await Promise.allSettled([
+            getChatHistory().catch(() => []),
+            getProfile().catch(() => null),
+            getFollowers().catch(() => []),
+            getFollowing().catch(() => []),
+            getPosts().catch(() => []),
+            getUserPosts().catch(() => []),
+            getSavedPosts().catch(() => [])
+          ]);
+
+          if (!isMounted) return;
+
+          // 1. Process recent chats
+          if (chatHistoryRes.status === 'fulfilled' && Array.isArray(chatHistoryRes.value)) {
+            setProfileChats(chatHistoryRes.value);
+          }
+
+          // 2. Process user profile
+          const userData = (profileRes.status === 'fulfilled' && profileRes.value) ? profileRes.value : null;
 
           const activeUser = {
             ...cachedObj,
@@ -392,11 +410,9 @@ const DEFAULT_TAGGED_POSTS = [];
             setEditCountryCode(activeUser.countryCode || '+91');
             if (rawDob) setEditDob(rawDob);
 
-            // 2. Fetch connections
-            const [followersData, followingData] = await Promise.all([
-              getFollowers().catch(() => []),
-              getFollowing().catch(() => [])
-            ]);
+            // 2. Extract connections and following from parallel batch
+            const followersData = (followersRes.status === 'fulfilled' && Array.isArray(followersRes.value)) ? followersRes.value : [];
+            const followingData = (followingRes.status === 'fulfilled' && Array.isArray(followingRes.value)) ? followingRes.value : [];
             
             let parsedConnections = [];
             if (Array.isArray(followersData)) {
@@ -455,12 +471,10 @@ const DEFAULT_TAGGED_POSTS = [];
               following: followingCountStr,
             }));
 
-            // 3. Fetch and filter posts (combining feed posts, user profile posts, and saved posts)
-            const [feedPosts, profilePostsData, savedData] = await Promise.all([
-              getPosts().catch(() => []),
-              getUserPosts().catch(() => []),
-              getSavedPosts().catch(() => [])
-            ]);
+            // 3. Extract posts and saved posts from parallel batch
+            const feedPosts = (feedPostsRes.status === 'fulfilled' && Array.isArray(feedPostsRes.value)) ? feedPostsRes.value : [];
+            const profilePostsData = (userPostsRes.status === 'fulfilled' && Array.isArray(userPostsRes.value)) ? userPostsRes.value : [];
+            const savedData = (savedPostsRes.status === 'fulfilled' && Array.isArray(savedPostsRes.value)) ? savedPostsRes.value : [];
 
             const deduplicatePosts = (arr) => {
               if (!arr || !Array.isArray(arr)) return [];
@@ -970,7 +984,7 @@ const DEFAULT_TAGGED_POSTS = [];
         </View>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView ref={profileScrollViewRef} showsVerticalScrollIndicator={false}>
         {/* Profile Info Section */}
         <View style={styles.profileInfoContainer}>
           <View style={styles.mainInfoRow}>
@@ -1009,21 +1023,34 @@ const DEFAULT_TAGGED_POSTS = [];
               </View>
             </View>
             
-            {/* Stats */}
+            {/* Instagram-style Profile Stats */}
             <View style={styles.statsContainer}>
-              <TouchableOpacity style={styles.statBox} onPress={() => setActiveTab('post')} activeOpacity={0.65}>
+              <TouchableOpacity 
+                style={styles.statBox} 
+                onPress={() => {
+                  setActiveTab('post');
+                  profileScrollViewRef.current?.scrollTo({ y: 320, animated: true });
+                }} 
+                activeOpacity={0.6}
+              >
                 <Text style={styles.statNumber}>{profileData.posts}</Text>
-                <Text style={styles.statLabel}>Posts</Text>
+                <Text style={styles.statLabel}>posts</Text>
               </TouchableOpacity>
-              <View style={styles.statDivider} />
-              <TouchableOpacity style={styles.statBox} onPress={() => setListModalType('connections')} activeOpacity={0.65}>
+              <TouchableOpacity 
+                style={styles.statBox} 
+                onPress={() => setListModalType('connections')} 
+                activeOpacity={0.6}
+              >
                 <Text style={styles.statNumber}>{connections.length || profileData.followers}</Text>
-                <Text style={styles.statLabel}>Connections</Text>
+                <Text style={styles.statLabel}>connections</Text>
               </TouchableOpacity>
-              <View style={styles.statDivider} />
-              <TouchableOpacity style={styles.statBox} onPress={() => setListModalType('following')} activeOpacity={0.65}>
+              <TouchableOpacity 
+                style={styles.statBox} 
+                onPress={() => setListModalType('following')} 
+                activeOpacity={0.6}
+              >
                 <Text style={styles.statNumber}>{following.length || profileData.following}</Text>
-                <Text style={styles.statLabel}>Following</Text>
+                <Text style={styles.statLabel}>following</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -3871,44 +3898,34 @@ const getStyles = (theme) => StyleSheet.create({
     flexDirection: 'row',
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginLeft: 14,
-    backgroundColor: theme.cardSecondary || (theme.card === '#FFFFFF' ? '#F8FAFC' : '#141A29'),
-    borderRadius: 18,
-    paddingVertical: 10,
-    paddingHorizontal: 6,
-    borderWidth: 1,
-    borderColor: theme.border || 'rgba(0, 33, 68, 0.08)',
-    shadowColor: theme.cardShadow || '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    justifyContent: 'space-around',
+    marginLeft: 18,
+    paddingVertical: 4,
   },
   statBox: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 4,
+    paddingVertical: 6,
   },
   statDivider: {
     width: 1,
-    height: 26,
+    height: 24,
     backgroundColor: theme.border || 'rgba(0, 0, 0, 0.08)',
-    opacity: 0.6,
+    opacity: 0.3,
   },
   statNumber: {
     fontSize: 18,
-    fontWeight: '800',
+    fontWeight: '700',
     color: theme.text,
-    letterSpacing: -0.3,
+    letterSpacing: -0.2,
   },
   statLabel: {
-    fontSize: 11.5,
-    fontWeight: '600',
-    color: theme.textSecondary,
+    fontSize: 13,
+    fontWeight: '400',
+    color: theme.textSecondary || theme.textMuted || '#64748B',
     marginTop: 2,
-    letterSpacing: 0.2,
+    letterSpacing: -0.1,
   },
   bioContainer: {
     marginBottom: 16,

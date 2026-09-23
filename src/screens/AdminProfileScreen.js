@@ -514,19 +514,17 @@ const AdminProfileScreen = ({ navigation }) => {
               </TouchableOpacity>
             </View>
             <View style={styles.statsContainer}>
-              <TouchableOpacity style={styles.statBox} onPress={() => setActiveTab('post')} activeOpacity={0.65}>
+              <TouchableOpacity style={styles.statBox} onPress={() => setActiveTab('post')} activeOpacity={0.6}>
                 <Text style={styles.statNumber}>{profileData.posts}</Text>
-                <Text style={styles.statLabel}>Posts</Text>
+                <Text style={styles.statLabel}>posts</Text>
               </TouchableOpacity>
-              <View style={styles.statDivider} />
-              <TouchableOpacity style={styles.statBox} onPress={() => setListModalType('connections')} activeOpacity={0.65}>
+              <TouchableOpacity style={styles.statBox} onPress={() => setListModalType('connections')} activeOpacity={0.6}>
                 <Text style={styles.statNumber}>{profileData.followers}</Text>
-                <Text style={styles.statLabel}>Connections</Text>
+                <Text style={styles.statLabel}>connections</Text>
               </TouchableOpacity>
-              <View style={styles.statDivider} />
-              <TouchableOpacity style={styles.statBox} onPress={() => setListModalType('following')} activeOpacity={0.65}>
+              <TouchableOpacity style={styles.statBox} onPress={() => setListModalType('following')} activeOpacity={0.6}>
                 <Text style={styles.statNumber}>{profileData.following}</Text>
-                <Text style={styles.statLabel}>Following</Text>
+                <Text style={styles.statLabel}>following</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -990,34 +988,24 @@ const getStyles = (theme) => StyleSheet.create({
     flexDirection: 'row',
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginLeft: 14,
-    backgroundColor: theme.cardSecondary || (theme.card === '#FFFFFF' ? '#F8FAFC' : '#141A29'),
-    borderRadius: 18,
-    paddingVertical: 10,
-    paddingHorizontal: 6,
-    borderWidth: 1,
-    borderColor: theme.border || 'rgba(0, 33, 68, 0.08)',
-    shadowColor: theme.cardShadow || '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    justifyContent: 'space-around',
+    marginLeft: 18,
+    paddingVertical: 4,
   },
   statBox: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 4,
+    paddingVertical: 6,
   },
   statDivider: {
     width: 1,
-    height: 26,
+    height: 24,
     backgroundColor: theme.border || 'rgba(0, 0, 0, 0.08)',
-    opacity: 0.6,
+    opacity: 0.3,
   },
-  statNumber: { fontSize: 18, fontWeight: '800', color: theme.text, letterSpacing: -0.3 },
-  statLabel: { fontSize: 11.5, color: theme.textSecondary, fontWeight: '600', marginTop: 2, letterSpacing: 0.2 },
+  statNumber: { fontSize: 18, fontWeight: '700', color: theme.text, letterSpacing: -0.2 },
+  statLabel: { fontSize: 13, color: theme.textSecondary || theme.textMuted || '#64748B', fontWeight: '400', marginTop: 2, letterSpacing: -0.1 },
   bioContainer: { marginTop: 14, marginBottom: 14 },
   nameText: { fontSize: 15, fontWeight: '800', color: theme.text },
   occupationText: { fontSize: 13, color: theme.textSecondary, fontWeight: '600', marginTop: 2 },

@@ -8,6 +8,7 @@ const SplashScreen = ({ navigation }) => {
   const styles = getStyles(theme);
 
   useEffect(() => {
+    let isMounted = true;
     const checkSession = async () => {
       try {
         const [userInfoStr, userToken] = await Promise.all([
@@ -21,13 +22,13 @@ const SplashScreen = ({ navigation }) => {
           if (userInfo && userInfo.role && hasToken && hasIdentity) {
             const role = (userInfo.role || '').toLowerCase();
             if (role === 'superadmin' || role === 'super admin') {
-              navigation.replace('SuperAdminMain');
+              if (isMounted) navigation.replace('SuperAdminMain');
               return;
             } else if (role === 'admin' || role === 'institution admin') {
-              navigation.replace('AdminMain');
+              if (isMounted) navigation.replace('AdminMain');
               return;
             } else if (role === 'alumni' || role === 'student') {
-              navigation.replace('Main');
+              if (isMounted) navigation.replace('Main');
               return;
             }
           }
@@ -35,13 +36,15 @@ const SplashScreen = ({ navigation }) => {
       } catch (error) {
         console.error('Failed to restore session:', error);
       }
-      navigation.replace('Welcome');
+      if (isMounted) navigation.replace('Welcome');
     };
 
-    const timer = setTimeout(() => {
-      checkSession();
-    }, 2000);
-    return () => clearTimeout(timer);
+    // Snappy splash transition (150ms) instead of blocking for 2000ms
+    const timer = setTimeout(checkSession, 150);
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+    };
   }, [navigation]);
 
   return (
