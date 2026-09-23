@@ -1201,7 +1201,7 @@ const DashboardScreen = ({ navigation }) => {
                     <Text style={{ color: theme.textSecondary, fontWeight: '600', fontSize: 13 }}>Connections</Text>
                     <Text style={{ color: theme.primary, fontWeight: '700', fontSize: 13 }}>{connectionsCount}</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }} onPress={() => navigation.navigate('Engage')}>
+                  <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }} onPress={() => navigation.navigate('Events')}>
                     <Text style={{ color: theme.textSecondary, fontWeight: '600', fontSize: 13 }}>My Events</Text>
                     <Text style={{ color: theme.primary, fontWeight: '700', fontSize: 13 }}>{myEventsCount}</Text>
                   </TouchableOpacity>
@@ -1383,7 +1383,7 @@ const DashboardScreen = ({ navigation }) => {
 
               <TouchableOpacity 
                 style={[styles.quickPod, { backgroundColor: isDarkMode ? '#131C2E' : '#FFFFFF' }]} 
-                onPress={() => navigation.navigate('Engage')}
+                onPress={() => navigation.navigate('Events')}
                 activeOpacity={0.75}
               >
                 <View style={[styles.quickPodIconWrap, { backgroundColor: '#8B5CF6', shadowColor: '#8B5CF6' }]}>

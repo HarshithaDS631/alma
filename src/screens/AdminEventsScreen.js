@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { getImageUrl } from '../services/uploadService';
+import { getEvents } from '../services/authService';
 import getInitials from '../lib/getInitials';
 
 const AdminEventsScreen = ({ navigation, route }) => {
@@ -21,6 +22,7 @@ const AdminEventsScreen = ({ navigation, route }) => {
   const [newComment, setNewComment] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [userName, setUserName] = useState('');
+  const [userRole, setUserRole] = useState('');
   const [userAvatarUrl, setUserAvatarUrl] = useState('');
 
   // Event form states
@@ -34,14 +36,87 @@ const AdminEventsScreen = ({ navigation, route }) => {
 
   useFocusEffect(
     useCallback(() => {
+      let isMounted = true;
       AsyncStorage.getItem('userInfo').then(str => {
-        if (str) {
+        if (str && isMounted) {
           const u = JSON.parse(str);
           if (u?.name) setUserName(u.name);
+          if (u?.role) setUserRole(u.role);
           const rawAv = u?.avatar_url || u?.profilePicture;
           if (rawAv) setUserAvatarUrl(getImageUrl(rawAv));
         }
       }).catch(() => {});
+
+      getEvents().then(res => {
+        if (!isMounted) return;
+        if (Array.isArray(res) && res.length > 0) {
+          const formatted = res.map(e => ({
+            id: (e._id || e.id || Date.now()).toString(),
+            title: e.title || 'Alumni Event',
+            date: e.date ? (typeof e.date === 'string' && e.date.includes('T') ? new Date(e.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : e.date) : 'Upcoming',
+            location: e.location || 'Campus / Online',
+            description: e.description || '',
+            views: e.views || 0,
+            likes: Array.isArray(e.likes) ? e.likes.length : (e.likes || 0),
+            liked: false,
+            comments: Array.isArray(e.comments) ? e.comments : [],
+            reshares: e.reshares || 0,
+            attachment: e.attachment || null,
+            institution: e.institution || 'RVCE',
+            image: e.image ? getImageUrl(e.image) : null
+          }));
+          setEventList(formatted);
+        } else {
+          setEventList([
+            {
+              id: 'ev-1',
+              title: 'Annual Global Alumni Grand Meet 2026',
+              date: 'Dec 18, 2026 • 5:30 PM',
+              location: 'Main Campus Auditorium & Live Webcast',
+              description: 'Reunite with professors, batchmates, and distinguished alumni across all graduating classes. Keynote speeches, networking banquet, and departmental awards.',
+              views: 248,
+              likes: 42,
+              liked: false,
+              comments: [],
+              reshares: 12,
+              attachment: 'Alumni_Meet_Agenda.pdf',
+              institution: 'RVCE'
+            },
+            {
+              id: 'ev-2',
+              title: 'Tech & AI Mentorship Roundtables',
+              date: 'Oct 15, 2026 • 6:00 PM',
+              location: 'Virtual Zoom / Spatial Audio Room',
+              description: 'Interactive break-out sessions connecting recent graduates with senior tech leads, engineering managers, and startup founders.',
+              views: 185,
+              likes: 29,
+              liked: false,
+              comments: [],
+              reshares: 7,
+              attachment: 'Mentorship_Guidelines.pdf',
+              institution: 'RVCE'
+            },
+            {
+              id: 'ev-3',
+              title: 'Alumni Career Fair & Placement Referral Day',
+              date: 'Nov 05, 2026 • 10:00 AM',
+              location: 'Placement Cell & Online Portal',
+              description: 'Over 40 alumni-founded companies and corporate partners offering expedited interviews and direct referrals for alumni and final-year students.',
+              views: 310,
+              likes: 67,
+              liked: false,
+              comments: [],
+              reshares: 24,
+              attachment: 'Hiring_Companies_List.pdf',
+              institution: 'RVCE'
+            }
+          ]);
+        }
+      }).catch(() => {});
+
+      return () => {
+        isMounted = false;
+      };
     }, [])
   );
 
@@ -335,10 +410,26 @@ const AdminEventsScreen = ({ navigation, route }) => {
 
       {/* Header */}
       <View style={styles.header}>
+        {navigation?.canGoBack() && (
+          <TouchableOpacity 
+            style={{ marginRight: 10, padding: 4 }} 
+            onPress={() => navigation.goBack()}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="arrow-back" size={24} color={theme.text} />
+          </TouchableOpacity>
+        )}
         <TouchableOpacity 
           style={[styles.headerAvatar, { overflow: 'hidden', justifyContent: 'center', alignItems: 'center' }, isSuperAdmin && { backgroundColor: '#D97706' }]} 
           activeOpacity={0.8} 
-          onPress={() => navigation && navigation.navigate('AdminProfile')}
+          onPress={() => {
+            const role = (userRole || '').toLowerCase();
+            if (role === 'admin' || role === 'superadmin' || isSuperAdmin) {
+              navigation && navigation.navigate('AdminProfile');
+            } else {
+              navigation && navigation.navigate('Profile');
+            }
+          }}
         >
           {userAvatarUrl ? (
             <Image 

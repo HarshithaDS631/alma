@@ -393,7 +393,7 @@ const AdminHomeScreen = ({ navigation }) => {
                     <Ionicons name="bookmark-outline" size={18} color={theme.textSecondary} />
                     <Text style={{ color: theme.text, fontWeight: '600', fontSize: 14 }}>Saved Items</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }} onPress={() => navigation.navigate('AdminEvents')}>
                     <Ionicons name="calendar-outline" size={18} color={theme.textSecondary} />
                     <Text style={{ color: theme.text, fontWeight: '600', fontSize: 14 }}>My Events</Text>
                   </TouchableOpacity>

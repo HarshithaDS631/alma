@@ -520,6 +520,7 @@ const linking = {
       Notifications: 'notifications',
       PostCreation: 'create-post',
       Profile: 'profile',
+      Events: 'events',
       AdminProfile: 'admin-profile',
       AdminPlacementDetails: 'placement-details',
     },
@@ -577,6 +578,7 @@ function RootNavigator() {
         <Stack.Screen name="Notifications" component={NotificationsScreen} />
         <Stack.Screen name="PostCreation" component={PostCreationScreen} options={{ animation: 'slide_from_bottom' }} />
         <Stack.Screen name="Profile" component={ProfileScreen} />
+        <Stack.Screen name="Events" component={AdminEventsScreen} />
         <Stack.Screen name="AdminProfile" component={AdminProfileScreen} />
         <Stack.Screen name="AdminPlacementDetails" component={AdminPlacementDetailsScreen} />
         <Stack.Screen name="Legal" component={LegalScreen} />
