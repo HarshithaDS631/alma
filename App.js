@@ -82,6 +82,77 @@ const Drawer = createDrawerNavigator();
 const AdminDrawer = createDrawerNavigator();
 const SuperAdminDrawer = createDrawerNavigator();
 
+// ===== 3D TACTILE ICON POD HELPER =====
+function Render3DTabIcon({ name, focused, isDarkMode, theme, isPost, label, isMaterial }) {
+  if (isPost) {
+    return (
+      <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: -14 }}>
+        <View style={{
+          width: 48,
+          height: 48,
+          borderRadius: 24,
+          backgroundColor: isDarkMode ? '#2563EB' : '#002B5C',
+          justifyContent: 'center',
+          alignItems: 'center',
+          shadowColor: isDarkMode ? '#38BDF8' : '#002B5C',
+          shadowOffset: { width: 0, height: 6 },
+          shadowOpacity: isDarkMode ? 0.55 : 0.35,
+          shadowRadius: 10,
+          elevation: 9,
+          borderWidth: 2,
+          borderColor: isDarkMode ? '#60A5FA' : '#93C5FD'
+        }}>
+          <Ionicons name="add" size={26} color="#FFFFFF" />
+        </View>
+        <Text style={{
+          color: focused ? theme.primary : theme.textMuted,
+          fontSize: 10,
+          fontWeight: '800',
+          marginTop: 4,
+          letterSpacing: -0.2
+        }}>
+          {label}
+        </Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+      <View style={{
+        paddingHorizontal: focused ? 14 : 10,
+        paddingVertical: 5,
+        borderRadius: 14,
+        backgroundColor: focused ? (theme.iconPodActiveBg || 'rgba(37, 99, 235, 0.14)') : 'transparent',
+        borderWidth: focused ? 1.5 : 0,
+        borderColor: focused ? (theme.iconPodBorder || 'rgba(37, 99, 235, 0.35)') : 'transparent',
+        shadowColor: focused ? (isDarkMode ? '#38BDF8' : '#002B5C') : 'transparent',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: focused ? 0.35 : 0,
+        shadowRadius: 6,
+        elevation: focused ? 4 : 0,
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        {isMaterial ? (
+          <MaterialCommunityIcons name={name} size={21} color={focused ? theme.primary : theme.textMuted} />
+        ) : (
+          <Ionicons name={name} size={21} color={focused ? theme.primary : theme.textMuted} />
+        )}
+      </View>
+      <Text style={{
+        color: focused ? theme.primary : theme.textMuted,
+        fontSize: 10,
+        fontWeight: focused ? '800' : '600',
+        marginTop: 2,
+        letterSpacing: -0.2
+      }}>
+        {label}
+      </Text>
+    </View>
+  );
+}
+
 // ===== ALUMNI TABS/DRAWER =====
 function MainTabs() {
   const { theme, isDarkMode } = useTheme();
@@ -98,28 +169,40 @@ function MainTabs() {
           drawerType: 'permanent',
           drawerStyle: {
             width: 240,
-            borderRightWidth: 1,
-            borderRightColor: theme.border,
+            borderRightWidth: 1.5,
+            borderRightColor: theme.cardBorder || theme.border,
             backgroundColor: theme.card,
             paddingTop: 20,
             paddingHorizontal: 12,
           },
           drawerItemStyle: {
-            borderRadius: 24,
+            borderRadius: 20,
             paddingHorizontal: 12,
             marginVertical: 4,
           },
-          drawerActiveBackgroundColor: isDarkMode ? '#1E293B' : '#F4F6F9',
-          drawerActiveTintColor: isDarkMode ? '#60A5FA' : '#003366',
-          drawerInactiveTintColor: isDarkMode ? '#94A3B8' : '#8A99AD',
-          drawerLabelStyle: { fontSize: 16, fontWeight: '700', marginLeft: -8 },
+          drawerActiveBackgroundColor: isDarkMode ? 'rgba(56, 189, 248, 0.14)' : 'rgba(0, 43, 92, 0.08)',
+          drawerActiveTintColor: isDarkMode ? '#38BDF8' : '#002B5C',
+          drawerInactiveTintColor: isDarkMode ? '#94A3B8' : '#64748B',
+          drawerLabelStyle: { fontSize: 15, fontWeight: '700', marginLeft: -6 },
           drawerIcon: ({ focused, color, size }) => {
-            if (route.name === 'Home') return <Ionicons name={focused ? 'home' : 'home-outline'} size={22} color={color} />;
-            if (route.name === 'Engage') return <MaterialCommunityIcons name={focused ? 'handshake' : 'handshake-outline'} size={22} color={color} />;
-            if (route.name === 'Post') return <Ionicons name={focused ? 'add-circle' : 'add-circle-outline'} size={24} color={color} />;
-            if (route.name === 'Jobs') return <Ionicons name={focused ? 'briefcase' : 'briefcase-outline'} size={22} color={color} />;
-            if (route.name === 'Contribute') return <MaterialCommunityIcons name={focused ? 'hand-heart' : 'hand-heart-outline'} size={22} color={color} />;
-            return null;
+            let iconComp = null;
+            if (route.name === 'Home') iconComp = <Ionicons name={focused ? 'home' : 'home-outline'} size={20} color={focused ? (isDarkMode ? '#38BDF8' : '#002B5C') : color} />;
+            if (route.name === 'Engage') iconComp = <MaterialCommunityIcons name={focused ? 'handshake' : 'handshake-outline'} size={20} color={focused ? (isDarkMode ? '#38BDF8' : '#002B5C') : color} />;
+            if (route.name === 'Post') iconComp = <Ionicons name={focused ? 'add-circle' : 'add-circle-outline'} size={22} color={focused ? (isDarkMode ? '#38BDF8' : '#002B5C') : color} />;
+            if (route.name === 'Jobs') iconComp = <Ionicons name={focused ? 'briefcase' : 'briefcase-outline'} size={20} color={focused ? (isDarkMode ? '#38BDF8' : '#002B5C') : color} />;
+            if (route.name === 'Contribute') iconComp = <MaterialCommunityIcons name={focused ? 'hand-heart' : 'hand-heart-outline'} size={20} color={focused ? (isDarkMode ? '#38BDF8' : '#002B5C') : color} />;
+            return (
+              <View style={{
+                width: 34,
+                height: 34,
+                borderRadius: 10,
+                backgroundColor: focused ? (isDarkMode ? 'rgba(56, 189, 248, 0.2)' : 'rgba(0, 43, 92, 0.12)') : 'transparent',
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}>
+                {iconComp}
+              </View>
+            );
           }
         })}
       >
@@ -139,29 +222,27 @@ function MainTabs() {
         tabBarShowLabel: false,
         tabBarActiveTintColor: theme.primary,
         tabBarInactiveTintColor: theme.textMuted,
-        tabBarIcon: ({ focused, color }) => {
-          let icon = null;
-          if (route.name === 'Home') icon = <Ionicons name={focused ? 'home' : 'home-outline'} size={22} color={color} />;
-          if (route.name === 'Engage') icon = <MaterialCommunityIcons name={focused ? 'handshake' : 'handshake-outline'} size={22} color={color} />;
-          if (route.name === 'Post') return (
-            <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-              <View style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: focused ? theme.primary : (isDarkMode ? '#1E293B' : '#E2E8F0'), justifyContent: 'center', alignItems: 'center', marginTop: -4 }}>
-                <Ionicons name="add" size={24} color={focused ? '#FFFFFF' : theme.text} />
-              </View>
-              <Text style={{ color, fontSize: 10, fontWeight: '700', marginTop: 2 }}>Post</Text>
-            </View>
-          );
-          if (route.name === 'Jobs') icon = <Ionicons name={focused ? 'briefcase' : 'briefcase-outline'} size={22} color={color} />;
-          if (route.name === 'Contribute') icon = <MaterialCommunityIcons name={focused ? 'hand-heart' : 'hand-heart-outline'} size={22} color={color} />;
-          return (
-            <View style={{ alignItems: 'center' }}>
-              {focused && <View style={{ position: 'absolute', top: -8, width: 24, height: 3, borderRadius: 2, backgroundColor: theme.primary }} />}
-              {icon}
-              <Text style={{ color, fontSize: 10, fontWeight: '600', marginTop: 2 }}>{route.name}</Text>
-            </View>
-          );
+        tabBarIcon: ({ focused }) => {
+          if (route.name === 'Home') return <Render3DTabIcon name={focused ? 'home' : 'home-outline'} focused={focused} isDarkMode={isDarkMode} theme={theme} label="Home" />;
+          if (route.name === 'Engage') return <Render3DTabIcon name={focused ? 'handshake' : 'handshake-outline'} focused={focused} isDarkMode={isDarkMode} theme={theme} label="Engage" isMaterial />;
+          if (route.name === 'Post') return <Render3DTabIcon focused={focused} isDarkMode={isDarkMode} theme={theme} isPost label="Post" />;
+          if (route.name === 'Jobs') return <Render3DTabIcon name={focused ? 'briefcase' : 'briefcase-outline'} focused={focused} isDarkMode={isDarkMode} theme={theme} label="Jobs" />;
+          if (route.name === 'Contribute') return <Render3DTabIcon name={focused ? 'hand-heart' : 'hand-heart-outline'} focused={focused} isDarkMode={isDarkMode} theme={theme} label="Support" isMaterial />;
+          return null;
         },
-        tabBarStyle: { borderTopWidth: 1, borderTopColor: theme.border, paddingBottom: bottomPadding, paddingTop: 8, height: 60 + bottomPadding, backgroundColor: theme.card },
+        tabBarStyle: {
+          borderTopWidth: 1.5,
+          borderTopColor: theme.tabBarBorder || theme.border,
+          paddingBottom: bottomPadding,
+          paddingTop: 8,
+          height: 62 + bottomPadding,
+          backgroundColor: theme.tabBarBg || theme.card,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: isDarkMode ? 0.45 : 0.07,
+          shadowRadius: 14,
+          elevation: 12
+        },
       })}
     >
       <Tab.Screen name="Home" component={DashboardScreen} />
@@ -230,7 +311,7 @@ function AdminTabs() {
         tabBarShowLabel: false,
         tabBarActiveTintColor: theme.primary,
         tabBarInactiveTintColor: theme.textMuted,
-        tabBarIcon: ({ focused, color }) => {
+        tabBarIcon: ({ focused }) => {
           let iconName = 'help-circle-outline';
           let label = route.name;
 
@@ -240,15 +321,21 @@ function AdminTabs() {
           else if (route.name === 'AdminEvents') { iconName = focused ? 'calendar' : 'calendar-outline'; label = 'Events'; }
           else if (route.name === 'AdminPanel') { iconName = focused ? 'grid' : 'grid-outline'; label = 'Panel'; }
 
-          return (
-            <View style={{ alignItems: 'center' }}>
-              {focused && <View style={{ position: 'absolute', top: -8, width: 24, height: 3, borderRadius: 2, backgroundColor: theme.primary }} />}
-              <Ionicons name={iconName} size={22} color={color} />
-              <Text style={{ color, fontSize: 10, fontWeight: '600', marginTop: 2 }}>{label}</Text>
-            </View>
-          );
+          return <Render3DTabIcon name={iconName} focused={focused} isDarkMode={isDarkMode} theme={theme} label={label} />;
         },
-        tabBarStyle: { borderTopWidth: 1, borderTopColor: theme.border, paddingBottom: bottomPadding, paddingTop: 8, height: 60 + bottomPadding, backgroundColor: theme.card },
+        tabBarStyle: {
+          borderTopWidth: 1.5,
+          borderTopColor: theme.tabBarBorder || theme.border,
+          paddingBottom: bottomPadding,
+          paddingTop: 8,
+          height: 62 + bottomPadding,
+          backgroundColor: theme.tabBarBg || theme.card,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: isDarkMode ? 0.45 : 0.07,
+          shadowRadius: 14,
+          elevation: 12
+        },
       })}
     >
       <AdminTab.Screen name="AdminHome" component={AdminHomeScreen} />
@@ -317,7 +404,7 @@ function SuperAdminTabs() {
         tabBarShowLabel: false,
         tabBarActiveTintColor: theme.primary,
         tabBarInactiveTintColor: theme.textMuted,
-        tabBarIcon: ({ focused, color }) => {
+        tabBarIcon: ({ focused }) => {
           let iconName = 'help-circle-outline';
           let label = route.name;
 
@@ -327,15 +414,21 @@ function SuperAdminTabs() {
           else if (route.name === 'SAEvents') { iconName = focused ? 'calendar' : 'calendar-outline'; label = 'Events'; }
           else if (route.name === 'SAPanel') { iconName = focused ? 'grid' : 'grid-outline'; label = 'Panel'; }
 
-          return (
-            <View style={{ alignItems: 'center' }}>
-              {focused && <View style={{ position: 'absolute', top: -8, width: 24, height: 3, borderRadius: 2, backgroundColor: theme.primary }} />}
-              <Ionicons name={iconName} size={22} color={color} />
-              <Text style={{ color, fontSize: 10, fontWeight: '600', marginTop: 2 }}>{label}</Text>
-            </View>
-          );
+          return <Render3DTabIcon name={iconName} focused={focused} isDarkMode={isDarkMode} theme={theme} label={label} />;
         },
-        tabBarStyle: { borderTopWidth: 1, borderTopColor: theme.border, paddingBottom: bottomPadding, paddingTop: 8, height: 60 + bottomPadding, backgroundColor: theme.card },
+        tabBarStyle: {
+          borderTopWidth: 1.5,
+          borderTopColor: theme.tabBarBorder || theme.border,
+          paddingBottom: bottomPadding,
+          paddingTop: 8,
+          height: 62 + bottomPadding,
+          backgroundColor: theme.tabBarBg || theme.card,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: isDarkMode ? 0.45 : 0.07,
+          shadowRadius: 14,
+          elevation: 12
+        },
       })}
     >
       <SuperAdminTab.Screen name="SADashboard" component={SuperAdminDashboardScreen} initialParams={{ initialModule: 'dashboard_home' }} />

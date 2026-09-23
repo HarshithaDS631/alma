@@ -71,6 +71,21 @@ const getDefaultPostsForUser = (currentUserId, currentUserName, followingIds = [
   });
 };
 
+const getTimeAgo = (dateString) => {
+  if (!dateString) return '';
+  const now = new Date();
+  const date = new Date(dateString);
+  const diffMs = now - date;
+  const diffMins = Math.floor(diffMs / 60000);
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return `${diffMins}m ago`;
+  const diffHours = Math.floor(diffMins / 60);
+  if (diffHours < 24) return `${diffHours}h ago`;
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays < 7) return `${diffDays}d ago`;
+  return date.toLocaleDateString();
+};
+
 const formatPostObject = (p, myUserId) => {
   if (!p) return null;
   const pid = p._id || p.id;
@@ -475,6 +490,8 @@ const DashboardScreen = ({ navigation }) => {
             setDirectoryUsers(usersRes.value);
           }
 
+          const currentUserInfo = profileRes.status === 'fulfilled' ? profileRes.value : null;
+
           // 2. Process posts — filter to only show posts from people the user follows (Instagram style)
           if (postsRes.status === 'fulfilled' && Array.isArray(postsRes.value) && postsRes.value.length > 0) {
             const allDbPosts = postsRes.value;
@@ -502,7 +519,6 @@ const DashboardScreen = ({ navigation }) => {
               }
             } catch (e) {}
 
-            const currentUserInfo = profileRes.status === 'fulfilled' ? profileRes.value : null;
             let myUserId = (currentUserInfo?._id || currentUserInfo?.id || '').toString();
             if (!myUserId) {
               try {
@@ -643,22 +659,6 @@ const DashboardScreen = ({ navigation }) => {
       return () => { isMounted = false; };
     }, [])
   );
-
-  // Helper to format timestamps
-  const getTimeAgo = (dateString) => {
-    if (!dateString) return '';
-    const now = new Date();
-    const date = new Date(dateString);
-    const diffMs = now - date;
-    const diffMins = Math.floor(diffMs / 60000);
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    const diffHours = Math.floor(diffMins / 60);
-    if (diffHours < 24) return `${diffHours}h ago`;
-    const diffDays = Math.floor(diffHours / 24);
-    if (diffDays < 7) return `${diffDays}d ago`;
-    return date.toLocaleDateString();
-  };
 
   // ─── Instagram HiFi Handlers ──────────────────────────────
   const [doubleTapHeart, setDoubleTapHeart] = useState({});
@@ -991,38 +991,58 @@ const DashboardScreen = ({ navigation }) => {
           </TouchableOpacity>
         ) : null}
 
-        {/* Action row - Instagram HiFi Styling */}
+        {/* Action row - 3D Tactile Buttons */}
         <View style={styles.postActions}>
           <View style={styles.leftActions}>
-            <TouchableOpacity onPress={() => toggleLike(post.id)} activeOpacity={0.6}>
-              <Ionicons
-                name={likedPosts[post.id] ? 'heart' : 'heart-outline'}
-                size={26}
-                color={likedPosts[post.id] ? '#FF3040' : theme.text}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionBtn} activeOpacity={0.6} onPress={() => openModal('comments', post)}>
-              <Ionicons name="chatbubble-outline" size={24} color={theme.text} />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionBtn} activeOpacity={0.6} onPress={() => openModal('reshare', post)}>
-              <Ionicons name="repeat-outline" size={26} color={isReshared ? '#6366F1' : theme.text} />
-              {post.resharesCount > 0 && (
-                <Text style={{ fontSize: 11, color: theme.textSecondary, marginLeft: 2 }}>{post.resharesCount}</Text>
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.actionBtn}
-              onPress={() => openModal('share', post)}
+            <TouchableOpacity 
+              style={[
+                styles.actionBtn, 
+                likedPosts[post.id] && { backgroundColor: isDarkMode ? 'rgba(244, 63, 94, 0.16)' : '#FFE4E6' }
+              ]} 
+              onPress={() => toggleLike(post.id)} 
               activeOpacity={0.6}
             >
-              <Ionicons name="paper-plane-outline" size={24} color={theme.text} />
+              <Ionicons
+                name={likedPosts[post.id] ? 'heart' : 'heart-outline'}
+                size={20}
+                color={likedPosts[post.id] ? '#F43F5E' : theme.text}
+              />
+              <Text style={{ fontSize: 12, fontWeight: '700', color: likedPosts[post.id] ? '#F43F5E' : theme.text }}>
+                {post.likes}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.actionBtn} activeOpacity={0.6} onPress={() => openModal('comments', post)}>
+              <Ionicons name="chatbubble-outline" size={19} color={theme.text} />
+              <Text style={{ fontSize: 12, fontWeight: '600', color: theme.text }}>
+                {post.commentsCount || 0}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.actionBtn} activeOpacity={0.6} onPress={() => openModal('reshare', post)}>
+              <Ionicons name="repeat-outline" size={20} color={isReshared ? '#6366F1' : theme.text} />
+              {post.resharesCount > 0 && (
+                <Text style={{ fontSize: 12, fontWeight: '600', color: theme.textSecondary }}>{post.resharesCount}</Text>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.actionBtn, { backgroundColor: isDarkMode ? 'rgba(37, 211, 102, 0.16)' : '#E8FDF0' }]}
+              onPress={() => handleWhatsAppShare(post)}
+              activeOpacity={0.6}
+            >
+              <Ionicons name="logo-whatsapp" size={17} color="#25D366" />
             </TouchableOpacity>
           </View>
-          <TouchableOpacity onPress={() => toggleBookmark(post.id)} activeOpacity={0.6}>
+          <TouchableOpacity 
+            style={[styles.actionBtn, bookmarkedPosts[post.id] && { backgroundColor: isDarkMode ? 'rgba(56, 189, 248, 0.16)' : '#E0EEFF' }]} 
+            onPress={() => toggleBookmark(post.id)} 
+            activeOpacity={0.6}
+          >
             <Ionicons
               name={bookmarkedPosts[post.id] ? 'bookmark' : 'bookmark-outline'}
-              size={24}
-              color={bookmarkedPosts[post.id] ? '#0F172A' : theme.text}
+              size={19}
+              color={bookmarkedPosts[post.id] ? theme.primary : theme.text}
             />
           </TouchableOpacity>
         </View>
@@ -1260,29 +1280,129 @@ const DashboardScreen = ({ navigation }) => {
           </View>
         ) : (
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-            {/* Mobile Create Post Box */}
-            <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 12, marginHorizontal: 16, marginTop: 12, marginBottom: 8, elevation: 1, borderWidth: 1, borderColor: theme.border, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            {/* ─── 3D Stories & Alumni Highlights Carousel ─── */}
+            <View style={styles.storiesContainer}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.storiesScroll}>
+                {/* User Story (Add) */}
+                <TouchableOpacity 
+                  style={styles.storyItem}
+                  onPress={() => navigation.navigate('PostCreation')}
+                  activeOpacity={0.7}
+                >
+                  <View style={[styles.storyRing, { borderColor: theme.primary, shadowColor: theme.primary }]}>
+                    <View style={styles.storyAvatarWrap}>
+                      {userAvatarUrl ? (
+                        <Image source={{ uri: userAvatarUrl }} style={styles.storyAvatar} />
+                      ) : (
+                        <Text style={styles.storyAvatarInitials}>{getInitials(userName)}</Text>
+                      )}
+                    </View>
+                    <View style={styles.storyAddBadge}>
+                      <Ionicons name="add" size={12} color="#FFF" />
+                    </View>
+                  </View>
+                  <Text style={styles.storyName} numberOfLines={1}>Your Story</Text>
+                </TouchableOpacity>
+
+                {/* 3D Highlight Bubbles */}
+                {[
+                  { id: 'h1', title: 'Campus', icon: 'school', color: '#002B5C', border: '#38BDF8' },
+                  { id: 'h2', title: 'Placements', icon: 'briefcase', color: '#064E3B', border: '#10B981' },
+                  { id: 'h3', title: 'Reunions', icon: 'people', color: '#4C1D95', border: '#A855F7' },
+                  { id: 'h4', title: 'Mentors', icon: 'sparkles', color: '#78350F', border: '#F59E0B' },
+                  { id: 'h5', title: 'Global', icon: 'globe', color: '#0369A1', border: '#0284C7' }
+                ].map(h => (
+                  <TouchableOpacity 
+                    key={h.id} 
+                    style={styles.storyItem} 
+                    onPress={() => navigation.navigate('Engage')}
+                    activeOpacity={0.7}
+                  >
+                    <View style={[styles.storyRing, { borderColor: h.border, shadowColor: h.border }]}>
+                      <View style={[styles.storyAvatarWrap, { backgroundColor: h.color }]}>
+                        <Ionicons name={h.icon} size={20} color="#FFFFFF" />
+                      </View>
+                    </View>
+                    <Text style={styles.storyName} numberOfLines={1}>{h.title}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+
+            {/* ─── 3D Quick Feature Pods (Directory, Jobs, Events, Connect) ─── */}
+            <View style={styles.quickPodsGrid}>
               <TouchableOpacity 
-                style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center' }}
+                style={[styles.quickPod, { backgroundColor: isDarkMode ? '#131C2E' : '#FFFFFF' }]} 
+                onPress={() => navigation.navigate('Engage', { tab: 'directory' })}
+                activeOpacity={0.75}
+              >
+                <View style={[styles.quickPodIconWrap, { backgroundColor: '#2563EB', shadowColor: '#2563EB' }]}>
+                  <Ionicons name="people" size={18} color="#FFFFFF" />
+                </View>
+                <Text style={styles.quickPodTitle}>Directory</Text>
+                <Text style={styles.quickPodSubtitle}>Connect</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={[styles.quickPod, { backgroundColor: isDarkMode ? '#131C2E' : '#FFFFFF' }]} 
+                onPress={() => navigation.navigate('Jobs')}
+                activeOpacity={0.75}
+              >
+                <View style={[styles.quickPodIconWrap, { backgroundColor: '#10B981', shadowColor: '#10B981' }]}>
+                  <Ionicons name="briefcase" size={18} color="#FFFFFF" />
+                </View>
+                <Text style={styles.quickPodTitle}>Careers</Text>
+                <Text style={styles.quickPodSubtitle}>Openings</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={[styles.quickPod, { backgroundColor: isDarkMode ? '#131C2E' : '#FFFFFF' }]} 
+                onPress={() => navigation.navigate('Engage')}
+                activeOpacity={0.75}
+              >
+                <View style={[styles.quickPodIconWrap, { backgroundColor: '#8B5CF6', shadowColor: '#8B5CF6' }]}>
+                  <Ionicons name="calendar" size={18} color="#FFFFFF" />
+                </View>
+                <Text style={styles.quickPodTitle}>Events</Text>
+                <Text style={styles.quickPodSubtitle}>Meetups</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={[styles.quickPod, { backgroundColor: isDarkMode ? '#131C2E' : '#FFFFFF' }]} 
+                onPress={() => navigation.navigate('Messages')}
+                activeOpacity={0.75}
+              >
+                <View style={[styles.quickPodIconWrap, { backgroundColor: '#0284C7', shadowColor: '#0284C7' }]}>
+                  <Ionicons name="chatbubbles" size={18} color="#FFFFFF" />
+                </View>
+                <Text style={styles.quickPodTitle}>Chats</Text>
+                <Text style={styles.quickPodSubtitle}>Direct DM</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Mobile Create Post Box */}
+            <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 14, marginHorizontal: 14, marginTop: 4, marginBottom: 14, borderWidth: 1.5, borderColor: theme.cardBorder || theme.border, shadowColor: theme.cardShadow || '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.12, shadowRadius: 8, elevation: 3, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <TouchableOpacity 
+                style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center' }}
                 onPress={() => navigation.navigate('Profile')}
               >
                 {userAvatarUrl ? (
-                  <Image source={{ uri: userAvatarUrl }} style={{ width: 36, height: 36, borderRadius: 18 }} />
+                  <Image source={{ uri: userAvatarUrl }} style={{ width: 38, height: 38, borderRadius: 19 }} />
                 ) : (
-                  <Text style={{ fontSize: 13, fontWeight: '700', color: theme.card }}>{getInitials(userName)}</Text>
+                  <Text style={{ fontSize: 13, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(userName)}</Text>
                 )}
               </TouchableOpacity>
               <TouchableOpacity 
-                style={{ flex: 1, backgroundColor: theme.inputBackground, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8, borderWidth: 1, borderColor: theme.border }}
+                style={{ flex: 1, backgroundColor: theme.surfaceDepressed || theme.inputBackground, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 9, borderWidth: 1, borderColor: theme.border }}
                 onPress={() => navigation.navigate('PostCreation')}
               >
-                <Text style={{ color: theme.textMuted, fontSize: 13 }}>Start a post or share an update...</Text>
+                <Text style={{ color: theme.textMuted, fontSize: 13, fontWeight: '500' }}>Start a post or share an update...</Text>
               </TouchableOpacity>
               <TouchableOpacity 
-                style={{ padding: 6, backgroundColor: theme.background, borderRadius: 16 }}
+                style={{ padding: 8, backgroundColor: theme.cardSecondary || theme.background, borderRadius: 16 }}
                 onPress={() => navigation.navigate('PostCreation')}
               >
-                <Ionicons name="image-outline" size={18} color={theme.primary} />
+                <Ionicons name="image-outline" size={19} color={theme.primary} />
               </TouchableOpacity>
             </View>
 
@@ -1849,22 +1969,35 @@ const getStyles = (theme) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: 11,
     backgroundColor: theme.card,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.border,
+    borderBottomWidth: 1.5,
+    borderBottomColor: theme.cardBorder || theme.border,
+    shadowColor: theme.cardShadow || '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 4,
+    zIndex: 10,
   },
   headerAvatar: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: theme.primary,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 10,
+    borderWidth: 2,
+    borderColor: theme.cardBorder || theme.border,
+    shadowColor: theme.primary,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 3,
   },
   headerAvatarText: {
-    color: theme.card,
+    color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '700',
   },
@@ -1872,13 +2005,18 @@ const getStyles = (theme) => StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.inputBackground,
+    backgroundColor: theme.surfaceDepressed || theme.inputBackground,
     borderRadius: 24,
     paddingHorizontal: 14,
-    height: 38,
+    height: 40,
     marginRight: 10,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: theme.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 1,
   },
   searchInput: {
     flex: 1,
@@ -1913,9 +2051,17 @@ const getStyles = (theme) => StyleSheet.create({
   /* ── Post Card ──────────────────────────────────────── */
   postCard: {
     backgroundColor: theme.card,
-    marginBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.border,
+    marginHorizontal: 14,
+    marginBottom: 16,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: theme.cardBorder || theme.border,
+    shadowColor: theme.cardShadow || '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    elevation: 4,
+    overflow: 'hidden',
   },
   postHeader: {
     flexDirection: 'row',
@@ -1932,13 +2078,13 @@ const getStyles = (theme) => StyleSheet.create({
     alignItems: 'center',
     marginRight: 10,
     shadowColor: theme.primary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
     elevation: 3,
   },
   avatarText: {
-    color: theme.card,
+    color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '700',
   },
@@ -1958,10 +2104,10 @@ const getStyles = (theme) => StyleSheet.create({
   followBtn: {
     paddingHorizontal: 14,
     paddingVertical: 6,
-    borderRadius: 6,
+    borderRadius: 8,
   },
   followBtnText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '700',
     color: theme.primary,
   },
@@ -1971,17 +2117,140 @@ const getStyles = (theme) => StyleSheet.create({
   postActions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     paddingVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.05)',
   },
   leftActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 18,
+    gap: 8,
   },
   actionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 12,
+    backgroundColor: theme.surfaceDepressed || 'rgba(0, 0, 0, 0.04)',
+    gap: 5,
+  },
+
+  /* ── 3D Stories Row ──────────────────────────────────── */
+  storiesContainer: {
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.cardBorder || theme.border,
+    backgroundColor: theme.card,
+    marginBottom: 10,
+  },
+  storiesScroll: {
+    paddingHorizontal: 14,
+    gap: 14,
+  },
+  storyItem: {
+    alignItems: 'center',
+    width: 64,
+  },
+  storyRing: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    borderWidth: 2.5,
     justifyContent: 'center',
     alignItems: 'center',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.35,
+    shadowRadius: 6,
+    elevation: 4,
+    position: 'relative',
+    backgroundColor: theme.card,
+  },
+  storyAvatarWrap: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  storyAvatar: {
+    width: '100%',
+    height: '100%',
+  },
+  storyAvatarInitials: {
+    color: '#FFFFFF',
+    fontWeight: '800',
+    fontSize: 14,
+  },
+  storyAddBadge: {
+    position: 'absolute',
+    bottom: -1,
+    right: -1,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: '#2563EB',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  storyName: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: theme.text,
+    marginTop: 4,
+    textAlign: 'center',
+  },
+
+  /* ── 3D Quick Feature Pods Grid ──────────────────────── */
+  quickPodsGrid: {
+    flexDirection: 'row',
+    paddingHorizontal: 14,
+    gap: 10,
+    marginBottom: 12,
+  },
+  quickPod: {
+    flex: 1,
+    borderRadius: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 6,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: theme.cardBorder || theme.border,
+    shadowColor: theme.cardShadow || '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  quickPodIconWrap: {
+    width: 38,
+    height: 38,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 6,
+    elevation: 4,
+    marginBottom: 6,
+  },
+  quickPodTitle: {
+    fontSize: 11.5,
+    fontWeight: '800',
+    color: theme.text,
+    letterSpacing: -0.2,
+    textAlign: 'center',
+  },
+  quickPodSubtitle: {
+    fontSize: 9.5,
+    fontWeight: '500',
+    color: theme.textSecondary,
+    marginTop: 1,
+    textAlign: 'center',
   },
   postFooter: {
     paddingHorizontal: 16,

@@ -30,7 +30,7 @@ export const ThemeProvider = ({ children }) => {
 
   useEffect(() => {
     if (typeof document !== 'undefined') {
-      const bg = isDarkMode ? '#121316' : '#F8FAFC';
+      const bg = isDarkMode ? '#080C15' : '#F1F5F9';
       document.documentElement.style.backgroundColor = bg;
       document.body.style.backgroundColor = bg;
       const rootEl = document.getElementById('root');
