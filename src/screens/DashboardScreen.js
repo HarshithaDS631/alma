@@ -217,43 +217,69 @@ const DashboardScreen = ({ navigation }) => {
 
   const handleWhatsAppShare = async (post) => {
     const postUrl = `https://almafrontend-eight.vercel.app`;
-    const shareText = post?.content
-      ? `Check out this post on Alumni Network:\n"${post.content.substring(0, 150)}"\n${postUrl}`
-      : `Check out this post on Alumni Network: ${postUrl}`;
+    const authorName = post?.user?.name || post?.author || 'RV Alumni';
+    const content = post?.content ? `"${post.content.trim()}"` : '';
+    const rawImage = post?.image || post?.imageUrl || '';
+    const imageUrl = rawImage ? getImageUrl(rawImage) : '';
 
-    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+    let shareText = `🎓 *${authorName}* shared a post on RVCE Alumni Network:\n\n${content}`;
+    if (imageUrl) {
+      shareText += `\n\n📸 *Post Image:* ${imageUrl}`;
+    }
+    shareText += `\n\n🔗 *View & Connect:*\n${postUrl}\n\n_RV Educational Institutions Community_`;
+
+    const whatsappAppUrl = `whatsapp://send?text=${encodeURIComponent(shareText)}`;
+    const whatsappWebUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
 
     try {
-      const supported = await Linking.canOpenURL(whatsappUrl);
-      if (supported) {
-        await Linking.openURL(whatsappUrl);
-      } else {
-        await Linking.openURL(`https://web.whatsapp.com/send?text=${encodeURIComponent(shareText)}`);
+      if (Platform.OS === 'web') {
+        window.open(whatsappWebUrl, '_blank');
+        return;
       }
-    } catch (err) {
-      Linking.openURL(whatsappUrl).catch(() => {
-        handleCopyToClipboard(post);
-      });
+      const supported = await Linking.canOpenURL(whatsappAppUrl);
+      if (supported) {
+        await Linking.openURL(whatsappAppUrl);
+      } else {
+        await Linking.openURL(whatsappWebUrl);
+      }
+    } catch (_err) {
+      try {
+        await Linking.openURL(whatsappWebUrl);
+      } catch (_e2) {
+        await Share.share({
+          title: `${authorName}'s Post`,
+          message: shareText,
+          url: imageUrl || postUrl,
+        });
+      }
     }
   };
 
   const handleNativeShare = async (post) => {
     const postUrl = `https://almafrontend-eight.vercel.app`;
-    const shareText = post?.content
-      ? `Check out this post on Alumni Network:\n"${post.content.substring(0, 150)}"\n${postUrl}`
-      : `Check out this post on Alumni Network: ${postUrl}`;
+    const authorName = post?.user?.name || post?.author || 'RV Alumni';
+    const content = post?.content ? `"${post.content.trim()}"` : '';
+    const rawImage = post?.image || post?.imageUrl || '';
+    const imageUrl = rawImage ? getImageUrl(rawImage) : '';
+
+    let shareText = `🎓 ${authorName} on RVCE Alumni Network:\n\n${content}`;
+    if (imageUrl) {
+      shareText += `\n\n📸 Post Image: ${imageUrl}`;
+    }
+    shareText += `\n\n🔗 ${postUrl}`;
 
     try {
       if (Platform.OS === 'web' && typeof navigator !== 'undefined' && navigator.share) {
         await navigator.share({
-          title: 'Alumni Network Post',
+          title: `${authorName}'s Post | Alumni Network`,
           text: shareText,
-          url: postUrl,
+          url: imageUrl || postUrl,
         });
       } else {
         await Share.share({
+          title: `${authorName}'s Post | Alumni Network`,
           message: shareText,
-          url: postUrl,
+          url: imageUrl || postUrl,
         });
       }
     } catch (err) {
@@ -1027,11 +1053,11 @@ const DashboardScreen = ({ navigation }) => {
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.actionBtn, { backgroundColor: isDarkMode ? 'rgba(37, 211, 102, 0.16)' : '#E8FDF0' }]}
-              onPress={() => handleWhatsAppShare(post)}
+              style={styles.actionBtn}
+              onPress={() => openModal('share', post)}
               activeOpacity={0.6}
             >
-              <Ionicons name="logo-whatsapp" size={17} color="#25D366" />
+              <Ionicons name="paper-plane-outline" size={19} color={theme.text} />
             </TouchableOpacity>
           </View>
           <TouchableOpacity 
