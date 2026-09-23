@@ -94,8 +94,8 @@ export const googleSignInMobile = async () => {
     clientId,
     scopes: ['openid', 'profile', 'email'],
     redirectUri,
-    responseType: AuthSession.ResponseType.Code,
-    usePKCE: true,
+    responseType: AuthSession.ResponseType.Token,
+    usePKCE: false,
   });
 
   await request.makeAuthUrlAsync(discovery);
@@ -111,32 +111,48 @@ export const googleSignInMobile = async () => {
     throw new Error('Google Sign-In was cancelled or failed on mobile.');
   }
 
-  // Exchange authorization code for tokens
-  const tokenResult = await AuthSession.exchangeCodeAsync(
-    {
-      clientId,
-      code: result.params.code,
-      redirectUri,
-      extraParams: { code_verifier: request.codeVerifier },
-    },
-    discovery
-  );
+  let accessToken = result.params?.access_token || result.authentication?.accessToken;
+  let idToken = result.params?.id_token || result.authentication?.idToken;
 
-  const accessToken = tokenResult.accessToken;
+  // If code was returned instead of direct token, exchange it
+  if (!accessToken && result.params?.code) {
+    try {
+      const tokenResult = await AuthSession.exchangeCodeAsync(
+        {
+          clientId,
+          code: result.params.code,
+          redirectUri,
+          extraParams: request.codeVerifier ? { code_verifier: request.codeVerifier } : undefined,
+        },
+        discovery
+      );
+      accessToken = tokenResult.accessToken;
+      idToken = tokenResult.idToken;
+    } catch (exchangeErr) {
+      console.warn('[Google Auth] Exchange code warning:', exchangeErr.message);
+    }
+  }
 
   // Fetch user info from Google
-  const userInfoRes = await fetch('https://www.googleapis.com/userinfo/v2/me', {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
-  const userInfo = await userInfoRes.json();
+  let userInfo = {};
+  if (accessToken) {
+    try {
+      const userInfoRes = await fetch('https://www.googleapis.com/userinfo/v2/me', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      userInfo = await userInfoRes.json();
+    } catch (fetchErr) {
+      console.warn('[Google Auth] userinfo fetch warning:', fetchErr.message);
+    }
+  }
 
   return {
     accessToken,
-    idToken: tokenResult.idToken,
-    email: userInfo.email,
-    name: userInfo.name,
-    photoURL: userInfo.picture,
-    uid: userInfo.id,
+    idToken,
+    email: userInfo.email || result.params?.email,
+    name: userInfo.name || result.params?.name || 'Google User',
+    photoURL: userInfo.picture || result.params?.picture || '',
+    uid: userInfo.id || result.params?.sub || '',
   };
 };
 

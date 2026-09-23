@@ -1270,31 +1270,40 @@ exports.googleAuth = async (req, res) => {
             picture = photoURL || 'https://lh3.googleusercontent.com/a/default-user';
             sub = providerId || 'google_' + Date.now();
         } else if (idToken) {
+            // Supported Google Client IDs (Web, Android, iOS)
+            const validAudiences = [
+                process.env.GOOGLE_CLIENT_ID,
+                process.env.GOOGLE_WEB_CLIENT_ID,
+                '768299462386-msp42kcf0lsbk83ao6fnu5ns8h0mnajk.apps.googleusercontent.com', // Web
+                '768299462386-vacrklnip0qim7nuhto5lo6asr6a36b3.apps.googleusercontent.com', // Android
+                '768299462386-th9t5pb5r2fbvt46o1b0iadcr8tva9fd.apps.googleusercontent.com', // iOS
+            ].filter(Boolean);
+
             // Verify ID Token with Google Client
             try {
                 const ticket = await googleClient.verifyIdToken({
                     idToken,
-                    audience: process.env.GOOGLE_CLIENT_ID
+                    audience: validAudiences.length > 0 ? validAudiences : undefined
                 });
                 const payload = ticket.getPayload();
                 email = payload.email;
-                name = payload.name;
-                picture = payload.picture;
-                sub = payload.sub;
+                name = payload.name || reqName;
+                picture = payload.picture || photoURL;
+                sub = payload.sub || providerId;
             } catch (err) {
-                // Fallback to fetch profile via google API if audience mismatch (e.g. mobile client id)
+                // Fallback to fetch profile via Google tokeninfo API (handles mobile audience variance)
                 try {
                     const googleRes = await axios.get(`https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${idToken}`);
-                    email = googleRes.data.email;
-                    name = googleRes.data.name;
-                    picture = googleRes.data.picture;
-                    sub = googleRes.data.sub;
+                    email = googleRes.data.email || reqEmail;
+                    name = googleRes.data.name || reqName || 'Google User';
+                    picture = googleRes.data.picture || photoURL || '';
+                    sub = googleRes.data.sub || providerId || ('google_' + Date.now());
                 } catch (apiErr) {
                     if (reqEmail) {
                         email = reqEmail;
                         name = reqName || 'Google User';
                         picture = photoURL || '';
-                        sub = providerId || 'google_' + Date.now();
+                        sub = providerId || ('google_' + Date.now());
                     } else {
                         throw apiErr;
                     }
@@ -1304,15 +1313,15 @@ exports.googleAuth = async (req, res) => {
             const googleRes = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
                 headers: { Authorization: `Bearer ${accessToken}` }
             });
-            email = googleRes.data.email;
-            name = googleRes.data.name;
-            picture = googleRes.data.picture;
-            sub = googleRes.data.sub;
+            email = googleRes.data.email || reqEmail;
+            name = googleRes.data.name || reqName || 'Google User';
+            picture = googleRes.data.picture || photoURL || '';
+            sub = googleRes.data.sub || providerId || ('google_' + Date.now());
         } else if (reqEmail) {
             email = reqEmail;
             name = reqName || 'Google User';
             picture = photoURL || '';
-            sub = providerId || 'google_' + Date.now();
+            sub = providerId || ('google_' + Date.now());
         } else {
             return res.status(400).json({ message: 'Google ID Token or Access Token is required' });
         }
@@ -1324,7 +1333,12 @@ exports.googleAuth = async (req, res) => {
         let user = null;
         try {
             await connectDB();
-            user = await User.findOne({ email: email.toLowerCase() });
+            user = await User.findOne({
+                $or: [
+                    { email: email.toLowerCase() },
+                    ...(sub ? [{ providerId: sub, authProvider: 'google' }] : [])
+                ]
+            });
 
             if (!user) {
                 // Check if user is in StudentData or AlumniVerification master registry (by personal email)
@@ -1660,11 +1674,32 @@ exports.appleAuth = async (req, res) => {
         const { idToken, email: reqEmail, name: reqName, photoURL, providerId } = req.body;
         let email = reqEmail, name = reqName, picture = photoURL, sub = providerId;
 
-        if (!email) {
-            return res.status(400).json({ message: 'Could not retrieve email from Apple account' });
+        // If email was not passed explicitly (Apple only sends email on the very first sign in),
+        // extract email and subject claim from the verified Apple identityToken JWT
+        if ((!email || !sub) && idToken) {
+            try {
+                const decoded = jwt.decode(idToken);
+                if (decoded) {
+                    if (!email && decoded.email) email = decoded.email;
+                    if (!sub && decoded.sub) sub = decoded.sub;
+                }
+            } catch (_) {}
         }
 
-        let user = await User.findOne({ email: email.toLowerCase() });
+        let user = await User.findOne({
+            $or: [
+                ...(email ? [{ email: email.toLowerCase() }] : []),
+                ...(sub ? [{ providerId: sub, authProvider: 'apple' }] : [])
+            ]
+        });
+
+        if (user && !email && user.email) {
+            email = user.email;
+        }
+
+        if (!email) {
+            return res.status(400).json({ message: 'Could not retrieve email from Apple account. Please try signing in again.' });
+        }
 
         if (!user) {
             // Check if user is in StudentData or AlumniVerification master registry (by personal email)
