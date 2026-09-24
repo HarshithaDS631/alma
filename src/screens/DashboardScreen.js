@@ -1142,6 +1142,15 @@ const DashboardScreen = ({ navigation }) => {
 
           {/* Right – Icons */}
           <View style={styles.headerIcons}>
+            {isDesktop && (
+              <TouchableOpacity
+                style={styles.headerIconBtn}
+                onPress={() => navigation.navigate('Events')}
+                title="Events & Meetups"
+              >
+                <Ionicons name="calendar-outline" size={22} color={theme.primary} />
+              </TouchableOpacity>
+            )}
             <TouchableOpacity
               style={styles.headerIconBtn}
               onPress={() => { setUnreadMessages(0); navigation.navigate('Messages'); }}
@@ -1184,7 +1193,7 @@ const DashboardScreen = ({ navigation }) => {
             
             {/* 1. Left Column: Profile Context */}
             <View style={{ flex: 3 }}>
-              <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 20, elevation: 2, borderWidth: 1, borderColor: theme.border, marginBottom: 24, alignItems: 'center' }}>
+              <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 20, elevation: 2, borderWidth: 1, borderColor: theme.border, marginBottom: 16, alignItems: 'center' }}>
                 <TouchableOpacity 
                   style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', marginBottom: 12, overflow: 'hidden', shadowColor: theme.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8 }}
                   onPress={() => navigation.navigate('Profile')}
@@ -1214,6 +1223,32 @@ const DashboardScreen = ({ navigation }) => {
                     <Text style={{ color: theme.primary, fontWeight: '700', fontSize: 13 }}>{myEventsCount}</Text>
                   </TouchableOpacity>
                 </View>
+              </View>
+
+              {/* Desktop Events Quick Card */}
+              <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 16, elevation: 2, borderWidth: 1, borderColor: theme.border, marginBottom: 24 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: isDarkMode ? 'rgba(56, 189, 248, 0.2)' : '#EFF6FF', justifyContent: 'center', alignItems: 'center' }}>
+                      <Ionicons name="calendar" size={16} color={theme.primary} />
+                    </View>
+                    <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>Alumni Events</Text>
+                  </View>
+                  <TouchableOpacity onPress={() => navigation.navigate('Events')} activeOpacity={0.7}>
+                    <Text style={{ fontSize: 12, color: theme.primary, fontWeight: '700' }}>View all</Text>
+                  </TouchableOpacity>
+                </View>
+                <Text style={{ fontSize: 12, color: theme.textSecondary, lineHeight: 17, marginBottom: 12 }}>
+                  Join global reunions, webinars, and chapter meetups.
+                </Text>
+                <TouchableOpacity
+                  style={{ backgroundColor: theme.primary, paddingVertical: 9, borderRadius: 8, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6 }}
+                  onPress={() => navigation.navigate('Events')}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="calendar-outline" size={15} color="#FFFFFF" />
+                  <Text style={{ fontSize: 12, fontWeight: '700', color: '#FFFFFF' }}>Explore Events</Text>
+                </TouchableOpacity>
               </View>
             </View>
 
