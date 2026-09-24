@@ -1115,6 +1115,31 @@ const DEFAULT_TAGGED_POSTS = [];
           </View>
         </View>
 
+        {/* Story Highlights (Instagram / Alumni Profile style) */}
+        <View style={{ marginBottom: 14, paddingHorizontal: 16 }}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 14 }}>
+            <TouchableOpacity 
+              style={{ alignItems: 'center', width: 68 }} 
+              onPress={() => navigation.navigate('PostCreation')}
+              activeOpacity={0.7}
+            >
+              <View style={{ width: 58, height: 58, borderRadius: 29, borderWidth: 1.5, borderColor: '#CBD5E1', borderStyle: 'dashed', justifyContent: 'center', alignItems: 'center', backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', marginBottom: 5 }}>
+                <Ionicons name="add" size={22} color="#002B5C" />
+              </View>
+              <Text style={{ fontSize: 11.5, color: theme.textSecondary, fontWeight: '600' }} numberOfLines={1}>New</Text>
+            </TouchableOpacity>
+
+            {highlights.map((h) => (
+              <TouchableOpacity key={h.id} style={{ alignItems: 'center', width: 68 }} activeOpacity={0.7}>
+                <View style={{ width: 58, height: 58, borderRadius: 29, borderWidth: 1.5, borderColor: '#E2E8F0', justifyContent: 'center', alignItems: 'center', backgroundColor: isDarkMode ? '#1E293B' : '#EFF6FF', marginBottom: 5 }}>
+                  <Ionicons name={h.icon} size={22} color="#002B5C" />
+                </View>
+                <Text style={{ fontSize: 11.5, color: theme.text, fontWeight: '600' }} numberOfLines={1}>{h.title}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
         {/* Instagram-style Tabs with View Switcher */}
         <View style={[styles.tabContainer, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
           <View style={{ flexDirection: 'row', flex: 1 }}>
@@ -3954,7 +3979,7 @@ const DEFAULT_TAGGED_POSTS = [];
 const getStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.card,
+    backgroundColor: '#F1F5F9',
   },
   header: {
     flexDirection: 'row',
