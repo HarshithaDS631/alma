@@ -9,7 +9,7 @@ import { blockUser, getSuggestions, getEvents, getFollowing, toggleFollowUser, g
 import { getImageUrl } from '../services/uploadService';
 import getInitials from '../lib/getInitials';
 
-const EngageScreen = ({ navigation }) => {
+const EngageScreen = ({ navigation, route }) => {
   const { theme, isDarkMode } = useTheme();
   const styles = getStyles(theme);
 
@@ -22,6 +22,7 @@ const EngageScreen = ({ navigation }) => {
   const [reshareModalVisible, setReshareModalVisible] = useState(false);
   const [likedPosts, setLikedPosts] = useState({});
   const [postText, setPostText] = useState('');
+  const [joinedEventsMap, setJoinedEventsMap] = useState({});
   const [eventForm, setEventForm] = useState({
     name: '',
     date: '',
@@ -40,6 +41,59 @@ const EngageScreen = ({ navigation }) => {
   const [suggestions, setSuggestions] = useState([]);
   const [events, setEvents] = useState([]);
   const [followedSuggestions, setFollowedSuggestions] = useState({});
+
+  useEffect(() => {
+    if (route?.params?.view) {
+      if (route.params.view === 'events' || route.params.view === 'joinEvent') {
+        setCurrentView('joinEvent');
+      } else if (route.params.view === 'createEvent') {
+        setCurrentView('createEvent');
+      } else {
+        setCurrentView(route.params.view);
+      }
+    }
+  }, [route?.params?.view]);
+
+  useEffect(() => {
+    AsyncStorage.getItem('localRegisteredEvents').then(str => {
+      if (str) {
+        try {
+          const arr = JSON.parse(str);
+          if (Array.isArray(arr)) {
+            const map = {};
+            arr.forEach(id => { map[String(id)] = true; });
+            setJoinedEventsMap(map);
+          }
+        } catch (_) {}
+      }
+    }).catch(() => {});
+  }, []);
+
+  const handleJoinEvent = async (event) => {
+    const eventId = String(event.id);
+    const isAlreadyJoined = !!joinedEventsMap[eventId];
+    const newMap = { ...joinedEventsMap, [eventId]: !isAlreadyJoined };
+    setJoinedEventsMap(newMap);
+
+    const activeIds = Object.keys(newMap).filter(id => newMap[id]);
+    try {
+      await AsyncStorage.setItem('localRegisteredEvents', JSON.stringify(activeIds));
+    } catch (_) {}
+
+    if (!isAlreadyJoined) {
+      if (Platform.OS === 'web') {
+        window.alert(`RSVP Confirmed! You are registered for "${event.title}".`);
+      } else {
+        Alert.alert('RSVP Confirmed', `You are registered for "${event.title}".`);
+      }
+    } else {
+      if (Platform.OS === 'web') {
+        window.alert(`Cancelled registration for "${event.title}".`);
+      } else {
+        Alert.alert('RSVP Cancelled', `Cancelled registration for "${event.title}".`);
+      }
+    }
+  };
 
   const fetchAllData = useCallback(async () => {
     try {
@@ -161,80 +215,85 @@ const EngageScreen = ({ navigation }) => {
 
   const toggleLike = (id) => setLikedPosts(prev => ({ ...prev, [id]: !prev[id] }));
 
-  // ===== WRITE POST VIEW REMOVED - Navigating to PostCreationScreen instead =====
+  // Responsive web container styling
+  const isDesktop = width >= 1024;
+  const isWeb = Platform.OS === 'web';
+  const webContainerStyle = isWeb ? { alignSelf: 'center', width: '100%', maxWidth: isDesktop ? 1200 : 800, flex: 1 } : { flex: 1 };
 
   // ===== CREATE EVENT VIEW =====
   if (currentView === 'createEvent') {
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-        <View style={styles.subScreenHeader}>
-          <TouchableOpacity onPress={() => setCurrentView('feed')}>
-            <Ionicons name="close" size={24} color="#002144" />
-          </TouchableOpacity>
-          <Text style={styles.subScreenTitle}>Create Event</Text>
-          <View style={{ width: 24 }} />
+        <View style={webContainerStyle}>
+          <View style={styles.subScreenHeader}>
+            <TouchableOpacity onPress={() => setCurrentView('feed')}>
+              <Ionicons name="close" size={24} color="#002144" />
+            </TouchableOpacity>
+            <Text style={styles.subScreenTitle}>Create Event</Text>
+            <View style={{ width: 24 }} />
+          </View>
+          <ScrollView contentContainerStyle={styles.createEventBody}>
+            <Text style={styles.fieldLabel}>Event Name</Text>
+            <TextInput style={styles.fieldInput} placeholder="Enter event name" placeholderTextColor="#94A3B8" value={eventForm.name} onChangeText={t => setEventForm({...eventForm, name: t})} />
+
+            <View style={styles.dateTimeRow}>
+              <View style={styles.dateField}>
+                <Ionicons name="calendar-outline" size={18} color="#64748B" />
+                <Text style={styles.dateTimeText}>{eventForm.date}</Text>
+              </View>
+              <View style={styles.colorDots}>
+                <View style={[styles.colorDot, { backgroundColor: '#CBD5E1' }]} />
+                <View style={[styles.colorDot, { backgroundColor: theme.primary }]} />
+                <View style={[styles.colorDot, { backgroundColor: '#CBD5E1' }]} />
+                <View style={[styles.colorDot, { backgroundColor: '#CBD5E1' }]} />
+              </View>
+            </View>
+
+            <View style={styles.timeRow}>
+              <View style={styles.timeField}>
+                <Ionicons name="time-outline" size={18} color="#64748B" />
+                <Text style={styles.dateTimeText}>{eventForm.startTime}</Text>
+              </View>
+              <Ionicons name="arrow-forward" size={16} color="#94A3B8" />
+              <View style={styles.timeField}>
+                <Text style={styles.dateTimeText}>{eventForm.endTime}</Text>
+              </View>
+            </View>
+
+            <View style={styles.hostRow}>
+              <View style={styles.hostAvatar}><Text style={styles.hostAvatarText}>{getInitials(currentUser?.name, 'AL')}</Text></View>
+              <Text style={styles.hostName}>{currentUser?.name || 'User'}</Text>
+              <Ionicons name="chevron-down" size={16} color="#002144" />
+            </View>
+
+            <Text style={styles.fieldLabel}>Get notified on</Text>
+            <View style={styles.notifyRow}>
+              <TouchableOpacity style={[styles.notifyOption, eventForm.notifyPhone && styles.notifyActive]} onPress={() => setEventForm({...eventForm, notifyPhone: !eventForm.notifyPhone})}>
+                <Text style={[styles.notifyText, eventForm.notifyPhone && styles.notifyActiveText]}>On phone</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.notifyOption, eventForm.notifyEmail && styles.notifyActive]} onPress={() => setEventForm({...eventForm, notifyEmail: !eventForm.notifyEmail})}>
+                <Text style={[styles.notifyText, eventForm.notifyEmail && styles.notifyActiveText]}>Email</Text>
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.fieldLabel}>Set reminder</Text>
+            <View style={styles.fieldInput}><Text style={{ color: theme.primary, fontSize: 15 }}>{eventForm.reminder}</Text></View>
+
+            <Text style={styles.fieldLabel}>Add description</Text>
+            <View style={styles.descriptionWrapper}>
+              <TextInput style={[styles.fieldInput, { height: 100, textAlignVertical: 'top', paddingTop: 12, flex: 1 }]} placeholder="Add description" placeholderTextColor="#94A3B8" multiline value={eventForm.description} onChangeText={t => setEventForm({...eventForm, description: t})} />
+              <Ionicons name="pencil-outline" size={16} color="#94A3B8" style={styles.descPencilIcon} />
+            </View>
+
+            <TouchableOpacity style={styles.createEventButton} onPress={() => {
+              setCurrentView('feed');
+              Alert.alert('Success', 'Event created successfully!');
+            }}>
+              <Text style={styles.createEventButtonText}>Create Event</Text>
+            </TouchableOpacity>
+          </ScrollView>
         </View>
-        <ScrollView contentContainerStyle={styles.createEventBody}>
-          <Text style={styles.fieldLabel}>Event Name</Text>
-          <TextInput style={styles.fieldInput} placeholder="Enter event name" placeholderTextColor="#94A3B8" value={eventForm.name} onChangeText={t => setEventForm({...eventForm, name: t})} />
-
-          <View style={styles.dateTimeRow}>
-            <View style={styles.dateField}>
-              <Ionicons name="calendar-outline" size={18} color="#64748B" />
-              <Text style={styles.dateTimeText}>{eventForm.date}</Text>
-            </View>
-            <View style={styles.colorDots}>
-              <View style={[styles.colorDot, { backgroundColor: '#CBD5E1' }]} />
-              <View style={[styles.colorDot, { backgroundColor: theme.primary }]} />
-              <View style={[styles.colorDot, { backgroundColor: '#CBD5E1' }]} />
-              <View style={[styles.colorDot, { backgroundColor: '#CBD5E1' }]} />
-            </View>
-          </View>
-
-          <View style={styles.timeRow}>
-            <View style={styles.timeField}>
-              <Ionicons name="time-outline" size={18} color="#64748B" />
-              <Text style={styles.dateTimeText}>{eventForm.startTime}</Text>
-            </View>
-            <Ionicons name="arrow-forward" size={16} color="#94A3B8" />
-            <View style={styles.timeField}>
-              <Text style={styles.dateTimeText}>{eventForm.endTime}</Text>
-            </View>
-          </View>
-
-          <View style={styles.hostRow}>
-            <View style={styles.hostAvatar}><Text style={styles.hostAvatarText}>{getInitials(currentUser?.name, 'AL')}</Text></View>
-            <Text style={styles.hostName}>{currentUser?.name || 'User'}</Text>
-            <Ionicons name="chevron-down" size={16} color="#002144" />
-          </View>
-
-          <Text style={styles.fieldLabel}>Get notified on</Text>
-          <View style={styles.notifyRow}>
-            <TouchableOpacity style={[styles.notifyOption, eventForm.notifyPhone && styles.notifyActive]} onPress={() => setEventForm({...eventForm, notifyPhone: !eventForm.notifyPhone})}>
-              <Text style={[styles.notifyText, eventForm.notifyPhone && styles.notifyActiveText]}>On phone</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.notifyOption, eventForm.notifyEmail && styles.notifyActive]} onPress={() => setEventForm({...eventForm, notifyEmail: !eventForm.notifyEmail})}>
-              <Text style={[styles.notifyText, eventForm.notifyEmail && styles.notifyActiveText]}>Email</Text>
-            </TouchableOpacity>
-          </View>
-
-          <Text style={styles.fieldLabel}>Set reminder</Text>
-          <View style={styles.fieldInput}><Text style={{ color: theme.primary, fontSize: 15 }}>{eventForm.reminder}</Text></View>
-
-          <Text style={styles.fieldLabel}>Add description</Text>
-          <View style={styles.descriptionWrapper}>
-            <TextInput style={[styles.fieldInput, { height: 100, textAlignVertical: 'top', paddingTop: 12, flex: 1 }]} placeholder="Add description" placeholderTextColor="#94A3B8" multiline value={eventForm.description} onChangeText={t => setEventForm({...eventForm, description: t})} />
-            <Ionicons name="pencil-outline" size={16} color="#94A3B8" style={styles.descPencilIcon} />
-          </View>
-
-          <TouchableOpacity style={styles.createEventButton} onPress={() => {
-            setCurrentView('feed');
-            Alert.alert('Success', 'Event created successfully!');
-          }}>
-            <Text style={styles.createEventButtonText}>Create Event</Text>
-          </TouchableOpacity>
-        </ScrollView>
       </SafeAreaView>
     );
   }
@@ -244,41 +303,49 @@ const EngageScreen = ({ navigation }) => {
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-        <View style={styles.subScreenHeader}>
-          <TouchableOpacity onPress={() => setCurrentView('feed')}>
-            <Ionicons name="arrow-back" size={24} color="#002144" />
-          </TouchableOpacity>
-          <Text style={styles.subScreenTitle}>Join Event</Text>
-          <TouchableOpacity onPress={() => setCurrentView('createEvent')}>
-            <Ionicons name="add" size={26} color="#002144" />
-          </TouchableOpacity>
+        <View style={webContainerStyle}>
+          <View style={styles.subScreenHeader}>
+            <TouchableOpacity onPress={() => setCurrentView('feed')}>
+              <Ionicons name="arrow-back" size={24} color="#002144" />
+            </TouchableOpacity>
+            <Text style={styles.subScreenTitle}>Alumni Events</Text>
+            <TouchableOpacity onPress={() => setCurrentView('createEvent')}>
+              <Ionicons name="add" size={26} color="#002144" />
+            </TouchableOpacity>
+          </View>
+          <FlatList
+            data={events}
+            keyExtractor={item => item.id}
+            contentContainerStyle={{ padding: 20 }}
+            renderItem={({ item }) => {
+              const isJoined = !!joinedEventsMap[String(item.id)];
+              return (
+                <View style={styles.joinEventCard}>
+                  <Image source={{ uri: item.image }} style={styles.joinEventImage} />
+                  <View style={styles.joinEventInfo}>
+                    <Text style={styles.joinEventTitle}>{item.title}</Text>
+                    <Text style={styles.joinEventDate}>{item.date}</Text>
+                    <Text style={styles.joinEventLocation}>{item.location}</Text>
+                  </View>
+                  <TouchableOpacity 
+                    style={[styles.joinBtn, isJoined && { backgroundColor: '#DEF7EC', borderWidth: 1, borderColor: '#10B981' }]}
+                    onPress={() => handleJoinEvent(item)}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={[styles.joinBtnText, isJoined && { color: '#03543F' }]}>
+                      {isJoined ? 'Joined ✓' : 'Join'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              );
+            }}
+          />
         </View>
-        <FlatList
-          data={events}
-          keyExtractor={item => item.id}
-          contentContainerStyle={{ padding: 20 }}
-          renderItem={({ item }) => (
-            <View style={styles.joinEventCard}>
-              <Image source={{ uri: item.image }} style={styles.joinEventImage} />
-              <View style={styles.joinEventInfo}>
-                <Text style={styles.joinEventTitle}>{item.title}</Text>
-                <Text style={styles.joinEventDate}>{item.date}</Text>
-                <Text style={styles.joinEventLocation}>{item.location}</Text>
-              </View>
-              <TouchableOpacity style={styles.joinBtn}>
-                <Text style={styles.joinBtnText}>Join</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        />
       </SafeAreaView>
     );
   }
 
   // ===== MAIN FEED VIEW =====
-  const isDesktop = width >= 1024;
-  const isWeb = Platform.OS === 'web';
-  const webContainerStyle = isWeb ? { alignSelf: 'center', width: '100%', maxWidth: isDesktop ? 1200 : 800, flex: 1 } : { flex: 1 };
 
   const filteredPosts = postsList.filter(p => 
     !blockedUsers.has(p.user_id) && 
@@ -301,9 +368,18 @@ const EngageScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 16, paddingHorizontal: 8 }}>
-            <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} onPress={() => navigation.navigate('PostCreation')}><Ionicons name="image" size={20} color="#10B981" /><Text style={{ color: '#475569', fontSize: 13, fontWeight: '600' }}>Media</Text></TouchableOpacity>
-            <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} onPress={() => setActionSheetVisible(true)}><Ionicons name="calendar" size={20} color="#F59E0B" /><Text style={{ color: '#475569', fontSize: 13, fontWeight: '600' }}>Event</Text></TouchableOpacity>
-            <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} onPress={() => navigation.navigate('PostCreation')}><Ionicons name="newspaper" size={20} color="#3B82F6" /><Text style={{ color: '#475569', fontSize: 13, fontWeight: '600' }}>Article</Text></TouchableOpacity>
+            <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} onPress={() => navigation.navigate('PostCreation')}>
+              <Ionicons name="image" size={20} color="#10B981" />
+              <Text style={{ color: '#475569', fontSize: 13, fontWeight: '600' }}>Media</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} onPress={() => setCurrentView('joinEvent')}>
+              <Ionicons name="calendar" size={20} color="#F59E0B" />
+              <Text style={{ color: '#475569', fontSize: 13, fontWeight: '600' }}>Event</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} onPress={() => navigation.navigate('PostCreation')}>
+              <Ionicons name="newspaper" size={20} color="#3B82F6" />
+              <Text style={{ color: '#475569', fontSize: 13, fontWeight: '600' }}>Article</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -419,16 +495,36 @@ const EngageScreen = ({ navigation }) => {
       <View style={[styles.suggestionsSection, { backgroundColor: '#FFFFFF', borderRadius: 12, padding: 16, marginTop: 16, elevation: 1, shadowOpacity: 0.1, shadowRadius: 4 }]}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Trending Events</Text>
+          <TouchableOpacity onPress={() => setCurrentView('joinEvent')}>
+            <Text style={styles.seeAll}>See all</Text>
+          </TouchableOpacity>
         </View>
-        {events.slice(0, 3).map(e => (
-          <View key={e.id} style={[styles.joinEventCard, { borderWidth: 0, paddingHorizontal: 0, paddingVertical: 8, marginBottom: 0 }]}>
-            <Image source={{ uri: e.image }} style={[styles.joinEventImage, { width: 50, height: 50 }]} />
-            <View style={styles.joinEventInfo}>
-              <Text style={styles.joinEventTitle}>{e.title}</Text>
-              <Text style={styles.joinEventDate}>{e.date}</Text>
-            </View>
-          </View>
-        ))}
+        {events.slice(0, 4).map(e => {
+          const isJoined = !!joinedEventsMap[String(e.id)];
+          return (
+            <TouchableOpacity 
+              key={e.id} 
+              onPress={() => setCurrentView('joinEvent')}
+              style={[styles.joinEventCard, { borderWidth: 0, paddingHorizontal: 0, paddingVertical: 8, marginBottom: 0, flexDirection: 'row', alignItems: 'center' }]}
+              activeOpacity={0.7}
+            >
+              <Image source={{ uri: e.image }} style={[styles.joinEventImage, { width: 44, height: 44, borderRadius: 8, marginRight: 10 }]} />
+              <View style={[styles.joinEventInfo, { flex: 1 }]}>
+                <Text style={[styles.joinEventTitle, { fontSize: 13, fontWeight: '700' }]} numberOfLines={1}>{e.title}</Text>
+                <Text style={[styles.joinEventDate, { fontSize: 11, color: '#64748B' }]}>{e.date} • {e.location}</Text>
+              </View>
+              <TouchableOpacity 
+                style={[styles.joinBtn, { paddingHorizontal: 10, paddingVertical: 5 }, isJoined && { backgroundColor: '#DEF7EC', borderWidth: 1, borderColor: '#10B981' }]}
+                onPress={() => handleJoinEvent(e)}
+                activeOpacity={0.8}
+              >
+                <Text style={[styles.joinBtnText, { fontSize: 11 }, isJoined && { color: '#03543F' }]}>
+                  {isJoined ? 'Joined ✓' : 'Join'}
+                </Text>
+              </TouchableOpacity>
+            </TouchableOpacity>
+          );
+        })}
       </View>
     </View>
   ) : null;

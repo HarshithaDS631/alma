@@ -1145,7 +1145,7 @@ const DashboardScreen = ({ navigation }) => {
             {isDesktop && (
               <TouchableOpacity
                 style={styles.headerIconBtn}
-                onPress={() => navigation.navigate('Events')}
+                onPress={() => navigation.navigate('Main', { screen: 'Post', params: { view: 'events' } })}
                 title="Events & Meetups"
               >
                 <Ionicons name="calendar-outline" size={22} color={theme.primary} />
@@ -1218,7 +1218,7 @@ const DashboardScreen = ({ navigation }) => {
                     <Text style={{ color: theme.textSecondary, fontWeight: '600', fontSize: 13 }}>Connections</Text>
                     <Text style={{ color: theme.primary, fontWeight: '700', fontSize: 13 }}>{connectionsCount}</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }} onPress={() => navigation.navigate('Events')}>
+                  <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }} onPress={() => navigation.navigate('Main', { screen: 'Post', params: { view: 'events' } })}>
                     <Text style={{ color: theme.textSecondary, fontWeight: '600', fontSize: 13 }}>My Events</Text>
                     <Text style={{ color: theme.primary, fontWeight: '700', fontSize: 13 }}>{myEventsCount}</Text>
                   </TouchableOpacity>
@@ -1234,7 +1234,7 @@ const DashboardScreen = ({ navigation }) => {
                     </View>
                     <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>Alumni Events</Text>
                   </View>
-                  <TouchableOpacity onPress={() => navigation.navigate('Events')} activeOpacity={0.7}>
+                  <TouchableOpacity onPress={() => navigation.navigate('Main', { screen: 'Post', params: { view: 'events' } })} activeOpacity={0.7}>
                     <Text style={{ fontSize: 12, color: theme.primary, fontWeight: '700' }}>View all</Text>
                   </TouchableOpacity>
                 </View>
@@ -1243,7 +1243,7 @@ const DashboardScreen = ({ navigation }) => {
                 </Text>
                 <TouchableOpacity
                   style={{ backgroundColor: theme.primary, paddingVertical: 9, borderRadius: 8, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6 }}
-                  onPress={() => navigation.navigate('Events')}
+                  onPress={() => navigation.navigate('Main', { screen: 'Post', params: { view: 'events' } })}
                   activeOpacity={0.8}
                 >
                   <Ionicons name="calendar-outline" size={15} color="#FFFFFF" />
@@ -1426,7 +1426,7 @@ const DashboardScreen = ({ navigation }) => {
 
               <TouchableOpacity 
                 style={[styles.quickPod, { backgroundColor: isDarkMode ? '#131C2E' : '#FFFFFF' }]} 
-                onPress={() => navigation.navigate('Events')}
+                onPress={() => navigation.navigate('Main', { screen: 'Post', params: { view: 'events' } })}
                 activeOpacity={0.75}
               >
                 <View style={[styles.quickPodIconWrap, { backgroundColor: '#8B5CF6', shadowColor: '#8B5CF6' }]}>

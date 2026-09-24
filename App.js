@@ -190,7 +190,6 @@ function MainTabs() {
             if (route.name === 'Engage') iconComp = <MaterialCommunityIcons name={focused ? 'handshake' : 'handshake-outline'} size={20} color={focused ? (isDarkMode ? '#38BDF8' : '#002B5C') : color} />;
             if (route.name === 'Post') iconComp = <Ionicons name={focused ? 'add-circle' : 'add-circle-outline'} size={22} color={focused ? (isDarkMode ? '#38BDF8' : '#002B5C') : color} />;
             if (route.name === 'Jobs') iconComp = <Ionicons name={focused ? 'briefcase' : 'briefcase-outline'} size={20} color={focused ? (isDarkMode ? '#38BDF8' : '#002B5C') : color} />;
-            if (route.name === 'Events') iconComp = <Ionicons name={focused ? 'calendar' : 'calendar-outline'} size={20} color={focused ? (isDarkMode ? '#38BDF8' : '#002B5C') : color} />;
             if (route.name === 'Contribute') iconComp = <MaterialCommunityIcons name={focused ? 'hand-heart' : 'hand-heart-outline'} size={20} color={focused ? (isDarkMode ? '#38BDF8' : '#002B5C') : color} />;
             return (
               <View style={{
@@ -209,18 +208,8 @@ function MainTabs() {
       >
         <Drawer.Screen name="Home" component={DashboardScreen} />
         <Drawer.Screen name="Engage" component={DirectoryScreen} />
-        <Drawer.Screen 
-          name="Post" 
-          component={EngageScreen} 
-          listeners={({ navigation }) => ({
-            drawerItemPress: (e) => {
-              e.preventDefault();
-              navigation.navigate('PostCreation');
-            }
-          })}
-        />
+        <Drawer.Screen name="Post" component={EngageScreen} />
         <Drawer.Screen name="Jobs" component={JobsScreen} />
-        <Drawer.Screen name="Events" component={AdminEventsScreen} options={{ drawerLabel: 'Events' }} />
         <Drawer.Screen name="Contribute" component={ContributeScreen} />
       </Drawer.Navigator>
     );
@@ -258,16 +247,7 @@ function MainTabs() {
     >
       <Tab.Screen name="Home" component={DashboardScreen} />
       <Tab.Screen name="Engage" component={DirectoryScreen} />
-      <Tab.Screen 
-        name="Post" 
-        component={EngageScreen} 
-        listeners={({ navigation }) => ({
-          tabPress: (e) => {
-            e.preventDefault();
-            navigation.navigate('PostCreation');
-          }
-        })}
-      />
+      <Tab.Screen name="Post" component={EngageScreen} />
       <Tab.Screen name="Jobs" component={JobsScreen} />
       <Tab.Screen name="Contribute" component={ContributeScreen} />
     </Tab.Navigator>
