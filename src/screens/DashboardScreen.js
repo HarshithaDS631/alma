@@ -1191,132 +1191,403 @@ const DashboardScreen = ({ navigation }) => {
           // WEB GRID DASHBOARD (3-Column Layout)
           <View style={{ flex: 1, padding: 24, flexDirection: 'row', gap: 24 }}>
             
-            {/* 1. Left Column: Profile Context */}
+            {/* 1. Left Column: Profile Card & Alumni Hub */}
             <View style={{ flex: 3 }}>
-              <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 20, elevation: 2, borderWidth: 1, borderColor: theme.border, marginBottom: 16, alignItems: 'center' }}>
-                <TouchableOpacity 
-                  style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', marginBottom: 12, overflow: 'hidden', shadowColor: theme.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8 }}
-                  onPress={() => navigation.navigate('Profile')}
-                  activeOpacity={0.8}
-                >
-                  {userAvatarUrl ? (
-                    <Image source={{ uri: userAvatarUrl }} style={{ width: 72, height: 72, borderRadius: 36 }} />
-                  ) : (
-                    <Text style={{ fontSize: 24, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(userName || currentUser?.name || currentUser?.email || 'User')}</Text>
-                  )}
-                </TouchableOpacity>
-                <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>{userName || 'Alumni Member'}</Text>
-                <Text style={{ fontSize: 13, color: theme.textSecondary, textAlign: 'center', marginTop: 6, lineHeight: 18 }}>
-                  {currentUser?.designation || 'Alumni Member'}
-                  {currentUser?.company || currentUser?.institution ? `\n@ ${currentUser.company || currentUser.institution}` : ''}
-                </Text>
-                
-                <View style={{ width: '100%', height: 1, backgroundColor: theme.border, marginVertical: 16 }} />
-                
-                <View style={{ width: '100%', gap: 12 }}>
-                  <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }} onPress={() => navigation.navigate('Profile')}>
-                    <Text style={{ color: theme.textSecondary, fontWeight: '600', fontSize: 13 }}>Connections</Text>
-                    <Text style={{ color: theme.primary, fontWeight: '700', fontSize: 13 }}>{connectionsCount}</Text>
+              {/* Profile Card with Cover Banner */}
+              <View style={{ backgroundColor: theme.card, borderRadius: 16, elevation: 3, borderWidth: 1, borderColor: theme.border, marginBottom: 18, overflow: 'hidden' }}>
+                {/* Cover Banner */}
+                <View style={{ height: 75, backgroundColor: '#002B5C', position: 'relative' }}>
+                  <View style={{ position: 'absolute', right: -20, top: -30, width: 110, height: 110, borderRadius: 55, backgroundColor: 'rgba(255,255,255,0.08)' }} />
+                  <View style={{ position: 'absolute', left: 24, bottom: -12, width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(251,191,36,0.18)' }} />
+                </View>
+
+                {/* Overlapping Avatar & Info */}
+                <View style={{ alignItems: 'center', marginTop: -38, paddingHorizontal: 16, paddingBottom: 18 }}>
+                  <TouchableOpacity 
+                    style={{ width: 76, height: 76, borderRadius: 38, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', borderWidth: 3.5, borderColor: theme.card, shadowColor: '#000', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.15, shadowRadius: 6, overflow: 'hidden' }}
+                    onPress={() => navigation.navigate('Profile')}
+                    activeOpacity={0.8}
+                  >
+                    {userAvatarUrl ? (
+                      <Image source={{ uri: userAvatarUrl }} style={{ width: 76, height: 76, borderRadius: 38 }} />
+                    ) : (
+                      <Text style={{ fontSize: 24, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(userName || currentUser?.name || currentUser?.email || 'User')}</Text>
+                    )}
                   </TouchableOpacity>
-                  <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }} onPress={() => navigation.navigate('Main', { screen: 'Post', params: { view: 'events' } })}>
-                    <Text style={{ color: theme.textSecondary, fontWeight: '600', fontSize: 13 }}>My Events</Text>
-                    <Text style={{ color: theme.primary, fontWeight: '700', fontSize: 13 }}>{myEventsCount}</Text>
+
+                  {/* Name with Verified Badge */}
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10, gap: 5 }}>
+                    <Text style={{ fontSize: 17, fontWeight: '800', color: theme.text }}>{userName || 'Alumni Member'}</Text>
+                    <Ionicons name="checkmark-circle" size={17} color="#0284C7" />
+                  </View>
+
+                  <Text style={{ fontSize: 12.5, color: theme.textSecondary, textAlign: 'center', marginTop: 4, lineHeight: 18 }}>
+                    {currentUser?.designation || 'Alumni Member'}
+                    {currentUser?.company ? ` @ ${currentUser.company}` : (currentUser?.institution ? `\n@ ${currentUser.institution}` : '')}
+                  </Text>
+
+                  <View style={{ width: '100%', height: 1, backgroundColor: theme.border, marginVertical: 14 }} />
+
+                  {/* Dual Stat Pod */}
+                  <View style={{ width: '100%', flexDirection: 'row', gap: 10 }}>
+                    <TouchableOpacity 
+                      style={{ flex: 1, backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderRadius: 10, paddingVertical: 10, paddingHorizontal: 12, alignItems: 'center', borderWidth: 1, borderColor: theme.border }}
+                      onPress={() => navigation.navigate('Profile')}
+                    >
+                      <Text style={{ color: theme.primary, fontWeight: '800', fontSize: 16 }}>{connectionsCount}</Text>
+                      <Text style={{ color: theme.textSecondary, fontWeight: '600', fontSize: 11, marginTop: 2 }}>Connections</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity 
+                      style={{ flex: 1, backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderRadius: 10, paddingVertical: 10, paddingHorizontal: 12, alignItems: 'center', borderWidth: 1, borderColor: theme.border }}
+                      onPress={() => navigation.navigate('Main', { screen: 'Post', params: { view: 'events' } })}
+                    >
+                      <Text style={{ color: '#D97706', fontWeight: '800', fontSize: 16 }}>{myEventsCount}</Text>
+                      <Text style={{ color: theme.textSecondary, fontWeight: '600', fontSize: 11, marginTop: 2 }}>Events</Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  {/* View Profile Action */}
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate('Profile')}
+                    style={{ width: '100%', marginTop: 14, backgroundColor: isDarkMode ? '#1E293B' : '#EFF6FF', borderRadius: 10, paddingVertical: 9, alignItems: 'center', borderWidth: 1, borderColor: isDarkMode ? '#334155' : '#BFDBFE' }}
+                  >
+                    <Text style={{ fontSize: 12.5, fontWeight: '700', color: theme.primary }}>View Full Profile</Text>
                   </TouchableOpacity>
                 </View>
               </View>
-            </View>
 
-            {/* 2. Middle Column: Main Feed */}
-            <View style={{ flex: 6 }}>
-              {/* Create Post Widget */}
-              <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 16, elevation: 2, borderWidth: 1, borderColor: theme.border, marginBottom: 24, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              {/* Alumni Hub Quick Navigation */}
+              <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 16, elevation: 2, borderWidth: 1, borderColor: theme.border }}>
+                <Text style={{ fontSize: 12, fontWeight: '800', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>
+                  Alumni Hub
+                </Text>
+                
                 <TouchableOpacity 
-                  style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}
-                  onPress={() => navigation.navigate('Profile')}
-                  activeOpacity={0.8}
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 9, gap: 10 }}
+                  onPress={() => navigation.navigate('Main', { screen: 'Jobs' })}
                 >
-                  {userAvatarUrl ? (
-                    <Image source={{ uri: userAvatarUrl }} style={{ width: 44, height: 44, borderRadius: 22 }} />
-                  ) : (
-                    <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(userName || currentUser?.name || currentUser?.email || 'User')}</Text>
-                  )}
+                  <View style={{ width: 34, height: 34, borderRadius: 9, backgroundColor: '#EFF6FF', justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name="briefcase" size={17} color="#0284C7" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }}>Job Board</Text>
+                    <Text style={{ fontSize: 11, color: theme.textMuted }}>Explore alumni referrals</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={14} color={theme.textMuted} />
                 </TouchableOpacity>
+
                 <TouchableOpacity 
-                  style={{ flex: 1, backgroundColor: theme.inputBackground, borderRadius: 24, paddingHorizontal: 16, paddingVertical: 12, borderWidth: 1, borderColor: theme.border }}
-                  onPress={() => navigation.navigate('PostCreation')}
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 9, gap: 10 }}
+                  onPress={() => navigation.navigate('Main', { screen: 'Engage', params: { tab: 'directory' } })}
                 >
-                  <Text style={{ color: theme.textMuted, fontSize: 14 }}>Start a post or share an update...</Text>
+                  <View style={{ width: 34, height: 34, borderRadius: 9, backgroundColor: '#F0FDF4', justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name="people" size={17} color="#16A34A" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }}>Alumni Directory</Text>
+                    <Text style={{ fontSize: 11, color: theme.textMuted }}>Connect with batchmates</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={14} color={theme.textMuted} />
                 </TouchableOpacity>
+
                 <TouchableOpacity 
-                  style={{ padding: 8, backgroundColor: theme.background, borderRadius: 20 }}
-                  onPress={() => navigation.navigate('PostCreation')}
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 9, gap: 10 }}
+                  onPress={() => navigation.navigate('Main', { screen: 'Contribute' })}
                 >
-                  <Ionicons name="image-outline" size={20} color={theme.primary} />
+                  <View style={{ width: 34, height: 34, borderRadius: 9, backgroundColor: '#FEF3C7', justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name="heart" size={17} color="#D97706" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }}>Giving & Mentorship</Text>
+                    <Text style={{ fontSize: 11, color: theme.textMuted }}>Support your alma mater</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={14} color={theme.textMuted} />
                 </TouchableOpacity>
               </View>
+            </View>
 
+            {/* 2. Middle Column: Main Feed & Composer */}
+            <View style={{ flex: 6 }}>
+              {/* Modern Post Composer */}
+              <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 16, elevation: 2, borderWidth: 1, borderColor: theme.border, marginBottom: 20 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                  <TouchableOpacity 
+                    style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}
+                    onPress={() => navigation.navigate('Profile')}
+                    activeOpacity={0.8}
+                  >
+                    {userAvatarUrl ? (
+                      <Image source={{ uri: userAvatarUrl }} style={{ width: 44, height: 44, borderRadius: 22 }} />
+                    ) : (
+                      <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(userName || currentUser?.name || currentUser?.email || 'User')}</Text>
+                    )}
+                  </TouchableOpacity>
+
+                  <TouchableOpacity 
+                    style={{ flex: 1, backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9', borderRadius: 24, paddingHorizontal: 16, paddingVertical: 12, borderWidth: 1, borderColor: theme.border }}
+                    onPress={() => navigation.navigate('PostCreation')}
+                  >
+                    <Text style={{ color: theme.textMuted, fontSize: 13.5 }}>Start a post or share an update with alumni...</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* 4 Interactive Media Pills */}
+                <View style={{ flexDirection: 'row', justifyContent: 'space-around', borderTopWidth: 1, borderTopColor: theme.border, paddingTop: 10 }}>
+                  <TouchableOpacity 
+                    style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 8 }}
+                    onPress={() => navigation.navigate('PostCreation')}
+                  >
+                    <Ionicons name="image" size={18} color="#2563EB" />
+                    <Text style={{ fontSize: 12.5, fontWeight: '700', color: theme.textSecondary }}>Photo</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity 
+                    style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 8 }}
+                    onPress={() => navigation.navigate('PostCreation')}
+                  >
+                    <Ionicons name="videocam" size={18} color="#16A34A" />
+                    <Text style={{ fontSize: 12.5, fontWeight: '700', color: theme.textSecondary }}>Video</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity 
+                    style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 8 }}
+                    onPress={() => navigation.navigate('Main', { screen: 'Post', params: { view: 'events' } })}
+                  >
+                    <Ionicons name="calendar" size={18} color="#D97706" />
+                    <Text style={{ fontSize: 12.5, fontWeight: '700', color: theme.textSecondary }}>Event</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity 
+                    style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 8 }}
+                    onPress={() => navigation.navigate('PostCreation')}
+                  >
+                    <Ionicons name="newspaper" size={18} color="#9333EA" />
+                    <Text style={{ fontSize: 12.5, fontWeight: '700', color: theme.textSecondary }}>Article</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Feed Content */}
               <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
                 {posts.length > 0 ? (
                   posts.map(post => renderPostCard(post))
                 ) : (
-                  <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 24, alignItems: 'center', marginVertical: 12, borderWidth: 1, borderColor: theme.border }}>
-                    <Ionicons name="people-outline" size={48} color={theme.primary} style={{ marginBottom: 12 }} />
-                    <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text, marginBottom: 6, textAlign: 'center' }}>No Followed Alumni Posts Yet</Text>
-                    <Text style={{ fontSize: 13, color: theme.textMuted, textAlign: 'center', lineHeight: 18, marginBottom: 16 }}>Follow alumni members from &quot;People you may know&quot; or the Directory to view their posts in your feed!</Text>
-                    <TouchableOpacity 
-                      style={{ backgroundColor: theme.primary, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20 }}
-                      onPress={() => navigation.navigate('Engage', { tab: 'directory' })}
-                    >
-                      <Text style={{ color: '#FFF', fontWeight: '600', fontSize: 13 }}>Explore Alumni Directory</Text>
-                    </TouchableOpacity>
+                  <View>
+                    {/* Welcome Hero Banner */}
+                    <View style={{ backgroundColor: isDarkMode ? '#1E293B' : '#EFF6FF', borderRadius: 16, padding: 20, borderWidth: 1, borderColor: isDarkMode ? '#334155' : '#BFDBFE', marginBottom: 18 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                        <Ionicons name="sparkles" size={20} color="#003366" />
+                        <Text style={{ fontSize: 16, fontWeight: '800', color: '#003366' }}>
+                          Welcome to the Alumni Feed, {userName?.split(' ')[0] || 'Member'}! 👋
+                        </Text>
+                      </View>
+                      <Text style={{ fontSize: 13, color: '#334155', lineHeight: 20, marginBottom: 14 }}>
+                        Connect with fellow graduates, celebrate batch achievements, and stay updated on reunions and exclusive alumni hiring opportunities.
+                      </Text>
+                      <View style={{ flexDirection: 'row', gap: 10 }}>
+                        <TouchableOpacity 
+                          style={{ backgroundColor: '#003366', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8 }}
+                          onPress={() => navigation.navigate('Engage', { tab: 'directory' })}
+                        >
+                          <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 12.5 }}>Find Batchmates</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity 
+                          style={{ backgroundColor: theme.card, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8, borderWidth: 1, borderColor: theme.border }}
+                          onPress={() => navigation.navigate('PostCreation')}
+                        >
+                          <Text style={{ color: theme.text, fontWeight: '700', fontSize: 12.5 }}>Share First Post</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+
+                    {/* Featured Community Post 1: Global Reunion Announcement */}
+                    <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 18, elevation: 2, borderWidth: 1, borderColor: theme.border, marginBottom: 18 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+                        <View style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: '#002B5C', justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
+                          <Ionicons name="school" size={20} color="#FBBF24" />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                            <Text style={{ fontSize: 14, fontWeight: '800', color: theme.text }}>RV Alumni Association</Text>
+                            <Ionicons name="checkmark-circle" size={14} color="#0284C7" />
+                          </View>
+                          <Text style={{ fontSize: 11, color: theme.textMuted }}>Official Announcement • Just now</Text>
+                        </View>
+                      </View>
+
+                      <Text style={{ fontSize: 13.5, color: theme.text, lineHeight: 21, marginBottom: 12 }}>
+                        📢 <Text style={{ fontWeight: '700' }}>Annual Global Alumni Meet 2026 Announced!</Text>{'\n'}
+                        Join over 4,000 alumni across engineering, management, and research chapters for an inspiring day of networking, visionary keynotes, and reunions on campus.
+                      </Text>
+
+                      <View style={{ backgroundColor: isDarkMode ? '#0F172A' : '#F8FAFC', borderRadius: 12, padding: 14, borderWidth: 1, borderColor: theme.border, marginBottom: 14 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                            <Ionicons name="calendar-outline" size={18} color="#003366" />
+                            <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }}>October 24, 2026 • 10:00 AM</Text>
+                          </View>
+                          <TouchableOpacity 
+                            onPress={() => navigation.navigate('Main', { screen: 'Post', params: { view: 'events' } })}
+                            style={{ backgroundColor: '#003366', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 }}
+                          >
+                            <Text style={{ color: '#FFFFFF', fontSize: 11.5, fontWeight: '700' }}>Join / RSVP</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+
+                      <View style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: theme.border, paddingTop: 10, justifyContent: 'space-around' }}>
+                        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                          <Ionicons name="heart-outline" size={18} color={theme.textMuted} />
+                          <Text style={{ fontSize: 12, color: theme.textMuted, fontWeight: '600' }}>142 Likes</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                          <Ionicons name="chatbubble-outline" size={18} color={theme.textMuted} />
+                          <Text style={{ fontSize: 12, color: theme.textMuted, fontWeight: '600' }}>28 Comments</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                          <Ionicons name="share-social-outline" size={18} color={theme.textMuted} />
+                          <Text style={{ fontSize: 12, color: theme.textMuted, fontWeight: '600' }}>Share</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+
+                    {/* Featured Community Post 2: Alumni Spotlight & Career Referrals */}
+                    <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 18, elevation: 2, borderWidth: 1, borderColor: theme.border, marginBottom: 18 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+                        <View style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: '#059669', justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
+                          <Ionicons name="briefcase" size={20} color="#FFFFFF" />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                            <Text style={{ fontSize: 14, fontWeight: '800', color: theme.text }}>Career & Venture Spotlight</Text>
+                            <Ionicons name="checkmark-circle" size={14} color="#0284C7" />
+                          </View>
+                          <Text style={{ fontSize: 11, color: theme.textMuted }}>RV Innovation Cell • 2 hrs ago</Text>
+                        </View>
+                      </View>
+
+                      <Text style={{ fontSize: 13.5, color: theme.text, lineHeight: 21, marginBottom: 12 }}>
+                        🚀 <Text style={{ fontWeight: '700' }}>Alumni Hiring Initiative:</Text> EcoGrid Solutions (founded by RVCE Batch &apos;18 alumni) is expanding! They are opening 12 exclusive referral roles across Cloud, AI Engineering, and Product Management for RV graduates.
+                      </Text>
+
+                      <View style={{ flexDirection: 'row', gap: 6, marginBottom: 14 }}>
+                        <View style={{ backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 }}>
+                          <Text style={{ fontSize: 11, fontWeight: '600', color: theme.primary }}>#RVCEAlumni</Text>
+                        </View>
+                        <View style={{ backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 }}>
+                          <Text style={{ fontSize: 11, fontWeight: '600', color: theme.primary }}>#HiringReferrals</Text>
+                        </View>
+                        <View style={{ backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 }}>
+                          <Text style={{ fontSize: 11, fontWeight: '600', color: theme.primary }}>#TechCareers</Text>
+                        </View>
+                      </View>
+
+                      <View style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: theme.border, paddingTop: 10, justifyContent: 'space-between', alignItems: 'center' }}>
+                        <View style={{ flexDirection: 'row', gap: 14 }}>
+                          <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                            <Ionicons name="heart-outline" size={18} color={theme.textMuted} />
+                            <Text style={{ fontSize: 12, color: theme.textMuted, fontWeight: '600' }}>89</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                            <Ionicons name="chatbubble-outline" size={18} color={theme.textMuted} />
+                            <Text style={{ fontSize: 12, color: theme.textMuted, fontWeight: '600' }}>19</Text>
+                          </TouchableOpacity>
+                        </View>
+
+                        <TouchableOpacity 
+                          onPress={() => navigation.navigate('Main', { screen: 'Jobs' })}
+                          style={{ backgroundColor: '#ECFDF5', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, borderWidth: 1, borderColor: '#059669' }}
+                        >
+                          <Text style={{ fontSize: 11.5, fontWeight: '700', color: '#059669' }}>View Job Openings</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
                   </View>
                 )}
               </ScrollView>
             </View>
 
-            {/* 3. Right Column: Suggestions + Footer */}
-            <View style={{ flex: 3.5, paddingLeft: 8 }}>
-              {/* Suggestions Header */}
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                <Text style={{ fontSize: 14, fontWeight: '700', color: theme.textSecondary }}>Suggested for you</Text>
-                <TouchableOpacity onPress={() => navigation.navigate('Engage', { tab: 'directory' })} activeOpacity={0.7}>
-                  <Text style={{ fontSize: 12, color: theme.text, fontWeight: '700' }}>See all</Text>
+            {/* 3. Right Column: Curated Suggestions & Campus Buzz */}
+            <View style={{ flex: 3.5, paddingLeft: 4 }}>
+              {/* Curated Suggestions Box */}
+              <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 18, elevation: 2, borderWidth: 1, borderColor: theme.border, marginBottom: 18 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                  <Text style={{ fontSize: 14, fontWeight: '800', color: theme.text }}>Suggested for you</Text>
+                  <TouchableOpacity onPress={() => navigation.navigate('Engage', { tab: 'directory' })} activeOpacity={0.7}>
+                    <Text style={{ fontSize: 12, color: theme.primary, fontWeight: '700' }}>See all</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* Suggestions List (Dynamic or Curated Fallback) */}
+                {((suggestions && suggestions.length > 0) ? suggestions.slice(0, 4) : [
+                  { id: 'sugg-1', name: 'Dr. Vikram Sethi', subtitle: 'VP Engineering @ Google (Batch \'14)', avatar: 'VS', isAvatarUrl: false },
+                  { id: 'sugg-2', name: 'Ananya Sen', subtitle: 'Founder @ CleanTech Labs (Batch \'18)', avatar: 'AS', isAvatarUrl: false },
+                  { id: 'sugg-3', name: 'Karthik Raja', subtitle: 'Product Manager @ Microsoft (Batch \'16)', avatar: 'KR', isAvatarUrl: false },
+                  { id: 'sugg-4', name: 'Pooja Hegde', subtitle: 'AI Engineer @ NVIDIA (Batch \'20)', avatar: 'PH', isAvatarUrl: false },
+                ]).map(s => (
+                  <View key={s.id} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 8 }}>
+                      <View style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: '#002B5C', justifyContent: 'center', alignItems: 'center', marginRight: 10, overflow: 'hidden' }}>
+                        {s.isAvatarUrl ? (
+                          <Image source={{ uri: s.avatar }} style={{ width: 38, height: 38, borderRadius: 19 }} />
+                        ) : (
+                          <Text style={{ fontWeight: '700', color: '#FFFFFF', fontSize: 12 }}>{s.avatar || getInitials(s.name)}</Text>
+                        )}
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }} numberOfLines={1}>{s.name}</Text>
+                        <Text style={{ fontSize: 11, color: theme.textSecondary }} numberOfLines={1}>
+                          {s.subtitle || (followingMap[s.id] ? 'Followed by you' : 'Alumni Member')}
+                        </Text>
+                      </View>
+                    </View>
+                    <TouchableOpacity onPress={() => toggleSuggestionFollow(s.id)} activeOpacity={0.7}>
+                      <Text style={{ color: followingMap[s.id] ? theme.textSecondary : '#0284C7', fontSize: 12, fontWeight: '700' }}>
+                        {followingMap[s.id] ? 'Following' : '+ Connect'}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
+
+              {/* Trending Campus Buzz */}
+              <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 18, elevation: 2, borderWidth: 1, borderColor: theme.border, marginBottom: 18 }}>
+                <Text style={{ fontSize: 13, fontWeight: '800', color: theme.text, marginBottom: 12 }}>
+                  🔥 Trending in Alumni Network
+                </Text>
+
+                <TouchableOpacity 
+                  style={{ marginBottom: 10 }}
+                  onPress={() => navigation.navigate('Engage', { tab: 'directory' })}
+                >
+                  <Text style={{ fontSize: 12.5, fontWeight: '700', color: theme.primary }}>#RVCEHackathon2026</Text>
+                  <Text style={{ fontSize: 11, color: theme.textMuted }}>148 alumni mentoring students</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={{ marginBottom: 10 }}
+                  onPress={() => navigation.navigate('Main', { screen: 'Jobs' })}
+                >
+                  <Text style={{ fontSize: 12.5, fontWeight: '700', color: theme.primary }}>#AlumniReferrals</Text>
+                  <Text style={{ fontSize: 11, color: theme.textMuted }}>92 new openings posted</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  onPress={() => navigation.navigate('Main', { screen: 'Post', params: { view: 'events' } })}
+                >
+                  <Text style={{ fontSize: 12.5, fontWeight: '700', color: theme.primary }}>#GlobalReunions</Text>
+                  <Text style={{ fontSize: 11, color: theme.textMuted }}>54 attendees registered today</Text>
                 </TouchableOpacity>
               </View>
 
-              {/* Suggestions List */}
-              {suggestions.slice(0, 5).map(s => (
-                <View key={s.id} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 8 }}>
-                    <View style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: theme.border, justifyContent: 'center', alignItems: 'center', marginRight: 10, overflow: 'hidden' }}>
-                      {s.isAvatarUrl ? (
-                        <Image source={{ uri: s.avatar }} style={{ width: 38, height: 38, borderRadius: 19 }} />
-                      ) : (
-                        <Text style={{ fontWeight: '700', color: theme.textSecondary, fontSize: 12 }}>{s.avatar}</Text>
-                      )}
-                    </View>
-                    <View style={{ flex: 1 }}>
-                      <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }} numberOfLines={1}>{s.name}</Text>
-                      <Text style={{ fontSize: 11, color: theme.textSecondary }} numberOfLines={1}>
-                        {followingMap[s.id] ? 'Followed by you' : 'Suggested for you'}
-                      </Text>
-                    </View>
-                  </View>
-                  <TouchableOpacity onPress={() => toggleSuggestionFollow(s.id)} activeOpacity={0.7}>
-                    <Text style={{ color: followingMap[s.id] ? theme.textSecondary : '#0095F6', fontSize: 12, fontWeight: '700' }}>
-                      {followingMap[s.id] ? 'Following' : 'Follow'}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
-
-              {/* Instagram Style Footer Links */}
-              <View style={{ marginTop: 24 }}>
+              {/* Footer Links */}
+              <View style={{ paddingHorizontal: 6 }}>
                 <Text style={{ fontSize: 11, color: '#94A3B8', lineHeight: 18 }}>
-                  About • Help • Press • API • Jobs • Privacy • Terms • Locations • Language • Verified
+                  About • Guidelines • Career Hub • Privacy Policy • Terms • Institutional Verification
                 </Text>
-                <Text style={{ fontSize: 11, color: '#94A3B8', marginTop: 12, fontWeight: '500' }}>
-                  © 2026 ALUMNI PORTAL
+                <Text style={{ fontSize: 11, color: '#94A3B8', marginTop: 8, fontWeight: '500' }}>
+                  © 2026 RASHTREEYA SIKSHANA SAMITHI TRUST
                 </Text>
               </View>
             </View>

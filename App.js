@@ -5,11 +5,12 @@ import { ThemeProvider, useTheme } from './src/theme/ThemeContext';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import { useWindowDimensions } from 'react-native';
+import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
+import { useWindowDimensions, View, Platform, Text, Alert, Image, TouchableOpacity } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { View, Platform, Text, Alert } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import getInitials from './src/lib/getInitials';
 
 // Polyfill Alert for web to prevent crashes and ensure button interactivity
 if (Platform.OS === 'web') {
@@ -153,6 +154,98 @@ function Render3DTabIcon({ name, focused, isDarkMode, theme, isPost, label, isMa
   );
 }
 
+// Custom Drawer Content for Web/Desktop
+function CustomDrawerContent(props) {
+  const { theme, isDarkMode } = useTheme();
+  const [currentUser, setCurrentUser] = React.useState(null);
+
+  React.useEffect(() => {
+    AsyncStorage.getItem('userInfo').then(str => {
+      if (str) setCurrentUser(JSON.parse(str));
+    }).catch(() => {});
+  }, []);
+
+  return (
+    <View style={{ flex: 1, backgroundColor: theme.card }}>
+      {/* Top Brand Header */}
+      <View style={{ paddingHorizontal: 16, paddingTop: 20, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: theme.border }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <View style={{
+            width: 40,
+            height: 40,
+            borderRadius: 12,
+            backgroundColor: '#002B5C',
+            justifyContent: 'center',
+            alignItems: 'center',
+            shadowColor: '#002B5C',
+            shadowOffset: { width: 0, height: 3 },
+            shadowOpacity: 0.25,
+            shadowRadius: 5,
+            elevation: 3
+          }}>
+            <Ionicons name="school" size={20} color="#FBBF24" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 15, fontWeight: '800', color: theme.text, letterSpacing: -0.2 }}>RV ALUMNI</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 2 }}>
+              <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#10B981', marginRight: 5 }} />
+              <Text style={{ fontSize: 11, fontWeight: '600', color: theme.textMuted }}>Official Portal</Text>
+            </View>
+          </View>
+        </View>
+      </View>
+
+      {/* Navigation List */}
+      <DrawerContentScrollView {...props} contentContainerStyle={{ paddingTop: 8 }}>
+        <DrawerItemList {...props} />
+      </DrawerContentScrollView>
+
+      {/* Bottom Profile Widget */}
+      <View style={{ padding: 12, borderTopWidth: 1, borderTopColor: theme.border }}>
+        <TouchableOpacity
+          onPress={() => props.navigation.navigate('Profile')}
+          activeOpacity={0.8}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+            borderRadius: 12,
+            padding: 10,
+            borderWidth: 1,
+            borderColor: theme.border
+          }}
+        >
+          <View style={{
+            width: 36,
+            height: 36,
+            borderRadius: 18,
+            backgroundColor: '#003366',
+            justifyContent: 'center',
+            alignItems: 'center',
+            overflow: 'hidden',
+            marginRight: 10
+          }}>
+            {(currentUser?.avatar_url || currentUser?.profilePicture) ? (
+              <Image source={{ uri: currentUser.avatar_url || currentUser.profilePicture }} style={{ width: 36, height: 36, borderRadius: 18 }} />
+            ) : (
+              <Text style={{ fontSize: 13, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(currentUser?.name, 'AL')}</Text>
+            )}
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }} numberOfLines={1}>
+              {currentUser?.name || 'Alumni Member'}
+            </Text>
+            <Text style={{ fontSize: 11, color: theme.textMuted }} numberOfLines={1}>
+              {currentUser?.role || 'Alumni'} • Profile
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={16} color={theme.textMuted} />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
 // ===== ALUMNI TABS/DRAWER =====
 function MainTabs() {
   const { theme, isDarkMode } = useTheme();
@@ -164,27 +257,26 @@ function MainTabs() {
   if (showDrawer) {
     return (
       <Drawer.Navigator
+        drawerContent={(props) => <CustomDrawerContent {...props} />}
         screenOptions={({ route }) => ({
           headerShown: false,
           drawerType: 'permanent',
           drawerStyle: {
-            width: 240,
+            width: 255,
             borderRightWidth: 1.5,
             borderRightColor: theme.cardBorder || theme.border,
             backgroundColor: theme.card,
-            paddingTop: 20,
-            paddingHorizontal: 12,
           },
           drawerItemStyle: {
-            borderRadius: 20,
-            paddingHorizontal: 12,
-            marginVertical: 4,
+            borderRadius: 12,
+            paddingHorizontal: 10,
+            marginVertical: 3,
           },
           drawerActiveBackgroundColor: isDarkMode ? 'rgba(56, 189, 248, 0.14)' : 'rgba(0, 43, 92, 0.08)',
           drawerActiveTintColor: isDarkMode ? '#38BDF8' : '#002B5C',
           drawerInactiveTintColor: isDarkMode ? '#94A3B8' : '#64748B',
-          drawerLabelStyle: { fontSize: 15, fontWeight: '700', marginLeft: -6 },
-          drawerIcon: ({ focused, color, size }) => {
+          drawerLabelStyle: { fontSize: 14, fontWeight: '700', marginLeft: -4 },
+          drawerIcon: ({ focused, color }) => {
             let iconComp = null;
             if (route.name === 'Home') iconComp = <Ionicons name={focused ? 'home' : 'home-outline'} size={20} color={focused ? (isDarkMode ? '#38BDF8' : '#002B5C') : color} />;
             if (route.name === 'Engage') iconComp = <MaterialCommunityIcons name={focused ? 'handshake' : 'handshake-outline'} size={20} color={focused ? (isDarkMode ? '#38BDF8' : '#002B5C') : color} />;
@@ -193,9 +285,9 @@ function MainTabs() {
             if (route.name === 'Contribute') iconComp = <MaterialCommunityIcons name={focused ? 'hand-heart' : 'hand-heart-outline'} size={20} color={focused ? (isDarkMode ? '#38BDF8' : '#002B5C') : color} />;
             return (
               <View style={{
-                width: 34,
-                height: 34,
-                borderRadius: 10,
+                width: 32,
+                height: 32,
+                borderRadius: 9,
                 backgroundColor: focused ? (isDarkMode ? 'rgba(56, 189, 248, 0.2)' : 'rgba(0, 43, 92, 0.12)') : 'transparent',
                 justifyContent: 'center',
                 alignItems: 'center'
