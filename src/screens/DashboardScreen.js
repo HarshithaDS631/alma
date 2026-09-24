@@ -1400,117 +1400,14 @@ const DashboardScreen = ({ navigation }) => {
                         </TouchableOpacity>
                       </View>
                     </View>
-
-                    {/* Featured Community Post 1: Global Reunion Announcement */}
-                    <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 18, elevation: 2, borderWidth: 1, borderColor: theme.border, marginBottom: 18 }}>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-                        <View style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: '#002B5C', justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
-                          <Ionicons name="school" size={20} color="#FBBF24" />
-                        </View>
-                        <View style={{ flex: 1 }}>
-                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                            <Text style={{ fontSize: 14, fontWeight: '800', color: theme.text }}>RV Alumni Association</Text>
-                            <Ionicons name="checkmark-circle" size={14} color="#0284C7" />
-                          </View>
-                          <Text style={{ fontSize: 11, color: theme.textMuted }}>Official Announcement • Just now</Text>
-                        </View>
-                      </View>
-
-                      <Text style={{ fontSize: 13.5, color: theme.text, lineHeight: 21, marginBottom: 12 }}>
-                        📢 <Text style={{ fontWeight: '700' }}>Annual Global Alumni Meet 2026 Announced!</Text>{'\n'}
-                        Join over 4,000 alumni across engineering, management, and research chapters for an inspiring day of networking, visionary keynotes, and reunions on campus.
-                      </Text>
-
-                      <View style={{ backgroundColor: isDarkMode ? '#0F172A' : '#F8FAFC', borderRadius: 12, padding: 14, borderWidth: 1, borderColor: theme.border, marginBottom: 14 }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                            <Ionicons name="calendar-outline" size={18} color="#003366" />
-                            <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }}>October 24, 2026 • 10:00 AM</Text>
-                          </View>
-                          <TouchableOpacity 
-                            onPress={() => navigation.navigate('Main', { screen: 'Post', params: { view: 'events' } })}
-                            style={{ backgroundColor: '#003366', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 }}
-                          >
-                            <Text style={{ color: '#FFFFFF', fontSize: 11.5, fontWeight: '700' }}>Join / RSVP</Text>
-                          </TouchableOpacity>
-                        </View>
-                      </View>
-
-                      <View style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: theme.border, paddingTop: 10, justifyContent: 'space-around' }}>
-                        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                          <Ionicons name="heart-outline" size={18} color={theme.textMuted} />
-                          <Text style={{ fontSize: 12, color: theme.textMuted, fontWeight: '600' }}>142 Likes</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                          <Ionicons name="chatbubble-outline" size={18} color={theme.textMuted} />
-                          <Text style={{ fontSize: 12, color: theme.textMuted, fontWeight: '600' }}>28 Comments</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                          <Ionicons name="share-social-outline" size={18} color={theme.textMuted} />
-                          <Text style={{ fontSize: 12, color: theme.textMuted, fontWeight: '600' }}>Share</Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-
-                    {/* Featured Community Post 2: Alumni Spotlight & Career Referrals */}
-                    <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 18, elevation: 2, borderWidth: 1, borderColor: theme.border, marginBottom: 18 }}>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-                        <View style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: '#059669', justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
-                          <Ionicons name="briefcase" size={20} color="#FFFFFF" />
-                        </View>
-                        <View style={{ flex: 1 }}>
-                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                            <Text style={{ fontSize: 14, fontWeight: '800', color: theme.text }}>Career & Venture Spotlight</Text>
-                            <Ionicons name="checkmark-circle" size={14} color="#0284C7" />
-                          </View>
-                          <Text style={{ fontSize: 11, color: theme.textMuted }}>RV Innovation Cell • 2 hrs ago</Text>
-                        </View>
-                      </View>
-
-                      <Text style={{ fontSize: 13.5, color: theme.text, lineHeight: 21, marginBottom: 12 }}>
-                        🚀 <Text style={{ fontWeight: '700' }}>Alumni Hiring Initiative:</Text> EcoGrid Solutions (founded by RVCE Batch &apos;18 alumni) is expanding! They are opening 12 exclusive referral roles across Cloud, AI Engineering, and Product Management for RV graduates.
-                      </Text>
-
-                      <View style={{ flexDirection: 'row', gap: 6, marginBottom: 14 }}>
-                        <View style={{ backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 }}>
-                          <Text style={{ fontSize: 11, fontWeight: '600', color: theme.primary }}>#RVCEAlumni</Text>
-                        </View>
-                        <View style={{ backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 }}>
-                          <Text style={{ fontSize: 11, fontWeight: '600', color: theme.primary }}>#HiringReferrals</Text>
-                        </View>
-                        <View style={{ backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 }}>
-                          <Text style={{ fontSize: 11, fontWeight: '600', color: theme.primary }}>#TechCareers</Text>
-                        </View>
-                      </View>
-
-                      <View style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: theme.border, paddingTop: 10, justifyContent: 'space-between', alignItems: 'center' }}>
-                        <View style={{ flexDirection: 'row', gap: 14 }}>
-                          <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                            <Ionicons name="heart-outline" size={18} color={theme.textMuted} />
-                            <Text style={{ fontSize: 12, color: theme.textMuted, fontWeight: '600' }}>89</Text>
-                          </TouchableOpacity>
-                          <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                            <Ionicons name="chatbubble-outline" size={18} color={theme.textMuted} />
-                            <Text style={{ fontSize: 12, color: theme.textMuted, fontWeight: '600' }}>19</Text>
-                          </TouchableOpacity>
-                        </View>
-
-                        <TouchableOpacity 
-                          onPress={() => navigation.navigate('Main', { screen: 'Jobs' })}
-                          style={{ backgroundColor: '#ECFDF5', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, borderWidth: 1, borderColor: '#059669' }}
-                        >
-                          <Text style={{ fontSize: 11.5, fontWeight: '700', color: '#059669' }}>View Job Openings</Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
                   </View>
                 )}
               </ScrollView>
             </View>
 
-            {/* 3. Right Column: Curated Suggestions & Campus Buzz */}
+            {/* 3. Right Column: Suggestions & Institutional Resources */}
             <View style={{ flex: 3.5, paddingLeft: 4 }}>
-              {/* Curated Suggestions Box */}
+              {/* Suggestions / Network Box */}
               <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 18, elevation: 2, borderWidth: 1, borderColor: theme.border, marginBottom: 18 }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
                   <Text style={{ fontSize: 14, fontWeight: '800', color: theme.text }}>Suggested for you</Text>
@@ -1519,65 +1416,81 @@ const DashboardScreen = ({ navigation }) => {
                   </TouchableOpacity>
                 </View>
 
-                {/* Suggestions List (Dynamic or Curated Fallback) */}
-                {((suggestions && suggestions.length > 0) ? suggestions.slice(0, 4) : [
-                  { id: 'sugg-1', name: 'Dr. Vikram Sethi', subtitle: 'VP Engineering @ Google (Batch \'14)', avatar: 'VS', isAvatarUrl: false },
-                  { id: 'sugg-2', name: 'Ananya Sen', subtitle: 'Founder @ CleanTech Labs (Batch \'18)', avatar: 'AS', isAvatarUrl: false },
-                  { id: 'sugg-3', name: 'Karthik Raja', subtitle: 'Product Manager @ Microsoft (Batch \'16)', avatar: 'KR', isAvatarUrl: false },
-                  { id: 'sugg-4', name: 'Pooja Hegde', subtitle: 'AI Engineer @ NVIDIA (Batch \'20)', avatar: 'PH', isAvatarUrl: false },
-                ]).map(s => (
-                  <View key={s.id} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 8 }}>
-                      <View style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: '#002B5C', justifyContent: 'center', alignItems: 'center', marginRight: 10, overflow: 'hidden' }}>
-                        {s.isAvatarUrl ? (
-                          <Image source={{ uri: s.avatar }} style={{ width: 38, height: 38, borderRadius: 19 }} />
-                        ) : (
-                          <Text style={{ fontWeight: '700', color: '#FFFFFF', fontSize: 12 }}>{s.avatar || getInitials(s.name)}</Text>
-                        )}
+                {/* Suggestions List (Only Real Data) */}
+                {suggestions && suggestions.length > 0 ? (
+                  suggestions.slice(0, 4).map(s => (
+                    <View key={s.id} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 8 }}>
+                        <View style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: '#002B5C', justifyContent: 'center', alignItems: 'center', marginRight: 10, overflow: 'hidden' }}>
+                          {s.isAvatarUrl ? (
+                            <Image source={{ uri: s.avatar }} style={{ width: 38, height: 38, borderRadius: 19 }} />
+                          ) : (
+                            <Text style={{ fontWeight: '700', color: '#FFFFFF', fontSize: 12 }}>{s.avatar || getInitials(s.name)}</Text>
+                          )}
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }} numberOfLines={1}>{s.name}</Text>
+                          <Text style={{ fontSize: 11, color: theme.textSecondary }} numberOfLines={1}>
+                            {s.subtitle || (followingMap[s.id] ? 'Followed by you' : 'Alumni Member')}
+                          </Text>
+                        </View>
                       </View>
-                      <View style={{ flex: 1 }}>
-                        <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }} numberOfLines={1}>{s.name}</Text>
-                        <Text style={{ fontSize: 11, color: theme.textSecondary }} numberOfLines={1}>
-                          {s.subtitle || (followingMap[s.id] ? 'Followed by you' : 'Alumni Member')}
+                      <TouchableOpacity onPress={() => toggleSuggestionFollow(s.id)} activeOpacity={0.7}>
+                        <Text style={{ color: followingMap[s.id] ? theme.textSecondary : '#0284C7', fontSize: 12, fontWeight: '700' }}>
+                          {followingMap[s.id] ? 'Following' : '+ Connect'}
                         </Text>
-                      </View>
+                      </TouchableOpacity>
                     </View>
-                    <TouchableOpacity onPress={() => toggleSuggestionFollow(s.id)} activeOpacity={0.7}>
-                      <Text style={{ color: followingMap[s.id] ? theme.textSecondary : '#0284C7', fontSize: 12, fontWeight: '700' }}>
-                        {followingMap[s.id] ? 'Following' : '+ Connect'}
-                      </Text>
+                  ))
+                ) : (
+                  <View style={{ alignItems: 'center', paddingVertical: 12 }}>
+                    <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#EFF6FF', justifyContent: 'center', alignItems: 'center', marginBottom: 10 }}>
+                      <Ionicons name="people-outline" size={24} color="#003366" />
+                    </View>
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text, textAlign: 'center', marginBottom: 4 }}>Expand Your Network</Text>
+                    <Text style={{ fontSize: 11.5, color: theme.textSecondary, textAlign: 'center', lineHeight: 17, marginBottom: 14 }}>
+                      Find and connect with alumni from your department, batch, and chapters worldwide.
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() => navigation.navigate('Engage', { tab: 'directory' })}
+                      style={{ backgroundColor: '#002B5C', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8, flexDirection: 'row', alignItems: 'center', gap: 6 }}
+                      activeOpacity={0.8}
+                    >
+                      <Ionicons name="search" size={13} color="#FFFFFF" />
+                      <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '700' }}>Explore Directory</Text>
                     </TouchableOpacity>
                   </View>
-                ))}
+                )}
               </View>
 
-              {/* Trending Campus Buzz */}
+              {/* Quick Links & Resources */}
               <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 18, elevation: 2, borderWidth: 1, borderColor: theme.border, marginBottom: 18 }}>
                 <Text style={{ fontSize: 13, fontWeight: '800', color: theme.text, marginBottom: 12 }}>
-                  🔥 Trending in Alumni Network
+                  Campus Quick Links
                 </Text>
 
                 <TouchableOpacity 
-                  style={{ marginBottom: 10 }}
+                  style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}
                   onPress={() => navigation.navigate('Engage', { tab: 'directory' })}
                 >
-                  <Text style={{ fontSize: 12.5, fontWeight: '700', color: theme.primary }}>#RVCEHackathon2026</Text>
-                  <Text style={{ fontSize: 11, color: theme.textMuted }}>148 alumni mentoring students</Text>
+                  <Ionicons name="school-outline" size={16} color="#002B5C" style={{ marginRight: 8 }} />
+                  <Text style={{ fontSize: 12.5, fontWeight: '600', color: theme.text }}>Alumni Directory</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity 
-                  style={{ marginBottom: 10 }}
+                  style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}
                   onPress={() => navigation.navigate('Main', { screen: 'Jobs' })}
                 >
-                  <Text style={{ fontSize: 12.5, fontWeight: '700', color: theme.primary }}>#AlumniReferrals</Text>
-                  <Text style={{ fontSize: 11, color: theme.textMuted }}>92 new openings posted</Text>
+                  <Ionicons name="briefcase-outline" size={16} color="#002B5C" style={{ marginRight: 8 }} />
+                  <Text style={{ fontSize: 12.5, fontWeight: '600', color: theme.text }}>Career Opportunities</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity 
-                  onPress={() => navigation.navigate('Main', { screen: 'Post', params: { view: 'events' } })}
+                  style={{ flexDirection: 'row', alignItems: 'center' }}
+                  onPress={() => navigation.navigate('Contribute', { tab: 'support' })}
                 >
-                  <Text style={{ fontSize: 12.5, fontWeight: '700', color: theme.primary }}>#GlobalReunions</Text>
-                  <Text style={{ fontSize: 11, color: theme.textMuted }}>54 attendees registered today</Text>
+                  <Ionicons name="heart-outline" size={16} color="#002B5C" style={{ marginRight: 8 }} />
+                  <Text style={{ fontSize: 12.5, fontWeight: '600', color: theme.text }}>Support Community</Text>
                 </TouchableOpacity>
               </View>
 

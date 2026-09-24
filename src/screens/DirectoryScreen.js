@@ -46,6 +46,7 @@ const DirectoryScreen = ({ navigation, route }) => {
   const [requests, setRequests] = useState([]);
   const [dbAlumni, setDbAlumni] = useState([]);
   const [sentConnectMap, setSentConnectMap] = useState({});
+  const [desktopViewMode, setDesktopViewMode] = useState('cards'); // 'cards' | 'table'
 
   React.useEffect(() => {
     if (route?.params?.tab) {
@@ -543,85 +544,280 @@ const DirectoryScreen = ({ navigation, route }) => {
     );
 
     return (
-      <View style={styles.webTableContainer}>
-        <View style={styles.webTableHeader}>
-          <Text style={[styles.webTableColHeader, { flex: 3 }]}>Alumni Name</Text>
-          <Text style={[styles.webTableColHeader, { flex: 2 }]}>Batch & Branch</Text>
-          <Text style={[styles.webTableColHeader, { flex: 3 }]}>Current Role</Text>
-          <Text style={[styles.webTableColHeader, { flex: 2 }]}>Institution</Text>
-          <Text style={[styles.webTableColHeader, { flex: 1, textAlign: 'center' }]}>Action</Text>
-        </View>
-        <ScrollView style={styles.webTableBody}>
-          {loadingDirectory ? (
-            <View style={{ padding: 40, alignItems: 'center' }}>
-              <Ionicons name="people-circle-outline" size={48} color="#CBD5E1" />
-              <Text style={{ marginTop: 16, fontSize: 14, color: '#64748B' }}>Loading members...</Text>
-            </View>
-          ) : filteredDirectory.length === 0 ? (
-            <View style={{ padding: 40, alignItems: 'center' }}>
-              <Ionicons name="people-outline" size={48} color="#CBD5E1" />
-              <Text style={{ marginTop: 16, fontSize: 16, color: '#64748B', fontWeight: '600' }}>No Members Found</Text>
-              <Text style={{ marginTop: 8, fontSize: 13, color: '#94A3B8', textAlign: 'center' }}>
-                {searchQuery ? 'No results match your search.' : 'No registered alumni members found in directory.'}
+      <View style={{ flex: 1, padding: 20, backgroundColor: theme.background }}>
+        {/* Top Control Bar: Member Count + View Switcher */}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Ionicons name="people" size={20} color="#002B5C" />
+            <Text style={{ fontSize: 16, fontWeight: '800', color: theme.text }}>
+              {filteredDirectory.length} {filteredDirectory.length === 1 ? 'Alumni Member' : 'Alumni Members'}
+            </Text>
+            {userInstitution ? (
+              <View style={{ backgroundColor: '#EFF6FF', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, borderWidth: 1, borderColor: '#BFDBFE' }}>
+                <Text style={{ fontSize: 12, fontWeight: '700', color: '#1D4ED8' }}>{userInstitution}</Text>
+              </View>
+            ) : null}
+          </View>
+
+          {/* View Mode Toggle (Cards vs Table) */}
+          <View style={{ flexDirection: 'row', backgroundColor: theme.card, borderRadius: 8, padding: 3, borderWidth: 1, borderColor: theme.border }}>
+            <TouchableOpacity
+              onPress={() => setDesktopViewMode('cards')}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 6,
+                paddingHorizontal: 14,
+                paddingVertical: 6,
+                borderRadius: 6,
+                backgroundColor: desktopViewMode === 'cards' ? '#002B5C' : 'transparent'
+              }}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="grid-outline" size={15} color={desktopViewMode === 'cards' ? '#FFFFFF' : theme.textSecondary} />
+              <Text style={{ fontSize: 12.5, fontWeight: '700', color: desktopViewMode === 'cards' ? '#FFFFFF' : theme.textSecondary }}>
+                Cards
               </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => setDesktopViewMode('table')}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 6,
+                paddingHorizontal: 14,
+                paddingVertical: 6,
+                borderRadius: 6,
+                backgroundColor: desktopViewMode === 'table' ? '#002B5C' : 'transparent'
+              }}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="list-outline" size={15} color={desktopViewMode === 'table' ? '#FFFFFF' : theme.textSecondary} />
+              <Text style={{ fontSize: 12.5, fontWeight: '700', color: desktopViewMode === 'table' ? '#FFFFFF' : theme.textSecondary }}>
+                Table
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {loadingDirectory ? (
+          <View style={{ padding: 60, alignItems: 'center', backgroundColor: theme.card, borderRadius: 16 }}>
+            <Ionicons name="people-circle-outline" size={54} color="#CBD5E1" />
+            <Text style={{ marginTop: 16, fontSize: 15, color: '#64748B', fontWeight: '600' }}>Loading alumni members...</Text>
+          </View>
+        ) : filteredDirectory.length === 0 ? (
+          <View style={{ padding: 60, alignItems: 'center', backgroundColor: theme.card, borderRadius: 16, borderWidth: 1, borderColor: theme.border }}>
+            <Ionicons name="people-outline" size={54} color="#CBD5E1" />
+            <Text style={{ marginTop: 16, fontSize: 17, color: '#475569', fontWeight: '700' }}>No Members Found</Text>
+            <Text style={{ marginTop: 8, fontSize: 13.5, color: '#94A3B8', textAlign: 'center', maxWidth: 400 }}>
+              {searchQuery ? `No results match "${searchQuery}". Try searching by another name, branch, or company.` : 'No registered alumni members found in directory.'}
+            </Text>
+          </View>
+        ) : desktopViewMode === 'cards' ? (
+          /* ── Modern User-Friendly Alumni Cards Grid ──────────────────────── */
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 16, paddingBottom: 40 }}>
+              {filteredDirectory.map((item) => {
+                const isFollowing = !!(
+                  followingMap[String(item._id || item.id)] ||
+                  followingMap[String(item.id || item._id)] ||
+                  followingMap[(item.name || '').toLowerCase().trim()]
+                );
+
+                return (
+                  <View
+                    key={item.id}
+                    style={{
+                      width: 'calc(33.333% - 11px)',
+                      minWidth: 280,
+                      backgroundColor: theme.card,
+                      borderRadius: 16,
+                      borderWidth: 1,
+                      borderColor: theme.border,
+                      padding: 18,
+                      shadowColor: '#000',
+                      shadowOffset: { width: 0, height: 2 },
+                      shadowOpacity: 0.05,
+                      shadowRadius: 6,
+                      elevation: 2,
+                      justifyContent: 'space-between'
+                    }}
+                  >
+                    {/* Card Top: Institution & Status */}
+                    <View>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                        <View style={{ backgroundColor: '#EFF6FF', paddingHorizontal: 9, paddingVertical: 4, borderRadius: 6, flexDirection: 'row', alignItems: 'center', gap: 5, maxWidth: '80%' }}>
+                          <Ionicons name="school" size={13} color="#003366" />
+                          <Text style={{ fontSize: 11.5, fontWeight: '700', color: '#003366' }} numberOfLines={1}>
+                            {item.institution || 'RV Institutions'}
+                          </Text>
+                        </View>
+                        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#10B981' }} />
+                      </View>
+
+                      {/* User Profile Info */}
+                      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 14 }}>
+                        <View style={[styles.avatar, { backgroundColor: item.color || '#002B5C', width: 50, height: 50, borderRadius: 25, marginRight: 12 }]}>
+                          <Text style={[styles.avatarText, { fontSize: 17 }]}>{item.initials}</Text>
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                            <Text style={{ fontSize: 15, fontWeight: '800', color: theme.text }} numberOfLines={1}>
+                              {item.name}
+                            </Text>
+                            <Ionicons name="checkmark-circle" size={15} color="#0284C7" />
+                          </View>
+                          <Text style={{ fontSize: 12.5, fontWeight: '600', color: '#002B5C', marginTop: 2 }} numberOfLines={1}>
+                            {item.title || 'Alumni Member'}
+                          </Text>
+                        </View>
+                      </View>
+
+                      {/* Branch & Batch */}
+                      <View style={{ backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8, marginBottom: 16 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                          <Ionicons name="ribbon-outline" size={14} color="#64748B" />
+                          <Text style={{ fontSize: 12, color: '#475569', fontWeight: '500' }} numberOfLines={1}>
+                            {item.branch || 'Engineering & Technology'}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+
+                    {/* Bottom Action Row */}
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, borderTopWidth: 1, borderTopColor: theme.border, paddingTop: 14 }}>
+                      <TouchableOpacity
+                        style={{
+                          flex: 1,
+                          paddingVertical: 9,
+                          backgroundColor: isFollowing ? '#DEF7EC' : '#002B5C',
+                          borderRadius: 8,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          borderWidth: isFollowing ? 1 : 0,
+                          borderColor: '#31C48D'
+                        }}
+                        onPress={() => handleToggleFollow(item)}
+                        activeOpacity={0.7}
+                      >
+                        <Text style={{ fontSize: 12.5, fontWeight: '700', color: isFollowing ? '#03543F' : '#FFFFFF' }}>
+                          {isFollowing ? 'Following ✓' : 'Follow'}
+                        </Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={{
+                          width: 38,
+                          height: 38,
+                          backgroundColor: '#EFF6FF',
+                          borderRadius: 8,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          borderWidth: 1,
+                          borderColor: '#BFDBFE'
+                        }}
+                        onPress={() => navigation.navigate('Chat', { user: { id: item._id || item.id, name: item.name, role: item.institution || (item.branch ? `${item.branch} • ${item.title}` : item.title) || '', initials: item.initials } })}
+                        activeOpacity={0.7}
+                        title="Send Direct Message"
+                      >
+                        <Ionicons name="chatbubble-ellipses-outline" size={17} color="#1E40AF" />
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={{
+                          width: 38,
+                          height: 38,
+                          backgroundColor: '#E8FDF0',
+                          borderRadius: 8,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          borderWidth: 1,
+                          borderColor: '#A7F3D0'
+                        }}
+                        onPress={() => setSharedAlumni(item)}
+                        activeOpacity={0.7}
+                        title="Share to WhatsApp"
+                      >
+                        <Ionicons name="logo-whatsapp" size={17} color="#25D366" />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                );
+              })}
             </View>
-          ) : filteredDirectory.map((item, index) => {
-              const isFollowing = !!(
-                followingMap[String(item._id || item.id)] ||
-                followingMap[String(item.id || item._id)] ||
-                followingMap[(item.name || '').toLowerCase().trim()]
-              );
-              return (
-                <View key={item.id} style={[styles.webTableRow, index % 2 === 0 ? { backgroundColor: '#FFFFFF' } : { backgroundColor: '#F8FAFC' }]}>
-                  <View style={{ flex: 3, flexDirection: 'row', alignItems: 'center' }}>
-                    <View style={[styles.avatar, { backgroundColor: item.color, width: 32, height: 32, borderRadius: 16, marginRight: 12 }]}>
-                      <Text style={[styles.avatarText, { fontSize: 12 }]}>{item.initials}</Text>
+          </ScrollView>
+        ) : (
+          /* ── Spacious, Non-Overlapping Table View ───────────────────────── */
+          <ScrollView horizontal showsHorizontalScrollIndicator={true} style={{ flex: 1 }}>
+            <View style={[styles.webTableContainer, { minWidth: 980, margin: 0 }]}>
+              <View style={styles.webTableHeader}>
+                <Text style={[styles.webTableColHeader, { width: 220 }]}>Alumni Name</Text>
+                <Text style={[styles.webTableColHeader, { width: 190 }]}>Batch & Branch</Text>
+                <Text style={[styles.webTableColHeader, { width: 210 }]}>Current Role</Text>
+                <Text style={[styles.webTableColHeader, { width: 190 }]}>Institution</Text>
+                <Text style={[styles.webTableColHeader, { width: 170, textAlign: 'center' }]}>Action</Text>
+              </View>
+              <ScrollView style={styles.webTableBody}>
+                {filteredDirectory.map((item, index) => {
+                  const isFollowing = !!(
+                    followingMap[String(item._id || item.id)] ||
+                    followingMap[String(item.id || item._id)] ||
+                    followingMap[(item.name || '').toLowerCase().trim()]
+                  );
+                  return (
+                    <View key={item.id} style={[styles.webTableRow, index % 2 === 0 ? { backgroundColor: '#FFFFFF' } : { backgroundColor: '#F8FAFC' }]}>
+                      <View style={{ width: 220, flexDirection: 'row', alignItems: 'center' }}>
+                        <View style={[styles.avatar, { backgroundColor: item.color || '#002B5C', width: 34, height: 34, borderRadius: 17, marginRight: 12 }]}>
+                          <Text style={[styles.avatarText, { fontSize: 13 }]}>{item.initials}</Text>
+                        </View>
+                        <Text style={{ fontSize: 14, fontWeight: '700', color: '#0F172A' }} numberOfLines={1}>{item.name}</Text>
+                      </View>
+                      <View style={{ width: 190, justifyContent: 'center' }}>
+                        <Text style={{ fontSize: 13.5, color: '#475569' }} numberOfLines={1}>{item.branch}</Text>
+                      </View>
+                      <View style={{ width: 210, justifyContent: 'center' }}>
+                        <Text style={{ fontSize: 13.5, color: '#475569', fontWeight: '500' }} numberOfLines={1}>{item.title}</Text>
+                      </View>
+                      <View style={{ width: 190, justifyContent: 'center', paddingRight: 8 }}>
+                        <View style={{ backgroundColor: '#EFF6FF', paddingHorizontal: 9, paddingVertical: 4, borderRadius: 6, alignSelf: 'flex-start' }}>
+                          <Text style={{ fontSize: 12, fontWeight: '700', color: '#003366' }} numberOfLines={1}>{item.institution}</Text>
+                        </View>
+                      </View>
+                      <View style={{ width: 170, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8 }}>
+                        <TouchableOpacity
+                          style={{ paddingHorizontal: 12, paddingVertical: 6, backgroundColor: isFollowing ? '#DEF7EC' : '#002B5C', borderRadius: 6 }}
+                          onPress={() => handleToggleFollow(item)}
+                          activeOpacity={0.7}
+                        >
+                          <Text style={{ fontSize: 12, fontWeight: '700', color: isFollowing ? '#03543F' : '#FFFFFF' }}>
+                            {isFollowing ? 'Following ✓' : 'Follow'}
+                          </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={{ padding: 6, backgroundColor: '#EFF6FF', borderRadius: 6, justifyContent: 'center', alignItems: 'center' }}
+                          onPress={() => navigation.navigate('Chat', { user: { id: item._id || item.id, name: item.name, role: item.institution || (item.branch ? `${item.branch} • ${item.title}` : item.title) || '', initials: item.initials } })}
+                          activeOpacity={0.7}
+                          title="Send Direct Message"
+                        >
+                          <Ionicons name="chatbubble-ellipses-outline" size={16} color="#1E40AF" />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={{ padding: 6, backgroundColor: '#E8FDF0', borderRadius: 6, justifyContent: 'center', alignItems: 'center' }}
+                          onPress={() => setSharedAlumni(item)}
+                          activeOpacity={0.7}
+                          title="Share to WhatsApp"
+                        >
+                          <Ionicons name="logo-whatsapp" size={16} color="#25D366" />
+                        </TouchableOpacity>
+                      </View>
                     </View>
-                    <Text style={{ fontSize: 14, fontWeight: '600', color: '#0F172A' }}>{item.name}</Text>
-                  </View>
-                  <View style={{ flex: 2, justifyContent: 'center' }}>
-                    <Text style={{ fontSize: 14, color: '#475569' }}>{item.branch}</Text>
-                  </View>
-                  <View style={{ flex: 3, justifyContent: 'center' }}>
-                    <Text style={{ fontSize: 14, color: '#475569' }}>{item.title}</Text>
-                  </View>
-                  <View style={{ flex: 2, justifyContent: 'center' }}>
-                    <View style={{ backgroundColor: '#E2E8F0', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4, alignSelf: 'flex-start' }}>
-                      <Text style={{ fontSize: 12, fontWeight: '600', color: '#334155' }}>{item.institution}</Text>
-                    </View>
-                  </View>
-                  <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8 }}>
-                    <TouchableOpacity
-                      style={{ paddingHorizontal: 12, paddingVertical: 6, backgroundColor: isFollowing ? '#DEF7EC' : '#0F2744', borderRadius: 6 }}
-                      onPress={() => handleToggleFollow(item)}
-                      activeOpacity={0.7}
-                    >
-                      <Text style={{ fontSize: 12, fontWeight: '700', color: isFollowing ? '#03543F' : '#FFFFFF' }}>
-                        {isFollowing ? 'Following ✓' : 'Follow'}
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={{ padding: 6, backgroundColor: '#EFF6FF', borderRadius: 6, justifyContent: 'center', alignItems: 'center' }}
-                      onPress={() => navigation.navigate('Chat', { user: { id: item._id || item.id, name: item.name, role: item.institution || (item.branch ? `${item.branch} • ${item.title}` : item.title) || '', initials: item.initials } })}
-                      activeOpacity={0.7}
-                      title="Send Direct Message"
-                    >
-                      <Ionicons name="chatbubble-ellipses-outline" size={16} color="#1E40AF" />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={{ padding: 6, backgroundColor: '#E8FDF0', borderRadius: 6, justifyContent: 'center', alignItems: 'center' }}
-                      onPress={() => setSharedAlumni(item)}
-                      activeOpacity={0.7}
-                      title="Share to WhatsApp"
-                    >
-                      <Ionicons name="logo-whatsapp" size={16} color="#25D366" />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              );
-            })
-          }
-        </ScrollView>
+                  );
+                })}
+              </ScrollView>
+            </View>
+          </ScrollView>
+        )}
       </View>
     );
   };

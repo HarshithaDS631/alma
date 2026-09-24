@@ -140,6 +140,7 @@ const ProfileScreen = ({ navigation }) => {
   const [activeTab, setActiveTab] = useState('post'); // 'post' | 'messages' | 'reshare' | 'saved' | 'tags'
   const [listModalType, setListModalType] = useState(null); // 'connections' | 'following'
   const [profileShareModalVisible, setProfileShareModalVisible] = useState(false);
+  const [postViewMode, setPostViewMode] = useState('grid'); // 'grid' | 'feed'
   
 const DEFAULT_FOLLOWING = [];
 const DEFAULT_CONNECTIONS = [];
@@ -947,7 +948,7 @@ const DEFAULT_TAGGED_POSTS = [];
     }
   };
 
-  const webContainerStyle = isWeb ? { alignSelf: 'center', width: '100%', maxWidth: 800, flex: 1 } : { flex: 1 };
+  const webContainerStyle = isWeb ? { alignSelf: 'center', width: '100%', maxWidth: 860, flex: 1, backgroundColor: theme.card, borderRadius: 16, marginVertical: 14, borderWidth: 1, borderColor: theme.border, overflow: 'hidden' } : { flex: 1 };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -985,11 +986,23 @@ const DEFAULT_TAGGED_POSTS = [];
       </View>
 
       <ScrollView ref={profileScrollViewRef} showsVerticalScrollIndicator={false}>
+        {/* Cover Banner */}
+        <View style={{ width: '100%', height: isWeb ? 130 : 96, backgroundColor: '#002B5C', position: 'relative', overflow: 'hidden' }}>
+          <View style={{ position: 'absolute', right: -25, top: -25, width: 140, height: 140, borderRadius: 70, backgroundColor: 'rgba(255, 255, 255, 0.06)' }} />
+          <View style={{ position: 'absolute', right: 50, bottom: -30, width: 90, height: 90, borderRadius: 45, backgroundColor: 'rgba(251, 191, 36, 0.12)' }} />
+          <View style={{ position: 'absolute', left: 20, top: 16, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Ionicons name="school" size={16} color="#FBBF24" />
+            <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '700', letterSpacing: 0.5 }}>
+              {profileData.institution || 'RV ALUMNI PORTAL'}
+            </Text>
+          </View>
+        </View>
+
         {/* Profile Info Section */}
         <View style={styles.profileInfoContainer}>
           <View style={styles.mainInfoRow}>
             {/* Avatar */}
-            <View style={styles.avatarWrapper}>
+            <View style={[styles.avatarWrapper, { marginTop: -40, backgroundColor: theme.card, borderRadius: 50, padding: 3 }]}>
               <View style={styles.storyRing}>
                 <View style={styles.avatar}>
                   {profileData.avatar_url ? (
@@ -1102,41 +1115,65 @@ const DEFAULT_TAGGED_POSTS = [];
           </View>
         </View>
 
-        {/* Instagram-style Tabs */}
-        <View style={styles.tabContainer}>
-          <TouchableOpacity 
-            style={[styles.tabButton, activeTab === 'post' && styles.activeTabButton]} 
-            onPress={() => setActiveTab('post')}
-            activeOpacity={0.7}
-          >
-            <Ionicons name={activeTab === 'post' ? 'grid' : 'grid-outline'} size={20} color={activeTab === 'post' ? theme.primary : theme.textMuted} />
-            <Text style={[styles.tabLabel, activeTab === 'post' && styles.activeTabLabel]}>Posts</Text>
-          </TouchableOpacity>
+        {/* Instagram-style Tabs with View Switcher */}
+        <View style={[styles.tabContainer, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
+          <View style={{ flexDirection: 'row', flex: 1 }}>
+            <TouchableOpacity 
+              style={[styles.tabButton, activeTab === 'post' && styles.activeTabButton]} 
+              onPress={() => setActiveTab('post')}
+              activeOpacity={0.7}
+            >
+              <Ionicons name={activeTab === 'post' ? 'grid' : 'grid-outline'} size={20} color={activeTab === 'post' ? theme.primary : theme.textMuted} />
+              <Text style={[styles.tabLabel, activeTab === 'post' && styles.activeTabLabel]}>Posts</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={[styles.tabButton, activeTab === 'reshare' && styles.activeTabButton]} 
-            onPress={() => setActiveTab('reshare')}
-            activeOpacity={0.7}
-          >
-            <Ionicons name={activeTab === 'reshare' ? 'repeat' : 'repeat-outline'} size={20} color={activeTab === 'reshare' ? theme.primary : theme.textMuted} />
-            <Text style={[styles.tabLabel, activeTab === 'reshare' && styles.activeTabLabel]}>Reshares</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.tabButton, activeTab === 'saved' && styles.activeTabButton]} 
-            onPress={() => setActiveTab('saved')}
-            activeOpacity={0.7}
-          >
-            <Ionicons name={activeTab === 'saved' ? 'bookmark' : 'bookmark-outline'} size={20} color={activeTab === 'saved' ? theme.primary : theme.textMuted} />
-            <Text style={[styles.tabLabel, activeTab === 'saved' && styles.activeTabLabel]}>Saved</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.tabButton, activeTab === 'tags' && styles.activeTabButton]} 
-            onPress={() => setActiveTab('tags')}
-            activeOpacity={0.7}
-          >
-            <Ionicons name={activeTab === 'tags' ? 'pricetag' : 'pricetag-outline'} size={20} color={activeTab === 'tags' ? theme.primary : theme.textMuted} />
-            <Text style={[styles.tabLabel, activeTab === 'tags' && styles.activeTabLabel]}>Tags</Text>
-          </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.tabButton, activeTab === 'reshare' && styles.activeTabButton]} 
+              onPress={() => setActiveTab('reshare')}
+              activeOpacity={0.7}
+            >
+              <Ionicons name={activeTab === 'reshare' ? 'repeat' : 'repeat-outline'} size={20} color={activeTab === 'reshare' ? theme.primary : theme.textMuted} />
+              <Text style={[styles.tabLabel, activeTab === 'reshare' && styles.activeTabLabel]}>Reshares</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.tabButton, activeTab === 'saved' && styles.activeTabButton]} 
+              onPress={() => setActiveTab('saved')}
+              activeOpacity={0.7}
+            >
+              <Ionicons name={activeTab === 'saved' ? 'bookmark' : 'bookmark-outline'} size={20} color={activeTab === 'saved' ? theme.primary : theme.textMuted} />
+              <Text style={[styles.tabLabel, activeTab === 'saved' && styles.activeTabLabel]}>Saved</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.tabButton, activeTab === 'tags' && styles.activeTabButton]} 
+              onPress={() => setActiveTab('tags')}
+              activeOpacity={0.7}
+            >
+              <Ionicons name={activeTab === 'tags' ? 'pricetag' : 'pricetag-outline'} size={20} color={activeTab === 'tags' ? theme.primary : theme.textMuted} />
+              <Text style={[styles.tabLabel, activeTab === 'tags' && styles.activeTabLabel]}>Tags</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Grid vs Feed View Mode Switcher */}
+          {activeTab === 'post' && (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginRight: 12, backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9', borderRadius: 8, padding: 3 }}>
+              <TouchableOpacity
+                onPress={() => setPostViewMode('grid')}
+                style={{ paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, backgroundColor: postViewMode === 'grid' ? '#002B5C' : 'transparent' }}
+                activeOpacity={0.7}
+                title="Grid View"
+              >
+                <Ionicons name="grid" size={16} color={postViewMode === 'grid' ? '#FFFFFF' : theme.textMuted} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setPostViewMode('feed')}
+                style={{ paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, backgroundColor: postViewMode === 'feed' ? '#002B5C' : 'transparent' }}
+                activeOpacity={0.7}
+                title="Feed View"
+              >
+                <Ionicons name="list" size={16} color={postViewMode === 'feed' ? '#FFFFFF' : theme.textMuted} />
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
 
         {/* Tab Content Section */}
@@ -1147,17 +1184,83 @@ const DEFAULT_TAGGED_POSTS = [];
           const displayTaggedPosts = Array.isArray(taggedPosts) ? taggedPosts : [];
 
           // Reusable empty state component
-          const EmptyState = ({ icon, message }) => (
-            <View style={{ alignItems: 'center', paddingVertical: 48, paddingHorizontal: 32 }}>
-              <Ionicons name={icon} size={48} color={theme.textMuted} style={{ marginBottom: 12, opacity: 0.5 }} />
-              <Text style={{ color: theme.textMuted, fontSize: 14, textAlign: 'center', lineHeight: 20 }}>{message}</Text>
+          const EmptyState = ({ icon, message, actionText, onAction }) => (
+            <View style={{ alignItems: 'center', paddingVertical: 48, paddingHorizontal: 32, backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', margin: 16, borderRadius: 16, borderWidth: 1, borderColor: theme.border }}>
+              <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: '#EFF6FF', justifyContent: 'center', alignItems: 'center', marginBottom: 12 }}>
+                <Ionicons name={icon} size={28} color="#003366" />
+              </View>
+              <Text style={{ color: theme.text, fontSize: 15, fontWeight: '700', textAlign: 'center', marginBottom: 4 }}>Nothing here yet</Text>
+              <Text style={{ color: theme.textSecondary, fontSize: 13, textAlign: 'center', lineHeight: 20, maxWidth: 360, marginBottom: actionText ? 16 : 0 }}>{message}</Text>
+              {actionText ? (
+                <TouchableOpacity onPress={onAction} style={{ backgroundColor: '#002B5C', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8 }}>
+                  <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 13 }}>{actionText}</Text>
+                </TouchableOpacity>
+              ) : null}
             </View>
           );
 
           if (activeTab === 'post') {
             if (displayUserPosts.length === 0) {
-              return <EmptyState icon="grid-outline" message="No posts yet. Share something with your network!" />;
+              return (
+                <EmptyState 
+                  icon="grid-outline" 
+                  message="No posts yet. Share memories, achievements, or project updates with your network!" 
+                  actionText="Create First Post" 
+                  onAction={() => navigation.navigate('PostCreation')} 
+                />
+              );
             }
+
+            if (postViewMode === 'feed') {
+              return (
+                <View style={{ padding: 16, gap: 16 }}>
+                  {displayUserPosts.map((post) => (
+                    <View key={post._id || post.id} style={{ backgroundColor: theme.card, borderRadius: 16, borderWidth: 1, borderColor: theme.border, overflow: 'hidden', padding: 18, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 1 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+                        <View style={[styles.avatar, { width: 42, height: 42, borderRadius: 21, marginRight: 12 }]}>
+                          {profileData.avatar_url ? (
+                            <Image source={{ uri: profileData.avatar_url }} style={{ width: 42, height: 42, borderRadius: 21 }} />
+                          ) : (
+                            <Text style={{ fontSize: 14, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(profileData.name || 'User')}</Text>
+                          )}
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                            <Text style={{ fontSize: 15, fontWeight: '800', color: theme.text }}>{profileData.name || 'Alumni Member'}</Text>
+                            <Ionicons name="checkmark-circle" size={14} color="#0284C7" />
+                          </View>
+                          <Text style={{ fontSize: 12, color: theme.textSecondary }}>{profileData.institution || 'RV College of Engineering'}</Text>
+                        </View>
+                      </View>
+
+                      {post.content ? (
+                        <Text style={{ fontSize: 14, color: theme.text, lineHeight: 22, marginBottom: 12 }}>{post.content}</Text>
+                      ) : null}
+
+                      {(post.image || post.image_url) ? (
+                        <TouchableOpacity activeOpacity={0.9} onPress={() => setSelectedPost(post)}>
+                          <Image 
+                            source={{ uri: getImageUrl(post.image || post.image_url) }} 
+                            style={{ width: '100%', height: 340, borderRadius: 12, resizeMode: 'contain', backgroundColor: '#0F172A', marginBottom: 12 }} 
+                          />
+                        </TouchableOpacity>
+                      ) : null}
+
+                      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderTopWidth: 1, borderTopColor: theme.border, paddingTop: 12 }}>
+                        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} onPress={() => setSelectedPost(post)}>
+                          <Ionicons name="chatbubble-outline" size={16} color={theme.textSecondary} />
+                          <Text style={{ fontSize: 12.5, color: theme.textSecondary, fontWeight: '600' }}>View Details & Comments</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => setProfileShareModalVisible(true)} style={{ padding: 6 }}>
+                          <Ionicons name="share-social-outline" size={18} color="#002B5C" />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              );
+            }
+
             return (
               <View style={styles.postsGrid}>
                 {displayUserPosts.map((post) => (
@@ -1177,6 +1280,35 @@ const DEFAULT_TAGGED_POSTS = [];
                     )}
                   </TouchableOpacity>
                 ))}
+
+                {/* Engaging "+ Share a Post" tile to eliminate blank void */}
+                {displayUserPosts.length < 3 && (
+                  <TouchableOpacity 
+                    style={[
+                      styles.gridItem, 
+                      { 
+                        width: gridItemSize, 
+                        height: gridItemSize, 
+                        backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', 
+                        borderWidth: 1.5, 
+                        borderStyle: 'dashed', 
+                        borderColor: '#CBD5E1', 
+                        justifyContent: 'center', 
+                        alignItems: 'center', 
+                        padding: 12, 
+                        borderRadius: 8 
+                      }
+                    ]} 
+                    activeOpacity={0.8}
+                    onPress={() => navigation.navigate('PostCreation')}
+                  >
+                    <View style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: '#EFF6FF', justifyContent: 'center', alignItems: 'center', marginBottom: 8 }}>
+                      <Ionicons name="add" size={24} color="#002B5C" />
+                    </View>
+                    <Text style={{ fontSize: 12.5, fontWeight: '700', color: '#002B5C', textAlign: 'center' }}>Create Post</Text>
+                    <Text style={{ fontSize: 10.5, color: '#64748B', textAlign: 'center', marginTop: 3 }}>Share with network</Text>
+                  </TouchableOpacity>
+                )}
               </View>
             );
           }

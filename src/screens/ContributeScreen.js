@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, StatusBar, ScrollView, TextInput, Platform, Image, Alert, Modal } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, StatusBar, ScrollView, TextInput, Platform, Image, Alert, Modal, Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../theme/ThemeContext';
@@ -827,12 +827,12 @@ const ContributeScreen = ({ navigation }) => {
           </View>
         ) : (
           <View style={styles.supportContainer}>
-            <Text style={styles.supportHeading}>Show your Support to Our Mission</Text>
+            <Text style={styles.supportHeading}>Show your support for Our Mission</Text>
             <Text style={styles.supportText}>
-              Every school and college under the RV Educational Institutions provides students the education they deserve to make the most of their lives. For those who are keen to leverage the power of education and create a better life for themselves, our institutions are always open — regardless of their background, abilities, age, or gender.
+              Every school and college under the RVEI provides students with the education they deserve to make the most of their lives. For those who are keen to leverage the power of education and create a better life for themselves, our institutions are always open — regardless of their background, abilities, age or gender.
             </Text>
             <Text style={styles.supportText}>
-              Your contribution today can help someone build a tomorrow that they have only dreamed of. Open your hearts to our cause by donating a denomination of your choice.
+              Your contribution today can help someone build a tomorrow that they have only dreamed of. Open your hearts to our cause by donating in any denomination.
             </Text>
 
             <View style={styles.bankCard}>
@@ -842,7 +842,7 @@ const ContributeScreen = ({ navigation }) => {
               </View>
               <View style={styles.bankRow}>
                 <Text style={styles.bankLabel}>Name of the Account and SB A/c No.</Text>
-                <Text style={styles.bankValue}>RASHTREEYA SIKSHANA SAMITHI TRUST - 0428101011839</Text>
+                <Text style={styles.bankValue}>RASHTREEYA SIKSHANA SAMITHI TRUST – 0428101011839</Text>
               </View>
               <View style={[styles.bankRow, { borderBottomWidth: 0 }]}>
                 <Text style={styles.bankLabel}>IFSC CODE NO:</Text>
@@ -850,14 +850,16 @@ const ContributeScreen = ({ navigation }) => {
               </View>
 
               {/* Action Buttons for Giving */}
-              <View style={{ flexDirection: 'row', gap: 10, marginTop: 14, borderTopWidth: 1, borderTopColor: '#E2E8F0', paddingTop: 12 }}>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 14, borderTopWidth: 1, borderTopColor: '#E2E8F0', paddingTop: 12 }}>
                 <TouchableOpacity
                   onPress={handleCopyBankDetails}
                   activeOpacity={0.8}
                   style={{
                     flex: 1,
+                    minWidth: 140,
                     backgroundColor: '#003366',
                     paddingVertical: 10,
+                    paddingHorizontal: 12,
                     borderRadius: 8,
                     alignItems: 'center',
                     flexDirection: 'row',
@@ -873,8 +875,10 @@ const ContributeScreen = ({ navigation }) => {
                   activeOpacity={0.8}
                   style={{
                     flex: 1,
+                    minWidth: 140,
                     backgroundColor: '#ECFDF5',
                     paddingVertical: 10,
+                    paddingHorizontal: 12,
                     borderRadius: 8,
                     alignItems: 'center',
                     flexDirection: 'row',
@@ -886,12 +890,54 @@ const ContributeScreen = ({ navigation }) => {
                   <Ionicons name="receipt-outline" size={16} color="#059669" style={{ marginRight: 6 }} />
                   <Text style={{ color: '#059669', fontSize: 13, fontWeight: '700' }}>Notify Remittance</Text>
                 </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => Linking.openURL('https://www.rvinstitutions.com/donate/')}
+                  activeOpacity={0.8}
+                  style={{
+                    flex: 1,
+                    minWidth: 140,
+                    backgroundColor: '#F8FAFC',
+                    paddingVertical: 10,
+                    paddingHorizontal: 12,
+                    borderRadius: 8,
+                    alignItems: 'center',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    borderWidth: 1,
+                    borderColor: '#CBD5E1'
+                  }}
+                >
+                  <Ionicons name="open-outline" size={16} color="#003366" style={{ marginRight: 6 }} />
+                  <Text style={{ color: '#003366', fontSize: 13, fontWeight: '700' }}>Official Donate Page</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => Linking.openURL('https://www.rvinstitutions.com/wp-content/uploads/2026/06/Canara-bank-cancelled-cheque.pdf')}
+                  activeOpacity={0.8}
+                  style={{
+                    flex: 1,
+                    minWidth: 140,
+                    backgroundColor: '#EFF6FF',
+                    paddingVertical: 10,
+                    paddingHorizontal: 12,
+                    borderRadius: 8,
+                    alignItems: 'center',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    borderWidth: 1,
+                    borderColor: '#BFDBFE'
+                  }}
+                >
+                  <Ionicons name="document-attach-outline" size={16} color="#1D4ED8" style={{ marginRight: 6 }} />
+                  <Text style={{ color: '#1D4ED8', fontSize: 13, fontWeight: '700' }}>Cancelled Cheque PDF</Text>
+                </TouchableOpacity>
               </View>
             </View>
 
             <Text style={styles.noteHeading}>Note:</Text>
             <Text style={styles.supportText}>
-              The same will be accounted and receipt generated on receipt of the following details which is to be sent to the Trust office by hard copy or through email id: <Text style={styles.emailText}>rv@rvei.edu.in</Text> / <Text style={styles.emailText}>ananda.rsst@rvei.edu.in</Text>.
+              The same will be accounted for and a receipt generated upon receipt of the following details, which are to be sent to the Trust office by hard copy or email to: <Text style={styles.emailText}>rv@rvei.edu.in</Text> / <Text style={styles.emailText}>agm-finance@rvei.edu.in</Text>.
             </Text>
 
             <View style={styles.bulletList}>
