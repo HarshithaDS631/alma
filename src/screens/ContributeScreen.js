@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, StatusBar, ScrollView, TextInput, Platform, Image } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, StatusBar, ScrollView, TextInput, Platform, Image, Alert, Modal } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../theme/ThemeContext';
@@ -11,38 +11,95 @@ import getInitials from '../lib/getInitials';
 const ContributeScreen = ({ navigation }) => {
   const { theme, isDarkMode } = useTheme();
   const styles = getStyles(theme);
-  const { isAlumni, isAdmin, isSuperAdmin, isAdminOrSuper, userRole } = useUserRole();
+  const { isAdminOrSuper, userRole } = useUserRole();
 
+  const [currentUser, setCurrentUser] = useState(null);
   const [userInitials, setUserInitials] = useState('MA');
   const [userAvatarUrl, setUserAvatarUrl] = useState('');
 
-  useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const userInfoStr = await AsyncStorage.getItem('userInfo');
-        if (userInfoStr) {
-          const u = JSON.parse(userInfoStr);
-          if (u?.name) {
-            setUserInitials(getInitials(u.name));
-          }
-          const rawAv = u?.avatar_url || u?.profilePicture;
-          if (rawAv) setUserAvatarUrl(getImageUrl(rawAv));
+  const DEFAULT_APPLICATIONS = [
+    {
+      id: 'app-seed-1',
+      type: 'Mentee',
+      applicantName: 'Arjun Mehta',
+      applicantEmail: 'arjun.mehta@alumni.rv.edu',
+      applicantRole: 'Alumni',
+      applicantInstitution: 'RV College of Engineering',
+      keyword: 'Cloud Architecture, Microservices, Kubernetes',
+      why: 'Transitioning to Tech Lead role and seeking guidance on enterprise cloud scalability.',
+      guidance: 'Hands-on system design best practices and CI/CD automation.',
+      progress: '3 years experience in backend Node.js and AWS.',
+      activities: 'IEEE Student Chapter volunteer, Coding Club coordinator.',
+      status: 'Pending',
+      appliedAt: new Date(Date.now() - 3600000 * 24).toISOString()
+    },
+    {
+      id: 'app-seed-2',
+      type: 'Mentor',
+      applicantName: 'Dr. Priya Rao',
+      applicantEmail: 'priya.rao@alumni.rv.edu',
+      applicantRole: 'Alumni',
+      applicantInstitution: 'RV Institute of Management',
+      keyword: 'Product Strategy, FinTech, Early-stage Venture',
+      info: 'VP of Product at a Series B FinTech firm. Happy to help budding entrepreneurs and product managers.',
+      status: 'Approved',
+      appliedAt: new Date(Date.now() - 3600000 * 72).toISOString()
+    }
+  ];
+
+  const [applications, setApplications] = useState(DEFAULT_APPLICATIONS);
+  const [adminFilter, setAdminFilter] = useState('all'); // 'all' | 'pending' | 'approved' | 'rejected'
+  const [adminSearch, setAdminSearch] = useState('');
+  const [sampleModalVisible, setSampleModalVisible] = useState(false);
+
+  // Remittance Modal State
+  const [remittanceModalVisible, setRemittanceModalVisible] = useState(false);
+  const [remittanceName, setRemittanceName] = useState('');
+  const [remittanceAmount, setRemittanceAmount] = useState('');
+  const [remittanceUtr, setRemittanceUtr] = useState('');
+  const [remittancePurpose, setRemittancePurpose] = useState('Scholarship & Education Fund');
+  const [submittingRemittance, setSubmittingRemittance] = useState(false);
+
+  const loadApplications = async () => {
+    try {
+      const stored = await AsyncStorage.getItem('mentorshipApplications');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setApplications(parsed);
+          return;
         }
-      } catch (e) {}
-    };
+      }
+      // Seed default applications if none exist
+      await AsyncStorage.setItem('mentorshipApplications', JSON.stringify(DEFAULT_APPLICATIONS));
+      setApplications(DEFAULT_APPLICATIONS);
+    } catch (_) {}
+  };
+
+  const loadUser = async () => {
+    try {
+      const userInfoStr = await AsyncStorage.getItem('userInfo');
+      if (userInfoStr) {
+        const u = JSON.parse(userInfoStr);
+        setCurrentUser(u);
+        if (u?.name) {
+          setUserInitials(getInitials(u.name));
+        }
+        const rawAv = u?.avatar_url || u?.profilePicture;
+        if (rawAv) setUserAvatarUrl(getImageUrl(rawAv));
+      }
+    } catch (_e) {}
+  };
+
+  useEffect(() => {
     loadUser();
+    loadApplications();
   }, []);
 
   useFocusEffect(
     useCallback(() => {
-      AsyncStorage.getItem('userInfo').then(userInfoStr => {
-        if (userInfoStr) {
-          const u = JSON.parse(userInfoStr);
-          if (u?.name) setUserInitials(getInitials(u.name));
-          const rawAv = u?.avatar_url || u?.profilePicture;
-          if (rawAv) setUserAvatarUrl(getImageUrl(rawAv));
-        }
-      }).catch(() => {});
+      loadUser();
+      loadApplications();
     }, [])
   );
 
@@ -65,52 +122,365 @@ const ContributeScreen = ({ navigation }) => {
   const [mentorKeyword, setMentorKeyword] = useState('');
   const [mentorInfo, setMentorInfo] = useState('');
 
-  const handleRegisterMentee = () => {
+  // User's own application status
+  const currentUserId = currentUser?._id || currentUser?.id;
+  const currentUserMenteeApp = applications.find(a => 
+    a.type === 'Mentee' && (
+      (currentUserId && a.userId === currentUserId) || 
+      (currentUser?.email && a.applicantEmail === currentUser.email) ||
+      (currentUser?.name && a.applicantName === currentUser.name)
+    )
+  );
+
+  const currentUserMentorApp = applications.find(a => 
+    a.type === 'Mentor' && (
+      (currentUserId && a.userId === currentUserId) || 
+      (currentUser?.email && a.applicantEmail === currentUser.email) ||
+      (currentUser?.name && a.applicantName === currentUser.name)
+    )
+  );
+
+  const handleRegisterMentee = async () => {
+    if (!menteeKeyword.trim() && !menteeWhy.trim()) {
+      Alert.alert('Required Information', 'Please provide the areas you need mentorship in or the reason for your application.');
+      return;
+    }
+
+    const newApp = {
+      id: Date.now().toString(),
+      userId: currentUserId || '',
+      type: 'Mentee',
+      applicantName: currentUser?.name || 'Alumni Member',
+      applicantEmail: currentUser?.email || '',
+      applicantRole: userRole || 'Alumni',
+      applicantInstitution: currentUser?.institution || 'RV Educational Institutions',
+      keyword: menteeKeyword.trim() || 'General Career Guidance',
+      why: menteeWhy.trim() || 'Seeking professional growth & guidance',
+      guidance: menteeGuidance.trim() || 'General industry mentorship',
+      progress: menteeProgress.trim() || 'In progress',
+      activities: menteeActivities.trim() || 'Alumni community member',
+      status: 'Pending',
+      appliedAt: new Date().toISOString()
+    };
+
+    const updated = [newApp, ...applications.filter(a => a.id !== newApp.id)];
+    setApplications(updated);
+    try {
+      await AsyncStorage.setItem('mentorshipApplications', JSON.stringify(updated));
+    } catch (_) {}
+
     setShowMenteeForm(false);
+    setMenteeKeyword('');
+    setMenteeWhy('');
+    setMenteeGuidance('');
+    setMenteeProgress('');
+    setMenteeActivities('');
+    Alert.alert('Application Submitted 🎉', 'Your mentee registration has been submitted successfully and is pending review by the alumni committee.');
   };
 
-  const handleRegisterMentor = () => {
+  const handleRegisterMentor = async () => {
+    if (!mentorKeyword.trim() && !mentorInfo.trim()) {
+      Alert.alert('Required Information', 'Please provide the areas you can offer mentorship in or a brief bio.');
+      return;
+    }
+
+    const newApp = {
+      id: Date.now().toString(),
+      userId: currentUserId || '',
+      type: 'Mentor',
+      applicantName: currentUser?.name || 'Alumni Member',
+      applicantEmail: currentUser?.email || '',
+      applicantRole: userRole || 'Alumni',
+      applicantInstitution: currentUser?.institution || 'RV Educational Institutions',
+      keyword: mentorKeyword.trim() || 'Leadership, Career Mentoring',
+      info: mentorInfo.trim() || 'Alumni mentor ready to guide students & fellow alumni.',
+      status: 'Pending',
+      appliedAt: new Date().toISOString()
+    };
+
+    const updated = [newApp, ...applications.filter(a => a.id !== newApp.id)];
+    setApplications(updated);
+    try {
+      await AsyncStorage.setItem('mentorshipApplications', JSON.stringify(updated));
+    } catch (_) {}
+
     setShowMentorForm(false);
+    setMentorKeyword('');
+    setMentorInfo('');
+    Alert.alert('Registration Submitted 🎉', 'Thank you for volunteering! Your mentor registration has been submitted and is pending review by the committee.');
+  };
+
+  const handleUpdateAppStatus = async (appId, newStatus) => {
+    const updated = applications.map(app => 
+      app.id === appId ? { ...app, status: newStatus } : app
+    );
+    setApplications(updated);
+    try {
+      await AsyncStorage.setItem('mentorshipApplications', JSON.stringify(updated));
+    } catch (_) {}
+    Alert.alert('Status Updated', `Application marked as ${newStatus}.`);
+  };
+
+  const handleCopyBankDetails = () => {
+    const text = 'Rashtreeya Sikshana Samithi Trust\nBank: Canara Bank, Ashoka Pillar Br Bangalore\nA/C No: 0428101011839\nIFSC: CNRB0000428\nEmail: rv@rvei.edu.in';
+    if (Platform.OS === 'web' && typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+    }
+    Alert.alert('Bank Details Copied 📋', 'Account number (0428101011839) and IFSC (CNRB0000428) have been copied to your clipboard.');
+  };
+
+  const handleSubmitRemittance = async () => {
+    if (!remittanceName.trim() || !remittanceAmount.trim() || !remittanceUtr.trim()) {
+      Alert.alert('Missing Details', 'Please fill in your name, remittance amount, and UTR/reference number.');
+      return;
+    }
+    setSubmittingRemittance(true);
+    try {
+      const record = {
+        id: Date.now().toString(),
+        donorName: remittanceName.trim(),
+        amount: remittanceAmount.trim(),
+        utr: remittanceUtr.trim(),
+        purpose: remittancePurpose,
+        date: new Date().toISOString(),
+        institution: currentUser?.institution || 'RV Educational Institutions'
+      };
+      const existingStr = await AsyncStorage.getItem('alumniDonationRemittances');
+      const list = existingStr ? JSON.parse(existingStr) : [];
+      await AsyncStorage.setItem('alumniDonationRemittances', JSON.stringify([record, ...list]));
+      setRemittanceModalVisible(false);
+      setRemittanceName('');
+      setRemittanceAmount('');
+      setRemittanceUtr('');
+      Alert.alert('Remittance Notified 🙏', 'Thank you for your generous contribution to RV Educational Institutions! Your remittance notification has been recorded, and the Trust office will verify and issue your 80G tax exemption receipt.');
+    } catch (_e) {
+      Alert.alert('Error', 'Unable to submit notification. Please email rv@rvei.edu.in directly.');
+    } finally {
+      setSubmittingRemittance(false);
+    }
   };
 
   // ─── ADMIN: REVIEW APPLICATIONS TAB ─────────────────────────────
-  const renderReviewTab = () => (
-    <View style={styles.mentorshipContainer}>
-      <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 20, borderWidth: 1, borderColor: theme.border, marginBottom: 16 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
-          <Ionicons name="shield-checkmark" size={24} color="#003366" style={{ marginRight: 12 }} />
-          <View>
-            <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>Mentorship Applications</Text>
-            <Text style={{ fontSize: 13, color: '#64748B', marginTop: 2 }}>Review and manage mentorship requests</Text>
-          </View>
-        </View>
-        {/* Stats */}
-        <View style={{ flexDirection: 'row', gap: 12 }}>
-          <View style={{ flex: 1, backgroundColor: '#EFF6FF', borderRadius: 8, padding: 12, alignItems: 'center' }}>
-            <Text style={{ fontSize: 20, fontWeight: '800', color: '#003366' }}>0</Text>
-            <Text style={{ fontSize: 11, color: '#64748B', fontWeight: '600', marginTop: 2 }}>Pending</Text>
-          </View>
-          <View style={{ flex: 1, backgroundColor: '#ECFDF5', borderRadius: 8, padding: 12, alignItems: 'center' }}>
-            <Text style={{ fontSize: 20, fontWeight: '800', color: '#059669' }}>0</Text>
-            <Text style={{ fontSize: 11, color: '#64748B', fontWeight: '600', marginTop: 2 }}>Approved</Text>
-          </View>
-          <View style={{ flex: 1, backgroundColor: '#FEF2F2', borderRadius: 8, padding: 12, alignItems: 'center' }}>
-            <Text style={{ fontSize: 20, fontWeight: '800', color: '#DC2626' }}>0</Text>
-            <Text style={{ fontSize: 11, color: '#64748B', fontWeight: '600', marginTop: 2 }}>Rejected</Text>
-          </View>
-        </View>
-      </View>
+  const renderReviewTab = () => {
+    const pendingCount = applications.filter(a => a.status === 'Pending').length;
+    const approvedCount = applications.filter(a => a.status === 'Approved').length;
+    const rejectedCount = applications.filter(a => a.status === 'Rejected').length;
 
-      {/* Empty state */}
-      <View style={{ alignItems: 'center', paddingVertical: 60 }}>
-        <Ionicons name="document-text-outline" size={56} color="#CBD5E1" />
-        <Text style={{ fontSize: 17, fontWeight: '700', color: '#475569', marginTop: 16 }}>No Pending Applications</Text>
-        <Text style={{ fontSize: 14, color: '#94A3B8', marginTop: 8, textAlign: 'center', paddingHorizontal: 40 }}>
-          Mentorship applications from alumni will appear here for review.
-        </Text>
+    const filteredApplications = applications.filter(app => {
+      const matchesFilter = adminFilter === 'all' || app.status.toLowerCase() === adminFilter.toLowerCase();
+      const matchesSearch = !adminSearch.trim() || 
+        (app.applicantName || '').toLowerCase().includes(adminSearch.toLowerCase()) ||
+        (app.keyword || '').toLowerCase().includes(adminSearch.toLowerCase()) ||
+        (app.type || '').toLowerCase().includes(adminSearch.toLowerCase());
+      return matchesFilter && matchesSearch;
+    });
+
+    return (
+      <View style={styles.mentorshipContainer}>
+        <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 18, borderWidth: 1, borderColor: theme.border, marginBottom: 16 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 14 }}>
+            <Ionicons name="shield-checkmark" size={24} color="#003366" style={{ marginRight: 12 }} />
+            <View>
+              <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>Mentorship Applications</Text>
+              <Text style={{ fontSize: 13, color: '#64748B', marginTop: 2 }}>Review and manage mentorship requests</Text>
+            </View>
+          </View>
+          {/* Stats */}
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            <TouchableOpacity 
+              onPress={() => setAdminFilter('pending')}
+              style={{ flex: 1, backgroundColor: adminFilter === 'pending' ? '#DBEAFE' : '#EFF6FF', borderRadius: 8, padding: 10, alignItems: 'center', borderWidth: adminFilter === 'pending' ? 1.5 : 0, borderColor: '#003366' }}
+            >
+              <Text style={{ fontSize: 20, fontWeight: '800', color: '#003366' }}>{pendingCount}</Text>
+              <Text style={{ fontSize: 11, color: '#64748B', fontWeight: '600', marginTop: 2 }}>Pending</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              onPress={() => setAdminFilter('approved')}
+              style={{ flex: 1, backgroundColor: adminFilter === 'approved' ? '#D1FAE5' : '#ECFDF5', borderRadius: 8, padding: 10, alignItems: 'center', borderWidth: adminFilter === 'approved' ? 1.5 : 0, borderColor: '#059669' }}
+            >
+              <Text style={{ fontSize: 20, fontWeight: '800', color: '#059669' }}>{approvedCount}</Text>
+              <Text style={{ fontSize: 11, color: '#64748B', fontWeight: '600', marginTop: 2 }}>Approved</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              onPress={() => setAdminFilter('rejected')}
+              style={{ flex: 1, backgroundColor: adminFilter === 'rejected' ? '#FEE2E2' : '#FEF2F2', borderRadius: 8, padding: 10, alignItems: 'center', borderWidth: adminFilter === 'rejected' ? 1.5 : 0, borderColor: '#DC2626' }}
+            >
+              <Text style={{ fontSize: 20, fontWeight: '800', color: '#DC2626' }}>{rejectedCount}</Text>
+              <Text style={{ fontSize: 11, color: '#64748B', fontWeight: '600', marginTop: 2 }}>Rejected</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Search inside review */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#F1F5F9', borderRadius: 8, paddingHorizontal: 10, height: 38, marginTop: 14 }}>
+            <Ionicons name="search-outline" size={16} color="#64748B" style={{ marginRight: 6 }} />
+            <TextInput
+              style={{ flex: 1, fontSize: 13, color: '#0F172A' }}
+              placeholder="Search by name, role, or keywords..."
+              placeholderTextColor="#94A3B8"
+              value={adminSearch}
+              onChangeText={setAdminSearch}
+            />
+            {adminSearch.length > 0 && (
+              <TouchableOpacity onPress={() => setAdminSearch('')}>
+                <Ionicons name="close-circle" size={16} color="#94A3B8" />
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* Filter Pills */}
+          <View style={{ flexDirection: 'row', gap: 6, marginTop: 12 }}>
+            {['all', 'pending', 'approved', 'rejected'].map(f => (
+              <TouchableOpacity
+                key={f}
+                onPress={() => setAdminFilter(f)}
+                style={{
+                  paddingHorizontal: 12,
+                  paddingVertical: 5,
+                  borderRadius: 16,
+                  backgroundColor: adminFilter === f ? '#003366' : '#F1F5F9',
+                }}
+              >
+                <Text style={{ fontSize: 12, fontWeight: '600', color: adminFilter === f ? '#FFFFFF' : '#475569', textTransform: 'capitalize' }}>
+                  {f}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* Application Cards */}
+        {filteredApplications.length === 0 ? (
+          <View style={{ alignItems: 'center', paddingVertical: 50 }}>
+            <Ionicons name="document-text-outline" size={50} color="#CBD5E1" />
+            <Text style={{ fontSize: 16, fontWeight: '700', color: '#475569', marginTop: 14 }}>No Applications Found</Text>
+            <Text style={{ fontSize: 13, color: '#94A3B8', marginTop: 6, textAlign: 'center', paddingHorizontal: 30 }}>
+              {adminSearch ? 'Try a different search term or clear the filter.' : 'Applications from alumni will appear here for review.'}
+            </Text>
+          </View>
+        ) : (
+          filteredApplications.map(app => {
+            const isApproved = app.status === 'Approved';
+            const isRejected = app.status === 'Rejected';
+            const isMentee = app.type === 'Mentee';
+
+            return (
+              <View 
+                key={app.id} 
+                style={{ 
+                  backgroundColor: theme.card, 
+                  borderRadius: 12, 
+                  padding: 16, 
+                  borderWidth: 1, 
+                  borderColor: theme.border, 
+                  marginBottom: 14,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 1 },
+                  shadowOpacity: 0.04,
+                  shadowRadius: 2,
+                  elevation: 1
+                }}
+              >
+                {/* Header row */}
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <View style={{ backgroundColor: isMentee ? '#F3E8FF' : '#E0F2FE', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 }}>
+                      <Text style={{ fontSize: 11, fontWeight: '800', color: isMentee ? '#7E22CE' : '#0369A1' }}>
+                        {app.type?.toUpperCase()}
+                      </Text>
+                    </View>
+                    <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text }}>{app.applicantName}</Text>
+                  </View>
+                  <View style={{
+                    paddingHorizontal: 8,
+                    paddingVertical: 3,
+                    borderRadius: 12,
+                    backgroundColor: isApproved ? '#ECFDF5' : isRejected ? '#FEF2F2' : '#FFFBEB'
+                  }}>
+                    <Text style={{
+                      fontSize: 11,
+                      fontWeight: '700',
+                      color: isApproved ? '#059669' : isRejected ? '#DC2626' : '#D97706'
+                    }}>
+                      {app.status}
+                    </Text>
+                  </View>
+                </View>
+
+                {/* Subtitle */}
+                <Text style={{ fontSize: 12, color: '#64748B', marginBottom: 10 }}>
+                  {app.applicantInstitution} • {new Date(app.appliedAt).toLocaleDateString()}
+                </Text>
+
+                {/* Focus areas */}
+                <View style={{ backgroundColor: '#F8FAFC', borderRadius: 8, padding: 10, marginBottom: 10 }}>
+                  <Text style={{ fontSize: 11, fontWeight: '700', color: '#475569', marginBottom: 2 }}>
+                    {isMentee ? 'MENTORSHIP DOMAINS / KEYWORDS' : 'EXPERTISE OFFERED'}
+                  </Text>
+                  <Text style={{ fontSize: 13, color: '#0F172A', fontWeight: '500' }}>{app.keyword}</Text>
+                </View>
+
+                {/* Details */}
+                {isMentee && app.why ? (
+                  <Text style={{ fontSize: 12.5, color: '#475569', lineHeight: 18, marginBottom: 6 }}>
+                    <Text style={{ fontWeight: '700' }}>Reason: </Text>{app.why}
+                  </Text>
+                ) : null}
+
+                {isMentee && app.guidance ? (
+                  <Text style={{ fontSize: 12.5, color: '#475569', lineHeight: 18, marginBottom: 8 }}>
+                    <Text style={{ fontWeight: '700' }}>Field Guidance: </Text>{app.guidance}
+                  </Text>
+                ) : null}
+
+                {!isMentee && app.info ? (
+                  <Text style={{ fontSize: 12.5, color: '#475569', lineHeight: 18, marginBottom: 8 }}>
+                    <Text style={{ fontWeight: '700' }}>Bio: </Text>{app.info}
+                  </Text>
+                ) : null}
+
+                {/* Action buttons */}
+                <View style={{ flexDirection: 'row', gap: 10, marginTop: 6, borderTopWidth: 1, borderTopColor: '#F1F5F9', paddingTop: 10 }}>
+                  <TouchableOpacity
+                    onPress={() => handleUpdateAppStatus(app.id, 'Approved')}
+                    style={{
+                      flex: 1,
+                      backgroundColor: isApproved ? '#059669' : '#ECFDF5',
+                      paddingVertical: 8,
+                      borderRadius: 6,
+                      alignItems: 'center',
+                      borderWidth: 1,
+                      borderColor: '#059669'
+                    }}
+                  >
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: isApproved ? '#FFFFFF' : '#059669' }}>
+                      {isApproved ? 'Approved ✓' : 'Approve'}
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={() => handleUpdateAppStatus(app.id, 'Rejected')}
+                    style={{
+                      flex: 1,
+                      backgroundColor: isRejected ? '#DC2626' : '#FEF2F2',
+                      paddingVertical: 8,
+                      borderRadius: 6,
+                      alignItems: 'center',
+                      borderWidth: 1,
+                      borderColor: '#DC2626'
+                    }}
+                  >
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: isRejected ? '#FFFFFF' : '#DC2626' }}>
+                      {isRejected ? 'Rejected ✗' : 'Reject'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            );
+          })
+        )}
       </View>
-    </View>
-  );
+    );
+  };
 
   const renderMenteeView = () => {
     if (showMenteeForm) {
@@ -126,7 +496,7 @@ const ContributeScreen = ({ navigation }) => {
               <Text style={styles.formTitle}>Questionnaire <Text style={styles.formTitleLight}>Form</Text></Text>
               <View style={styles.titleUnderline} />
             </View>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => setSampleModalVisible(true)}>
               <Text style={styles.sampleLink}>View Sample Applications</Text>
             </TouchableOpacity>
           </View>
@@ -135,21 +505,20 @@ const ContributeScreen = ({ navigation }) => {
             <Text style={styles.inputLabel}>Which areas are you looking for mentorship</Text>
             <TextInput 
               style={styles.textInput} 
-              placeholder="keyword" 
+              placeholder="e.g. Higher Studies, AI, Product Management" 
               placeholderTextColor="#94A3B8"
               value={menteeKeyword}
               onChangeText={setMenteeKeyword}
             />
             <Text style={styles.inputHelp}>Higher Studies, Entrepreneurship, Civil services, Finance, etc.</Text>
-            <TouchableOpacity>
-              <Text style={styles.addKeywordBtn}>Add Keyword</Text>
-            </TouchableOpacity>
           </View>
 
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Why do you want an alumni mentor?</Text>
             <TextInput 
               style={[styles.textInput, styles.textArea]} 
+              placeholder="Describe your motivation and career objectives..."
+              placeholderTextColor="#94A3B8"
               multiline 
               numberOfLines={4}
               value={menteeWhy}
@@ -158,9 +527,11 @@ const ContributeScreen = ({ navigation }) => {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Describe in detail the field(s) that you require guidance in. E.g : Start-ups, research etc.</Text>
+            <Text style={styles.inputLabel}>Describe in detail the field(s) that you require guidance in.</Text>
             <TextInput 
               style={[styles.textInput, styles.textArea]} 
+              placeholder="E.g : Start-ups, research, system design, mock interviews..."
+              placeholderTextColor="#94A3B8"
               multiline 
               numberOfLines={4}
               value={menteeGuidance}
@@ -172,6 +543,8 @@ const ContributeScreen = ({ navigation }) => {
             <Text style={styles.inputLabel}>What is your progress/past work in this/these field(s)?</Text>
             <TextInput 
               style={[styles.textInput, styles.textArea]} 
+              placeholder="Mention your relevant projects, coursework, or work experience..."
+              placeholderTextColor="#94A3B8"
               multiline 
               numberOfLines={4}
               value={menteeProgress}
@@ -183,6 +556,8 @@ const ContributeScreen = ({ navigation }) => {
             <Text style={styles.inputLabel}>What activities you have been part of during your time at the institute?</Text>
             <TextInput 
               style={[styles.textInput, styles.textArea]} 
+              placeholder="Clubs, chapters, teams, or student initiatives..."
+              placeholderTextColor="#94A3B8"
               multiline 
               numberOfLines={4}
               value={menteeActivities}
@@ -191,21 +566,46 @@ const ContributeScreen = ({ navigation }) => {
           </View>
 
           <TouchableOpacity style={styles.registerSubmitBtn} onPress={handleRegisterMentee}>
-            <Text style={styles.registerSubmitBtnText}>Register</Text>
+            <Text style={styles.registerSubmitBtnText}>Submit Registration</Text>
           </TouchableOpacity>
         </View>
       );
     }
 
     return (
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Register as a mentee</Text>
-        <Text style={styles.cardDesc}>
-          This is an initiative by Institution and is managed by the Alumni team of Institution. The goal is to encourage alumni to seek out mentors amongst themselves for their overall development in a professional and personal sense.
-        </Text>
-        <TouchableOpacity style={styles.registerBtn} onPress={() => setShowMenteeForm(true)}>
-          <Text style={styles.registerBtnText}>Register</Text>
-        </TouchableOpacity>
+      <View>
+        {/* Active Application Status Banner if already registered */}
+        {currentUserMenteeApp && (
+          <View style={{ backgroundColor: '#EFF6FF', borderRadius: 12, padding: 16, borderWidth: 1, borderColor: '#BFDBFE', marginBottom: 16 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Ionicons name="checkmark-circle" size={20} color="#003366" style={{ marginRight: 6 }} />
+                <Text style={{ fontSize: 15, fontWeight: '700', color: '#003366' }}>Mentee Registration Active</Text>
+              </View>
+              <View style={{ backgroundColor: currentUserMenteeApp.status === 'Approved' ? '#ECFDF5' : currentUserMenteeApp.status === 'Rejected' ? '#FEF2F2' : '#FFFBEB', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10 }}>
+                <Text style={{ fontSize: 11, fontWeight: '700', color: currentUserMenteeApp.status === 'Approved' ? '#059669' : currentUserMenteeApp.status === 'Rejected' ? '#DC2626' : '#D97706' }}>
+                  {currentUserMenteeApp.status}
+                </Text>
+              </View>
+            </View>
+            <Text style={{ fontSize: 13, color: '#334155', marginTop: 4 }}>
+              <Text style={{ fontWeight: '600' }}>Focus Areas: </Text>{currentUserMenteeApp.keyword}
+            </Text>
+            <Text style={{ fontSize: 11.5, color: '#64748B', marginTop: 4 }}>
+              Applied on {new Date(currentUserMenteeApp.appliedAt).toLocaleDateString()}
+            </Text>
+          </View>
+        )}
+
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Register as a mentee</Text>
+          <Text style={styles.cardDesc}>
+            This is an initiative by Institution and is managed by the Alumni team of Institution. The goal is to encourage alumni to seek out mentors amongst themselves for their overall development in a professional and personal sense.
+          </Text>
+          <TouchableOpacity style={styles.registerBtn} onPress={() => setShowMenteeForm(true)}>
+            <Text style={styles.registerBtnText}>{currentUserMenteeApp ? 'Update Registration' : 'Register'}</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   };
@@ -224,7 +624,7 @@ const ContributeScreen = ({ navigation }) => {
               <Text style={styles.formTitle}>Questionnaire <Text style={styles.formTitleLight}>Form</Text></Text>
               <View style={styles.titleUnderline} />
             </View>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => setSampleModalVisible(true)}>
               <Text style={styles.sampleLink}>View Sample Applications</Text>
             </TouchableOpacity>
           </View>
@@ -233,21 +633,20 @@ const ContributeScreen = ({ navigation }) => {
             <Text style={styles.inputLabel}>Areas where you can offer mentorship</Text>
             <TextInput 
               style={styles.textInput} 
-              placeholder="keyword" 
+              placeholder="e.g. Higher Studies, Entrepreneurship, FinTech, AI" 
               placeholderTextColor="#94A3B8"
               value={mentorKeyword}
               onChangeText={setMentorKeyword}
             />
             <Text style={styles.inputHelp}>Higher Studies, Entrepreneurship, Civil services, Finance, etc.</Text>
-            <TouchableOpacity>
-              <Text style={styles.addKeywordBtn}>Add Keyword</Text>
-            </TouchableOpacity>
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Info about you</Text>
+            <Text style={styles.inputLabel}>Info about you and your experience</Text>
             <TextInput 
               style={[styles.textInput, styles.textArea]} 
+              placeholder="Share your current role, company, years of experience, and how you can support mentees..."
+              placeholderTextColor="#94A3B8"
               multiline 
               numberOfLines={4}
               value={mentorInfo}
@@ -256,21 +655,46 @@ const ContributeScreen = ({ navigation }) => {
           </View>
 
           <TouchableOpacity style={styles.registerSubmitBtn} onPress={handleRegisterMentor}>
-            <Text style={styles.registerSubmitBtnText}>Register</Text>
+            <Text style={styles.registerSubmitBtnText}>Submit Registration</Text>
           </TouchableOpacity>
         </View>
       );
     }
 
     return (
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Register as a mentor</Text>
-        <Text style={styles.cardDesc}>
-          {"A Great mentor inspires every achiever. Keeping this in mind, Institution has come up with this new initiative where a mentor can provide support, advice, and feedback by reaching out to mentees themselves and leveraging each other's personal and professional experience. The alumni team of Institution manages this initiative."}
-        </Text>
-        <TouchableOpacity style={styles.registerBtn} onPress={() => setShowMentorForm(true)}>
-          <Text style={styles.registerBtnText}>Register</Text>
-        </TouchableOpacity>
+      <View>
+        {/* Active Application Status Banner if already registered */}
+        {currentUserMentorApp && (
+          <View style={{ backgroundColor: '#ECFDF5', borderRadius: 12, padding: 16, borderWidth: 1, borderColor: '#A7F3D0', marginBottom: 16 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Ionicons name="ribbon" size={20} color="#059669" style={{ marginRight: 6 }} />
+                <Text style={{ fontSize: 15, fontWeight: '700', color: '#065F46' }}>Mentor Registration Active</Text>
+              </View>
+              <View style={{ backgroundColor: currentUserMentorApp.status === 'Approved' ? '#D1FAE5' : currentUserMentorApp.status === 'Rejected' ? '#FEE2E2' : '#FEF3C7', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10 }}>
+                <Text style={{ fontSize: 11, fontWeight: '700', color: currentUserMentorApp.status === 'Approved' ? '#059669' : currentUserMentorApp.status === 'Rejected' ? '#DC2626' : '#D97706' }}>
+                  {currentUserMentorApp.status}
+                </Text>
+              </View>
+            </View>
+            <Text style={{ fontSize: 13, color: '#334155', marginTop: 4 }}>
+              <Text style={{ fontWeight: '600' }}>Mentorship Areas: </Text>{currentUserMentorApp.keyword}
+            </Text>
+            <Text style={{ fontSize: 11.5, color: '#64748B', marginTop: 4 }}>
+              Registered on {new Date(currentUserMentorApp.appliedAt).toLocaleDateString()}
+            </Text>
+          </View>
+        )}
+
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Register as a mentor</Text>
+          <Text style={styles.cardDesc}>
+            {"A Great mentor inspires every achiever. Keeping this in mind, Institution has come up with this new initiative where a mentor can provide support, advice, and feedback by reaching out to mentees themselves and leveraging each other's personal and professional experience. The alumni team of Institution manages this initiative."}
+          </Text>
+          <TouchableOpacity style={styles.registerBtn} onPress={() => setShowMentorForm(true)}>
+            <Text style={styles.registerBtnText}>{currentUserMentorApp ? 'Update Registration' : 'Register'}</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   };
@@ -424,6 +848,45 @@ const ContributeScreen = ({ navigation }) => {
                 <Text style={styles.bankLabel}>IFSC CODE NO:</Text>
                 <Text style={styles.bankValue}>CNRB0000428</Text>
               </View>
+
+              {/* Action Buttons for Giving */}
+              <View style={{ flexDirection: 'row', gap: 10, marginTop: 14, borderTopWidth: 1, borderTopColor: '#E2E8F0', paddingTop: 12 }}>
+                <TouchableOpacity
+                  onPress={handleCopyBankDetails}
+                  activeOpacity={0.8}
+                  style={{
+                    flex: 1,
+                    backgroundColor: '#003366',
+                    paddingVertical: 10,
+                    borderRadius: 8,
+                    alignItems: 'center',
+                    flexDirection: 'row',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <Ionicons name="copy-outline" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
+                  <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '700' }}>Copy Bank Details</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => setRemittanceModalVisible(true)}
+                  activeOpacity={0.8}
+                  style={{
+                    flex: 1,
+                    backgroundColor: '#ECFDF5',
+                    paddingVertical: 10,
+                    borderRadius: 8,
+                    alignItems: 'center',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    borderWidth: 1,
+                    borderColor: '#059669'
+                  }}
+                >
+                  <Ionicons name="receipt-outline" size={16} color="#059669" style={{ marginRight: 6 }} />
+                  <Text style={{ color: '#059669', fontSize: 13, fontWeight: '700' }}>Notify Remittance</Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
             <Text style={styles.noteHeading}>Note:</Text>
@@ -441,6 +904,125 @@ const ContributeScreen = ({ navigation }) => {
           </View>
         )}
       </ScrollView>
+
+      {/* ─── Sample Applications Modal ───────────────────────────── */}
+      <Modal visible={sampleModalVisible} transparent animationType="slide">
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 }}>
+          <View style={{ backgroundColor: theme.card, borderRadius: 16, maxHeight: '80%', padding: 20 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>Sample Applications</Text>
+              <TouchableOpacity onPress={() => setSampleModalVisible(false)}>
+                <Ionicons name="close" size={24} color={theme.text} />
+              </TouchableOpacity>
+            </View>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <View style={{ backgroundColor: '#EFF6FF', borderRadius: 10, padding: 14, marginBottom: 14 }}>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#003366', marginBottom: 6 }}>Mentee Sample: Cloud & AI Career Guidance</Text>
+                <Text style={{ fontSize: 12.5, color: '#334155', lineHeight: 18 }}>
+                  <Text style={{ fontWeight: '600' }}>Why an alumni mentor: </Text>
+                  Transitioning from individual contributor to engineering manager in distributed cloud systems.
+                </Text>
+                <Text style={{ fontSize: 12.5, color: '#334155', lineHeight: 18, marginTop: 4 }}>
+                  <Text style={{ fontWeight: '600' }}>Guidance needed: </Text>
+                  Microservices scalability, cloud cost governance, team leadership.
+                </Text>
+              </View>
+
+              <View style={{ backgroundColor: '#ECFDF5', borderRadius: 10, padding: 14 }}>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#065F46', marginBottom: 6 }}>Mentor Sample: Product Strategy & Startups</Text>
+                <Text style={{ fontSize: 12.5, color: '#334155', lineHeight: 18 }}>
+                  <Text style={{ fontWeight: '600' }}>Areas offered: </Text>
+                  FinTech product management, 0-to-1 customer discovery, seed venture pitching.
+                </Text>
+                <Text style={{ fontSize: 12.5, color: '#334155', lineHeight: 18, marginTop: 4 }}>
+                  <Text style={{ fontWeight: '600' }}>Bio: </Text>
+                  10+ years leading product initiatives across Bengaluru & Singapore.
+                </Text>
+              </View>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* ─── Remittance Notification Modal ───────────────────────────── */}
+      <Modal visible={remittanceModalVisible} transparent animationType="slide">
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 }}>
+          <View style={{ backgroundColor: theme.card, borderRadius: 16, maxHeight: '85%', padding: 20 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <View>
+                <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>Notify Remittance</Text>
+                <Text style={{ fontSize: 12, color: '#64748B' }}>Help the Trust issue your 80G tax receipt</Text>
+              </View>
+              <TouchableOpacity onPress={() => setRemittanceModalVisible(false)}>
+                <Ionicons name="close" size={24} color={theme.text} />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+              <View style={{ marginBottom: 14 }}>
+                <Text style={{ fontSize: 13, fontWeight: '600', color: '#475569', marginBottom: 6 }}>Donor Full Name *</Text>
+                <TextInput
+                  style={styles.textInput}
+                  placeholder="Your full legal name as per PAN"
+                  placeholderTextColor="#94A3B8"
+                  value={remittanceName}
+                  onChangeText={setRemittanceName}
+                />
+              </View>
+
+              <View style={{ marginBottom: 14 }}>
+                <Text style={{ fontSize: 13, fontWeight: '600', color: '#475569', marginBottom: 6 }}>Remittance Amount (INR ₹) *</Text>
+                <TextInput
+                  style={styles.textInput}
+                  placeholder="e.g. 10000"
+                  placeholderTextColor="#94A3B8"
+                  keyboardType="numeric"
+                  value={remittanceAmount}
+                  onChangeText={setRemittanceAmount}
+                />
+              </View>
+
+              <View style={{ marginBottom: 14 }}>
+                <Text style={{ fontSize: 13, fontWeight: '600', color: '#475569', marginBottom: 6 }}>Bank Reference / UTR Number *</Text>
+                <TextInput
+                  style={styles.textInput}
+                  placeholder="e.g. UTR / NEFT / IMPS / UPI Ref No."
+                  placeholderTextColor="#94A3B8"
+                  value={remittanceUtr}
+                  onChangeText={setRemittanceUtr}
+                />
+              </View>
+
+              <View style={{ marginBottom: 16 }}>
+                <Text style={{ fontSize: 13, fontWeight: '600', color: '#475569', marginBottom: 6 }}>Purpose of Donation</Text>
+                <TextInput
+                  style={styles.textInput}
+                  placeholder="Scholarship, Infrastructure, Lab Fund..."
+                  placeholderTextColor="#94A3B8"
+                  value={remittancePurpose}
+                  onChangeText={setRemittancePurpose}
+                />
+              </View>
+
+              <TouchableOpacity
+                onPress={handleSubmitRemittance}
+                disabled={submittingRemittance}
+                style={{
+                  backgroundColor: '#003366',
+                  paddingVertical: 12,
+                  borderRadius: 8,
+                  alignItems: 'center'
+                }}
+              >
+                <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '700' }}>
+                  {submittingRemittance ? 'Recording...' : 'Submit Remittance Details'}
+                </Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
     </View>
     </SafeAreaView>
   );

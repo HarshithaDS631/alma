@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, FlatList, TouchableOpacity, StatusBar, ScrollView , Platform} from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, StatusBar, ScrollView, Platform } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { getNotifications, markNotificationsRead } from '../services/authService';
@@ -67,7 +67,7 @@ const NotificationsScreen = ({ navigation }) => {
     if (item.type === 'job') {
       navigation.navigate('Main', { screen: 'Jobs' });
     } else if (item.type === 'event') {
-      navigation.navigate('Events');
+      navigation.navigate('Main', { screen: 'Post', params: { view: 'events' } });
     } else if (item.type === 'connection' || item.type === 'referral') {
       navigation.navigate('Main', { screen: 'Engage' });
     } else if (item.type === 'birthday' && item.sender) {
