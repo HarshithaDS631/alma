@@ -1224,32 +1224,6 @@ const DashboardScreen = ({ navigation }) => {
                   </TouchableOpacity>
                 </View>
               </View>
-
-              {/* Desktop Events Quick Card */}
-              <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 16, elevation: 2, borderWidth: 1, borderColor: theme.border, marginBottom: 24 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                    <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: isDarkMode ? 'rgba(56, 189, 248, 0.2)' : '#EFF6FF', justifyContent: 'center', alignItems: 'center' }}>
-                      <Ionicons name="calendar" size={16} color={theme.primary} />
-                    </View>
-                    <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>Alumni Events</Text>
-                  </View>
-                  <TouchableOpacity onPress={() => navigation.navigate('Main', { screen: 'Post', params: { view: 'events' } })} activeOpacity={0.7}>
-                    <Text style={{ fontSize: 12, color: theme.primary, fontWeight: '700' }}>View all</Text>
-                  </TouchableOpacity>
-                </View>
-                <Text style={{ fontSize: 12, color: theme.textSecondary, lineHeight: 17, marginBottom: 12 }}>
-                  Join global reunions, webinars, and chapter meetups.
-                </Text>
-                <TouchableOpacity
-                  style={{ backgroundColor: theme.primary, paddingVertical: 9, borderRadius: 8, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6 }}
-                  onPress={() => navigation.navigate('Main', { screen: 'Post', params: { view: 'events' } })}
-                  activeOpacity={0.8}
-                >
-                  <Ionicons name="calendar-outline" size={15} color="#FFFFFF" />
-                  <Text style={{ fontSize: 12, fontWeight: '700', color: '#FFFFFF' }}>Explore Events</Text>
-                </TouchableOpacity>
-              </View>
             </View>
 
             {/* 2. Middle Column: Main Feed */}
