@@ -19,6 +19,7 @@ import {
 } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import useUserRole from '../hooks/useUserRole';
 import {
   fetchJobs,
@@ -37,11 +38,15 @@ const JOB_TYPES = ['All', 'Full-time', 'Part-time', 'Contract', 'Internship'];
 const JobsScreen = ({ navigation, route }) => {
   const { theme, isDarkMode } = useTheme();
   const { isAlumni, isAdmin, isSuperAdmin, isAdminOrSuper } = useUserRole();
+  const insets = useSafeAreaInsets();
   const styles = getStyles(theme, isDarkMode);
 
   const { width: screenWidth } = useWindowDimensions();
   const isSmallScreen = screenWidth < 400;
   const isDesktop = screenWidth >= 1024;
+
+  // Floating Hamburger Menu State (Right Bottom)
+  const [fabMenuVisible, setFabMenuVisible] = useState(false);
 
   // LinkedIn Navigation Tabs
   const [activeTab, setActiveTab] = useState('search'); // 'search' | 'tracker' | 'preferences' | 'recommended' | 'post'
@@ -393,6 +398,17 @@ const JobsScreen = ({ navigation, route }) => {
           >
             <Ionicons name="add-circle" size={16} color={activeTab === 'post' ? (isDarkMode ? '#60A5FA' : '#003366') : theme.textMuted} />
             <Text style={[styles.tabText, activeTab === 'post' && styles.tabTextActive]}>Post a Job</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.tabItem, { backgroundColor: isDarkMode ? 'rgba(124, 58, 237, 0.15)' : '#F5F3FF', borderColor: isDarkMode ? '#7C3AED' : '#DDD6FE' }]}
+            onPress={() => navigation.navigate('ResumeBook')}
+          >
+            <Ionicons name="document-text" size={16} color="#7C3AED" />
+            <Text style={[styles.tabText, { color: isDarkMode ? '#C4B5FD' : '#6D28D9', fontWeight: '800' }]}>Resume Book</Text>
+            <View style={{ backgroundColor: isDarkMode ? '#5B21B6' : '#EDE9FE', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 5, marginLeft: 4 }}>
+              <Text style={{ fontSize: 9, fontWeight: '800', color: isDarkMode ? '#DDD6FE' : '#6D28D9' }}>TALENT</Text>
+            </View>
           </TouchableOpacity>
         </ScrollView>
       </View>
@@ -756,6 +772,143 @@ const JobsScreen = ({ navigation, route }) => {
           </View>
         </Modal>
       )}
+
+      {/* Floating Hamburger Menu at Bottom Right */}
+      <View 
+        style={[
+          styles.fabContainer,
+          {
+            bottom: isDesktop ? 28 : Math.max(insets?.bottom || 0, 10) + 76,
+          }
+        ]}
+        pointerEvents="box-none"
+      >
+        <TouchableOpacity
+          style={styles.fabButton}
+          onPress={() => setFabMenuVisible(prev => !prev)}
+          activeOpacity={0.85}
+          accessibilityLabel="Jobs and Resume Book Menu"
+        >
+          <Ionicons 
+            name={fabMenuVisible ? 'close' : 'menu'} 
+            size={26} 
+            color="#FFFFFF" 
+          />
+        </TouchableOpacity>
+      </View>
+
+      {/* Bottom Right Floating Hamburger Menu Modal */}
+      <Modal
+        visible={fabMenuVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setFabMenuVisible(false)}
+      >
+        <TouchableOpacity
+          style={styles.fabBackdrop}
+          activeOpacity={1}
+          onPress={() => setFabMenuVisible(false)}
+        >
+          <View 
+            style={[
+              styles.fabMenuCard,
+              {
+                bottom: isDesktop ? 94 : Math.max(insets?.bottom || 0, 10) + 140,
+                right: 20,
+              }
+            ]}
+            onStartShouldSetResponder={() => true}
+          >
+            {/* Header */}
+            <View style={styles.fabMenuHeader}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <View style={styles.fabMenuHeaderDot} />
+                <Text style={styles.fabMenuTitle}>Jobs & Talent Menu</Text>
+              </View>
+              <TouchableOpacity onPress={() => setFabMenuVisible(false)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                <Ionicons name="close" size={20} color={theme.textMuted} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Featured Primary Item: RESUME BOOK */}
+            <TouchableOpacity
+              style={styles.fabResumeBookItem}
+              activeOpacity={0.8}
+              onPress={() => {
+                setFabMenuVisible(false);
+                navigation.navigate('ResumeBook');
+              }}
+            >
+              <View style={styles.fabResumeBookIconPod}>
+                <Ionicons name="document-text" size={22} color="#7C3AED" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Text style={styles.fabResumeBookTitle}>Resume Book</Text>
+                  <View style={styles.fabResumeBookBadge}>
+                    <Text style={styles.fabResumeBookBadgeText}>TALENT POOL</Text>
+                  </View>
+                </View>
+                <Text style={styles.fabResumeBookSubtitle}>
+                  Browse candidate resumes, hire RV talent or get listed
+                </Text>
+              </View>
+              <Ionicons name="arrow-forward" size={16} color="#7C3AED" style={{ marginLeft: 6 }} />
+            </TouchableOpacity>
+
+            <View style={styles.fabMenuDivider} />
+
+            {/* Quick Actions */}
+            <TouchableOpacity
+              style={styles.fabMenuItem}
+              onPress={() => {
+                setFabMenuVisible(false);
+                setActiveTab('post');
+              }}
+            >
+              <View style={[styles.fabMenuIconPod, { backgroundColor: isDarkMode ? '#064E3B' : '#ECFDF5' }]}>
+                <Ionicons name="add-circle" size={18} color="#10B981" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.fabMenuItemTitle}>Post a Job</Text>
+                <Text style={styles.fabMenuItemSubtitle}>Hire RVCE graduates & alumni</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.fabMenuItem}
+              onPress={() => {
+                setFabMenuVisible(false);
+                setActiveTab('tracker');
+              }}
+            >
+              <View style={[styles.fabMenuIconPod, { backgroundColor: isDarkMode ? '#451A03' : '#FEF3C7' }]}>
+                <Ionicons name="bookmark" size={18} color="#F59E0B" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.fabMenuItemTitle}>Job Tracker</Text>
+                <Text style={styles.fabMenuItemSubtitle}>Saved & applied opportunities</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.fabMenuItem}
+              onPress={() => {
+                setFabMenuVisible(false);
+                setActiveTab('preferences');
+              }}
+            >
+              <View style={[styles.fabMenuIconPod, { backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9' }]}>
+                <Ionicons name="options" size={18} color={isDarkMode ? '#94A3B8' : '#475569'} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.fabMenuItemTitle}>Career Preferences</Text>
+                <Text style={styles.fabMenuItemSubtitle}>Set Open to Work & target roles</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -1038,6 +1191,137 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 12,
     elevation: 8,
+  },
+  // Bottom Right Floating Hamburger Menu Styles
+  fabContainer: {
+    position: 'absolute',
+    right: 20,
+    zIndex: 999,
+  },
+  fabButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: isDarkMode ? '#2563EB' : '#002B5C',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: isDarkMode ? '#38BDF8' : '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 8,
+    borderWidth: 2,
+    borderColor: isDarkMode ? '#60A5FA' : '#93C5FD',
+  },
+  fabBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+  },
+  fabMenuCard: {
+    position: 'absolute',
+    width: 320,
+    backgroundColor: theme.card,
+    borderRadius: 18,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: theme.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 12,
+  },
+  fabMenuHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.border,
+  },
+  fabMenuHeaderDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#7C3AED',
+  },
+  fabMenuTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: theme.text,
+    letterSpacing: -0.2,
+  },
+  fabResumeBookItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: isDarkMode ? '#1E1B4B' : '#F5F3FF',
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: isDarkMode ? '#4338CA' : '#DDD6FE',
+    gap: 10,
+    marginBottom: 6,
+  },
+  fabResumeBookIconPod: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: isDarkMode ? '#2E1065' : '#EDE9FE',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  fabResumeBookTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: isDarkMode ? '#C4B5FD' : '#5B21B6',
+  },
+  fabResumeBookBadge: {
+    backgroundColor: isDarkMode ? '#4C1D95' : '#EDE9FE',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  fabResumeBookBadgeText: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: isDarkMode ? '#E9D5FF' : '#6D28D9',
+  },
+  fabResumeBookSubtitle: {
+    fontSize: 11,
+    color: isDarkMode ? '#A78BFA' : '#6B7280',
+    marginTop: 2,
+    lineHeight: 15,
+  },
+  fabMenuDivider: {
+    height: 1,
+    backgroundColor: theme.border,
+    marginVertical: 6,
+  },
+  fabMenuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 9,
+    paddingHorizontal: 6,
+    borderRadius: 10,
+    gap: 10,
+  },
+  fabMenuIconPod: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  fabMenuItemTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: theme.text,
+  },
+  fabMenuItemSubtitle: {
+    fontSize: 11,
+    color: theme.textMuted,
+    marginTop: 1,
   },
 });
 
