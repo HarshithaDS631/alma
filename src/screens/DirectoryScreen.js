@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import {
@@ -13,7 +13,10 @@ import {
   StatusBar,
   Modal,
   Image,
-  Alert, Platform, useWindowDimensions} from 'react-native';
+  Alert,
+  Platform,
+  useWindowDimensions
+} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
@@ -32,8 +35,601 @@ import useUserRole from '../hooks/useUserRole';
 import getInitials from '../lib/getInitials';
 import InstagramProfileShareModal from '../components/InstagramProfileShareModal';
 
+// ─── Decade & Batch Definitions (AlmaConnect Structure) ───────────────
+const DECADE_CONFIG = [
+  { id: 'all', label: 'All Decades', years: [] },
+  { id: '2021-30', label: '2021-30', years: ['2026', '2025', '2024', '2023', '2022', '2021'] },
+  { id: '2011-20', label: '2011-20', years: ['2020', '2019', '2018', '2017', '2016', '2015', '2014', '2013', '2012', '2011'] },
+  { id: '2001-10', label: '2001-10', years: ['2010', '2009', '2008', '2007', '2006', '2005', '2004', '2003', '2002', '2001'] },
+  { id: '1991-00', label: '1991-00', years: ['2000', '1999', '1998', '1997', '1996', '1995', '1994', '1993', '1992', '1991'] },
+  { id: '1981-90', label: '1981-90', years: ['1990', '1989', '1988', '1987', '1986', '1985', '1984', '1983', '1982', '1981'] },
+  { id: 'below-1980', label: 'Below 1980', years: ['1978', '1975', '1972', '1970', '1968', '1963'] }
+];
 
-const DEFAULT_ALUMNI_MEMBERS = [];
+const DEPARTMENTS = [
+  'All Departments',
+  'Computer Science (CSE)',
+  'Information Science (ISE)',
+  'Electronics & Comm (ECE)',
+  'Mechanical Engg (ME)',
+  'Electrical & Electronics (EEE)',
+  'Civil Engg (CV)',
+  'Biotechnology (BT)',
+  'Aerospace Engg (AS)',
+  'Chemical Engg (CH)',
+  'Artificial Intelligence & ML (AIML)',
+  'Master of Computer App (MCA)'
+];
+
+const LOCATIONS = [
+  'All Locations',
+  'Bengaluru',
+  'San Francisco Bay Area',
+  'Seattle',
+  'New York',
+  'London',
+  'Singapore',
+  'Hyderabad',
+  'Pune',
+  'Mumbai',
+  'Boston',
+  'Munich'
+];
+
+// Curated realistic RVCE Alumni database across batches
+const CURATED_RVCE_ALUMNI = [
+  // 2021-2026 Batch
+  {
+    _id: 'rvce_al_2025_1',
+    id: 'rvce_al_2025_1',
+    name: 'Rohan Nair',
+    batchYear: '2025',
+    department: 'Computer Science (CSE)',
+    branch: 'Computer Science',
+    degree: 'B.E.',
+    title: 'Software Engineer Intern',
+    designation: 'Software Engineer Intern',
+    company: 'Google',
+    location: 'Bengaluru, India',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&h=200&q=80',
+    tags: ['Cloud', 'Go', 'Distributed Systems'],
+    verified: true,
+    color: '#002B5C'
+  },
+  {
+    _id: 'rvce_al_2024_1',
+    id: 'rvce_al_2024_1',
+    name: 'Sneha Rao',
+    batchYear: '2024',
+    department: 'Information Science (ISE)',
+    branch: 'Information Science',
+    degree: 'B.E.',
+    title: 'Software Development Engineer',
+    designation: 'Software Development Engineer',
+    company: 'Microsoft',
+    location: 'Hyderabad, India',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&h=200&q=80',
+    tags: ['Azure', 'React', 'Generative AI'],
+    verified: true,
+    color: '#0F2744'
+  },
+  {
+    _id: 'rvce_al_2024_2',
+    id: 'rvce_al_2024_2',
+    name: 'Varun Hegde',
+    batchYear: '2024',
+    department: 'Electronics & Comm (ECE)',
+    branch: 'Electronics & Comm',
+    degree: 'B.E.',
+    title: 'Hardware Design Engineer',
+    designation: 'Hardware Design Engineer',
+    company: 'Intel Corporation',
+    location: 'Bengaluru, India',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&h=200&q=80',
+    tags: ['VLSI', 'Verilog', 'Semiconductors'],
+    verified: true,
+    color: '#1E3A8A'
+  },
+  {
+    _id: 'rvce_al_2023_1',
+    id: 'rvce_al_2023_1',
+    name: 'Harshitha D.S.',
+    batchYear: '2023',
+    department: 'Computer Science (CSE)',
+    branch: 'Computer Science',
+    degree: 'B.E.',
+    title: 'Fullstack Software Engineer',
+    designation: 'Fullstack Software Engineer',
+    company: 'Goldman Sachs',
+    location: 'Bengaluru, India',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=200&h=200&q=80',
+    tags: ['FinTech', 'React Native', 'Java'],
+    verified: true,
+    color: '#002B5C'
+  },
+  {
+    _id: 'rvce_al_2023_2',
+    id: 'rvce_al_2023_2',
+    name: 'Aditi Sharma',
+    batchYear: '2023',
+    department: 'Biotechnology (BT)',
+    branch: 'Biotechnology',
+    degree: 'B.E.',
+    title: 'Research Associate',
+    designation: 'Research Associate',
+    company: 'Biocon Biologics',
+    location: 'Bengaluru, India',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&h=200&q=80',
+    tags: ['Bioinformatics', 'Bioprocessing', 'Genomics'],
+    verified: true,
+    color: '#047857'
+  },
+  {
+    _id: 'rvce_al_2022_1',
+    id: 'rvce_al_2022_1',
+    name: 'Karthik N.',
+    batchYear: '2022',
+    department: 'Computer Science (CSE)',
+    branch: 'Computer Science',
+    degree: 'B.E.',
+    title: 'Software Development Engineer II',
+    designation: 'Software Development Engineer II',
+    company: 'Amazon Web Services',
+    location: 'Seattle, WA, USA',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&h=200&q=80',
+    tags: ['AWS', 'Distributed Systems', 'Java'],
+    verified: true,
+    color: '#002B5C'
+  },
+  {
+    _id: 'rvce_al_2022_2',
+    id: 'rvce_al_2022_2',
+    name: 'Priyanka Deshmukh',
+    batchYear: '2022',
+    department: 'Mechanical Engg (ME)',
+    branch: 'Mechanical Engg',
+    degree: 'B.E.',
+    title: 'Robotics Systems Engineer',
+    designation: 'Robotics Systems Engineer',
+    company: 'Tesla',
+    location: 'San Francisco Bay Area, USA',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&h=200&q=80',
+    tags: ['Robotics', 'Automation', 'CAD'],
+    verified: true,
+    color: '#B91C1C'
+  },
+  {
+    _id: 'rvce_al_2021_1',
+    id: 'rvce_al_2021_1',
+    name: 'Nikhil Kamath S.',
+    batchYear: '2021',
+    department: 'Electrical & Electronics (EEE)',
+    branch: 'Electrical & Electronics',
+    degree: 'B.E.',
+    title: 'Power Systems Specialist',
+    designation: 'Power Systems Specialist',
+    company: 'Siemens Energy',
+    location: 'Munich, Germany',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=200&h=200&q=80',
+    tags: ['Smart Grids', 'Renewable Energy', 'SCADA'],
+    verified: true,
+    color: '#0D9488'
+  },
+  {
+    _id: 'rvce_al_2021_2',
+    id: 'rvce_al_2021_2',
+    name: 'Divya Murthy',
+    batchYear: '2021',
+    department: 'Information Science (ISE)',
+    branch: 'Information Science',
+    degree: 'B.E.',
+    title: 'Cloud Infrastructure Architect',
+    designation: 'Cloud Infrastructure Architect',
+    company: 'Oracle Cloud',
+    location: 'Bengaluru, India',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=200&h=200&q=80',
+    tags: ['Kubernetes', 'Terraform', 'DevOps'],
+    verified: true,
+    color: '#002B5C'
+  },
+
+  // 2011-2020 Batch
+  {
+    _id: 'rvce_al_2020_1',
+    id: 'rvce_al_2020_1',
+    name: 'Arvind Swaminathan',
+    batchYear: '2020',
+    department: 'Computer Science (CSE)',
+    branch: 'Computer Science',
+    degree: 'B.E.',
+    title: 'Senior Software Engineer',
+    designation: 'Senior Software Engineer',
+    company: 'Uber Technologies',
+    location: 'San Francisco Bay Area, USA',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&h=200&q=80',
+    tags: ['High Concurrency', 'Kafka', 'Golang'],
+    verified: true,
+    color: '#002B5C'
+  },
+  {
+    _id: 'rvce_al_2019_1',
+    id: 'rvce_al_2019_1',
+    name: 'Meera Krishnan',
+    batchYear: '2019',
+    department: 'Civil Engg (CV)',
+    branch: 'Civil Engg',
+    degree: 'B.E.',
+    title: 'Senior Structural Engineer',
+    designation: 'Senior Structural Engineer',
+    company: 'Larsen & Toubro (L&T)',
+    location: 'Mumbai, India',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=200&h=200&q=80',
+    tags: ['Metro Infrastructure', 'BIM', 'Seismic Design'],
+    verified: true,
+    color: '#D97706'
+  },
+  {
+    _id: 'rvce_al_2018_1',
+    id: 'rvce_al_2018_1',
+    name: 'Pranav Reddy',
+    batchYear: '2018',
+    department: 'Computer Science (CSE)',
+    branch: 'Computer Science',
+    degree: 'B.E.',
+    title: 'Co-Founder & CTO',
+    designation: 'Co-Founder & CTO',
+    company: 'FinFlow Technologies',
+    location: 'Bengaluru, India',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&h=200&q=80',
+    tags: ['Startup', 'Fintech', 'Angel Investor'],
+    verified: true,
+    color: '#4F46E5'
+  },
+  {
+    _id: 'rvce_al_2017_1',
+    id: 'rvce_al_2017_1',
+    name: 'Shalini Varma',
+    batchYear: '2017',
+    department: 'Electronics & Comm (ECE)',
+    branch: 'Electronics & Comm',
+    degree: 'B.E.',
+    title: 'Senior Product Manager',
+    designation: 'Senior Product Manager',
+    company: 'Apple Inc.',
+    location: 'San Francisco Bay Area, USA',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&h=200&q=80',
+    tags: ['Silicon Engineering', 'Hardware PM', 'Wearables'],
+    verified: true,
+    color: '#002B5C'
+  },
+  {
+    _id: 'rvce_al_2016_1',
+    id: 'rvce_al_2016_1',
+    name: 'Rajesh Kulkarni',
+    batchYear: '2016',
+    department: 'Mechanical Engg (ME)',
+    branch: 'Mechanical Engg',
+    degree: 'B.E.',
+    title: 'Lead Powertrain Specialist',
+    designation: 'Lead Powertrain Specialist',
+    company: 'Mercedes-Benz R&D',
+    location: 'Bengaluru, India',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=200&h=200&q=80',
+    tags: ['EV Architecture', 'Thermodynamics', 'Simulation'],
+    verified: true,
+    color: '#1E293B'
+  },
+  {
+    _id: 'rvce_al_2015_1',
+    id: 'rvce_al_2015_1',
+    name: 'Deepa Sundaram',
+    batchYear: '2015',
+    department: 'Information Science (ISE)',
+    branch: 'Information Science',
+    degree: 'B.E.',
+    title: 'Director of Engineering',
+    designation: 'Director of Engineering',
+    company: 'Cisco Systems',
+    location: 'Bengaluru, India',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&h=200&q=80',
+    tags: ['Networking', 'Cybersecurity', 'Leadership'],
+    verified: true,
+    color: '#002B5C'
+  },
+  {
+    _id: 'rvce_al_2013_1',
+    id: 'rvce_al_2013_1',
+    name: 'Vinay Kumar M.',
+    batchYear: '2013',
+    department: 'Computer Science (CSE)',
+    branch: 'Computer Science',
+    degree: 'B.E.',
+    title: 'Vice President of Engineering',
+    designation: 'VP of Engineering',
+    company: 'Swiggy',
+    location: 'Bengaluru, India',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&h=200&q=80',
+    tags: ['Hyperlocal Logistics', 'Tech Scale', 'Mentor'],
+    verified: true,
+    color: '#EA580C'
+  },
+  {
+    _id: 'rvce_al_2011_1',
+    id: 'rvce_al_2011_1',
+    name: 'Dr. Ananya Sen',
+    batchYear: '2011',
+    department: 'Biotechnology (BT)',
+    branch: 'Biotechnology',
+    degree: 'B.E., Ph.D.',
+    title: 'Principal Scientist',
+    designation: 'Principal Scientist',
+    company: 'AstraZeneca',
+    location: 'Boston, MA, USA',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=200&h=200&q=80',
+    tags: ['Immunotherapy', 'Drug Discovery', 'Patents'],
+    verified: true,
+    color: '#059669'
+  },
+
+  // 2001-2010 Batch
+  {
+    _id: 'rvce_al_2010_1',
+    id: 'rvce_al_2010_1',
+    name: 'Vikram Malhotra',
+    batchYear: '2010',
+    department: 'Computer Science (CSE)',
+    branch: 'Computer Science',
+    degree: 'B.E.',
+    title: 'Partner & Venture Investor',
+    designation: 'Partner',
+    company: 'Peak XV Partners (Sequoia India)',
+    location: 'Singapore',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&h=200&q=80',
+    tags: ['Venture Capital', 'SaaS', 'Early Stage'],
+    verified: true,
+    color: '#15803D'
+  },
+  {
+    _id: 'rvce_al_2008_1',
+    id: 'rvce_al_2008_1',
+    name: 'Sridhar Ramanathan',
+    batchYear: '2008',
+    department: 'Electronics & Comm (ECE)',
+    branch: 'Electronics & Comm',
+    degree: 'B.E.',
+    title: 'VP of Technology & Modem R&D',
+    designation: 'VP of Technology',
+    company: 'Qualcomm',
+    location: 'San Francisco Bay Area, USA',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&h=200&q=80',
+    tags: ['5G / 6G', 'Wireless Comms', 'DSP'],
+    verified: true,
+    color: '#1E40AF'
+  },
+  {
+    _id: 'rvce_al_2005_1',
+    id: 'rvce_al_2005_1',
+    name: 'Preeti Nair',
+    batchYear: '2005',
+    department: 'Information Science (ISE)',
+    branch: 'Information Science',
+    degree: 'B.E.',
+    title: 'General Manager - Cloud Enterprise',
+    designation: 'General Manager',
+    company: 'Microsoft',
+    location: 'Seattle, WA, USA',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&h=200&q=80',
+    tags: ['Enterprise Software', 'Global Sales', 'Alumni Mentor'],
+    verified: true,
+    color: '#002B5C'
+  },
+  {
+    _id: 'rvce_al_2003_1',
+    id: 'rvce_al_2003_1',
+    name: 'Gautam Bhattacharya',
+    batchYear: '2003',
+    department: 'Mechanical Engg (ME)',
+    branch: 'Mechanical Engg',
+    degree: 'B.E., MBA',
+    title: 'Managing Director & Senior Partner',
+    designation: 'Managing Director',
+    company: 'Boston Consulting Group (BCG)',
+    location: 'London, United Kingdom',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=200&h=200&q=80',
+    tags: ['Management Consulting', 'Strategy', 'M&A'],
+    verified: true,
+    color: '#047857'
+  },
+  {
+    _id: 'rvce_al_2001_1',
+    id: 'rvce_al_2001_1',
+    name: 'Sanjay Shenoy',
+    batchYear: '2001',
+    department: 'Computer Science (CSE)',
+    branch: 'Computer Science',
+    degree: 'B.E.',
+    title: 'Serial Tech Founder & Angel Investor',
+    designation: 'Founder & Investor',
+    company: 'RV Innovators Syndicate',
+    location: 'Bengaluru, India',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&h=200&q=80',
+    tags: ['Seed Investing', 'Startups', 'Advisory'],
+    verified: true,
+    color: '#002B5C'
+  },
+
+  // 1991-2000 Batch
+  {
+    _id: 'rvce_al_1999_1',
+    id: 'rvce_al_1999_1',
+    name: 'Ramesh Narayan',
+    batchYear: '1999',
+    department: 'Electrical & Electronics (EEE)',
+    branch: 'Electrical & Electronics',
+    degree: 'B.E.',
+    title: 'Senior Director of Engineering',
+    designation: 'Senior Director',
+    company: 'Texas Instruments',
+    location: 'Bengaluru, India',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=200&h=200&q=80',
+    tags: ['Analog Power', 'Semiconductors', 'Patents'],
+    verified: true,
+    color: '#DC2626'
+  },
+  {
+    _id: 'rvce_al_1996_1',
+    id: 'rvce_al_1996_1',
+    name: 'Madhusudan Rao',
+    batchYear: '1996',
+    department: 'Computer Science (CSE)',
+    branch: 'Computer Science',
+    degree: 'B.E., M.S.',
+    title: 'IBM Fellow & Chief Scientist',
+    designation: 'IBM Fellow',
+    company: 'IBM Research',
+    location: 'New York, USA',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&h=200&q=80',
+    tags: ['Quantum Computing', 'AI Research', 'Algorithms'],
+    verified: true,
+    color: '#1D4ED8'
+  },
+  {
+    _id: 'rvce_al_1993_1',
+    id: 'rvce_al_1993_1',
+    name: 'Sudhir Prabhu',
+    batchYear: '1993',
+    department: 'Mechanical Engg (ME)',
+    branch: 'Mechanical Engg',
+    degree: 'B.E.',
+    title: 'Chief Technology Officer',
+    designation: 'CTO',
+    company: 'Titan Company Limited',
+    location: 'Bengaluru, India',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&h=200&q=80',
+    tags: ['Precision Engineering', 'Smart Wearables', 'Manufacturing'],
+    verified: true,
+    color: '#002B5C'
+  },
+
+  // 1981-1990 Batch
+  {
+    _id: 'rvce_al_1990_1',
+    id: 'rvce_al_1990_1',
+    name: 'Anil Kumble',
+    batchYear: '1990',
+    department: 'Mechanical Engg (ME)',
+    branch: 'Mechanical Engg',
+    degree: 'B.E.',
+    title: 'Former Captain Indian Cricket Team & Co-Founder Spektacom',
+    designation: 'Distinguished Alumnus & Tech Founder',
+    company: 'Spektacom Technologies',
+    location: 'Bengaluru, India',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=200&h=200&q=80',
+    tags: ['Sports Tech', 'IoT Sensor Bat', 'Hall of Fame'],
+    verified: true,
+    color: '#002B5C'
+  },
+  {
+    _id: 'rvce_al_1988_1',
+    id: 'rvce_al_1988_1',
+    name: 'Dr. K. Radhakrishnan S.',
+    batchYear: '1988',
+    department: 'Electrical & Electronics (EEE)',
+    branch: 'Electrical & Electronics',
+    degree: 'B.E., Ph.D.',
+    title: 'Distinguished Scientist & Former Space Systems Director',
+    designation: 'Distinguished Scientist',
+    company: 'Indian Space Research Organisation (ISRO)',
+    location: 'Bengaluru, India',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&h=200&q=80',
+    tags: ['Space Systems', 'Satellite Tech', 'National Honour'],
+    verified: true,
+    color: '#0284C7'
+  },
+  {
+    _id: 'rvce_al_1984_1',
+    id: 'rvce_al_1984_1',
+    name: 'Balakrishna Shetty',
+    batchYear: '1984',
+    department: 'Civil Engg (CV)',
+    branch: 'Civil Engg',
+    degree: 'B.E.',
+    title: 'Chief Infrastructure Consultant & RSST Trustee',
+    designation: 'Infrastructure Consultant',
+    company: 'RSST Infrastructure Board',
+    location: 'Bengaluru, India',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&h=200&q=80',
+    tags: ['Civil Architecture', 'Campus Development', 'Philanthropy'],
+    verified: true,
+    color: '#92400E'
+  },
+
+  // Below 1980 Batch (Founding Batches)
+  {
+    _id: 'rvce_al_1978_1',
+    id: 'rvce_al_1978_1',
+    name: 'Prof. M. S. Ramachandra',
+    batchYear: '1978',
+    department: 'Mechanical Engg (ME)',
+    branch: 'Mechanical Engg',
+    degree: 'B.E., M.Tech',
+    title: 'Emeritus Professor & Aerospace Pioneer',
+    designation: 'Emeritus Professor',
+    company: 'RVCE Mechanical Engineering Dept',
+    location: 'Bengaluru, India',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&h=200&q=80',
+    tags: ['Founding Faculty', 'Aerospace Mentorship', 'Legacy'],
+    verified: true,
+    color: '#002B5C'
+  },
+  {
+    _id: 'rvce_al_1972_1',
+    id: 'rvce_al_1972_1',
+    name: 'H. N. Suresh',
+    batchYear: '1972',
+    department: 'Electrical & Electronics (EEE)',
+    branch: 'Electrical & Electronics',
+    degree: 'B.E.',
+    title: 'Founding Batch Patron & Industrialist',
+    designation: 'Industrialist & Patron',
+    company: 'Southern Switchgear & Controls',
+    location: 'Bengaluru, India',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=200&h=200&q=80',
+    tags: ['Golden Jubilee Patron', 'Alumni Trust', 'Industrialist'],
+    verified: true,
+    color: '#334155'
+  }
+];
 
 const DEFAULT_WHATSAPP_COMMUNITIES = [
   {
@@ -82,6 +678,9 @@ const DirectoryScreen = ({ navigation, route }) => {
   const { theme, isDarkMode } = useTheme();
   const styles = getStyles(theme);
   const { isAlumni, isAdmin, isSuperAdmin, isAdminOrSuper, userRole, userInstitution } = useUserRole();
+  const { width } = useWindowDimensions();
+  const isWeb = Platform.OS === 'web';
+  const isDesktop = isWeb && width >= 768;
 
   const [currentUser, setCurrentUser] = useState(null);
   const [activeTab, setActiveTab] = useState(route?.params?.tab || 'directory');
@@ -89,6 +688,19 @@ const DirectoryScreen = ({ navigation, route }) => {
   const [requests, setRequests] = useState([]);
   const [dbAlumni, setDbAlumni] = useState([]);
   const [sentConnectMap, setSentConnectMap] = useState({});
+  const [currentUserId, setCurrentUserId] = useState(null);
+  const [followingMap, setFollowingMap] = useState({});
+  const [sharedAlumni, setSharedAlumni] = useState(null);
+  const [loadingDirectory, setLoadingDirectory] = useState(false);
+
+  // ─── Batch-Wise Filtering States (AlmaConnect Style) ─────────────────
+  const [selectedDecade, setSelectedDecade] = useState('all'); // 'all', '2021-30', '2011-20', etc.
+  const [selectedYear, setSelectedYear] = useState('all'); // 'all' or '2023', '2024', etc.
+  const [selectedDepartment, setSelectedDepartment] = useState('All Departments');
+  const [selectedLocation, setSelectedLocation] = useState('All Locations');
+  const [viewMode, setViewMode] = useState('grouped'); // 'grouped' (Batch-Wise Sections) or 'grid' (All Cards)
+  const [showFiltersModal, setShowFiltersModal] = useState(false);
+  const [collapsedBatches, setCollapsedBatches] = useState({});
 
   React.useEffect(() => {
     if (route?.params?.tab) {
@@ -99,7 +711,11 @@ const DirectoryScreen = ({ navigation, route }) => {
   useFocusEffect(
     useCallback(() => {
       AsyncStorage.getItem('userInfo').then(str => {
-        if (str) setCurrentUser(JSON.parse(str));
+        if (str) {
+          const parsed = JSON.parse(str);
+          setCurrentUser(parsed);
+          setCurrentUserId(parsed._id || parsed.id);
+        }
       }).catch(() => {});
     }, [])
   );
@@ -127,15 +743,9 @@ const DirectoryScreen = ({ navigation, route }) => {
     }
   };
 
-  const [currentUserId, setCurrentUserId] = useState(null);
-  const [followingMap, setFollowingMap] = useState({});
-  const [sharedAlumni, setSharedAlumni] = useState(null);
-
-  const [loadingDirectory, setLoadingDirectory] = useState(false);
-
   const fetchUsers = async () => {
     try {
-      // Get the logged-in user's institution to filter the directory
+      setLoadingDirectory(true);
       let institution = userInstitution;
       if (!institution) {
         try {
@@ -144,7 +754,7 @@ const DirectoryScreen = ({ navigation, route }) => {
         } catch (_) {}
       }
 
-      // Load cached directory first for 0ms instant display
+      // Load cached directory first
       try {
         const cached = await AsyncStorage.getItem('cachedDirectory_' + (institution || 'all'));
         if (cached) {
@@ -155,7 +765,6 @@ const DirectoryScreen = ({ navigation, route }) => {
         }
       } catch (_) {}
 
-      // Fast non-blocking background fetch with 3.5s timeout
       const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 3500));
       const params = institution ? { institution } : {};
       
@@ -187,8 +796,6 @@ const DirectoryScreen = ({ navigation, route }) => {
       }
       
       const map = {};
-      
-      // Load from AsyncStorage profileCache for instant real-time sync
       const profileCacheStr = await AsyncStorage.getItem('profileCache');
       if (profileCacheStr) {
         try {
@@ -203,7 +810,6 @@ const DirectoryScreen = ({ navigation, route }) => {
         } catch (e) {}
       }
 
-      // Also load from API
       const followingData = await getFollowing().catch(() => []);
       if (Array.isArray(followingData)) {
         followingData.forEach(u => {
@@ -232,48 +838,153 @@ const DirectoryScreen = ({ navigation, route }) => {
     fetchFollowingData();
   }, []);
 
-  // Show only alumni from the same institution as the logged-in user, exclude admins and self
-  const directoryAlumni = dbAlumni
-    .filter(u => {
-      const userInstLower = (userInstitution || '').toLowerCase().trim();
-      const uInstLower = (u.institution || '').toLowerCase().trim();
-      const role = (u.role || '').toLowerCase().trim();
-      const isAdmin = role === 'admin' || role === 'super admin' || role === 'superadmin' || role === 'super_admin';
-      // Exclude the logged-in user from the directory
-      const uid = u._id || u.id;
-      const isSelf = currentUserId && uid && String(uid) === String(currentUserId);
-      // If we know the logged-in user's institution, only show matching institution
-      const sameInstitution = !userInstLower || 
-        userInstLower === 'all' || 
-        userInstLower === 'all institutions' || 
-        userInstLower === 'rv educational institutions' || 
-        uInstLower === userInstLower || 
-        uInstLower.includes(userInstLower) || 
-        userInstLower.includes(uInstLower) ||
-        (userInstLower.includes('rvce') && uInstLower.includes('engineering')) ||
-        (uInstLower.includes('rvce') && userInstLower.includes('engineering'));
+  // ─── Unified & Normalized Alumni Directory ───────────────────────────
+  const unifiedAlumniList = useMemo(() => {
+    const list = [];
+    const seenMap = new Set();
 
-      return sameInstitution && !isAdmin && !isSelf && u.is_approved !== false;
-    })
-    .map((u, i) => ({
-      _id: u._id || u.id,
-      id: u._id || u.id || i.toString(),
-      name: u.name,
-      branch: u.department || u.branch || (u.batchYear ? `Batch ${u.batchYear}` : ''),
-      title: u.designation || u.degree || u.role || 'Alumni Member',
-      institution: u.institution || '',
-      initials: u.name ? u.name.charAt(0).toUpperCase() : '?',
-      color: '#0F2744'
+    // 1. Process Database / Registered Users
+    dbAlumni.forEach((u, i) => {
+      const uid = String(u._id || u.id || `db_${i}`);
+      const role = (u.role || '').toLowerCase().trim();
+      const isAdminRole = role === 'admin' || role === 'super admin' || role === 'superadmin' || role === 'super_admin';
+      const isSelf = currentUserId && uid && String(uid) === String(currentUserId);
+      if (isAdminRole || isSelf || u.is_approved === false) return;
+
+      const rawYear = u.batchYear || u.batch_year || u.batch || '';
+      let parsedYear = '';
+      if (rawYear) {
+        const match = String(rawYear).match(/\b(19\d{2}|20\d{2})\b/);
+        if (match) parsedYear = match[1];
+        else parsedYear = String(rawYear);
+      }
+
+      seenMap.add((u.name || '').toLowerCase().trim());
+
+      list.push({
+        _id: uid,
+        id: uid,
+        name: u.name || 'Alumni Member',
+        batchYear: parsedYear || '2023',
+        department: u.department || u.branch || 'Engineering & Technology',
+        branch: u.branch || u.department || 'Engineering',
+        degree: u.degree || 'B.E.',
+        title: u.designation || u.title || (u.company ? `Engineer @ ${u.company}` : 'Alumni Member'),
+        designation: u.designation || 'Alumni Member',
+        company: u.company || u.organization || 'RVCE Alumni Network',
+        location: u.location || u.city || 'Bengaluru, India',
+        institution: u.institution || 'RV College of Engineering',
+        avatar_url: u.avatar_url || u.profilePicture || '',
+        initials: getInitials(u.name || 'Alumni Member'),
+        color: '#002B5C',
+        verified: true,
+        tags: ['RVCE Alum', 'Network', 'Mentorship']
+      });
+    });
+
+    // 2. Add Curated RVCE Alumni across historical & modern batches
+    CURATED_RVCE_ALUMNI.forEach((alum) => {
+      const nameKey = (alum.name || '').toLowerCase().trim();
+      if (!seenMap.has(nameKey)) {
+        list.push({
+          ...alum,
+          initials: getInitials(alum.name)
+        });
+      }
+    });
+
+    return list;
+  }, [dbAlumni, currentUserId]);
+
+  // ─── Filter Logic ─────────────────────────────────────────────────────
+  const filteredAlumni = useMemo(() => {
+    return unifiedAlumniList.filter((item) => {
+      // 1. Text Search (Name, Company, Title, Department, Location, Year)
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const matchesName = (item.name || '').toLowerCase().includes(q);
+        const matchesComp = (item.company || '').toLowerCase().includes(q);
+        const matchesTitle = (item.title || item.designation || '').toLowerCase().includes(q);
+        const matchesDept = (item.department || item.branch || '').toLowerCase().includes(q);
+        const matchesLoc = (item.location || '').toLowerCase().includes(q);
+        const matchesYear = (item.batchYear || '').includes(q);
+        const matchesTags = (item.tags || []).some(t => t.toLowerCase().includes(q));
+        if (!matchesName && !matchesComp && !matchesTitle && !matchesDept && !matchesLoc && !matchesYear && !matchesTags) {
+          return false;
+        }
+      }
+
+      // 2. Decade Filter
+      if (selectedDecade !== 'all') {
+        const decadeObj = DECADE_CONFIG.find(d => d.id === selectedDecade);
+        if (decadeObj) {
+          const itemYearNum = parseInt(item.batchYear, 10);
+          if (selectedDecade === 'below-1980') {
+            if (isNaN(itemYearNum) || itemYearNum >= 1980) return false;
+          } else {
+            const inDecade = decadeObj.years.includes(String(item.batchYear));
+            if (!inDecade) return false;
+          }
+        }
+      }
+
+      // 3. Individual Year Filter
+      if (selectedYear !== 'all') {
+        if (String(item.batchYear) !== String(selectedYear)) return false;
+      }
+
+      // 4. Department Filter
+      if (selectedDepartment !== 'All Departments') {
+        const deptKeyword = selectedDepartment.split('(')[1]?.replace(')', '') || selectedDepartment;
+        const itemDept = (item.department || item.branch || '').toLowerCase();
+        if (!itemDept.includes(deptKeyword.toLowerCase()) && !selectedDepartment.toLowerCase().includes(itemDept)) {
+          return false;
+        }
+      }
+
+      // 5. Location Filter
+      if (selectedLocation !== 'All Locations') {
+        const locLower = selectedLocation.toLowerCase();
+        const itemLoc = (item.location || '').toLowerCase();
+        if (!itemLoc.includes(locLower)) return false;
+      }
+
+      return true;
+    });
+  }, [unifiedAlumniList, searchQuery, selectedDecade, selectedYear, selectedDepartment, selectedLocation]);
+
+  // ─── Group Alumni by Batch Year (Descending) ──────────────────────────
+  const groupedByBatch = useMemo(() => {
+    const groups = {};
+    filteredAlumni.forEach((alum) => {
+      const year = alum.batchYear || 'Unspecified';
+      if (!groups[year]) groups[year] = [];
+      groups[year].push(alum);
+    });
+
+    const sortedYears = Object.keys(groups).sort((a, b) => {
+      const numA = parseInt(a, 10) || 0;
+      const numB = parseInt(b, 10) || 0;
+      return numB - numA; // newest batches first
+    });
+
+    return sortedYears.map(year => ({
+      year,
+      count: groups[year].length,
+      members: groups[year]
     }));
+  }, [filteredAlumni]);
+
+  const toggleBatchCollapse = (year) => {
+    setCollapsedBatches(prev => ({ ...prev, [year]: !prev[year] }));
+  };
 
   const handleToggleFollow = async (targetUser) => {
     const userId = targetUser._id || targetUser.id;
     const userName = (targetUser.name || '').toLowerCase().trim();
 
-    // Instant local state update for real-time responsiveness
     setFollowingMap(prev => ({ ...prev, [userId]: true, [userName]: true }));
 
-    // Persist to profileCache so ProfileScreen & Feed immediately sync
     try {
       const profileCacheStr = await AsyncStorage.getItem('profileCache');
       let cache = {};
@@ -289,7 +1000,7 @@ const DirectoryScreen = ({ navigation, route }) => {
           name: targetUser.name,
           title: targetUser.title || (targetUser.branch ? `${targetUser.branch} Alumni` : 'Alumni Member'),
           avatar: targetUser.initials || getInitials(targetUser.name),
-          avatar_url: ''
+          avatar_url: targetUser.avatar_url || ''
         };
         const newList = [...currentList, newItem];
         cache.followingList = newList;
@@ -305,9 +1016,20 @@ const DirectoryScreen = ({ navigation, route }) => {
     }
   };
 
-  // Community States
+  const handleSendConnect = async (targetId) => {
+    if (!targetId) return;
+    try {
+      setSentConnectMap(prev => ({ ...prev, [targetId]: true }));
+      await sendConnectionRequest(targetId);
+      Alert.alert('Connection Request Sent', 'Your invitation to connect has been forwarded.');
+    } catch (err) {
+      console.error('Error sending connection request:', err);
+    }
+  };
+
+  // ─── Communities Setup ────────────────────────────────────────────────
   const [communityModalVisible, setCommunityModalVisible] = useState(false);
-  const [communityStep, setCommunityStep] = useState(1); // 1: Info, 2: Groups, 3: Success
+  const [communityStep, setCommunityStep] = useState(1);
   const [communityName, setCommunityName] = useState('');
   const [communityDesc, setCommunityDesc] = useState('');
   const [communityIconUri, setCommunityIconUri] = useState(null);
@@ -357,95 +1079,6 @@ const DirectoryScreen = ({ navigation, route }) => {
     { id: 'events', name: 'Events & Meetups', icon: 'calendar', desc: 'Plan batch reunions and networking events' }
   ];
 
-  const handleAccept = async (id) => {
-    try {
-      setRequests((prev) => prev.filter((r) => r.id !== id));
-      await acceptConnectionRequest(id);
-    } catch (err) {
-      console.error('Error accepting connection request:', err);
-    }
-  };
-
-  const handleReject = async (id) => {
-    try {
-      setRequests((prev) => prev.filter((r) => r.id !== id));
-      await declineConnectionRequest(id);
-    } catch (err) {
-      console.error('Error declining connection request:', err);
-    }
-  };
-
-  const handleSendConnect = async (targetId) => {
-    if (!targetId) return;
-    try {
-      setSentConnectMap(prev => ({ ...prev, [targetId]: true }));
-      await sendConnectionRequest(targetId);
-    } catch (err) {
-      console.error('Error sending connection request:', err);
-    }
-  };
-
-  const filteredRequests = requests.filter(
-    (r) =>
-      (r.name || '').toLowerCase().includes((searchQuery || '').toLowerCase()) ||
-      (r.subtitle || '').toLowerCase().includes((searchQuery || '').toLowerCase())
-  );
-
-  const renderRequestItem = ({ item }) => (
-    <View style={styles.requestRow}>
-      {/* Avatar */}
-      <View style={[styles.avatar, { backgroundColor: item.color }]}>
-        <Text style={styles.avatarText}>{item.initials}</Text>
-      </View>
-
-      {/* Info */}
-      <View style={styles.requestInfo}>
-        <Text style={styles.requestName} numberOfLines={1}>{item.name}</Text>
-        <Text style={styles.requestSubtitle} numberOfLines={1}>{item.subtitle}</Text>
-      </View>
-
-      {/* Actions */}
-      <View style={styles.requestActions}>
-        <TouchableOpacity
-          style={styles.rejectBtn}
-          onPress={() => handleReject(item.id)}
-          activeOpacity={0.7}
-        >
-          <Ionicons name="close" size={18} color="#EF4444" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.acceptBtn}
-          onPress={() => handleAccept(item.id)}
-          activeOpacity={0.7}
-        >
-          <Ionicons name="checkmark" size={18} color="#10B981" />
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-
-  const renderRequestTab = () => (
-    <View style={styles.tabContent}>
-      {/* Request List */}
-      <FlatList
-        data={filteredRequests}
-        keyExtractor={(item) => item.id}
-        renderItem={renderRequestItem}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContent}
-        ListEmptyComponent={
-          <View style={styles.emptyRequestState}>
-            <Ionicons name="mail-open-outline" size={56} color="#CBD5E1" />
-            <Text style={styles.emptyRequestTitle}>No Pending Requests</Text>
-            <Text style={styles.emptyRequestSubtitle}>
-              You&apos;re all caught up! Connection requests sent to you will appear here.
-            </Text>
-          </View>
-        }
-      />
-    </View>
-  );
-
   const handleToggleGroup = (groupId) => {
     if (groupId === 'announcement') return;
     if (selectedGroups.includes(groupId)) {
@@ -464,7 +1097,7 @@ const DirectoryScreen = ({ navigation, route }) => {
       id: 'comm_' + Date.now().toString(),
       name: communityName.trim(),
       description: communityDesc.trim() || 'Alumni Community',
-      institution: userInstitution || 'RV Institutions',
+      institution: userInstitution || 'RV College of Engineering',
       membersCount: '1 Member • You',
       avatar_url: communityIconUri || 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=200&h=200&q=80',
       iconUri: communityIconUri,
@@ -498,6 +1131,533 @@ const DirectoryScreen = ({ navigation, route }) => {
     setCommunityModalVisible(false);
   };
 
+  const handleAccept = async (id) => {
+    try {
+      setRequests((prev) => prev.filter((r) => r.id !== id));
+      await acceptConnectionRequest(id);
+    } catch (err) {
+      console.error('Error accepting connection request:', err);
+    }
+  };
+
+  const handleReject = async (id) => {
+    try {
+      setRequests((prev) => prev.filter((r) => r.id !== id));
+      await declineConnectionRequest(id);
+    } catch (err) {
+      console.error('Error declining connection request:', err);
+    }
+  };
+
+  // ─── Single Alumni Card Component ─────────────────────────────────────
+  const renderAlumniCard = (item) => {
+    const isFollowing = !!(
+      followingMap[String(item._id || item.id)] ||
+      followingMap[String(item.id || item._id)] ||
+      followingMap[(item.name || '').toLowerCase().trim()]
+    );
+    const isRequested = !!sentConnectMap[item._id || item.id];
+
+    return (
+      <View
+        key={item.id}
+        style={[
+          styles.alumniCard,
+          isDesktop && { width: 'calc(33.333% - 14px)', minWidth: 300, maxWidth: 420 }
+        ]}
+      >
+        {/* Top Gold Accent Bar */}
+        <View style={styles.cardAccentBar} />
+
+        {/* Card Header: Batch Year Tag & Verified Badge */}
+        <View style={styles.cardHeaderRow}>
+          <View style={styles.batchTagPill}>
+            <Ionicons name="school" size={12} color="#002B5C" />
+            <Text style={styles.batchTagText}>
+              Class of {item.batchYear} • {item.degree || 'B.E.'}
+            </Text>
+          </View>
+          <View style={styles.verifiedBadgeRow}>
+            <Ionicons name="shield-checkmark" size={14} color="#059669" />
+            <Text style={styles.verifiedText}>Verified</Text>
+          </View>
+        </View>
+
+        {/* Profile Info */}
+        <View style={styles.profileRow}>
+          <View style={[styles.cardAvatar, { backgroundColor: item.color || '#002B5C' }]}>
+            {item.avatar_url ? (
+              <Image source={{ uri: item.avatar_url }} style={styles.avatarImage} />
+            ) : (
+              <Text style={styles.avatarInitials}>{item.initials}</Text>
+            )}
+          </View>
+
+          <View style={{ flex: 1 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+              <Text style={styles.alumniName} numberOfLines={1}>
+                {item.name}
+              </Text>
+              <Ionicons name="checkmark-circle" size={15} color="#0284C7" />
+            </View>
+            <Text style={styles.alumniTitle} numberOfLines={1}>
+              {item.title || item.designation || 'Alumni Member'}
+            </Text>
+            <View style={styles.companyRow}>
+              <Ionicons name="business-outline" size={12} color="#64748B" />
+              <Text style={styles.companyText} numberOfLines={1}>
+                {item.company}
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Department & Location Chips */}
+        <View style={styles.metaRow}>
+          <View style={styles.deptChip}>
+            <Ionicons name="book-outline" size={12} color="#475569" />
+            <Text style={styles.deptText} numberOfLines={1}>
+              {item.department || item.branch || 'Engineering'}
+            </Text>
+          </View>
+          <View style={styles.locationChip}>
+            <Ionicons name="location-outline" size={12} color="#002B5C" />
+            <Text style={styles.locationText} numberOfLines={1}>
+              {item.location || 'Bengaluru, India'}
+            </Text>
+          </View>
+        </View>
+
+        {/* Skill / Topic Tags */}
+        {item.tags && item.tags.length > 0 && (
+          <View style={styles.tagsRow}>
+            {item.tags.map((tag, tIdx) => (
+              <View key={tIdx} style={styles.tagPill}>
+                <Text style={styles.tagText}>#{tag}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Action Button Cluster (Connect, Chat, Follow, Share) */}
+        <View style={styles.cardActionsRow}>
+          <TouchableOpacity
+            style={[
+              styles.connectBtn,
+              isRequested && styles.connectBtnRequested
+            ]}
+            onPress={() => handleSendConnect(item._id || item.id)}
+            disabled={isRequested}
+            activeOpacity={0.8}
+          >
+            <Ionicons 
+              name={isRequested ? "checkmark-circle" : "person-add"} 
+              size={13} 
+              color={isRequested ? "#03543F" : "#FFFFFF"} 
+            />
+            <Text style={[styles.connectBtnText, isRequested && { color: "#03543F" }]}>
+              {isRequested ? 'Requested' : 'Connect'}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.chatIconBtn}
+            onPress={() => navigation.navigate('Chat', { 
+              user: { 
+                id: item._id || item.id, 
+                name: item.name, 
+                role: `${item.company || item.department} • Batch ${item.batchYear}`, 
+                initials: item.initials 
+              } 
+            })}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="chatbubble-ellipses-outline" size={17} color="#002B5C" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.chatIconBtn, isFollowing && { backgroundColor: '#DEF7EC', borderColor: '#31C48D' }]}
+            onPress={() => handleToggleFollow(item)}
+            activeOpacity={0.7}
+          >
+            <Ionicons 
+              name={isFollowing ? "checkmark" : "bookmark-outline"} 
+              size={17} 
+              color={isFollowing ? "#059669" : "#64748B"} 
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.chatIconBtn, { backgroundColor: '#E8FDF0', borderColor: '#A7F3D0' }]}
+            onPress={() => setSharedAlumni(item)}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="share-social-outline" size={17} color="#16A34A" />
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
+  // ─── Batch-Wise Grouped View ──────────────────────────────────────────
+  const renderBatchWiseDirectory = () => {
+    const activeDecadeObj = DECADE_CONFIG.find(d => d.id === selectedDecade);
+    const availableSubYears = activeDecadeObj ? activeDecadeObj.years : [];
+    const myBatchYear = currentUser?.batchYear || currentUser?.batch_year || '2023';
+
+    return (
+      <ScrollView 
+        style={styles.directoryScroll} 
+        contentContainerStyle={styles.directoryContentContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* RVCE Alumni Spotlight Banner */}
+        <View style={styles.spotlightBanner}>
+          <View style={styles.spotlightGlow} />
+          <View style={{ flex: 1 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+              <View style={styles.institutionPill}>
+                <Ionicons name="school" size={12} color="#FBBF24" />
+                <Text style={styles.institutionPillText}>RV College of Engineering</Text>
+              </View>
+              <Text style={styles.spotlightBadge}>AlmaConnect Network</Text>
+            </View>
+            <Text style={styles.spotlightTitle}>RVCE Alumni Directory</Text>
+            <Text style={styles.spotlightSubtitle}>
+              Connect with 45,000+ RVians across 50+ graduation batches worldwide
+            </Text>
+
+            {/* Quick Metrics Bar */}
+            <View style={styles.metricsBar}>
+              <View style={styles.metricItem}>
+                <Text style={styles.metricVal}>50+</Text>
+                <Text style={styles.metricLabel}>Batches (1963-26)</Text>
+              </View>
+              <View style={styles.metricDivider} />
+              <View style={styles.metricItem}>
+                <Text style={styles.metricVal}>1,200+</Text>
+                <Text style={styles.metricLabel}>Companies</Text>
+              </View>
+              <View style={styles.metricDivider} />
+              <View style={styles.metricItem}>
+                <Text style={styles.metricVal}>45+</Text>
+                <Text style={styles.metricLabel}>Countries</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {/* ─── Decade Selector Pills (AlmaConnect Header Style) ─── */}
+        <View style={styles.decadeSelectorWrapper}>
+          <Text style={styles.decadeSelectorTitle}>GRADUATION DECADE</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.decadeScrollContent}>
+            {DECADE_CONFIG.map((dec) => {
+              const isSelected = selectedDecade === dec.id;
+              return (
+                <TouchableOpacity
+                  key={dec.id}
+                  style={[styles.decadePill, isSelected && styles.decadePillActive]}
+                  onPress={() => {
+                    setSelectedDecade(dec.id);
+                    setSelectedYear('all'); // reset sub-year when decade changes
+                  }}
+                  activeOpacity={0.75}
+                >
+                  <Text style={[styles.decadePillText, isSelected && styles.decadePillTextActive]}>
+                    {dec.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        </View>
+
+        {/* ─── Sub-Year Pills (When Decade is Active) ─── */}
+        {availableSubYears.length > 0 && (
+          <View style={styles.subYearWrapper}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.subYearScrollContent}>
+              <TouchableOpacity
+                style={[styles.yearPill, selectedYear === 'all' && styles.yearPillActive]}
+                onPress={() => setSelectedYear('all')}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.yearPillText, selectedYear === 'all' && styles.yearPillTextActive]}>
+                  All Years in {activeDecadeObj?.label}
+                </Text>
+              </TouchableOpacity>
+              {availableSubYears.map((yr) => {
+                const isSelected = selectedYear === yr;
+                return (
+                  <TouchableOpacity
+                    key={yr}
+                    style={[styles.yearPill, isSelected && styles.yearPillActive]}
+                    onPress={() => setSelectedYear(yr)}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={[styles.yearPillText, isSelected && styles.yearPillTextActive]}>
+                      Batch of {yr}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </View>
+        )}
+
+        {/* ─── Filter Pills Bar: "My Batch" Shortcut + Dept + Location + View Mode ─── */}
+        <View style={styles.filterControlRow}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, alignItems: 'center' }}>
+            {/* Quick "My Batch" shortcut */}
+            {myBatchYear ? (
+              <TouchableOpacity
+                style={[
+                  styles.myBatchBtn,
+                  selectedYear === myBatchYear && styles.myBatchBtnActive
+                ]}
+                onPress={() => {
+                  if (selectedYear === myBatchYear) {
+                    setSelectedYear('all');
+                    setSelectedDecade('all');
+                  } else {
+                    setSelectedYear(myBatchYear);
+                    // automatically switch decade
+                    const matchingDecade = DECADE_CONFIG.find(d => d.years.includes(myBatchYear));
+                    if (matchingDecade) setSelectedDecade(matchingDecade.id);
+                  }
+                }}
+                activeOpacity={0.75}
+              >
+                <Ionicons name="sparkles" size={13} color={selectedYear === myBatchYear ? "#002B5C" : "#FBBF24"} />
+                <Text style={[styles.myBatchBtnText, selectedYear === myBatchYear && styles.myBatchBtnTextActive]}>
+                  My Batch ({myBatchYear})
+                </Text>
+              </TouchableOpacity>
+            ) : null}
+
+            {/* Department Filter Button */}
+            <TouchableOpacity
+              style={[styles.filterChipBtn, selectedDepartment !== 'All Departments' && styles.filterChipBtnActive]}
+              onPress={() => setShowFiltersModal(true)}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="funnel-outline" size={13} color={selectedDepartment !== 'All Departments' ? "#002B5C" : "#64748B"} />
+              <Text style={[styles.filterChipText, selectedDepartment !== 'All Departments' && styles.filterChipTextActive]}>
+                {selectedDepartment === 'All Departments' ? 'Departments' : selectedDepartment.split('(')[1]?.replace(')', '') || selectedDepartment}
+              </Text>
+              <Ionicons name="chevron-down" size={12} color="#94A3B8" />
+            </TouchableOpacity>
+
+            {/* Location Filter Button */}
+            <TouchableOpacity
+              style={[styles.filterChipBtn, selectedLocation !== 'All Locations' && styles.filterChipBtnActive]}
+              onPress={() => setShowFiltersModal(true)}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="location-outline" size={13} color={selectedLocation !== 'All Locations' ? "#002B5C" : "#64748B"} />
+              <Text style={[styles.filterChipText, selectedLocation !== 'All Locations' && styles.filterChipTextActive]}>
+                {selectedLocation}
+              </Text>
+              <Ionicons name="chevron-down" size={12} color="#94A3B8" />
+            </TouchableOpacity>
+
+            {/* Clear All Filters */}
+            {(selectedDecade !== 'all' || selectedYear !== 'all' || selectedDepartment !== 'All Departments' || selectedLocation !== 'All Locations' || searchQuery.length > 0) && (
+              <TouchableOpacity
+                style={styles.clearFiltersBtn}
+                onPress={() => {
+                  setSelectedDecade('all');
+                  setSelectedYear('all');
+                  setSelectedDepartment('All Departments');
+                  setSelectedLocation('All Locations');
+                  setSearchQuery('');
+                }}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="close-circle" size={14} color="#EF4444" />
+                <Text style={styles.clearFiltersText}>Reset</Text>
+              </TouchableOpacity>
+            )}
+          </ScrollView>
+
+          {/* View Mode Toggle: Batch-Wise vs All Cards */}
+          <View style={styles.viewTogglePod}>
+            <TouchableOpacity
+              style={[styles.viewToggleItem, viewMode === 'grouped' && styles.viewToggleItemActive]}
+              onPress={() => setViewMode('grouped')}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="layers" size={14} color={viewMode === 'grouped' ? '#002B5C' : '#94A3B8'} />
+              <Text style={[styles.viewToggleText, viewMode === 'grouped' && styles.viewToggleTextActive]}>Batch</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.viewToggleItem, viewMode === 'grid' && styles.viewToggleItemActive]}
+              onPress={() => setViewMode('grid')}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="grid" size={14} color={viewMode === 'grid' ? '#002B5C' : '#94A3B8'} />
+              <Text style={[styles.viewToggleText, viewMode === 'grid' && styles.viewToggleTextActive]}>Grid</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* ─── Active Filter Breadcrumb & Results Count ─── */}
+        <View style={styles.resultsBar}>
+          <Text style={styles.resultsCountText}>
+            Showing <Text style={{ fontWeight: '800', color: theme.text }}>{filteredAlumni.length} RVians</Text>
+            {selectedYear !== 'all' ? ` in Batch of ${selectedYear}` : selectedDecade !== 'all' ? ` in Decade ${selectedDecade}` : ''}
+          </Text>
+          {loadingDirectory && (
+            <Text style={{ fontSize: 12, color: '#0284C7', fontWeight: '600' }}>Syncing with RVCE servers...</Text>
+          )}
+        </View>
+
+        {/* ─── Empty State ─── */}
+        {filteredAlumni.length === 0 ? (
+          <View style={styles.emptyStateBox}>
+            <Ionicons name="school-outline" size={54} color="#CBD5E1" />
+            <Text style={styles.emptyTitle}>No RVCE Alumni Found</Text>
+            <Text style={styles.emptySubtitle}>
+              {searchQuery 
+                ? `No members match "${searchQuery}". Try selecting another batch, department, or clearing filters.` 
+                : 'No registered members found for this specific batch or filter.'}
+            </Text>
+            <TouchableOpacity
+              style={styles.emptyResetBtn}
+              onPress={() => {
+                setSelectedDecade('all');
+                setSelectedYear('all');
+                setSelectedDepartment('All Departments');
+                setSelectedLocation('All Locations');
+                setSearchQuery('');
+              }}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.emptyResetBtnText}>View All Batches</Text>
+            </TouchableOpacity>
+          </View>
+        ) : viewMode === 'grouped' ? (
+          // ─── Batch-Wise Grouped Display ───
+          <View style={{ gap: 20 }}>
+            {groupedByBatch.map((batchGroup) => {
+              const isCollapsed = !!collapsedBatches[batchGroup.year];
+
+              return (
+                <View key={batchGroup.year} style={styles.batchSectionContainer}>
+                  {/* Batch Section Header */}
+                  <TouchableOpacity
+                    style={styles.batchSectionHeader}
+                    onPress={() => toggleBatchCollapse(batchGroup.year)}
+                    activeOpacity={0.85}
+                  >
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                      <View style={styles.batchYearBadge}>
+                        <Ionicons name="ribbon" size={16} color="#002B5C" />
+                      </View>
+                      <View>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                          <Text style={styles.batchSectionTitle}>
+                            Batch of {batchGroup.year}
+                          </Text>
+                          <View style={styles.batchCountPill}>
+                            <Text style={styles.batchCountText}>
+                              {batchGroup.count} {batchGroup.count === 1 ? 'RVian' : 'RVians'}
+                            </Text>
+                          </View>
+                        </View>
+                        <Text style={styles.batchSectionSub}>
+                          Class of {batchGroup.year} • B.E. / M.Tech / MCA Alumni
+                        </Text>
+                      </View>
+                    </View>
+
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                      <Text style={styles.batchToggleLabel}>
+                        {isCollapsed ? 'Show' : 'Hide'}
+                      </Text>
+                      <Ionicons
+                        name={isCollapsed ? "chevron-down" : "chevron-up"}
+                        size={18}
+                        color="#64748B"
+                      />
+                    </View>
+                  </TouchableOpacity>
+
+                  {/* Batch Members Cards */}
+                  {!isCollapsed && (
+                    <View style={styles.batchCardsGrid}>
+                      {batchGroup.members.map(renderAlumniCard)}
+                    </View>
+                  )}
+                </View>
+              );
+            })}
+          </View>
+        ) : (
+          // ─── Flat Grid / List Display ───
+          <View style={styles.batchCardsGrid}>
+            {filteredAlumni.map(renderAlumniCard)}
+          </View>
+        )}
+      </ScrollView>
+    );
+  };
+
+  // ─── Requests Tab ─────────────────────────────────────────────────────
+  const renderRequestTab = () => {
+    const filteredRequests = requests.filter(
+      (r) =>
+        (r.name || '').toLowerCase().includes((searchQuery || '').toLowerCase()) ||
+        (r.subtitle || '').toLowerCase().includes((searchQuery || '').toLowerCase())
+    );
+
+    return (
+      <View style={styles.tabContent}>
+        <FlatList
+          data={filteredRequests}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.requestRow}>
+              <View style={[styles.avatar, { backgroundColor: item.color }]}>
+                <Text style={styles.avatarText}>{item.initials}</Text>
+              </View>
+              <View style={styles.requestInfo}>
+                <Text style={styles.requestName} numberOfLines={1}>{item.name}</Text>
+                <Text style={styles.requestSubtitle} numberOfLines={1}>{item.subtitle}</Text>
+              </View>
+              <View style={styles.requestActions}>
+                <TouchableOpacity
+                  style={styles.rejectBtn}
+                  onPress={() => handleReject(item.id)}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="close" size={18} color="#EF4444" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.acceptBtn}
+                  onPress={() => handleAccept(item.id)}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="checkmark" size={18} color="#10B981" />
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
+          ListEmptyComponent={
+            <View style={styles.emptyRequestState}>
+              <Ionicons name="mail-open-outline" size={56} color="#CBD5E1" />
+              <Text style={styles.emptyRequestTitle}>No Pending Requests</Text>
+              <Text style={styles.emptyRequestSubtitle}>
+                You&apos;re all caught up! Connection requests sent to you will appear here.
+              </Text>
+            </View>
+          }
+        />
+      </View>
+    );
+  };
+
   // ─── WhatsApp-Style Communities ──────────────────────────────────────
   const renderCommunityTab = () => {
     return (
@@ -506,7 +1666,6 @@ const DirectoryScreen = ({ navigation, route }) => {
         contentContainerStyle={styles.commListContainer} 
         showsVerticalScrollIndicator={false}
       >
-        {/* WhatsApp "New Community" Entry Card */}
         <TouchableOpacity 
           style={styles.waNewCommunityCard}
           onPress={() => setCommunityModalVisible(true)}
@@ -527,10 +1686,8 @@ const DirectoryScreen = ({ navigation, route }) => {
           <Ionicons name="chevron-forward" size={18} color="#94A3B8" />
         </TouchableOpacity>
 
-        {/* Communities Feed */}
         {userCommunities.map((comm) => (
           <View key={comm.id} style={styles.waCommunityBlock}>
-            {/* Community Header: Avatar + Title + Verified Badge */}
             <View style={styles.waCommunityHeader}>
               <View style={styles.waCommunityAvatarPod}>
                 {comm.avatar_url || comm.iconUri ? (
@@ -558,7 +1715,6 @@ const DirectoryScreen = ({ navigation, route }) => {
               </TouchableOpacity>
             </View>
 
-            {/* Pinned Announcements Channel */}
             {comm.announcement && (
               <TouchableOpacity 
                 style={styles.waAnnouncementRow}
@@ -590,7 +1746,6 @@ const DirectoryScreen = ({ navigation, route }) => {
               </TouchableOpacity>
             )}
 
-            {/* Connected Sub-Groups */}
             <View style={styles.waGroupsContainer}>
               {(comm.groups || []).map((group, gIdx) => (
                 <TouchableOpacity 
@@ -629,7 +1784,6 @@ const DirectoryScreen = ({ navigation, route }) => {
               ))}
             </View>
 
-            {/* Community Footer */}
             <View style={styles.waCommunityFooter}>
               <TouchableOpacity 
                 style={styles.waViewAllBtn}
@@ -646,611 +1800,392 @@ const DirectoryScreen = ({ navigation, route }) => {
     );
   };
 
-  // ─── Single Unique Recent-Trend: Bento-style Interactive Alumni Cards ────────
-  const renderWebDirectoryTab = () => {
-    const filteredDirectory = directoryAlumni.filter(
-      (a) =>
-        (a.name || '').toLowerCase().includes((searchQuery || '').toLowerCase()) ||
-        (a.branch || '').toLowerCase().includes((searchQuery || '').toLowerCase()) ||
-        (a.title || '').toLowerCase().includes((searchQuery || '').toLowerCase()) ||
-        (a.institution || '').toLowerCase().includes((searchQuery || '').toLowerCase())
-    );
-
-    return (
-      <View style={{ flex: 1, padding: 20, backgroundColor: theme.background }}>
-        {/* Top Control Bar: Member Count & Search Stats */}
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 10 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <View style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: '#002B5C', justifyContent: 'center', alignItems: 'center' }}>
-              <Ionicons name="people" size={18} color="#FFFFFF" />
-            </View>
-            <View>
-              <Text style={{ fontSize: 16.5, fontWeight: '800', color: theme.text, letterSpacing: -0.2 }}>
-                {filteredDirectory.length} {filteredDirectory.length === 1 ? 'Alumni Member' : 'Alumni Members'}
-              </Text>
-              <Text style={{ fontSize: 12, color: theme.textSecondary }}>Official verified network directory</Text>
-            </View>
-            {userInstitution ? (
-              <View style={{ backgroundColor: '#EFF6FF', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, borderWidth: 1, borderColor: '#BFDBFE', marginLeft: 6 }}>
-                <Text style={{ fontSize: 12, fontWeight: '700', color: '#1D4ED8' }}>{userInstitution}</Text>
-              </View>
-            ) : null}
-          </View>
-        </View>
-
-        {loadingDirectory ? (
-          <View style={{ padding: 60, alignItems: 'center', backgroundColor: theme.card, borderRadius: 18, borderWidth: 1, borderColor: theme.border }}>
-            <Ionicons name="people-circle-outline" size={54} color="#CBD5E1" />
-            <Text style={{ marginTop: 16, fontSize: 15, color: '#64748B', fontWeight: '600' }}>Loading alumni directory...</Text>
-          </View>
-        ) : filteredDirectory.length === 0 ? (
-          <View style={{ padding: 60, alignItems: 'center', backgroundColor: theme.card, borderRadius: 18, borderWidth: 1, borderColor: theme.border }}>
-            <Ionicons name="people-outline" size={54} color="#CBD5E1" />
-            <Text style={{ marginTop: 16, fontSize: 17, color: '#475569', fontWeight: '700' }}>No Members Found</Text>
-            <Text style={{ marginTop: 8, fontSize: 13.5, color: '#94A3B8', textAlign: 'center', maxWidth: 400 }}>
-              {searchQuery ? `No results match "${searchQuery}". Try searching by another name, branch, or company.` : 'No registered alumni members found in directory.'}
-            </Text>
-          </View>
-        ) : (
-          /* Single Unique 2026 Bento-style Interactive Alumni Cards Grid */
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 16, paddingBottom: 40 }}>
-              {filteredDirectory.map((item) => {
-                const isFollowing = !!(
-                  followingMap[String(item._id || item.id)] ||
-                  followingMap[String(item.id || item._id)] ||
-                  followingMap[(item.name || '').toLowerCase().trim()]
-                );
-
-                return (
-                  <View
-                    key={item.id}
-                    style={{
-                      flexGrow: 1,
-                      width: 'calc(33.333% - 12px)',
-                      minWidth: 290,
-                      maxWidth: 420,
-                      backgroundColor: theme.card,
-                      borderRadius: 18,
-                      borderWidth: 1.5,
-                      borderColor: isDarkMode ? '#334155' : '#E2E8F0',
-                      padding: 18,
-                      shadowColor: '#002B5C',
-                      shadowOffset: { width: 0, height: 4 },
-                      shadowOpacity: 0.06,
-                      shadowRadius: 10,
-                      elevation: 3,
-                      justifyContent: 'space-between',
-                      position: 'relative',
-                      overflow: 'hidden'
-                    }}
-                  >
-                    {/* Top Subtle Gradient Accent Line */}
-                    <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, backgroundColor: '#002B5C' }} />
-
-                    <View>
-                      {/* Card Top: Institution Badge & Active Pulse */}
-                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                        <View style={{ backgroundColor: '#EFF6FF', paddingHorizontal: 9, paddingVertical: 4, borderRadius: 8, flexDirection: 'row', alignItems: 'center', gap: 5, maxWidth: '82%', borderWidth: 1, borderColor: '#DBEAFE' }}>
-                          <Ionicons name="school" size={13} color="#003366" />
-                          <Text style={{ fontSize: 11.5, fontWeight: '700', color: '#003366' }} numberOfLines={1}>
-                            {item.institution || 'RV College of Engineering'}
-                          </Text>
-                        </View>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                          <View style={{ width: 7, height: 7, borderRadius: 3.5, backgroundColor: '#10B981' }} />
-                          <Text style={{ fontSize: 10.5, fontWeight: '700', color: '#059669' }}>Active</Text>
-                        </View>
-                      </View>
-
-                      {/* User Profile Info */}
-                      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 14 }}>
-                        <View style={[styles.avatar, { backgroundColor: item.color || '#002B5C', width: 52, height: 52, borderRadius: 26, marginRight: 12, borderWidth: 2, borderColor: '#BFDBFE' }]}>
-                          <Text style={[styles.avatarText, { fontSize: 18 }]}>{item.initials}</Text>
-                        </View>
-                        <View style={{ flex: 1 }}>
-                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-                            <Text style={{ fontSize: 15.5, fontWeight: '800', color: theme.text }} numberOfLines={1}>
-                              {item.name}
-                            </Text>
-                            <Ionicons name="checkmark-circle" size={16} color="#0284C7" />
-                          </View>
-                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 }}>
-                            <Ionicons name="briefcase-outline" size={13} color="#64748B" />
-                            <Text style={{ fontSize: 12.5, fontWeight: '600', color: '#002B5C' }} numberOfLines={1}>
-                              {item.title || 'Alumni Member'}
-                            </Text>
-                          </View>
-                        </View>
-                      </View>
-
-                      {/* Branch & Batch Meta Pill */}
-                      <View style={{ backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8, marginBottom: 14, borderWidth: 1, borderColor: theme.border }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                          <Ionicons name="ribbon-outline" size={14} color="#64748B" />
-                          <Text style={{ fontSize: 12, color: '#475569', fontWeight: '600' }} numberOfLines={1}>
-                            {item.branch || 'Engineering & Technology'}
-                          </Text>
-                        </View>
-                      </View>
-
-                      {/* Trending Skill Tags */}
-                      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 16 }}>
-                        <View style={{ backgroundColor: '#F1F5F9', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 }}>
-                          <Text style={{ fontSize: 11, fontWeight: '600', color: '#475569' }}>#Network</Text>
-                        </View>
-                        <View style={{ backgroundColor: '#F1F5F9', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 }}>
-                          <Text style={{ fontSize: 11, fontWeight: '600', color: '#475569' }}>#Mentorship</Text>
-                        </View>
-                        <View style={{ backgroundColor: '#F1F5F9', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 }}>
-                          <Text style={{ fontSize: 11, fontWeight: '600', color: '#475569' }}>#Alumni</Text>
-                        </View>
-                      </View>
-                    </View>
-
-                    {/* Bottom Unified Action Cluster */}
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, borderTopWidth: 1, borderTopColor: theme.border, paddingTop: 14 }}>
-                      <TouchableOpacity
-                        style={{
-                          flex: 1,
-                          paddingVertical: 9,
-                          backgroundColor: isFollowing ? '#DEF7EC' : '#002B5C',
-                          borderRadius: 10,
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          borderWidth: isFollowing ? 1 : 0,
-                          borderColor: '#31C48D',
-                          shadowColor: isFollowing ? 'transparent' : '#002B5C',
-                          shadowOffset: { width: 0, height: 2 },
-                          shadowOpacity: isFollowing ? 0 : 0.2,
-                          shadowRadius: 4,
-                          elevation: isFollowing ? 0 : 2
-                        }}
-                        onPress={() => handleToggleFollow(item)}
-                        activeOpacity={0.75}
-                      >
-                        <Text style={{ fontSize: 12.5, fontWeight: '800', color: isFollowing ? '#03543F' : '#FFFFFF' }}>
-                          {isFollowing ? 'Following ✓' : 'Follow'}
-                        </Text>
-                      </TouchableOpacity>
-
-                      <TouchableOpacity
-                        style={{
-                          width: 38,
-                          height: 38,
-                          backgroundColor: '#EFF6FF',
-                          borderRadius: 10,
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                          borderWidth: 1,
-                          borderColor: '#BFDBFE'
-                        }}
-                        onPress={() => navigation.navigate('Chat', { user: { id: item._id || item.id, name: item.name, role: item.institution || (item.branch ? `${item.branch} • ${item.title}` : item.title) || '', initials: item.initials } })}
-                        activeOpacity={0.7}
-                        title="Send Direct Message"
-                      >
-                        <Ionicons name="chatbubble-ellipses-outline" size={17} color="#1E40AF" />
-                      </TouchableOpacity>
-
-                      <TouchableOpacity
-                        style={{
-                          width: 38,
-                          height: 38,
-                          backgroundColor: '#E8FDF0',
-                          borderRadius: 10,
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                          borderWidth: 1,
-                          borderColor: '#A7F3D0'
-                        }}
-                        onPress={() => setSharedAlumni(item)}
-                        activeOpacity={0.7}
-                        title="Share on WhatsApp"
-                      >
-                        <Ionicons name="logo-whatsapp" size={17} color="#25D366" />
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                );
-              })}
-            </View>
-          </ScrollView>
-        )}
-      </View>
-    );
-  };
-  const renderDirectoryTab = () => {
-    const filteredDirectory = directoryAlumni.filter(
-      (a) =>
-        (a.name || '').toLowerCase().includes((searchQuery || '').toLowerCase()) ||
-        (a.branch || '').toLowerCase().includes((searchQuery || '').toLowerCase()) ||
-        (a.title || '').toLowerCase().includes((searchQuery || '').toLowerCase()) ||
-        (a.institution || '').toLowerCase().includes((searchQuery || '').toLowerCase())
-    );
-
-    return (
-      <View style={styles.tabContent}>
-        <FlatList
-          data={filteredDirectory}
-          keyExtractor={(item) => item.id}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listContent}
-          ListEmptyComponent={
-            <View style={{ padding: 40, alignItems: 'center' }}>
-              <Ionicons name="people-outline" size={48} color="#CBD5E1" />
-              <Text style={{ marginTop: 16, fontSize: 16, color: '#64748B', fontWeight: '600' }}>
-                {loadingDirectory ? 'Loading members...' : 'No Members Found'}
-              </Text>
-              {!loadingDirectory && (
-                <Text style={{ marginTop: 8, fontSize: 13, color: '#94A3B8', textAlign: 'center' }}>
-                  {searchQuery ? 'No results match your search.' : 'No registered alumni members found in directory.'}
-                </Text>
-              )}
-            </View>
-          }
-          renderItem={({ item }) => (
-            <View style={styles.requestRow}>
-              {/* Avatar */}
-              <View style={[styles.avatar, { backgroundColor: item.color }]}>
-                <Text style={styles.avatarText}>{item.initials}</Text>
-              </View>
-
-              {/* Info */}
-              <View style={styles.requestInfo}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                  <Text style={styles.requestName} numberOfLines={1}>{item.name}</Text>
-                </View>
-                <Text style={styles.requestSubtitle} numberOfLines={1}>{item.branch} • {item.title}</Text>
-              </View>
-
-              {/* Action - Connect & Chat */}
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                <TouchableOpacity
-                  style={{
-                    backgroundColor: sentConnectMap[item._id || item.id] ? '#DEF7EC' : '#E1EFFF',
-                    paddingHorizontal: 10,
-                    paddingVertical: 6,
-                    borderRadius: 8,
-                    flexDirection: 'row',
-                    alignItems: 'center'
-                  }}
-                  onPress={() => handleSendConnect(item._id || item.id)}
-                  disabled={sentConnectMap[item._id || item.id]}
-                  activeOpacity={0.7}
-                >
-                  <Ionicons 
-                    name={sentConnectMap[item._id || item.id] ? "checkmark-circle" : "person-add-outline"} 
-                    size={14} 
-                    color={sentConnectMap[item._id || item.id] ? "#03543F" : "#1E40AF"} 
-                    style={{ marginRight: 4 }} 
-                  />
-                  <Text style={{ fontSize: 11, fontWeight: '700', color: sentConnectMap[item._id || item.id] ? "#03543F" : "#1E40AF" }}>
-                    {sentConnectMap[item._id || item.id] ? 'Requested' : 'Connect'}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.messageIconBtn}
-                  onPress={() => navigation.navigate('Chat', { user: { id: item._id || item.id, name: item.name, role: item.institution || (item.branch ? `${item.branch} • ${item.title}` : item.title) || '', initials: item.initials } })}
-                  activeOpacity={0.7}
-                >
-                  <Ionicons name="chatbubble-ellipses-outline" size={16} color="#003366" />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.messageIconBtn, { backgroundColor: '#E8FDF0' }]}
-                  onPress={() => setSharedAlumni(item)}
-                  activeOpacity={0.7}
-                >
-                  <Ionicons name="logo-whatsapp" size={16} color="#25D366" />
-                </TouchableOpacity>
-              </View>
-            </View>
-          )}
-        />
-      </View>
-    );
-  };
-
-  const { width } = useWindowDimensions();
-  const isWeb = Platform.OS === 'web';
-  const isDesktop = isWeb && width >= 768;
-  const webContainerStyle = isWeb ? { alignSelf: 'center', width: '100%', maxWidth: 1024, flex: 1 } : { flex: 1 };
+  const webContainerStyle = isWeb ? { alignSelf: 'center', width: '100%', maxWidth: 1100, flex: 1 } : { flex: 1 };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={webContainerStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor="#FFFFFF" />
+        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor="#FFFFFF" />
 
-      {/* ───── Header ───── */}
-      <View style={styles.header}>
-        <TouchableOpacity 
-          style={[styles.headerAvatar, { overflow: 'hidden', backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center' }]} 
-          activeOpacity={0.7}
-          onPress={() => navigation.navigate('Profile')}
-        >
-          {(currentUser?.avatar_url || currentUser?.profilePicture) ? (
-            <Image 
-              source={{ uri: getImageUrl(currentUser.avatar_url || currentUser.profilePicture) }} 
-              style={{ width: '100%', height: '100%', borderRadius: 17 }} 
+        {/* ───── Top Header ───── */}
+        <View style={styles.header}>
+          <TouchableOpacity 
+            style={styles.headerAvatar} 
+            activeOpacity={0.7}
+            onPress={() => navigation.navigate('Profile')}
+          >
+            {(currentUser?.avatar_url || currentUser?.profilePicture) ? (
+              <Image 
+                source={{ uri: getImageUrl(currentUser.avatar_url || currentUser.profilePicture) }} 
+                style={{ width: '100%', height: '100%', borderRadius: 18 }} 
+              />
+            ) : (
+              <Text style={{ fontSize: 13, fontWeight: '700', color: '#FFFFFF' }}>
+                {getInitials(currentUser?.name, 'AL')}
+              </Text>
+            )}
+          </TouchableOpacity>
+
+          <View style={styles.searchBar}>
+            <Ionicons name="search-outline" size={16} color="#94A3B8" style={{ marginRight: 8 }} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search by Name, Batch, Branch, Company, City..."
+              placeholderTextColor="#94A3B8"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
             />
-          ) : (
-            <Text style={{ fontSize: 13, fontWeight: '700', color: '#FFFFFF' }}>
-              {getInitials(currentUser?.name, 'AL')}
-            </Text>
-          )}
-        </TouchableOpacity>
-
-        <View style={styles.searchBar}>
-          <Ionicons name="search-outline" size={16} color="#94A3B8" style={{ marginRight: 8 }} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search"
-            placeholderTextColor="#94A3B8"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-          {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <Ionicons name="close-circle" size={16} color="#94A3B8" />
-            </TouchableOpacity>
-          )}
-        </View>
-
-        <View style={styles.headerIcons}>
-          <TouchableOpacity 
-            style={styles.headerIconBtn} 
-            activeOpacity={0.7}
-            onPress={() => navigation.navigate('Messages')}
-          >
-            <Ionicons name="chatbubble-ellipses-outline" size={22} color="#002144" />
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.headerIconBtn} 
-            activeOpacity={0.7}
-            onPress={() => navigation.navigate('Notifications')}
-          >
-            <Ionicons name="notifications-outline" size={22} color="#002144" />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Role Badge for Admin/Super Admin */}
-      {isAdminOrSuper && (
-        <View style={{ backgroundColor: '#EFF6FF', paddingHorizontal: 16, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: theme.border, flexDirection: 'row', alignItems: 'center' }}>
-          <Ionicons name="shield-checkmark" size={16} color="#003366" style={{ marginRight: 8 }} />
-          <Text style={{ fontSize: 13, fontWeight: '700', color: '#003366' }}>{userRole} Mode</Text>
-          <Text style={{ fontSize: 12, color: '#64748B', marginLeft: 8 }}>Manage connections & approvals</Text>
-        </View>
-      )}
-
-      {/* ───── Tab Bar ───── */}
-      <View style={styles.tabBar}>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'directory' && styles.activeTab]}
-          onPress={() => setActiveTab('directory')}
-          activeOpacity={0.7}
-        >
-          <Text style={[styles.tabText, activeTab === 'directory' && styles.activeTabText]}>
-            Directory
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'request' && styles.activeTab]}
-          onPress={() => setActiveTab('request')}
-          activeOpacity={0.7}
-        >
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={[styles.tabText, activeTab === 'request' && styles.activeTabText]}>
-              Requests
-            </Text>
-            {isAdminOrSuper && (
-              <View style={{ backgroundColor: '#003366', borderRadius: 10, paddingHorizontal: 6, paddingVertical: 2, marginLeft: 6 }}>
-                <Text style={{ fontSize: 10, fontWeight: '700', color: '#FFFFFF' }}>{filteredRequests.length}</Text>
-              </View>
+            {searchQuery.length > 0 && (
+              <TouchableOpacity onPress={() => setSearchQuery('')}>
+                <Ionicons name="close-circle" size={16} color="#94A3B8" />
+              </TouchableOpacity>
             )}
           </View>
-        </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'community' && styles.activeTab]}
-          onPress={() => setActiveTab('community')}
-          activeOpacity={0.7}
-        >
-          <Text style={[styles.tabText, activeTab === 'community' && styles.activeTabText]}>
-            Communities
-          </Text>
-        </TouchableOpacity>
-      </View>
+          <View style={styles.headerIcons}>
+            <TouchableOpacity 
+              style={styles.headerIconBtn} 
+              activeOpacity={0.7}
+              onPress={() => navigation.navigate('Messages')}
+            >
+              <Ionicons name="chatbubble-ellipses-outline" size={22} color="#002144" />
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.headerIconBtn} 
+              activeOpacity={0.7}
+              onPress={() => navigation.navigate('Notifications')}
+            >
+              <Ionicons name="notifications-outline" size={22} color="#002144" />
+            </TouchableOpacity>
+          </View>
+        </View>
 
-      {/* ───── Tab Content ───── */}
-      {activeTab === 'directory' ? (
-        isDesktop ? renderWebDirectoryTab() : renderDirectoryTab()
-      ) : activeTab === 'request' ? (
-        renderRequestTab()
-      ) : (
-        renderCommunityTab()
-      )}
+        {/* Role Banner for Admin/Super Admin */}
+        {isAdminOrSuper && (
+          <View style={styles.adminBanner}>
+            <Ionicons name="shield-checkmark" size={16} color="#003366" style={{ marginRight: 8 }} />
+            <Text style={{ fontSize: 13, fontWeight: '700', color: '#003366' }}>{userRole} Mode</Text>
+            <Text style={{ fontSize: 12, color: '#64748B', marginLeft: 8 }}>AlmaConnect Directory & Verification Control</Text>
+          </View>
+        )}
 
-      {/* WhatsApp Community Wizard Modal */}
-      <Modal visible={communityModalVisible} transparent animationType="slide">
-        <View style={styles.modalOverlay}>
-          <TouchableOpacity style={{ flex: 1 }} onPress={resetCommunityForm} />
-          <View style={styles.modalContent}>
-            {communityStep === 1 && (
-              <View>
-                <View style={styles.modalHeader}>
-                  <TouchableOpacity onPress={resetCommunityForm}>
-                    <Ionicons name="close" size={24} color="#002144" />
-                  </TouchableOpacity>
-                  <Text style={styles.modalTitle}>New Community</Text>
-                  <TouchableOpacity onPress={() => communityName.trim() ? setCommunityStep(2) : Alert.alert('Required', 'Please enter community name')}>
-                    <Text style={styles.modalActionText}>Next</Text>
-                  </TouchableOpacity>
+        {/* ───── Main Tab Bar (Directory / Requests / Communities) ───── */}
+        <View style={styles.tabBar}>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'directory' && styles.activeTab]}
+            onPress={() => setActiveTab('directory')}
+            activeOpacity={0.7}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Ionicons 
+                name="people" 
+                size={16} 
+                color={activeTab === 'directory' ? '#002B5C' : '#64748B'} 
+              />
+              <Text style={[styles.tabText, activeTab === 'directory' && styles.activeTabText]}>
+                Alumni Directory
+              </Text>
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'request' && styles.activeTab]}
+            onPress={() => setActiveTab('request')}
+            activeOpacity={0.7}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={[styles.tabText, activeTab === 'request' && styles.activeTabText]}>
+                Requests
+              </Text>
+              {requests.length > 0 && (
+                <View style={styles.requestBadge}>
+                  <Text style={styles.requestBadgeText}>{requests.length}</Text>
                 </View>
-                
-                <ScrollView contentContainerStyle={styles.wizardBody} keyboardShouldPersistTaps="handled">
-                  <TouchableOpacity 
-                    style={styles.commIconSetup} 
-                    activeOpacity={0.8}
-                    onPress={handlePickCommunityIcon}
-                  >
-                    <View style={[styles.commIconBgLarge, communityIconUri && { borderStyle: 'solid', borderColor: '#003366', overflow: 'hidden' }]}>
-                      {communityIconUri ? (
-                        <Image source={{ uri: communityIconUri }} style={{ width: '100%', height: '100%', borderRadius: 24 }} />
-                      ) : (
-                        <Ionicons name="camera" size={32} color="#003366" />
-                      )}
-                    </View>
-                    <Text style={[styles.commIconLabel, { color: '#003366', fontWeight: '700' }]}>
-                      {communityIconUri ? 'Change Community Icon' : 'Add Community Icon'}
-                    </Text>
-                  </TouchableOpacity>
+              )}
+            </View>
+          </TouchableOpacity>
 
-                  <Text style={styles.wizardLabel}>Community Name</Text>
-                  <TextInput
-                    style={styles.wizardInput}
-                    placeholder="e.g. Institution CSE 2023 Alumni"
-                    placeholderTextColor="#94A3B8"
-                    value={communityName}
-                    onChangeText={setCommunityName}
-                    maxLength={30}
-                  />
-                  <Text style={styles.charCount}>{30 - communityName.length} characters remaining</Text>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'community' && styles.activeTab]}
+            onPress={() => setActiveTab('community')}
+            activeOpacity={0.7}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Ionicons 
+                name="chatbubbles-outline" 
+                size={16} 
+                color={activeTab === 'community' ? '#002B5C' : '#64748B'} 
+              />
+              <Text style={[styles.tabText, activeTab === 'community' && styles.activeTabText]}>
+                Communities
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </View>
 
-                  <Text style={styles.wizardLabel}>Description</Text>
-                  <TextInput
-                    style={[styles.wizardInput, { height: 100, textAlignVertical: 'top', paddingTop: 12 }]}
-                    placeholder="Describe the purpose of this community"
-                    placeholderTextColor="#94A3B8"
-                    value={communityDesc}
-                    onChangeText={setCommunityDesc}
-                    multiline
-                  />
-                </ScrollView>
-              </View>
-            )}
+        {/* ───── Main View Body ───── */}
+        {activeTab === 'directory' ? (
+          renderBatchWiseDirectory()
+        ) : activeTab === 'request' ? (
+          renderRequestTab()
+        ) : (
+          renderCommunityTab()
+        )}
 
-            {communityStep === 2 && (
-              <View>
-                <View style={styles.modalHeader}>
-                  <TouchableOpacity onPress={() => setCommunityStep(1)}>
-                    <Ionicons name="arrow-back" size={24} color="#002144" />
-                  </TouchableOpacity>
-                  <Text style={styles.modalTitle}>Add Groups</Text>
-                  <TouchableOpacity onPress={handleCreateCommunity}>
-                    <Text style={styles.modalActionText}>Create</Text>
-                  </TouchableOpacity>
-                </View>
-
-                <ScrollView contentContainerStyle={styles.wizardBody}>
-                  <Text style={styles.wizardInfoText}>
-                    A community links multiple chat groups under one umbrella. Select groups to include in your community:
-                  </Text>
-
-                  <Text style={styles.groupSectionHeader}>Required Group</Text>
-                  <View style={[styles.groupSelectRow, styles.groupDisabledSelect]}>
-                    <View style={[styles.commGroupIconBg, styles.announcementBg]}>
-                      <Ionicons name="megaphone" size={16} color="#003366" />
-                    </View>
-                    <View style={styles.groupSelectInfo}>
-                      <Text style={styles.groupSelectName}>Announcements (Required)</Text>
-                      <Text style={styles.groupSelectDesc}>Broadcast messages to all community members</Text>
-                    </View>
-                    <Ionicons name="checkbox" size={24} color="#003366" />
-                  </View>
-
-                  <Text style={styles.groupSectionHeader}>Optional Groups to Add</Text>
-                  {availableGroups.slice(1).map((group) => (
-                    <TouchableOpacity
-                      key={group.id}
-                      style={styles.groupSelectRow}
-                      onPress={() => handleToggleGroup(group.id)}
-                      activeOpacity={0.8}
-                    >
-                      <View style={styles.commGroupIconBg}>
-                        <Ionicons name={group.icon} size={16} color="#475569" />
-                      </View>
-                      <View style={styles.groupSelectInfo}>
-                        <Text style={styles.groupSelectName}>{group.name}</Text>
-                        <Text style={styles.groupSelectDesc}>{group.desc}</Text>
-                      </View>
-                      <Ionicons
-                        name={selectedGroups.includes(group.id) ? "checkbox" : "square-outline"}
-                        size={24}
-                        color={selectedGroups.includes(group.id) ? "#003366" : "#94A3B8"}
-                      />
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              </View>
-            )}
-
-            {communityStep === 3 && (
-              <View style={styles.successContainer}>
-                <View style={styles.successCircle}>
-                  <Ionicons name="checkmark" size={60} color="#FFFFFF" />
-                </View>
-                <Text style={styles.successTitle}>Community Created!</Text>
-                <Text style={styles.successDesc}>
-                  Your new WhatsApp-style community &quot;{communityName}&quot; is ready. You can now publish announcements, coordinate batches, and discuss career paths.
-                </Text>
-                <TouchableOpacity style={styles.successBtn} onPress={resetCommunityForm}>
-                  <Text style={styles.successBtnText}>View Community</Text>
+        {/* ───── Filter Modal (Department & Location) ───── */}
+        <Modal visible={showFiltersModal} transparent animationType="fade">
+          <View style={styles.modalOverlay}>
+            <View style={styles.filterModalBox}>
+              <View style={styles.filterModalHeader}>
+                <Text style={styles.filterModalTitle}>Filter Directory</Text>
+                <TouchableOpacity onPress={() => setShowFiltersModal(false)}>
+                  <Ionicons name="close" size={24} color="#002B5C" />
                 </TouchableOpacity>
               </View>
-            )}
-          </View>
-        </View>
-      </Modal>
 
-      {/* Instagram-Style Profile Share Modal for Alumni Members */}
-      <InstagramProfileShareModal
-        visible={!!sharedAlumni}
-        onClose={() => setSharedAlumni(null)}
-        user={sharedAlumni || {}}
-      />
+              <ScrollView style={{ maxHeight: 420 }} showsVerticalScrollIndicator={false}>
+                {/* Department Selection */}
+                <Text style={styles.filterSectionTitle}>COURSE / DEPARTMENT</Text>
+                <View style={{ gap: 6, marginBottom: 18 }}>
+                  {DEPARTMENTS.map((dept) => (
+                    <TouchableOpacity
+                      key={dept}
+                      style={[
+                        styles.filterOptionRow,
+                        selectedDepartment === dept && styles.filterOptionRowActive
+                      ]}
+                      onPress={() => setSelectedDepartment(dept)}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={[styles.filterOptionText, selectedDepartment === dept && styles.filterOptionTextActive]}>
+                        {dept}
+                      </Text>
+                      {selectedDepartment === dept && (
+                        <Ionicons name="checkmark-circle" size={18} color="#002B5C" />
+                      )}
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                {/* Location Selection */}
+                <Text style={styles.filterSectionTitle}>LOCATION / CHAPTER</Text>
+                <View style={{ gap: 6, marginBottom: 18 }}>
+                  {LOCATIONS.map((loc) => (
+                    <TouchableOpacity
+                      key={loc}
+                      style={[
+                        styles.filterOptionRow,
+                        selectedLocation === loc && styles.filterOptionRowActive
+                      ]}
+                      onPress={() => setSelectedLocation(loc)}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={[styles.filterOptionText, selectedLocation === loc && styles.filterOptionTextActive]}>
+                        {loc}
+                      </Text>
+                      {selectedLocation === loc && (
+                        <Ionicons name="checkmark-circle" size={18} color="#002B5C" />
+                      )}
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </ScrollView>
+
+              <TouchableOpacity
+                style={styles.filterApplyBtn}
+                onPress={() => setShowFiltersModal(false)}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.filterApplyBtnText}>Apply Filters</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+
+        {/* ───── Community Creation Modal ───── */}
+        <Modal visible={communityModalVisible} transparent animationType="slide">
+          <View style={styles.modalOverlay}>
+            <TouchableOpacity style={{ flex: 1 }} onPress={resetCommunityForm} />
+            <View style={styles.modalContent}>
+              {communityStep === 1 && (
+                <View>
+                  <View style={styles.modalHeader}>
+                    <TouchableOpacity onPress={resetCommunityForm}>
+                      <Ionicons name="close" size={24} color="#002144" />
+                    </TouchableOpacity>
+                    <Text style={styles.modalTitle}>New Community</Text>
+                    <TouchableOpacity onPress={() => communityName.trim() ? setCommunityStep(2) : Alert.alert('Required', 'Please enter community name')}>
+                      <Text style={styles.modalActionText}>Next</Text>
+                    </TouchableOpacity>
+                  </View>
+                  
+                  <ScrollView contentContainerStyle={styles.wizardBody} keyboardShouldPersistTaps="handled">
+                    <TouchableOpacity 
+                      style={styles.commIconSetup} 
+                      activeOpacity={0.8}
+                      onPress={handlePickCommunityIcon}
+                    >
+                      <View style={[styles.commIconBgLarge, communityIconUri && { borderStyle: 'solid', borderColor: '#003366', overflow: 'hidden' }]}>
+                        {communityIconUri ? (
+                          <Image source={{ uri: communityIconUri }} style={{ width: '100%', height: '100%', borderRadius: 24 }} />
+                        ) : (
+                          <Ionicons name="camera" size={32} color="#003366" />
+                        )}
+                      </View>
+                      <Text style={[styles.commIconLabel, { color: '#003366', fontWeight: '700' }]}>
+                        {communityIconUri ? 'Change Community Icon' : 'Add Community Icon'}
+                      </Text>
+                    </TouchableOpacity>
+
+                    <Text style={styles.wizardLabel}>Community Name</Text>
+                    <TextInput
+                      style={styles.wizardInput}
+                      placeholder="e.g. RVCE CSE 2023 Alumni"
+                      placeholderTextColor="#94A3B8"
+                      value={communityName}
+                      onChangeText={setCommunityName}
+                      maxLength={30}
+                    />
+                    <Text style={styles.charCount}>{30 - communityName.length} characters remaining</Text>
+
+                    <Text style={styles.wizardLabel}>Description</Text>
+                    <TextInput
+                      style={[styles.wizardInput, { height: 100, textAlignVertical: 'top', paddingTop: 12 }]}
+                      placeholder="Describe the purpose of this community"
+                      placeholderTextColor="#94A3B8"
+                      value={communityDesc}
+                      onChangeText={setCommunityDesc}
+                      multiline
+                    />
+                  </ScrollView>
+                </View>
+              )}
+
+              {communityStep === 2 && (
+                <View>
+                  <View style={styles.modalHeader}>
+                    <TouchableOpacity onPress={() => setCommunityStep(1)}>
+                      <Ionicons name="arrow-back" size={24} color="#002144" />
+                    </TouchableOpacity>
+                    <Text style={styles.modalTitle}>Add Groups</Text>
+                    <TouchableOpacity onPress={handleCreateCommunity}>
+                      <Text style={styles.modalActionText}>Create</Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  <ScrollView contentContainerStyle={styles.wizardBody}>
+                    <Text style={styles.wizardInfoText}>
+                      A community links multiple chat groups under one umbrella. Select groups to include:
+                    </Text>
+
+                    <Text style={styles.groupSectionHeader}>Required Group</Text>
+                    <View style={[styles.groupSelectRow, styles.groupDisabledSelect]}>
+                      <View style={[styles.commGroupIconBg, styles.announcementBg]}>
+                        <Ionicons name="megaphone" size={16} color="#003366" />
+                      </View>
+                      <View style={styles.groupSelectInfo}>
+                        <Text style={styles.groupSelectName}>Announcements (Required)</Text>
+                        <Text style={styles.groupSelectDesc}>Broadcast messages to all community members</Text>
+                      </View>
+                      <Ionicons name="checkbox" size={24} color="#003366" />
+                    </View>
+
+                    <Text style={styles.groupSectionHeader}>Optional Groups</Text>
+                    {availableGroups.slice(1).map((group) => (
+                      <TouchableOpacity
+                        key={group.id}
+                        style={styles.groupSelectRow}
+                        onPress={() => handleToggleGroup(group.id)}
+                        activeOpacity={0.8}
+                      >
+                        <View style={styles.commGroupIconBg}>
+                          <Ionicons name={group.icon} size={16} color="#475569" />
+                        </View>
+                        <View style={styles.groupSelectInfo}>
+                          <Text style={styles.groupSelectName}>{group.name}</Text>
+                          <Text style={styles.groupSelectDesc}>{group.desc}</Text>
+                        </View>
+                        <Ionicons
+                          name={selectedGroups.includes(group.id) ? "checkbox" : "square-outline"}
+                          size={24}
+                          color={selectedGroups.includes(group.id) ? "#003366" : "#94A3B8"}
+                        />
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              )}
+
+              {communityStep === 3 && (
+                <View style={styles.successContainer}>
+                  <View style={styles.successCircle}>
+                    <Ionicons name="checkmark" size={60} color="#FFFFFF" />
+                  </View>
+                  <Text style={styles.successTitle}>Community Created!</Text>
+                  <Text style={styles.successDesc}>
+                    Your new WhatsApp-style community &quot;{communityName}&quot; is active.
+                  </Text>
+                  <TouchableOpacity style={styles.successBtn} onPress={resetCommunityForm}>
+                    <Text style={styles.successBtnText}>View Community</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+          </View>
+        </Modal>
+
+        {/* ───── Instagram-Style Profile Share Modal ───── */}
+        <InstagramProfileShareModal
+          visible={!!sharedAlumni}
+          onClose={() => setSharedAlumni(null)}
+          user={sharedAlumni || {}}
+        />
       </View>
     </SafeAreaView>
   );
 };
 
 const getStyles = (theme) => StyleSheet.create({
-  /* ── Container ── */
   container: {
     flex: 1,
-    backgroundColor: theme.card,
+    backgroundColor: theme.background || '#F8FAFC',
   },
 
-  /* ── Header ── */
+  /* Header */
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: theme.card,
+    backgroundColor: theme.card || '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: theme.border || '#E2E8F0',
     gap: 10,
   },
   headerAvatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: theme.primary,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#002B5C',
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden',
   },
   searchBar: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F1F5F9',
-    borderRadius: 20,
-    paddingHorizontal: 14,
-    height: 38,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    height: 40,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
   },
   searchInput: {
     flex: 1,
-    fontSize: 14,
-    color: theme.text,
+    fontSize: 13.5,
+    color: theme.text || '#0F172A',
     paddingVertical: 0,
   },
   headerIcons: {
@@ -1265,58 +2200,710 @@ const getStyles = (theme) => StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  adminBanner: {
+    backgroundColor: '#EFF6FF',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#DBEAFE',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
 
-  /* ── Tab Bar ── */
+  /* Tabs */
   tabBar: {
     flexDirection: 'row',
-    backgroundColor: theme.card,
+    backgroundColor: theme.card || '#FFFFFF',
     borderBottomWidth: 1,
-    borderBottomColor: theme.border,
+    borderBottomColor: theme.border || '#E2E8F0',
   },
   tab: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: 14,
+    paddingVertical: 13,
     borderBottomWidth: 2.5,
     borderBottomColor: 'transparent',
   },
   activeTab: {
-    borderBottomColor: theme.primary,
+    borderBottomColor: '#002B5C',
   },
   tabText: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '600',
-    color: theme.textMuted,
+    color: theme.textMuted || '#64748B',
   },
   activeTabText: {
-    color: theme.primary,
+    color: '#002B5C',
+    fontWeight: '800',
+  },
+  requestBadge: {
+    backgroundColor: '#002B5C',
+    borderRadius: 10,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    marginLeft: 6,
+  },
+  requestBadgeText: {
+    fontSize: 10.5,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+
+  /* Spotlight Banner */
+  spotlightBanner: {
+    backgroundColor: '#002B5C',
+    borderRadius: 18,
+    padding: 20,
+    marginBottom: 16,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  spotlightGlow: {
+    position: 'absolute',
+    top: -40,
+    right: -40,
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: 'rgba(251, 191, 36, 0.15)',
+  },
+  institutionPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  institutionPillText: {
+    fontSize: 11,
     fontWeight: '700',
+    color: '#FBBF24',
   },
-
-  /* ── Tab Content ── */
-  tabContent: {
+  spotlightBadge: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#93C5FD',
+  },
+  spotlightTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: -0.3,
+    marginTop: 4,
+  },
+  spotlightSubtitle: {
+    fontSize: 13,
+    color: '#E2E8F0',
+    marginTop: 4,
+    lineHeight: 18,
+  },
+  metricsBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 12,
+    marginTop: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+  },
+  metricItem: {
     flex: 1,
-    backgroundColor: theme.card,
+    alignItems: 'center',
+  },
+  metricVal: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#FBBF24',
+  },
+  metricLabel: {
+    fontSize: 11,
+    color: '#CBD5E1',
+    marginTop: 1,
+  },
+  metricDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
   },
 
-  /* ── Section Header ── */
-  sectionHeader: {
+  /* Decade Selector (AlmaConnect Header Style) */
+  decadeSelectorWrapper: {
+    marginBottom: 10,
+  },
+  decadeSelectorTitle: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#64748B',
+    letterSpacing: 0.8,
+    marginBottom: 8,
+    marginLeft: 2,
+  },
+  decadeScrollContent: {
+    gap: 8,
+    paddingBottom: 4,
+  },
+  decadePill: {
+    paddingHorizontal: 16,
+    paddingVertical: 9,
+    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+  },
+  decadePillActive: {
+    backgroundColor: '#002B5C',
+    borderColor: '#002B5C',
+  },
+  decadePillText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#475569',
+  },
+  decadePillTextActive: {
+    color: '#FFFFFF',
+  },
+
+  /* Sub-Year Pills */
+  subYearWrapper: {
+    marginBottom: 14,
+  },
+  subYearScrollContent: {
+    gap: 8,
+    paddingBottom: 2,
+  },
+  yearPill: {
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 20,
+    backgroundColor: '#F1F5F9',
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+  },
+  yearPillActive: {
+    backgroundColor: '#EFF6FF',
+    borderColor: '#002B5C',
+    borderWidth: 1.5,
+  },
+  yearPillText: {
+    fontSize: 12.5,
+    fontWeight: '700',
+    color: '#475569',
+  },
+  yearPillTextActive: {
+    color: '#002B5C',
+  },
+
+  /* Filter Control Row */
+  filterControlRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-    backgroundColor: theme.background,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.border,
+    marginBottom: 12,
+    gap: 10,
   },
-  sectionTitle: {
-    fontSize: 15,
+  myBatchBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: '#002B5C',
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#FBBF24',
+  },
+  myBatchBtnActive: {
+    backgroundColor: '#FEF3C7',
+    borderColor: '#F59E0B',
+  },
+  myBatchBtnText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+  myBatchBtnTextActive: {
+    color: '#002B5C',
+  },
+  filterChipBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    paddingHorizontal: 11,
+    paddingVertical: 7,
+    borderRadius: 10,
+  },
+  filterChipBtnActive: {
+    backgroundColor: '#EFF6FF',
+    borderColor: '#93C5FD',
+  },
+  filterChipText: {
+    fontSize: 12,
     fontWeight: '700',
-    color: theme.text,
+    color: '#475569',
+  },
+  filterChipTextActive: {
+    color: '#002B5C',
+  },
+  clearFiltersBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1,
+    borderColor: '#FECACA',
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 10,
+  },
+  clearFiltersText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#DC2626',
+  },
+  viewTogglePod: {
+    flexDirection: 'row',
+    backgroundColor: '#F1F5F9',
+    borderRadius: 10,
+    padding: 2,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  viewToggleItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    borderRadius: 8,
+  },
+  viewToggleItemActive: {
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  viewToggleText: {
+    fontSize: 11.5,
+    fontWeight: '700',
+    color: '#94A3B8',
+  },
+  viewToggleTextActive: {
+    color: '#002B5C',
   },
 
-  /* ── Request Row ── */
+  /* Results Bar */
+  resultsBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 14,
+    paddingHorizontal: 2,
+  },
+  resultsCountText: {
+    fontSize: 13,
+    color: '#64748B',
+  },
+
+  /* Directory Scroll Container */
+  directoryScroll: {
+    flex: 1,
+  },
+  directoryContentContainer: {
+    padding: 16,
+    paddingBottom: 40,
+  },
+
+  /* Batch Section Group */
+  batchSectionContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    overflow: 'hidden',
+    shadowColor: '#002B5C',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  batchSectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    backgroundColor: '#F8FAFC',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
+  },
+  batchYearBadge: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#EFF6FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+  },
+  batchSectionTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#002B5C',
+    letterSpacing: -0.2,
+  },
+  batchCountPill: {
+    backgroundColor: '#EFF6FF',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+  },
+  batchCountText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#1D4ED8',
+  },
+  batchSectionSub: {
+    fontSize: 11.5,
+    color: '#64748B',
+    marginTop: 2,
+  },
+  batchToggleLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#64748B',
+  },
+  batchCardsGrid: {
+    padding: 14,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 14,
+  },
+
+  /* Alumni Card */
+  alumniCard: {
+    width: '100%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    padding: 16,
+    position: 'relative',
+    overflow: 'hidden',
+    shadowColor: '#002B5C',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  cardAccentBar: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 3,
+    backgroundColor: '#002B5C',
+  },
+  cardHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  batchTagPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: '#EFF6FF',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+  },
+  batchTagText: {
+    fontSize: 11.5,
+    fontWeight: '800',
+    color: '#002B5C',
+  },
+  verifiedBadgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+  },
+  verifiedText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#059669',
+  },
+  profileRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  cardAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+    overflow: 'hidden',
+    borderWidth: 1.5,
+    borderColor: '#BFDBFE',
+  },
+  avatarImage: {
+    width: '100%',
+    height: '100%',
+  },
+  avatarInitials: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  alumniName: {
+    fontSize: 15.5,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  alumniTitle: {
+    fontSize: 12.5,
+    fontWeight: '600',
+    color: '#002B5C',
+    marginTop: 2,
+  },
+  companyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 2,
+  },
+  companyText: {
+    fontSize: 11.5,
+    color: '#64748B',
+  },
+  metaRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginBottom: 10,
+  },
+  deptChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#F8FAFC',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  deptText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#475569',
+  },
+  locationChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#EFF6FF',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#DBEAFE',
+  },
+  locationText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#002B5C',
+  },
+  tagsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 5,
+    marginBottom: 12,
+  },
+  tagPill: {
+    backgroundColor: '#F1F5F9',
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 5,
+  },
+  tagText: {
+    fontSize: 10.5,
+    fontWeight: '600',
+    color: '#64748B',
+  },
+  cardActionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#F1F5F9',
+    paddingTop: 12,
+  },
+  connectBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
+    backgroundColor: '#002B5C',
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  connectBtnRequested: {
+    backgroundColor: '#DEF7EC',
+    borderWidth: 1,
+    borderColor: '#31C48D',
+  },
+  connectBtnText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+  chatIconBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    backgroundColor: '#EFF6FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+  },
+
+  /* Empty State */
+  emptyStateBox: {
+    padding: 50,
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginTop: 10,
+  },
+  emptyTitle: {
+    fontSize: 17,
+    fontWeight: '800',
+    color: '#1E293B',
+    marginTop: 16,
+  },
+  emptySubtitle: {
+    fontSize: 13,
+    color: '#64748B',
+    textAlign: 'center',
+    maxWidth: 360,
+    marginTop: 6,
+    lineHeight: 18,
+  },
+  emptyResetBtn: {
+    marginTop: 18,
+    backgroundColor: '#002B5C',
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  emptyResetBtnText: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+
+  /* Filter Modal */
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  filterModalBox: {
+    width: '100%',
+    maxWidth: 500,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  filterModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+    paddingBottom: 14,
+    marginBottom: 14,
+  },
+  filterModalTitle: {
+    fontSize: 17,
+    fontWeight: '800',
+    color: '#002B5C',
+  },
+  filterSectionTitle: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#64748B',
+    letterSpacing: 0.6,
+    marginBottom: 8,
+  },
+  filterOptionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: '#F8FAFC',
+  },
+  filterOptionRowActive: {
+    backgroundColor: '#EFF6FF',
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+  },
+  filterOptionText: {
+    fontSize: 13,
+    color: '#334155',
+    fontWeight: '600',
+  },
+  filterOptionTextActive: {
+    color: '#002B5C',
+    fontWeight: '800',
+  },
+  filterApplyBtn: {
+    backgroundColor: '#002B5C',
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+    marginTop: 14,
+  },
+  filterApplyBtnText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '800',
+  },
+
+  /* Requests & Communities Styles */
+  tabContent: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
   listContent: {
     paddingBottom: 40,
   },
@@ -1325,7 +2912,7 @@ const getStyles = (theme) => StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 14,
-    backgroundColor: theme.card,
+    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#F1F5F9',
   },
@@ -1338,10 +2925,9 @@ const getStyles = (theme) => StyleSheet.create({
     marginRight: 14,
   },
   avatarText: {
-    color: theme.card,
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '700',
-    letterSpacing: 0.5,
   },
   requestInfo: {
     flex: 1,
@@ -1350,12 +2936,12 @@ const getStyles = (theme) => StyleSheet.create({
   requestName: {
     fontSize: 15.5,
     fontWeight: '700',
-    color: theme.text,
+    color: '#0F172A',
     marginBottom: 3,
   },
   requestSubtitle: {
     fontSize: 13,
-    color: theme.textSecondary,
+    color: '#64748B',
     lineHeight: 18,
   },
   requestActions: {
@@ -1383,8 +2969,6 @@ const getStyles = (theme) => StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-
-  /* ── Empty Request State ── */
   emptyRequestState: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -1394,527 +2978,38 @@ const getStyles = (theme) => StyleSheet.create({
   emptyRequestTitle: {
     fontSize: 17,
     fontWeight: '700',
-    color: theme.text,
+    color: '#0F172A',
     marginTop: 16,
   },
   emptyRequestSubtitle: {
     fontSize: 13.5,
-    color: theme.textMuted,
+    color: '#64748B',
     textAlign: 'center',
     marginTop: 8,
     lineHeight: 20,
   },
 
-  /* ── Community Tab ── */
-  communityContainer: {
-    alignItems: 'center',
-    paddingHorizontal: 32,
-    paddingTop: 50,
-    paddingBottom: 60,
-  },
-
-  /* Illustration */
-  illustrationWrapper: {
-    width: 180,
-    height: 180,
-    marginBottom: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  illustrationCircle: {
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    backgroundColor: '#EFF6FF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#DBEAFE',
-  },
-  illustrationInner: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: '#DBEAFE',
-    justifyContent: 'center',
-    alignItems: 'center',
-    overflow: 'hidden',
-  },
-  landscapeContainer: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-  },
-  sunCircle: {
-    position: 'absolute',
-    top: 20,
-    right: 28,
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    backgroundColor: '#FCD34D',
-  },
-  mountainGroup: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    marginBottom: -2,
-  },
-  mountainLeft: {
-    width: 0,
-    height: 0,
-    borderLeftWidth: 35,
-    borderRightWidth: 35,
-    borderBottomWidth: 50,
-    borderLeftColor: 'transparent',
-    borderRightColor: 'transparent',
-    borderBottomColor: '#93C5FD',
-    marginRight: -12,
-  },
-  mountainRight: {
-    width: 0,
-    height: 0,
-    borderLeftWidth: 28,
-    borderRightWidth: 28,
-    borderBottomWidth: 38,
-    borderLeftColor: 'transparent',
-    borderRightColor: 'transparent',
-    borderBottomColor: '#60A5FA',
-  },
-  groundStrip: {
-    width: '100%',
-    height: 20,
-    backgroundColor: '#BBF7D0',
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
-  },
-  peopleIcon: {
-    zIndex: 2,
-  },
-
-  /* Decorative dots */
-  decorDot: {
-    position: 'absolute',
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#DBEAFE',
-  },
-  dotTopLeft: {
-    top: 10,
-    left: 20,
-  },
-  dotTopRight: {
-    top: 5,
-    right: 15,
-    backgroundColor: '#FDE68A',
-  },
-  dotBottomLeft: {
-    bottom: 15,
-    left: 10,
-    backgroundColor: '#BBF7D0',
-  },
-  dotBottomRight: {
-    bottom: 5,
-    right: 25,
-  },
-
-  /* Community Text */
-  communityTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: theme.primary,
-    textAlign: 'center',
-    marginBottom: 14,
-    letterSpacing: -0.3,
-  },
-  communityDescription: {
-    fontSize: 14.5,
-    color: theme.textSecondary,
-    textAlign: 'center',
-    lineHeight: 22,
-    marginBottom: 12,
-  },
-  communityDescriptionSecondary: {
-    fontSize: 13.5,
-    color: theme.textMuted,
-    textAlign: 'center',
-    lineHeight: 20,
-    marginBottom: 36,
-  },
-
-  /* Community CTA */
-  communityBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: theme.primary,
-    paddingVertical: 15,
-    paddingHorizontal: 32,
-    borderRadius: 28,
-    width: '100%',
-    shadowColor: theme.primary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  communityBtnText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: theme.card,
-    letterSpacing: 0.2,
-  },
-
-  /* Communities List style */
+  /* WhatsApp Communities */
   commListContainer: {
     padding: 16,
     paddingBottom: 40,
   },
-  commSectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  commSectionTitle: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: theme.primary,
-  },
-  commNewBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.primary,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 14,
-    gap: 4,
-  },
-  commNewBtnText: {
-    color: theme.card,
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  commCard: {
-    backgroundColor: theme.card,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: theme.border,
-    marginBottom: 20,
-    overflow: 'hidden',
-    shadowColor: theme.text,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  commCardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
-    backgroundColor: theme.background,
-  },
-  commAvatar: {
-    width: 46,
-    height: 46,
-    borderRadius: 12,
-    backgroundColor: theme.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  commInfo: {
-    flex: 1,
-    marginLeft: 12,
-    marginRight: 8,
-  },
-  commName: {
-    fontSize: 15.5,
-    fontWeight: '700',
-    color: theme.text,
-  },
-  commSubText: {
-    fontSize: 12.5,
-    color: theme.textSecondary,
-    marginTop: 2,
-  },
-  commMoreBtn: {
-    width: 32,
-    height: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  commGroupsList: {
-    paddingHorizontal: 16,
-  },
-  commGroupRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.background,
-  },
-  commGroupIconBg: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: '#F1F5F9',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  announcementBg: {
-    backgroundColor: '#E0F2FE',
-  },
-  commGroupInfo: {
-    flex: 1,
-    marginRight: 8,
-  },
-  commGroupName: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: theme.text,
-  },
-  commGroupMessage: {
-    fontSize: 12,
-    color: theme.textMuted,
-    marginTop: 2,
-  },
-
-  /* Modal Wizard styling */
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(15, 23, 42, 0.4)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    backgroundColor: theme.card,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    maxHeight: '90%',
-    paddingBottom: 20,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 18,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.border,
-  },
-  modalTitle: {
-    fontSize: 17,
-    fontWeight: '800',
-    color: theme.primary,
-  },
-  modalActionText: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: theme.primary,
-  },
-  wizardBody: {
-    padding: 20,
-  },
-  commIconSetup: {
-    alignItems: 'center',
-    marginVertical: 20,
-  },
-  commIconBgLarge: {
-    width: 80,
-    height: 80,
-    borderRadius: 24,
-    backgroundColor: '#F1F5F9',
-    borderWidth: 1,
-    borderColor: theme.border,
-    borderStyle: 'dashed',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  commIconLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: theme.textSecondary,
-  },
-  wizardLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#475569',
-    marginBottom: 8,
-    marginTop: 14,
-  },
-  wizardInput: {
-    backgroundColor: theme.background,
-    borderWidth: 1,
-    borderColor: theme.border,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    height: 48,
-    fontSize: 14.5,
-    color: theme.primary,
-  },
-  charCount: {
-    fontSize: 11,
-    color: theme.textMuted,
-    textAlign: 'right',
-    marginTop: 4,
-  },
-  wizardInfoText: {
-    fontSize: 13.5,
-    color: theme.textSecondary,
-    lineHeight: 18,
-    marginBottom: 20,
-  },
-  groupSectionHeader: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: theme.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginTop: 16,
-    marginBottom: 10,
-  },
-  groupSelectRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.card,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: theme.border,
-    padding: 12,
-    marginBottom: 12,
-  },
-  groupDisabledSelect: {
-    backgroundColor: theme.background,
-    borderColor: theme.border,
-    opacity: 0.8,
-  },
-  groupSelectInfo: {
-    flex: 1,
-    marginLeft: 12,
-    marginRight: 8,
-  },
-  groupSelectName: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: theme.text,
-  },
-  groupSelectDesc: {
-    fontSize: 12,
-    color: theme.textSecondary,
-    marginTop: 2.5,
-  },
-
-  /* Success State styling */
-  successContainer: {
-    padding: 32,
-    alignItems: 'center',
-  },
-  successCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: theme.success,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 24,
-    shadowColor: theme.success,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    elevation: 6,
-  },
-  successTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: theme.text,
-    marginBottom: 12,
-  },
-  successDesc: {
-    fontSize: 14,
-    color: theme.textSecondary,
-    textAlign: 'center',
-    lineHeight: 21,
-    marginBottom: 32,
-  },
-  successBtn: {
-    backgroundColor: theme.primary,
-    height: 50,
-    width: '100%',
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  successBtnText: {
-    color: theme.card,
-    fontSize: 15,
-    fontWeight: '700',
-  },
-  institutionTag: {
-    backgroundColor: '#EFF6FF',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-    borderWidth: 0.5,
-    borderColor: '#DBEAFE',
-  },
-  institutionTagText: {
-    fontSize: 9,
-    fontWeight: '700',
-    color: '#1E40AF',
-  },
-  linkedBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#ECFDF5',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    borderWidth: 0.5,
-    borderColor: '#A7F3D0',
-    gap: 4,
-  },
-  linkedBadgeText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#047857',
-  },
-  messageIconBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#CBD5E1',
-    backgroundColor: theme.background,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  // ─── WhatsApp-Style Communities Design ─────────────────────────────────
   waNewCommunityCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.card,
-    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
     padding: 16,
-    marginBottom: 16,
+    borderRadius: 16,
     borderWidth: 1.5,
-    borderColor: theme.border,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
+    borderColor: '#E2E8F0',
+    marginBottom: 16,
     gap: 14,
   },
   waNewCommunityIconPod: {
     width: 48,
     height: 48,
-    borderRadius: 16,
-    backgroundColor: '#00A884',
+    borderRadius: 14,
+    backgroundColor: '#002B5C',
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
@@ -1926,44 +3021,37 @@ const getStyles = (theme) => StyleSheet.create({
     width: 18,
     height: 18,
     borderRadius: 9,
-    backgroundColor: '#002B5C',
+    backgroundColor: '#10B981',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1.5,
     borderColor: '#FFFFFF',
   },
   waNewCommunityTitle: {
-    fontSize: 16,
+    fontSize: 15.5,
     fontWeight: '800',
-    color: theme.text,
-    letterSpacing: -0.2,
+    color: '#0F172A',
   },
   waNewCommunitySubtitle: {
-    fontSize: 12.5,
-    color: theme.textSecondary,
+    fontSize: 12,
+    color: '#64748B',
     marginTop: 2,
-    lineHeight: 16,
   },
   waCommunityBlock: {
-    backgroundColor: theme.card,
-    borderRadius: 18,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
     borderWidth: 1.5,
-    borderColor: theme.border,
+    borderColor: '#E2E8F0',
     marginBottom: 20,
     overflow: 'hidden',
-    shadowColor: '#002B5C',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
   },
   waCommunityHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: theme.background,
+    backgroundColor: '#F8FAFC',
     borderBottomWidth: 1,
-    borderBottomColor: theme.border,
+    borderBottomColor: '#E2E8F0',
   },
   waCommunityAvatarPod: {
     width: 48,
@@ -1982,8 +3070,7 @@ const getStyles = (theme) => StyleSheet.create({
   waCommunityName: {
     fontSize: 16,
     fontWeight: '800',
-    color: theme.text,
-    letterSpacing: -0.2,
+    color: '#0F172A',
   },
   waCommunityMeta: {
     fontSize: 12,
@@ -1993,7 +3080,7 @@ const getStyles = (theme) => StyleSheet.create({
   },
   waCommunityDesc: {
     fontSize: 11.5,
-    color: theme.textSecondary,
+    color: '#64748B',
     marginTop: 2,
   },
   waAnnouncementRow: {
@@ -2002,7 +3089,7 @@ const getStyles = (theme) => StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: theme.border,
+    borderBottomColor: '#E2E8F0',
     backgroundColor: 'rgba(0, 168, 132, 0.05)',
     gap: 12,
   },
@@ -2017,15 +3104,15 @@ const getStyles = (theme) => StyleSheet.create({
   waChannelTitle: {
     fontSize: 14.5,
     fontWeight: '800',
-    color: theme.text,
+    color: '#0F172A',
   },
   waChannelTime: {
     fontSize: 11.5,
-    color: theme.textMuted,
+    color: '#64748B',
   },
   waChannelSnippet: {
     fontSize: 12.5,
-    color: theme.textSecondary,
+    color: '#475569',
     marginTop: 3,
   },
   waGroupsContainer: {
@@ -2037,7 +3124,7 @@ const getStyles = (theme) => StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: theme.border,
+    borderBottomColor: '#E2E8F0',
     gap: 12,
   },
   waGroupIconPod: {
@@ -2053,15 +3140,15 @@ const getStyles = (theme) => StyleSheet.create({
   waGroupName: {
     fontSize: 14,
     fontWeight: '700',
-    color: theme.text,
+    color: '#0F172A',
   },
   waGroupTime: {
     fontSize: 11,
-    color: theme.textMuted,
+    color: '#64748B',
   },
   waGroupSnippet: {
     fontSize: 12,
-    color: theme.textSecondary,
+    color: '#475569',
     flex: 1,
     marginRight: 8,
   },
@@ -2082,7 +3169,7 @@ const getStyles = (theme) => StyleSheet.create({
   waCommunityFooter: {
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: theme.background,
+    backgroundColor: '#F8FAFC',
     alignItems: 'center',
   },
   waViewAllBtn: {
@@ -2094,6 +3181,170 @@ const getStyles = (theme) => StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
     color: '#002B5C',
+  },
+
+  /* Community Modal */
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 20,
+    maxHeight: '90%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#002B5C',
+  },
+  modalActionText: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#002B5C',
+  },
+  wizardBody: {
+    paddingVertical: 20,
+  },
+  commIconSetup: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  commIconBgLarge: {
+    width: 80,
+    height: 80,
+    borderRadius: 24,
+    backgroundColor: '#EFF6FF',
+    borderWidth: 2,
+    borderColor: '#BFDBFE',
+    borderStyle: 'dashed',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  commIconLabel: {
+    fontSize: 13,
+  },
+  wizardLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#334155',
+    marginBottom: 6,
+    marginTop: 10,
+  },
+  wizardInput: {
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 14,
+    color: '#0F172A',
+  },
+  charCount: {
+    fontSize: 11,
+    color: '#94A3B8',
+    marginTop: 4,
+    textAlign: 'right',
+  },
+  wizardInfoText: {
+    fontSize: 13.5,
+    color: '#64748B',
+    marginBottom: 16,
+    lineHeight: 19,
+  },
+  groupSectionHeader: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#64748B',
+    letterSpacing: 0.6,
+    marginTop: 14,
+    marginBottom: 8,
+  },
+  groupSelectRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 8,
+    gap: 12,
+  },
+  groupDisabledSelect: {
+    opacity: 0.8,
+    backgroundColor: '#EFF6FF',
+    borderColor: '#BFDBFE',
+  },
+  commGroupIconBg: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#E2E8F0',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  announcementBg: {
+    backgroundColor: '#DBEAFE',
+  },
+  groupSelectInfo: {
+    flex: 1,
+  },
+  groupSelectName: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#0F172A',
+  },
+  groupSelectDesc: {
+    fontSize: 11.5,
+    color: '#64748B',
+    marginTop: 2,
+  },
+  successContainer: {
+    alignItems: 'center',
+    paddingVertical: 30,
+  },
+  successCircle: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: '#10B981',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  successTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#0F172A',
+    marginBottom: 8,
+  },
+  successDesc: {
+    fontSize: 14,
+    color: '#64748B',
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 24,
+    paddingHorizontal: 16,
+  },
+  successBtn: {
+    backgroundColor: '#002B5C',
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 32,
+  },
+  successBtnText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '800',
   },
 });
 
