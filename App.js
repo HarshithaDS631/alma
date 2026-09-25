@@ -58,6 +58,7 @@ import PostCreationScreen from './src/screens/PostCreationScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import LegalScreen from './src/screens/LegalScreen';
 import CareerInsightsScreen from './src/screens/CareerInsightsScreen';
+import MentorshipScreen from './src/screens/MentorshipScreen';
 
 // Admin Flow Screens
 import AdminLoginScreen from './src/screens/AdminLoginScreen';
@@ -613,6 +614,7 @@ const linking = {
       PostCreation: 'create-post',
       Profile: 'profile',
       Events: 'events',
+      Mentorship: 'mentorship',
       AdminProfile: 'admin-profile',
       AdminPlacementDetails: 'placement-details',
     },
@@ -678,6 +680,7 @@ function RootNavigator() {
         <Stack.Screen name="TermsOfService" component={LegalScreen} initialParams={{ tab: 'terms' }} />
         <Stack.Screen name="Terms" component={LegalScreen} initialParams={{ tab: 'terms' }} />
         <Stack.Screen name="CareerInsights" component={CareerInsightsScreen} />
+        <Stack.Screen name="Mentorship" component={MentorshipScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
