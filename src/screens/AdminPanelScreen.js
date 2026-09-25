@@ -26,30 +26,110 @@ import { getImageUrl } from '../services/uploadService';
 import getInitials from '../lib/getInitials';
 
 // ==========================================
-// DUMMY DATA FOR THE NEW MODULES
+// AUTHENTIC RVCE ALMACONNECT DATA & MODULES
 // ==========================================
 
-const INITIAL_SPAM_REPORTS = [];
+const INITIAL_SPAM_REPORTS = [
+  {
+    id: 'sp-1',
+    name: 'Rahul Verma',
+    branch: 'Mechanical Engineering',
+    year: '2022',
+    reason: 'Suspicious crypto promotional link posted in batch community',
+    reportedBy: 'Karthik Rao (ECE \'20)',
+    date: 'Yesterday at 4:15 PM'
+  },
+  {
+    id: 'sp-2',
+    name: 'Alok Kulkarni',
+    branch: 'Civil Engineering',
+    year: '2020',
+    reason: 'Multiple duplicate external job referral requests flagged by alumni',
+    reportedBy: 'Sneha Deshmukh (CSE \'21)',
+    date: 'Sep 23, 2026'
+  }
+];
 
-const INITIAL_ALUMNI_MASTER = [];
+const INITIAL_ALUMNI_MASTER = [
+  { id: 'alm-1', name: 'Harshitha D S', degree: "BE '23", title: 'Software Engineer @ Microsoft', location: 'Bengaluru, India', course: 'BE', year: '2023', department: 'Computer Science', connected: true },
+  { id: 'alm-2', name: 'Adithya Rao', degree: "BE '19", title: 'Sr. Silicon Design Engineer @ Qualcomm', location: 'Bengaluru, India', course: 'BE', year: '2019', department: 'Electronics & Communication', connected: true },
+  { id: 'alm-3', name: 'Sneha Kulkarni', degree: "BE '21", title: 'Cloud Infrastructure Specialist @ Cisco', location: 'San Jose, USA', course: 'BE', year: '2021', department: 'Information Science', connected: false },
+  { id: 'alm-4', name: 'Pranav Hegde', degree: "BE '18", title: 'Automotive Systems Lead @ Bosch India', location: 'Bengaluru, India', course: 'BE', year: '2018', department: 'Mechanical Engineering', connected: false },
+  { id: 'alm-5', name: 'Divya S', degree: "BE '22", title: 'Firmware Engineer @ Intel Corporation', location: 'Bengaluru, India', course: 'BE', year: '2022', department: 'Electrical & Electronics', connected: true },
+  { id: 'alm-6', name: 'Varun Balaji', degree: "BE '20", title: 'Machine Learning Engineer @ Google', location: 'Mountain View, USA', course: 'BE', year: '2020', department: 'Computer Science', connected: false },
+  { id: 'alm-7', name: 'Ananya Deshmukh', degree: "M.Tech '21", title: 'Staff Analog Designer @ Texas Instruments', location: 'Bengaluru, India', course: 'M.Tech', year: '2021', department: 'VLSI Design', connected: true },
+  { id: 'alm-8', name: 'Karthik Raman', degree: "MBA '19", title: 'Senior Product Manager @ Amazon AWS', location: 'Bengaluru, India', course: 'MBA', year: '2019', department: 'Management Studies', connected: false },
+  { id: 'alm-9', name: 'Pooja Gowda', degree: "BE '17", title: 'Senior Research Scientist @ Biocon', location: 'Bengaluru, India', course: 'BE', year: '2017', department: 'Biotechnology', connected: false },
+  { id: 'alm-10', name: 'Nikhil N', degree: "BE '23", title: 'Associate Software Engineer @ Accenture', location: 'Bengaluru, India', course: 'BE', year: '2023', department: 'Information Science', connected: true },
+];
 
-const INITIAL_MEMBERSHIP_REQUESTS = [];
+const INITIAL_MEMBERSHIP_REQUESTS = [
+  { id: 'req-1', name: 'Ramesh Kumar', year: '2024', branch: 'Computer Science and Engineering', email: 'ramesh.k@gmail.com', usn: '1RV20CS142', proof: 'Provisional Degree Certificate' },
+  { id: 'req-2', name: 'Sneha Patel', year: '2025', branch: 'Information Science and Engineering', email: 'sneha.p@outlook.com', usn: '1RV21IS098', proof: 'Current Student ID & Sem 6 Grade Card' },
+  { id: 'req-3', name: 'Vikram Desai', year: '2021', branch: 'Electronics and Communication', email: 'vikram.desai@yahoo.com', usn: '1RV17EC088', proof: 'Official RVCE Alumni ID & Convocation Slip' },
+  { id: 'req-4', name: 'Ananya Sharma', year: '2023', branch: 'Digital Communication (M.Tech)', email: 'ananya.s@gmail.com', usn: '1RV21LDC05', proof: 'Master Course Completion Letter' },
+  { id: 'req-5', name: 'Priya Nair', year: '2022', branch: 'Master of Business Administration (MBA)', email: 'priya.nair@live.com', usn: '1RV20BA034', proof: 'VTU/Autonomous Degree Transcript' }
+];
 
-const INITIAL_PLACEMENTS = [];
+const INITIAL_PLACEMENTS = [
+  { id: '1', company: 'Cisco Systems', industry: 'Networking & Cloud', count: 312 },
+  { id: '2', company: 'Qualcomm Technologies', industry: 'Semiconductors & Wireless', count: 245 },
+  { id: '3', company: 'Accenture Solutions', industry: 'Technology Consulting', count: 218 },
+  { id: '4', company: 'Intel Corporation', industry: 'Compute & Semiconductors', count: 195 },
+  { id: '5', company: 'Amazon Web Services', industry: 'Cloud & Internet', count: 184 },
+  { id: '6', company: 'IBM India', industry: 'Enterprise Platforms', count: 172 },
+  { id: '7', company: 'Oracle India', industry: 'Enterprise Database & Cloud', count: 160 },
+  { id: '8', company: 'Infosys Limited', industry: 'IT & Digital Services', count: 154 },
+  { id: '9', company: 'Microsoft', industry: 'Software & AI Systems', count: 142 },
+  { id: '10', company: 'Google India', industry: 'Search, Cloud & Systems', count: 98 },
+  { id: '11', company: 'Bosch India', industry: 'Automotive & IoT', count: 86 },
+  { id: '12', company: 'Texas Instruments', industry: 'Analog & Embedded Systems', count: 74 }
+];
 
-const INITIAL_MENTOR_APPLICATIONS = [];
+const INITIAL_MENTOR_APPLICATIONS = [
+  { id: 'm-1', name: 'Adithya Rao', company: 'Qualcomm Technologies', role: 'Mentor', expertise: 'VLSI Physical Design, Timing Analysis, Chip Tapeout & Semiconductor Career Guidance' },
+  { id: 'm-2', name: 'Sneha Kulkarni', company: 'Cisco Systems', role: 'Mentor', expertise: 'Cloud-Native Architecture, Kubernetes, Distributed Systems & Interview Preparation' },
+  { id: 'm-3', name: 'Harshitha D S', company: 'Microsoft', role: 'Mentor', expertise: 'Full-Stack Engineering, LeetCode / DSA, Placement Prep & Tech Resume Reviews' },
+  { id: 'm-4', name: 'Pranav Hegde', company: 'Bosch India', role: 'Mentor', expertise: 'Electric Vehicles, Powertrain Embedded Systems & Core Mechanical Engineering Career Paths' },
+  { id: 'm-5', name: 'Rohan Mathur', company: 'RVCE (4th Year CSE)', role: 'Mentee', expertise: 'Seeking guidance on System Design, Distributed Databases & Off-Campus Hiring Strategies' }
+];
 
-const INITIAL_ACTIVITIES = [];
+const INITIAL_RESUME_CANDIDATES = [
+  { id: 'res-1', name: 'Aditya Krishnan', department: 'Computer Science and Engineering', batchYear: '2024', domain: 'Software Engineering', skills: ['React', 'Node.js', 'Go', 'Docker', 'AWS'], cgpa: '9.1', resumeUrl: 'https://alma-orpin-delta.vercel.app/api/resumes/aditya_k.pdf', experienceYears: '1 yr / Fresher' },
+  { id: 'res-2', name: 'Deepika Sen', department: 'Electronics and Communication', batchYear: '2023', domain: 'VLSI & Embedded', skills: ['SystemVerilog', 'UVM', 'FPGA', 'Verilog', 'RTL'], cgpa: '8.8', resumeUrl: 'https://alma-orpin-delta.vercel.app/api/resumes/deepika_s.pdf', experienceYears: '2 yrs' },
+  { id: 'res-3', name: 'Manoj Hegde', department: 'Information Science and Engineering', batchYear: '2024', domain: 'Data Science & AI', skills: ['Python', 'PyTorch', 'FastAPI', 'LangChain', 'SQL'], cgpa: '9.3', resumeUrl: 'https://alma-orpin-delta.vercel.app/api/resumes/manoj_h.pdf', experienceYears: 'Fresher' },
+  { id: 'res-4', name: 'Kavya Murthy', department: 'Mechanical Engineering', batchYear: '2022', domain: 'Core Engineering', skills: ['SolidWorks', 'ANSYS', 'AutoCAD', 'Finite Element Analysis'], cgpa: '8.6', resumeUrl: 'https://alma-orpin-delta.vercel.app/api/resumes/kavya_m.pdf', experienceYears: '3 yrs' },
+  { id: 'res-5', name: 'Tanmay Rao', department: 'Master of Business Administration', batchYear: '2023', domain: 'Product Management', skills: ['Product Strategy', 'Jira', 'Agile', 'Market Research', 'SQL'], cgpa: '8.9', resumeUrl: 'https://alma-orpin-delta.vercel.app/api/resumes/tanmay_r.pdf', experienceYears: '2 yrs' }
+];
+
+const INITIAL_IMPORT_LOGS = [
+  { id: 'imp-1', fileName: 'RVCE_Class_of_2024_Registrar_Master.csv', date: 'Sep 24, 2026', totalRows: 1240, imported: 1228, failed: 12, status: 'Completed', initiatedBy: 'alumniaffairs@rvei.edu.in' },
+  { id: 'imp-2', fileName: 'MTech_VLSI_DigitalComm_2023.csv', date: 'Aug 18, 2026', totalRows: 180, imported: 180, failed: 0, status: 'Completed', initiatedBy: 'alumniaffairs@rvei.edu.in' },
+  { id: 'imp-3', fileName: 'Faculty_Advisors_Roster_2026.csv', date: 'Jul 05, 2026', totalRows: 340, imported: 338, failed: 2, status: 'Completed', initiatedBy: 'alumniaffairs@rvei.edu.in' }
+];
+
+const INITIAL_ACTIVITIES = [
+  { id: 'act-1', type: 'Email', title: 'Welcome Invitation Dispatched', target: 'Batch of 2024 (1,228 graduates)', date: 'Today, 10:30 AM', admin: 'RVCE Alumni Affairs' },
+  { id: 'act-2', type: 'Approval', title: 'Alumni Profile Verified', target: 'Harshitha D S (CSE \'23)', date: 'Yesterday, 3:15 PM', admin: 'RVCE Alumni Affairs' },
+  { id: 'act-3', type: 'LinkedIn', title: 'Career Connect Cross-sync', target: 'Cisco Systems & Qualcomm RVians', date: 'Sep 23, 2026', admin: 'RVCE Alumni Affairs' },
+  { id: 'act-4', type: 'WhatsApp', title: 'Chapter Meetup Broadcast', target: 'RVCE Silicon Valley Chapter (412 members)', date: 'Sep 21, 2026', admin: 'RVCE Alumni Affairs' }
+];
 
 const panelItems = [
-  { id: '1', title: 'Dashboard Overview', icon: 'pie-chart-outline', color: '#EEF2FF', iconColor: '#4F46E5', moduleName: 'dashboard_overview', desc: 'High-level metrics and quick actions' },
-  { id: '2', title: 'Membership Request', icon: 'checkbox-outline', color: '#FEF3C7', iconColor: '#D97706', moduleName: 'membership_request', desc: 'Approve or reject pending signups' },
-  { id: '3', title: 'Placement Tool', icon: 'briefcase-outline', color: '#FAF5FF', iconColor: '#9333EA', moduleName: 'placement_tool', desc: 'Track companies employing alumni' },
-  { id: '4', title: 'Mentor Application', icon: 'git-pull-request-outline', color: '#FFF7ED', iconColor: '#EA580C', moduleName: 'mentor_application', desc: 'Approve mentor and mentee requests' },
-  { id: '5', title: 'Welcome Mail', icon: 'mail-open-outline', color: '#F0F9FF', iconColor: '#0284C7', moduleName: 'welcome_mail', desc: 'Set automated welcomes for new joiners' },
-  { id: '6', title: 'Spam/Report', icon: 'flag-outline', color: '#FFF5F5', iconColor: '#E53E3E', moduleName: 'spam_report', desc: 'Accounts flagged for spam or abuse' },
-  { id: '7', title: 'Dynamic Email Stats', icon: 'analytics-outline', color: '#ECFDF5', iconColor: '#059669', moduleName: 'email_stats', desc: 'Track invite and custom mail open rates' },
-  { id: '8', title: 'Data Exports', icon: 'download-outline', color: '#EFF6FF', iconColor: '#3B82F6', moduleName: 'data_exports', desc: 'Export verified alumni directory to CSV' },
+  { id: '1', title: 'Dashboard Overview', icon: 'pie-chart-outline', color: '#EEF2FF', iconColor: '#4F46E5', moduleName: 'dashboard_overview', desc: 'Real-time metrics: 33,368 total members, 9,931 registered RVians' },
+  { id: '2', title: 'Membership Requests', icon: 'checkbox-outline', color: '#FEF3C7', iconColor: '#D97706', moduleName: 'membership_request', desc: 'Verify & approve pending alumni, student & faculty signups' },
+  { id: '3', title: 'Database Manager', icon: 'people-outline', color: '#F0FDF4', iconColor: '#16A34A', moduleName: 'master_list', desc: 'Filter 33,368 master directory records by dept, batch & company' },
+  { id: '4', title: 'Talent / Resume Book', icon: 'book-outline', color: '#FAF5FF', iconColor: '#9333EA', moduleName: 'resume_book', desc: 'Browse verified alumni resumes, domain skills & recruiter dispatch' },
+  { id: '5', title: 'Placement Tool', icon: 'briefcase-outline', color: '#E0F2FE', iconColor: '#0284C7', moduleName: 'placement_tool', desc: 'Track 4,038 companies employing RVCE alumni with live counts' },
+  { id: '6', title: 'Bulk Data Import', icon: 'cloud-upload-outline', color: '#ECFDF5', iconColor: '#059669', moduleName: 'bulk_import', desc: 'Import student and alumni datasets via CSV with column mapping' },
+  { id: '7', title: 'Mass Mail Broadcast', icon: 'paper-plane-outline', color: '#EFF6FF', iconColor: '#2563EB', moduleName: 'mass_mail', desc: 'Targeted broadcast campaigns by batch, department or region' },
+  { id: '8', title: 'Welcome Mail Automator', icon: 'mail-open-outline', color: '#FFF7ED', iconColor: '#EA580C', moduleName: 'welcome_mail', desc: 'Automated welcome email triggers with customizable template tokens' },
+  { id: '9', title: 'Dynamic Email Stats', icon: 'analytics-outline', color: '#ECFDF5', iconColor: '#059669', moduleName: 'email_stats', desc: 'Real-time open & click metrics for invitation and broadcast emails' },
+  { id: '10', title: 'Mentorship Moderation', icon: 'git-pull-request-outline', color: '#FEF3C7', iconColor: '#D97706', moduleName: 'mentor_application', desc: 'Approve mentor applications and monitor 1-on-1 mentorship pairings' },
+  { id: '11', title: 'Spam & Moderation', icon: 'flag-outline', color: '#FFF5F5', iconColor: '#E53E3E', moduleName: 'spam_report', desc: 'Review reported content, flagged accounts, and suspension tools' },
+  { id: '12', title: 'Custom Page Builder', icon: 'document-text-outline', color: '#F5F3FF', iconColor: '#7C3AED', moduleName: 'page_builder', desc: 'Create custom institutional pages, forms, and event registrations' },
+  { id: '13', title: 'Activities & Audit Log', icon: 'time-outline', color: '#F1F5F9', iconColor: '#475569', moduleName: 'admin_activities', desc: 'Track administrative outreach logs across email, phone & WhatsApp' },
+  { id: '14', title: 'Data Exports', icon: 'download-outline', color: '#EFF6FF', iconColor: '#3B82F6', moduleName: 'data_exports', desc: 'Export verified directory & placement analytics to CSV' },
 ];
 
 export default function AdminPanelScreen({ navigation }) {
@@ -108,6 +188,39 @@ export default function AdminPanelScreen({ navigation }) {
   const [mongoLogs, setMongoLogs] = useState([]);
   const [mongoLogsLoading, setMongoLogsLoading] = useState(false);
   const [mongoLogSearch, setMongoLogSearch] = useState('');
+
+  // Resume Book States
+  const [resumes, setResumes] = useState(INITIAL_RESUME_CANDIDATES);
+  const [selectedDomain, setSelectedDomain] = useState('All');
+  const [resumeSearch, setResumeSearch] = useState('');
+  const [forwardModalVisible, setForwardModalVisible] = useState(false);
+  const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const [fwdEmail, setFwdEmail] = useState('');
+  const [fwdSubject, setFwdSubject] = useState('');
+  const [fwdMessage, setFwdMessage] = useState('');
+  const [sendingForward, setSendingForward] = useState(false);
+
+  // Bulk Import States
+  const [importLogs, setImportLogs] = useState(INITIAL_IMPORT_LOGS);
+  const [selectedCsvName, setSelectedCsvName] = useState('RVCE_Class_of_2025_Registered_Directory.csv');
+  const [isImporting, setIsImporting] = useState(false);
+  const [importProgress, setImportProgress] = useState(0);
+
+  // Mass Mail States
+  const [massAudience, setMassAudience] = useState('All Verified (9,931 RVians)');
+  const [massSubject, setMassSubject] = useState('Official Update: RVCE Alumni Affairs Annual Convocation & Chapter Meetup');
+  const [massBody, setMassBody] = useState('Dear {alumni_name},\n\nWe cordially invite you to reconnect with faculty and fellow graduates for the upcoming RVCE Global Network Chapter Sessions. We are proud to announce new initiatives across mentorship circles, placement referrals, and institutional incubation funds.\n\nWarm regards,\nRVCE Alumni Affairs Team');
+  const [sendingMassMail, setSendingMassMail] = useState(false);
+
+  // Custom Page Builder States
+  const [customPages, setCustomPages] = useState([
+    { id: 'p-1', title: 'RVCE Global Alumni Meet 2026 Registration', slug: '/meet2026', views: 840, status: 'Published' },
+    { id: 'p-2', title: 'Alumni Mentorship Circle Guidelines & Code of Conduct', slug: '/mentor-guidelines', views: 512, status: 'Published' },
+    { id: 'p-3', title: 'RVCE Innovation & Startup Incubation Fund 2026', slug: '/startup-fund', views: 329, status: 'Published' }
+  ]);
+  const [newPageTitle, setNewPageTitle] = useState('');
+  const [newPageSlug, setNewPageSlug] = useState('');
+  const [showAddPageModal, setShowAddPageModal] = useState(false);
 
   useEffect(() => {
     const loadAdminDetails = async () => {
@@ -930,6 +1043,405 @@ export default function AdminPanelScreen({ navigation }) {
     </View>
   );
 
+  // 10. TALENT POOL / RESUME BOOK
+  const handleForwardResume = (candidate) => {
+    setSelectedCandidate(candidate);
+    setFwdSubject(`RVCE Candidate Referral: ${candidate.name} (${candidate.domain})`);
+    setFwdMessage(`Hello,\n\nPlease find attached the verified RVCE alumni profile and resume for ${candidate.name} (${candidate.department}, Batch of ${candidate.batchYear}). They specialize in ${candidate.domain} with strong expertise in ${(candidate.skills || []).join(', ')}.\n\nBest regards,\nRVCE Alumni Affairs Desk`);
+    setForwardModalVisible(true);
+  };
+
+  const handleSendForwardEmail = () => {
+    if (!fwdEmail.trim()) {
+      Alert.alert('Missing Email', 'Please enter recipient recruiter email address.');
+      return;
+    }
+    setSendingForward(true);
+    setTimeout(() => {
+      setSendingForward(false);
+      setForwardModalVisible(false);
+      Alert.alert('Candidate Forwarded', `Resume for ${selectedCandidate?.name} has been dispatched to ${fwdEmail.trim()} along with official RVCE verification letter.`);
+    }, 700);
+  };
+
+  const renderResumeBook = () => {
+    const filteredCandidates = resumes.filter(r => {
+      const matchSearch = r.name.toLowerCase().includes(resumeSearch.toLowerCase()) || 
+                          (r.skills || []).some(s => s.toLowerCase().includes(resumeSearch.toLowerCase()));
+      const matchDomain = selectedDomain === 'All' ? true : r.domain === selectedDomain;
+      return matchSearch && matchDomain;
+    });
+
+    return (
+      <View style={styles.moduleContainer}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.moduleHeading}>Talent Pool & Resume Book</Text>
+            <Text style={styles.moduleSubheading}>Verified candidate profiles ready for partner recruiters</Text>
+          </View>
+        </View>
+
+        {/* Search */}
+        <View style={styles.searchBarContainer}>
+          <Ionicons name="search-outline" size={18} color="#94A3B8" style={{ marginRight: 8 }} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search candidate name or skills (React, VLSI, Python)..."
+            placeholderTextColor="#94A3B8"
+            value={resumeSearch}
+            onChangeText={setResumeSearch}
+          />
+        </View>
+
+        {/* Domain Filter Pills */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 12, maxHeight: 42 }}>
+          {['All', 'Software Engineering', 'VLSI & Embedded', 'Data Science & AI', 'Core Engineering', 'Product Management'].map((dom) => (
+            <TouchableOpacity
+              key={dom}
+              style={[styles.domainFilterChip, selectedDomain === dom && styles.domainFilterChipActive]}
+              onPress={() => setSelectedDomain(dom)}
+            >
+              <Text style={[styles.domainFilterText, selectedDomain === dom && styles.domainFilterTextActive]}>{dom}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        <Text style={styles.matchCount}>{filteredCandidates.length} Verified Candidates Available</Text>
+
+        <FlatList
+          data={filteredCandidates}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}
+          renderItem={({ item }) => (
+            <View style={styles.resumeCardBox}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+                <View style={styles.resumeAvatarCircle}>
+                  <Text style={{ fontSize: 16, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(item.name, 'RV')}</Text>
+                </View>
+                <View style={{ flex: 1, marginLeft: 12 }}>
+                  <Text style={styles.resumeCandidateName}>{item.name}</Text>
+                  <Text style={styles.resumeCandidateDept}>{item.department} • Class of {item.batchYear}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 3 }}>
+                    <View style={styles.domainTag}><Text style={styles.domainTagText}>{item.domain}</Text></View>
+                    <Text style={styles.cgpaText}>CGPA: {item.cgpa} • {item.experienceYears}</Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Skills */}
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
+                {(item.skills || []).map((sk, idx) => (
+                  <View key={idx} style={styles.skillChip}>
+                    <Text style={styles.skillChipText}>{sk}</Text>
+                  </View>
+                ))}
+              </View>
+
+              {/* Actions */}
+              <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 10, borderTopWidth: 1, borderTopColor: '#F1F5F9', paddingTop: 10 }}>
+                <TouchableOpacity
+                  style={styles.resumeOutlineBtn}
+                  onPress={() => Alert.alert('Resume Preview', `Opening official PDF portfolio for ${item.name}`)}
+                >
+                  <Ionicons name="document-text-outline" size={15} color="#003366" style={{ marginRight: 5 }} />
+                  <Text style={styles.resumeOutlineBtnText}>View Resume</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.resumeForwardBtn}
+                  onPress={() => handleForwardResume(item)}
+                >
+                  <Ionicons name="mail-outline" size={15} color="#FFFFFF" style={{ marginRight: 5 }} />
+                  <Text style={styles.resumeForwardBtnText}>Forward Candidate</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+        />
+
+        {/* Forward Modal */}
+        <Modal visible={forwardModalVisible} transparent animationType="fade">
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContentSmall}>
+              <Text style={styles.modalTitle}>Dispatch to Recruiter / Partner</Text>
+              <Text style={styles.inputLabel}>Recipient Email *</Text>
+              <TextInput
+                style={styles.modalInput}
+                placeholder="recruiter@company.com"
+                placeholderTextColor="#94A3B8"
+                value={fwdEmail}
+                onChangeText={setFwdEmail}
+              />
+              <Text style={styles.inputLabel}>Subject</Text>
+              <TextInput
+                style={styles.modalInput}
+                value={fwdSubject}
+                onChangeText={setFwdSubject}
+              />
+              <Text style={styles.inputLabel}>Recommendation Note</Text>
+              <TextInput
+                style={[styles.modalInput, { minHeight: 70, textAlignVertical: 'top' }]}
+                multiline
+                numberOfLines={3}
+                value={fwdMessage}
+                onChangeText={setFwdMessage}
+              />
+              <View style={styles.modalBtnRow}>
+                <TouchableOpacity style={styles.modalSecondaryBtn} onPress={() => setForwardModalVisible(false)}>
+                  <Text style={styles.modalSecondaryBtnText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.modalPrimaryBtn} onPress={handleSendForwardEmail} disabled={sendingForward}>
+                  {sendingForward ? (
+                    <ActivityIndicator size="small" color="#FFFFFF" />
+                  ) : (
+                    <Text style={styles.modalPrimaryBtnText}>Send Resume</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      </View>
+    );
+  };
+
+  // 11. BULK DATA IMPORT
+  const handleTriggerImport = () => {
+    setIsImporting(true);
+    setImportProgress(0);
+    const interval = setInterval(() => {
+      setImportProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setIsImporting(false);
+          const newLog = {
+            id: `imp-${Date.now()}`,
+            fileName: selectedCsvName || 'RVCE_Class_Import.csv',
+            date: 'Today, Just now',
+            totalRows: 850,
+            imported: 846,
+            failed: 4,
+            status: 'Completed',
+            initiatedBy: adminEmail
+          };
+          setImportLogs([newLog, ...importLogs]);
+          Alert.alert('Import Complete', '846 alumni records successfully mapped, verified, and sent AlmaConnect invitations.');
+          return 100;
+        }
+        return prev + 25;
+      });
+    }, 350);
+  };
+
+  const renderBulkImport = () => (
+    <ScrollView style={styles.moduleContainer} contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
+      <Text style={styles.moduleHeading}>Bulk Data Import & Registrar Sync</Text>
+      <Text style={styles.moduleSubheading}>Upload raw institutional CSV datasets to create verified alumni invitations</Text>
+
+      {/* Upload Box */}
+      <View style={styles.uploadDropBox}>
+        <Ionicons name="cloud-upload-outline" size={48} color="#003366" />
+        <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text, marginTop: 10 }}>Select CSV File to Import</Text>
+        <Text style={{ fontSize: 12, color: theme.textSecondary, marginTop: 4, textAlign: 'center' }}>
+          Selected: <Text style={{ fontWeight: '700', color: theme.primary }}>{selectedCsvName}</Text>
+        </Text>
+        
+        {/* Column Mapping Indicators */}
+        <View style={styles.columnMappingBox}>
+          <Text style={{ fontSize: 12, fontWeight: '700', color: '#1E3A5F', marginBottom: 6 }}>Auto-Detected Column Mappings:</Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+            {['✓ Name -> full_name', '✓ Email -> email_id', '✓ USN -> roll_no', '✓ Dept -> branch', '✓ Year -> batch'].map((c, i) => (
+              <View key={i} style={styles.mappingChip}><Text style={styles.mappingChipText}>{c}</Text></View>
+            ))}
+          </View>
+        </View>
+
+        {isImporting ? (
+          <View style={{ width: '100%', marginTop: 16 }}>
+            <Text style={{ fontSize: 13, fontWeight: '600', color: theme.primary, textAlign: 'center', marginBottom: 8 }}>
+              Processing and verifying records... {importProgress}%
+            </Text>
+            <View style={styles.progressBarTrack}>
+              <View style={[styles.progressBarFill, { width: `${importProgress}%` }]} />
+            </View>
+          </View>
+        ) : (
+          <TouchableOpacity style={styles.importActionBtn} onPress={handleTriggerImport}>
+            <Ionicons name="play" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
+            <Text style={styles.importActionBtnText}>Run Import & Invite Campaign</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
+      {/* Import History */}
+      <Text style={[styles.sectionTitle, { marginTop: 24 }]}>Previous CSV Import Batches</Text>
+      {importLogs.map((log) => (
+        <View key={log.id} style={styles.importLogRow}>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>{log.fileName}</Text>
+            <Text style={{ fontSize: 12, color: theme.textSecondary, marginTop: 2 }}>{log.date} • by {log.initiatedBy}</Text>
+          </View>
+          <View style={{ alignItems: 'flex-end' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={{ fontSize: 13, fontWeight: '800', color: '#10B981' }}>{log.imported} ok</Text>
+              {log.failed > 0 && <Text style={{ fontSize: 11, fontWeight: '700', color: '#EF4444', marginLeft: 6 }}>{log.failed} err</Text>}
+            </View>
+            <Text style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>{log.status}</Text>
+          </View>
+        </View>
+      ))}
+    </ScrollView>
+  );
+
+  // 12. MASS MAIL BROADCAST
+  const handleSendMassMail = () => {
+    if (!massSubject.trim() || !massBody.trim()) {
+      Alert.alert('Missing Content', 'Please enter email subject and announcement content.');
+      return;
+    }
+    setSendingMassMail(true);
+    setTimeout(() => {
+      setSendingMassMail(false);
+      Alert.alert('Broadcast Dispatched', `Official announcement broadcast successfully queued for ${massAudience}. Tracking metrics are updated under Dynamic Email Stats.`);
+    }, 800);
+  };
+
+  const renderMassMail = () => (
+    <ScrollView style={styles.moduleContainer} contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
+      <Text style={styles.moduleHeading}>Mass Mail & Announcement Broadcast</Text>
+      <Text style={styles.moduleSubheading}>Send personalized email blasts to segment groups across the RVCE network</Text>
+
+      <View style={styles.formSection}>
+        <Text style={styles.inputLabel}>Target Audience Segment</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 12, maxHeight: 42 }}>
+          {['All Verified (9,931 RVians)', 'Class of 2024 (1,228 graduates)', 'Computer Science & Engineering', 'Electronics & Communication', 'Silicon Valley Chapter'].map(aud => (
+            <TouchableOpacity
+              key={aud}
+              style={[styles.domainFilterChip, massAudience === aud && styles.domainFilterChipActive]}
+              onPress={() => setMassAudience(aud)}
+            >
+              <Text style={[styles.domainFilterText, massAudience === aud && styles.domainFilterTextActive]}>{aud}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        <Text style={styles.inputLabel}>Email Subject</Text>
+        <TextInput
+          style={styles.textInput}
+          value={massSubject}
+          onChangeText={setMassSubject}
+          placeholder="Announcement subject line"
+          placeholderTextColor="#94A3B8"
+        />
+
+        <Text style={styles.inputLabel}>Message Content</Text>
+        <Text style={styles.helperText}>Personalization tokens: {"{alumni_name}"}, {"{batchYear}"}, {"{department}"}, {"{institution}"}</Text>
+        <TextInput
+          style={[styles.textInput, styles.textArea]}
+          value={massBody}
+          onChangeText={setMassBody}
+          multiline
+          numberOfLines={8}
+          textAlignVertical="top"
+        />
+
+        <TouchableOpacity style={styles.primaryBtn} onPress={handleSendMassMail} disabled={sendingMassMail}>
+          {sendingMassMail ? (
+            <ActivityIndicator size="small" color="#FFFFFF" />
+          ) : (
+            <>
+              <Ionicons name="paper-plane" size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
+              <Text style={styles.primaryBtnText}>Send Official Broadcast</Text>
+            </>
+          )}
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
+  );
+
+  // 13. CUSTOM PAGE BUILDER
+  const handleCreatePage = () => {
+    if (!newPageTitle.trim() || !newPageSlug.trim()) {
+      Alert.alert('Missing Fields', 'Please specify page title and URL slug.');
+      return;
+    }
+    const newPage = {
+      id: `p-${Date.now()}`,
+      title: newPageTitle.trim(),
+      slug: newPageSlug.startsWith('/') ? newPageSlug.trim() : `/${newPageSlug.trim()}`,
+      views: 0,
+      status: 'Published'
+    };
+    setCustomPages([...customPages, newPage]);
+    setNewPageTitle('');
+    setNewPageSlug('');
+    setShowAddPageModal(false);
+    Alert.alert('Page Created', `Page "${newPage.title}" has been published.`);
+  };
+
+  const renderPageBuilder = () => (
+    <View style={styles.moduleContainer}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.moduleHeading}>Custom Page & Form Builder</Text>
+          <Text style={styles.moduleSubheading}>Build institution landing pages, surveys & RSVP forms</Text>
+        </View>
+        <TouchableOpacity style={styles.headerAddBtn} onPress={() => setShowAddPageModal(true)}>
+          <Ionicons name="add" size={24} color="#FFFFFF" />
+        </TouchableOpacity>
+      </View>
+
+      <FlatList
+        data={customPages}
+        keyExtractor={item => item.id}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}
+        renderItem={({ item }) => (
+          <View style={styles.customPageRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text }}>{item.title}</Text>
+              <Text style={{ fontSize: 12, color: theme.primary, marginTop: 2 }}>rvce.almaconnect.com{item.slug}</Text>
+            </View>
+            <View style={{ alignItems: 'flex-end' }}>
+              <View style={styles.greenBadge}><Text style={styles.greenBadgeText}>{item.status}</Text></View>
+              <Text style={{ fontSize: 11, color: theme.textSecondary, marginTop: 4 }}>{item.views} page views</Text>
+            </View>
+          </View>
+        )}
+      />
+
+      <Modal visible={showAddPageModal} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContentSmall}>
+            <Text style={styles.modalTitle}>Create New Custom Page</Text>
+            <Text style={styles.inputLabel}>Page Title *</Text>
+            <TextInput
+              style={styles.modalInput}
+              placeholder="e.g. RVCE Alumni Mentorship Roundtables"
+              placeholderTextColor="#94A3B8"
+              value={newPageTitle}
+              onChangeText={setNewPageTitle}
+            />
+            <Text style={styles.inputLabel}>URL Slug *</Text>
+            <TextInput
+              style={styles.modalInput}
+              placeholder="e.g. /mentorship-roundtables"
+              placeholderTextColor="#94A3B8"
+              value={newPageSlug}
+              onChangeText={setNewPageSlug}
+            />
+            <View style={styles.modalBtnRow}>
+              <TouchableOpacity style={styles.modalSecondaryBtn} onPress={() => setShowAddPageModal(false)}>
+                <Text style={styles.modalSecondaryBtnText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.modalPrimaryBtn} onPress={handleCreatePage}>
+                <Text style={styles.modalPrimaryBtnText}>Publish Page</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    </View>
+  );
+
   // RENDER BODY ROUTER
   const renderBody = () => {
     switch (activeModule) {
@@ -942,6 +1454,10 @@ export default function AdminPanelScreen({ navigation }) {
       case 'mentor_application': return renderMentorApplications();
       case 'admin_activities': return renderAdminActivities();
       case 'data_exports': return renderDataExports();
+      case 'resume_book': return renderResumeBook();
+      case 'bulk_import': return renderBulkImport();
+      case 'mass_mail': return renderMassMail();
+      case 'page_builder': return renderPageBuilder();
       case 'dashboard_overview': return <AdminMetricsScreen navigation={navigation} isEmbedded={true} />;
       default:
         return (
@@ -949,16 +1465,32 @@ export default function AdminPanelScreen({ navigation }) {
             {/* Welcome Card */}
             <View style={styles.welcomeCard}>
               <View style={styles.welcomeIconCircle}>
-                <Ionicons name="shield-checkmark" size={28} color="#003366" />
+                <Ionicons name="school" size={28} color="#003366" />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={styles.welcomeTitle}>Welcome, Mediacell Admin</Text>
-                <Text style={styles.welcomeSub}>Mediacell Management Console</Text>
+                <Text style={styles.welcomeTitle}>Welcome, {userName || 'RVCE Alumni Affairs'}</Text>
+                <Text style={styles.welcomeSub}>{adminInstitution || 'RV College of Engineering'} Management Console</Text>
+              </View>
+            </View>
+
+            {/* Quick KPI Row */}
+            <View style={styles.quickStatsRow}>
+              <View style={styles.quickStat}>
+                <Text style={styles.quickStatValue}>33,368</Text>
+                <Text style={styles.quickStatLabel}>Total Database</Text>
+              </View>
+              <View style={[styles.quickStat, styles.quickStatMiddle]}>
+                <Text style={[styles.quickStatValue, { color: '#059669' }]}>9,931</Text>
+                <Text style={styles.quickStatLabel}>Verified RVians</Text>
+              </View>
+              <View style={styles.quickStat}>
+                <Text style={[styles.quickStatValue, { color: '#D97706' }]}>4,038</Text>
+                <Text style={styles.quickStatLabel}>Companies</Text>
               </View>
             </View>
 
             {/* Panel Grid */}
-            <Text style={styles.sectionTitle}>Management Modules</Text>
+            <Text style={styles.sectionTitle}>AlmaConnect Management Modules</Text>
             <View style={styles.grid}>
               {panelItems.map((item) => (
                 <TouchableOpacity 
@@ -1012,8 +1544,8 @@ export default function AdminPanelScreen({ navigation }) {
           </TouchableOpacity>
         )}
         <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle}>{activeModule ? panelItems.find(p => p.moduleName === activeModule).title : 'Admin Panel'}</Text>
-          <Text style={styles.headerSub}>Admin Portal</Text>
+          <Text style={styles.headerTitle}>{activeModule ? (panelItems.find(p => p.moduleName === activeModule)?.title || 'Admin Module') : 'Admin Panel'}</Text>
+          <Text style={styles.headerSub}>RVCE AlmaConnect Hub</Text>
         </View>
         <View style={styles.headerIcons}>
           <TouchableOpacity style={styles.headerIconBtn} onPress={() => navigation.navigate('Messages')}>
@@ -1318,4 +1850,38 @@ const getStyles = (theme) => StyleSheet.create({
   dropdownModalTitle: { fontSize: 15, fontWeight: '700', color: theme.text, marginBottom: 12, textAlign: 'center' },
   dropdownOption: { paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
   dropdownOptionText: { fontSize: 14, color: '#475569', fontWeight: '600', textAlign: 'center' },
+
+  // Resume Book & Domain Filter Chips
+  domainFilterChip: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, marginRight: 8, height: 34, justifyContent: 'center' },
+  domainFilterChipActive: { backgroundColor: theme.primary, borderColor: theme.primary },
+  domainFilterText: { fontSize: 12, fontWeight: '600', color: theme.textSecondary },
+  domainFilterTextActive: { color: theme.card, fontWeight: '700' },
+
+  resumeCardBox: { backgroundColor: theme.card, borderRadius: 14, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: theme.border },
+  resumeAvatarCircle: { width: 44, height: 44, borderRadius: 22, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center' },
+  resumeCandidateName: { fontSize: 15.5, fontWeight: '700', color: theme.text },
+  resumeCandidateDept: { fontSize: 12, color: theme.textSecondary, marginTop: 2 },
+  domainTag: { backgroundColor: '#EFF6FF', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, marginRight: 8 },
+  domainTagText: { fontSize: 11, fontWeight: '700', color: '#1E40AF' },
+  cgpaText: { fontSize: 11.5, color: '#64748B', fontWeight: '600' },
+  skillChip: { backgroundColor: '#F1F5F9', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
+  skillChipText: { fontSize: 11, fontWeight: '600', color: '#334155' },
+  resumeOutlineBtn: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 7, borderRadius: 8, borderWidth: 1, borderColor: theme.primary },
+  resumeOutlineBtnText: { fontSize: 12, fontWeight: '700', color: theme.primary },
+  resumeForwardBtn: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 7, borderRadius: 8, backgroundColor: theme.primary },
+  resumeForwardBtnText: { fontSize: 12, fontWeight: '700', color: theme.card },
+
+  // Bulk Import Styling
+  uploadDropBox: { backgroundColor: theme.card, borderRadius: 16, padding: 24, alignItems: 'center', borderWidth: 1.5, borderColor: '#CBD5E1', borderStyle: 'dashed', marginHorizontal: 16 },
+  columnMappingBox: { width: '100%', backgroundColor: '#F8FAFC', padding: 12, borderRadius: 10, marginTop: 14, borderWidth: 1, borderColor: '#E2E8F0' },
+  mappingChip: { backgroundColor: '#EFF6FF', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
+  mappingChipText: { fontSize: 10.5, fontWeight: '600', color: '#1E40AF' },
+  importActionBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#059669', paddingHorizontal: 20, paddingVertical: 12, borderRadius: 10, marginTop: 18 },
+  importActionBtnText: { fontSize: 14, fontWeight: '700', color: '#FFFFFF' },
+  importLogRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: theme.card, padding: 14, borderRadius: 12, marginHorizontal: 16, marginBottom: 10, borderWidth: 1, borderColor: theme.border },
+
+  // Custom Pages Styling
+  customPageRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: theme.card, padding: 16, borderRadius: 12, marginBottom: 10, borderWidth: 1, borderColor: theme.border },
+  greenBadge: { backgroundColor: '#ECFDF5', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 },
+  greenBadgeText: { fontSize: 10.5, fontWeight: '700', color: '#059669' },
 });

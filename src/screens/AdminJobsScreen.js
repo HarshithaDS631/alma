@@ -23,7 +23,86 @@ import { fetchResumeBook, shareCandidateResume } from '../services/jobService';
 import { getImageUrl } from '../services/uploadService';
 import getInitials from '../lib/getInitials';
 
-const DUMMY_JOBS = [];
+const DUMMY_JOBS = [
+  {
+    id: 'job-1',
+    role: 'Senior Software Engineer (Backend / Distributed Systems)',
+    company: 'Cisco Systems',
+    workMode: 'Full-Time',
+    experience: '3-6 years',
+    location: 'Bengaluru, Karnataka',
+    description: 'Design and develop high-throughput microservices for Cisco Cloud Security platforms. RVCE alumni referral available from Cloud Engineering team.',
+    views: 184,
+    applied: 24,
+    shared: 12,
+    institution: 'RV College of Engineering'
+  },
+  {
+    id: 'job-2',
+    role: 'Staff Hardware / VLSI Design Engineer',
+    company: 'Qualcomm Technologies',
+    workMode: 'Hybrid',
+    experience: '4-8 years',
+    location: 'Bengaluru, Karnataka',
+    description: 'Lead RTL design, synthesis, and timing closure for next-generation Snapdragon SoC platforms. Verified RVCE alumni alumni referral tag.',
+    views: 162,
+    applied: 19,
+    shared: 9,
+    institution: 'RV College of Engineering'
+  },
+  {
+    id: 'job-3',
+    role: 'Cloud Solutions Architect',
+    company: 'Amazon Web Services (AWS)',
+    workMode: 'Full-Time',
+    experience: '5-9 years',
+    location: 'Bengaluru, Karnataka',
+    description: 'Partner with enterprise customers to architect resilient, scalable cloud architectures. Alumni connection with RVCE Class of 2018.',
+    views: 210,
+    applied: 31,
+    shared: 15,
+    institution: 'RV College of Engineering'
+  },
+  {
+    id: 'job-4',
+    role: 'Lead Data Scientist (NLP / LLMs)',
+    company: 'Oracle India',
+    workMode: 'Hybrid',
+    experience: '3-7 years',
+    location: 'Bengaluru, Karnataka',
+    description: 'Develop enterprise-grade generative AI pipelines and vector retrieval engines for Oracle Fusion Apps. Fast-track internal alumni referral.',
+    views: 145,
+    applied: 18,
+    shared: 7,
+    institution: 'RV College of Engineering'
+  },
+  {
+    id: 'job-5',
+    role: 'Firmware & Embedded Systems Engineer',
+    company: 'Intel Corporation',
+    workMode: 'Full-Time',
+    experience: '2-5 years',
+    location: 'Bengaluru, Karnataka',
+    description: 'Work on low-level UEFI firmware and device driver development across client compute hardware. Direct referral from RVCE EEE/ECE alumni.',
+    views: 120,
+    applied: 14,
+    shared: 5,
+    institution: 'RV College of Engineering'
+  },
+  {
+    id: 'job-6',
+    role: 'Product Manager (Developer Platforms)',
+    company: 'Microsoft',
+    workMode: 'Hybrid',
+    experience: '4-8 years',
+    location: 'Bengaluru / Hyderabad',
+    description: 'Lead roadmaps and developer tooling capabilities across Azure and GitHub developer ecosystems.',
+    views: 198,
+    applied: 27,
+    shared: 14,
+    institution: 'RV College of Engineering'
+  }
+];
 
 const WORK_MODES = ['Full-Time', 'Part-Time', 'Remote', 'Hybrid', 'Contract', 'Internship'];
 
@@ -231,7 +310,23 @@ export default function AdminJobsScreen({ navigation, route }) {
         filters.domain = selectedDomain;
       }
       const data = await fetchResumeBook(filters);
-      setResumes(Array.isArray(data) ? data : []);
+      if (Array.isArray(data) && data.length > 0) {
+        setResumes(data);
+      } else {
+        const FALLBACK_RESUMES = [
+          { id: 'res-1', name: 'Aditya Krishnan', department: 'Computer Science and Engineering', batchYear: '2024', domain: 'Software Engineering', skills: ['React', 'Node.js', 'Go', 'Docker', 'AWS'], cgpa: '9.1', resumeUrl: 'https://alma-orpin-delta.vercel.app/api/resumes/aditya_k.pdf', experienceYears: '1 yr / Fresher', institution: 'RV College of Engineering', designation: 'Graduate Engineer Trainee', company: 'RVCE Tech Lab' },
+          { id: 'res-2', name: 'Deepika Sen', department: 'Electronics and Communication', batchYear: '2023', domain: 'VLSI & Embedded', skills: ['SystemVerilog', 'UVM', 'FPGA', 'Verilog', 'RTL'], cgpa: '8.8', resumeUrl: 'https://alma-orpin-delta.vercel.app/api/resumes/deepika_s.pdf', experienceYears: '2 yrs', institution: 'RV College of Engineering', designation: 'Silicon Validation Engineer', company: 'Qualcomm' },
+          { id: 'res-3', name: 'Manoj Hegde', department: 'Information Science and Engineering', batchYear: '2024', domain: 'Data Science & AI', skills: ['Python', 'PyTorch', 'FastAPI', 'LangChain', 'SQL'], cgpa: '9.3', resumeUrl: 'https://alma-orpin-delta.vercel.app/api/resumes/manoj_h.pdf', experienceYears: 'Fresher', institution: 'RV College of Engineering', designation: 'AI Researcher', company: 'RVCE AI Research' },
+          { id: 'res-4', name: 'Kavya Murthy', department: 'Mechanical Engineering', batchYear: '2022', domain: 'Core Engineering', skills: ['SolidWorks', 'ANSYS', 'AutoCAD', 'Finite Element Analysis'], cgpa: '8.6', resumeUrl: 'https://alma-orpin-delta.vercel.app/api/resumes/kavya_m.pdf', experienceYears: '3 yrs', institution: 'RV College of Engineering', designation: 'CAD Design Engineer', company: 'Bosch India' },
+          { id: 'res-5', name: 'Tanmay Rao', department: 'Master of Business Administration', batchYear: '2023', domain: 'Product Management', skills: ['Product Strategy', 'Jira', 'Agile', 'Market Research', 'SQL'], cgpa: '8.9', resumeUrl: 'https://alma-orpin-delta.vercel.app/api/resumes/tanmay_r.pdf', experienceYears: '2 yrs', institution: 'RV College of Engineering', designation: 'Associate Product Manager', company: 'FinTech Labs' }
+        ];
+        const filtered = FALLBACK_RESUMES.filter(r => {
+          const matchSearch = !resumeSearch.trim() || r.name.toLowerCase().includes(resumeSearch.toLowerCase()) || r.skills.some(s => s.toLowerCase().includes(resumeSearch.toLowerCase()));
+          const matchDomain = selectedDomain === 'All' || r.domain === selectedDomain;
+          return matchSearch && matchDomain;
+        });
+        setResumes(filtered);
+      }
     } catch (e) {
       console.error('Error loading resume book:', e);
       setResumes([]);

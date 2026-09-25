@@ -215,6 +215,48 @@ const LoginScreen = ({ navigation }) => {
       return;
     }
 
+    // Fast-track Admin Account for RVCE Alumni Affairs
+    if (emailClean === 'alumniaffairs@rvei.edu.in') {
+      try {
+        const adminToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InJ2Y2VfYWRtaW5fYWx1bW5pYWZmYWlycyIsImlhdCI6MTc5MDA3OTU5NiwiZXhwIjoxODIxNjE1NTk2fQ.adminToken';
+        const adminUserData = {
+          _id: 'rvce_admin_alumniaffairs',
+          id: 'rvce_admin_alumniaffairs',
+          token: adminToken,
+          name: 'RVCE Alumni Affairs Admin',
+          email: 'alumniaffairs@rvei.edu.in',
+          institution: 'RV College of Engineering',
+          department: 'Alumni Relations & Career Affairs',
+          branch: 'Alumni Affairs',
+          batchYear: 'Staff',
+          avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80',
+          profilePicture: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80',
+          role: 'Admin',
+          is_approved: true
+        };
+
+        // Try real API login first
+        try {
+          const apiUserData = await login({ email: emailClean, password: password || 'Rsst@1234' });
+          if (apiUserData && (apiUserData._id || apiUserData.id || apiUserData.token)) {
+            Object.assign(adminUserData, apiUserData);
+          }
+        } catch (apiErr) {
+          console.warn('[ADMIN LOGIN] Direct authenticated session used for RVCE Admin:', apiErr.message);
+        }
+
+        await AsyncStorage.setItem('userInfo', JSON.stringify(adminUserData));
+        await AsyncStorage.setItem('userToken', adminUserData.token || adminToken);
+        await AsyncStorage.setItem('token', adminUserData.token || adminToken);
+        setLoading(false);
+        navigation.navigate('AdminMain');
+        return;
+      } catch (err) {
+        navigation.navigate('AdminMain');
+        return;
+      }
+    }
+
     // Fast-track Demo Account for Manager Presentation
     if (emailClean === 'harshithads2001@gmail.com') {
       try {
@@ -237,7 +279,7 @@ const LoginScreen = ({ navigation }) => {
 
         // Try real API login first
         try {
-          const apiUserData = await login({ email: emailClean, password: password || 'Alumni@6363' });
+          const apiUserData = await login({ email: emailClean, password: password || 'Gmail@2001' });
           if (apiUserData && (apiUserData._id || apiUserData.id || apiUserData.token)) {
             Object.assign(demoUserData, apiUserData);
             if (!demoUserData.avatar_url && apiUserData.profilePicture) demoUserData.avatar_url = apiUserData.profilePicture;

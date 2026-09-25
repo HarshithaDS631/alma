@@ -94,7 +94,7 @@ const AdminProfileScreen = ({ navigation }) => {
   const [userInfo, setUserInfo] = useState(null);
   const [listModalType, setListModalType] = useState(null);
   const [userRole, setUserRole] = useState('admin');
-  const [activeInst, setActiveInst] = useState('Mediacell');
+  const [activeInst, setActiveInst] = useState('RV College of Engineering');
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [profileShareModalVisible, setProfileShareModalVisible] = useState(false);
   const [settingsSubView, setSettingsSubView] = useState('menu');
@@ -104,11 +104,15 @@ const AdminProfileScreen = ({ navigation }) => {
 
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileData, setProfileData] = useState({
-    name: 'Mediacell Admin',
-    username: '@mediacell_admin',
-    bio: 'Official Admin • Mediacell Alumni Network • Managing institutional connections & opportunities.',
-    branch: 'Administration',
-    batch: '2026',
+    name: 'RVCE Alumni Affairs Admin',
+    username: '@rvce_alumniaffairs',
+    bio: 'Official Admin • RV College of Engineering Alumni Affairs • Managing 33,000+ RVians across global chapters.',
+    branch: 'Alumni Affairs',
+    department: 'Alumni Relations & Career Affairs',
+    batchYear: 'Staff',
+    institution: 'RV College of Engineering',
+    role: 'Admin',
+    batch: 'Staff',
     avatar_url: '',
     posts: 0,
     followers: 0,

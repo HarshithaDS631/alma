@@ -42,11 +42,11 @@ const AdminHomeScreen = ({ navigation }) => {
   const [userAvatarUrl, setUserAvatarUrl] = useState('');
   const [followedSuggestions, setFollowedSuggestions] = useState({});
   const [searchText, setSearchText] = useState('');
-  const [userInstitution, setUserInstitution] = useState('Mediacell');
-  const [userName, setUserName] = useState('Mediacell Admin');
+  const [userInstitution, setUserInstitution] = useState('RV College of Engineering');
+  const [userName, setUserName] = useState('RVCE Alumni Affairs Admin');
   const [userRole, setUserRole] = useState('Admin');
-  const [userDepartment, setUserDepartment] = useState('Administration');
-  const [userInitials, setUserInitials] = useState('MA');
+  const [userDepartment, setUserDepartment] = useState('Alumni Affairs');
+  const [userInitials, setUserInitials] = useState('RV');
 
 
   // Modal States
@@ -81,9 +81,9 @@ const AdminHomeScreen = ({ navigation }) => {
       if (Array.isArray(data)) {
         const formatted = data.map(p => ({
           id: p._id,
-          user: p.user?.name || 'Mediacell Admin',
-          role: `${p.user?.role || 'Admin'} • ${p.user?.institution || 'Mediacell'}`,
-          avatar: getInitials(p.user?.name, 'MA'),
+          user: p.user?.name || 'RVCE Alumni Affairs Admin',
+          role: `${p.user?.role || 'Admin'} • ${p.user?.institution || 'RV College of Engineering'}`,
+          avatar: getInitials(p.user?.name, 'RV'),
           content: p.content,
           image: p.image || p.image_url,
           likes: (p.likes || []).length,
