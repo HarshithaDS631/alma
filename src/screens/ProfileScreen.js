@@ -174,7 +174,12 @@ const DEFAULT_CONNECTIONS = [];
     followers: '0',
     following: '0',
     avatar: '',
-    avatar_url: ''
+    avatar_url: '',
+    isOpenToWork: true,
+    openToWorkRoles: 'Software Engineer, Full Stack Developer',
+    openToWorkLocations: 'Bengaluru, India (Hybrid / Remote)',
+    openToWorkTypes: 'Full-time, Internship',
+    openToWorkWorkplace: 'Remote, Hybrid'
   });
 
   useEffect(() => {
@@ -207,6 +212,26 @@ const DEFAULT_CONNECTIONS = [];
             initialPosts = '1';
           }
 
+          let otwActive = cached.openToWork !== undefined ? Boolean(cached.openToWork) : (cached.isJobSeeker !== undefined ? Boolean(cached.isJobSeeker) : true);
+          let otwRoles = cached.openToWorkRoles || (Array.isArray(cached.skills) && cached.skills.length > 0 ? cached.skills.slice(0, 3).join(', ') : 'Software Engineer, Full Stack Developer');
+          let otwLocations = cached.openToWorkLocations || 'Bengaluru, India (Hybrid / Remote)';
+          let otwTypes = cached.openToWorkTypes || 'Full-time, Internship';
+          let otwWorkplace = cached.openToWorkWorkplace || 'Remote, Hybrid';
+
+          try {
+            const cachedJobPrefsStr = await AsyncStorage.getItem('cached_job_preferences');
+            if (cachedJobPrefsStr) {
+              const jPrefs = JSON.parse(cachedJobPrefsStr);
+              if (jPrefs.openToWork !== undefined) otwActive = Boolean(jPrefs.openToWork);
+              if (jPrefs.targetTitles && jPrefs.targetTitles.length > 0) {
+                otwRoles = Array.isArray(jPrefs.targetTitles) ? jPrefs.targetTitles.join(', ') : jPrefs.targetTitles;
+              }
+              if (jPrefs.targetLocations && jPrefs.targetLocations.length > 0) {
+                otwLocations = Array.isArray(jPrefs.targetLocations) ? jPrefs.targetLocations.join(', ') : jPrefs.targetLocations;
+              }
+            }
+          } catch (e) {}
+
           setProfileData(prev => ({
             ...prev,
             name: uName,
@@ -222,7 +247,7 @@ const DEFAULT_CONNECTIONS = [];
             linkedin: cached.linkedin || '',
             resumeUrl: cached.resumeUrl || '',
             resumeFileName: cached.resumeFileName || '',
-            isJobSeeker: cached.isJobSeeker || false,
+            isJobSeeker: otwActive,
             domain: cached.domain || '',
             experienceYears: cached.experienceYears || '',
             skills: cached.skills || [],
@@ -230,16 +255,27 @@ const DEFAULT_CONNECTIONS = [];
             followers: cachedProfile.followers || prev.followers || '0',
             following: cachedProfile.following || prev.following || '0',
             avatar: getInitials(uName),
-            avatar_url: rawAvatar ? getImageUrl(rawAvatar) : ''
+            avatar_url: rawAvatar ? getImageUrl(rawAvatar) : '',
+            isOpenToWork: otwActive,
+            openToWorkRoles: otwRoles,
+            openToWorkLocations: otwLocations,
+            openToWorkTypes: otwTypes,
+            openToWorkWorkplace: otwWorkplace
           }));
           setEditResumeUrl(cached.resumeUrl || '');
           setEditResumeFileName(cached.resumeFileName || '');
-          setEditIsJobSeeker(cached.isJobSeeker || false);
+          setEditIsJobSeeker(otwActive);
           setEditDomain(cached.domain || '');
           setEditExperienceYears(cached.experienceYears || '');
           setEditSkills(Array.isArray(cached.skills) ? cached.skills.join(', ') : (cached.skills || ''));
           setEditPhone(cached.phone || '');
           setEditCountryCode(cached.countryCode || '+91');
+          if (rawDob) setEditDob(rawDob);
+          setEditOTWActive(otwActive);
+          setEditOTWRoles(otwRoles);
+          setEditOTWLocations(otwLocations);
+          setEditOTWTypes(otwTypes);
+          setEditOTWWorkplace(otwWorkplace);
           if (rawDob) setEditDob(rawDob);
 
           if (cachedProfile.userPosts && Array.isArray(cachedProfile.userPosts) && cachedProfile.userPosts.length > 0) {
@@ -379,6 +415,12 @@ const DEFAULT_TAGGED_POSTS = [];
             const uHandle = activeUser.username || (activeUser.name ? activeUser.name.toLowerCase().replace(/\s+/g, '_') : (safeEmail ? safeEmail.split('@')[0] : 'alumni'));
 
             const rawDob = activeUser.dateOfBirth ? (typeof activeUser.dateOfBirth === 'string' ? activeUser.dateOfBirth.substring(0, 10) : new Date(activeUser.dateOfBirth).toISOString().substring(0, 10)) : '';
+            let otwActive = activeUser.openToWork !== undefined ? Boolean(activeUser.openToWork) : (activeUser.isJobSeeker !== undefined ? Boolean(activeUser.isJobSeeker) : true);
+            let otwRoles = activeUser.openToWorkRoles || (Array.isArray(activeUser.skills) && activeUser.skills.length > 0 ? activeUser.skills.slice(0, 3).join(', ') : 'Software Engineer, Full Stack Developer');
+            let otwLocations = activeUser.openToWorkLocations || 'Bengaluru, India (Hybrid / Remote)';
+            let otwTypes = activeUser.openToWorkTypes || 'Full-time, Internship';
+            let otwWorkplace = activeUser.openToWorkWorkplace || 'Remote, Hybrid';
+
             setProfileData(prev => ({
               ...prev,
               name: uName,
@@ -394,22 +436,32 @@ const DEFAULT_TAGGED_POSTS = [];
               linkedin: activeUser.linkedin || '',
               resumeUrl: activeUser.resumeUrl || '',
               resumeFileName: activeUser.resumeFileName || '',
-              isJobSeeker: activeUser.isJobSeeker || false,
+              isJobSeeker: otwActive,
               domain: activeUser.domain || '',
               experienceYears: activeUser.experienceYears || '',
               skills: activeUser.skills || [],
               avatar: getInitials(uName),
-              avatar_url: fullAvatarUrl
+              avatar_url: fullAvatarUrl,
+              isOpenToWork: otwActive,
+              openToWorkRoles: otwRoles,
+              openToWorkLocations: otwLocations,
+              openToWorkTypes: otwTypes,
+              openToWorkWorkplace: otwWorkplace
             }));
             setEditResumeUrl(activeUser.resumeUrl || '');
             setEditResumeFileName(activeUser.resumeFileName || '');
-            setEditIsJobSeeker(activeUser.isJobSeeker || false);
+            setEditIsJobSeeker(otwActive);
             setEditDomain(activeUser.domain || '');
             setEditExperienceYears(activeUser.experienceYears || '');
             setEditSkills(Array.isArray(activeUser.skills) ? activeUser.skills.join(', ') : (activeUser.skills || ''));
             setEditPhone(activeUser.phone || '');
             setEditCountryCode(activeUser.countryCode || '+91');
             if (rawDob) setEditDob(rawDob);
+            setEditOTWActive(otwActive);
+            setEditOTWRoles(otwRoles);
+            setEditOTWLocations(otwLocations);
+            setEditOTWTypes(otwTypes);
+            setEditOTWWorkplace(otwWorkplace);
 
             // 2. Extract connections and following from parallel batch
             const followersData = (followersRes.status === 'fulfilled' && Array.isArray(followersRes.value)) ? followersRes.value : [];
@@ -609,6 +661,13 @@ const DEFAULT_TAGGED_POSTS = [];
   const [editIsJobSeeker, setEditIsJobSeeker] = useState(profileData.isJobSeeker ?? false);
   const [editPhone, setEditPhone] = useState(profileData.phone || '');
   const [editCountryCode, setEditCountryCode] = useState(profileData.countryCode || '+91');
+  const [openToWorkModalVisible, setOpenToWorkModalVisible] = useState(false);
+  const [openToWorkSaving, setOpenToWorkSaving] = useState(false);
+  const [editOTWActive, setEditOTWActive] = useState(true);
+  const [editOTWRoles, setEditOTWRoles] = useState('Software Engineer, Full Stack Developer');
+  const [editOTWLocations, setEditOTWLocations] = useState('Bengaluru, India (Hybrid / Remote)');
+  const [editOTWTypes, setEditOTWTypes] = useState('Full-time, Internship');
+  const [editOTWWorkplace, setEditOTWWorkplace] = useState('Remote, Hybrid');
   const [contactModalVisible, setContactModalVisible] = useState(false);
   const [countryPickerModalVisible, setCountryPickerModalVisible] = useState(false);
   const [countrySearch, setCountrySearch] = useState('');
@@ -834,6 +893,86 @@ const DEFAULT_TAGGED_POSTS = [];
     setSettingsVisible(true);
   };
 
+  const handleOpenOpenToWork = () => {
+    setEditOTWActive(profileData.isOpenToWork ?? true);
+    setEditOTWRoles(
+      Array.isArray(profileData.openToWorkRoles) 
+        ? profileData.openToWorkRoles.join(', ') 
+        : (profileData.openToWorkRoles || 'Software Engineer, Full Stack Developer')
+    );
+    setEditOTWLocations(profileData.openToWorkLocations || 'Bengaluru, India (Hybrid / Remote)');
+    setEditOTWTypes(profileData.openToWorkTypes || 'Full-time, Internship');
+    setEditOTWWorkplace(profileData.openToWorkWorkplace || 'Remote, Hybrid');
+    setOpenToWorkModalVisible(true);
+  };
+
+  const handleSaveOpenToWork = async () => {
+    setOpenToWorkSaving(true);
+    try {
+      const cleanRoles = (editOTWRoles || '').trim();
+      const cleanLocations = (editOTWLocations || '').trim();
+      const cleanTypes = (editOTWTypes || '').trim();
+      const cleanWorkplace = (editOTWWorkplace || '').trim();
+      const rolesArr = cleanRoles.split(',').map(r => r.trim()).filter(Boolean);
+
+      const updatePayload = {
+        openToWork: editOTWActive,
+        isJobSeeker: editOTWActive,
+        openToWorkRoles: cleanRoles,
+        openToWorkLocations: cleanLocations,
+        openToWorkTypes: cleanTypes,
+        openToWorkWorkplace: cleanWorkplace
+      };
+
+      try {
+        await updateProfile(updatePayload);
+      } catch (e) {
+        console.warn('Backend updateProfile notice:', e);
+      }
+
+      // Update cached userInfo
+      const cachedStr = await AsyncStorage.getItem('userInfo');
+      if (cachedStr) {
+        const cached = JSON.parse(cachedStr);
+        const merged = { ...cached, ...updatePayload };
+        await AsyncStorage.setItem('userInfo', JSON.stringify(merged));
+      }
+
+      // Sync with cached_job_preferences
+      try {
+        const jobPrefs = {
+          openToWork: editOTWActive,
+          targetTitles: rolesArr,
+          targetLocations: cleanLocations ? cleanLocations.split(',').map(l => l.trim()).filter(Boolean) : []
+        };
+        await AsyncStorage.setItem('cached_job_preferences', JSON.stringify(jobPrefs));
+      } catch (e) {}
+
+      // Update local profileData
+      setProfileData(prev => ({
+        ...prev,
+        isOpenToWork: editOTWActive,
+        isJobSeeker: editOTWActive,
+        openToWorkRoles: cleanRoles,
+        openToWorkLocations: cleanLocations,
+        openToWorkTypes: cleanTypes,
+        openToWorkWorkplace: cleanWorkplace
+      }));
+
+      setOpenToWorkModalVisible(false);
+      if (Platform.OS === 'web') {
+        alert(editOTWActive ? '🎉 #OpenToWork badge is now live on your profile!' : 'Career status updated successfully!');
+      } else {
+        Alert.alert('Success', editOTWActive ? '🎉 #OpenToWork badge is now live on your profile!' : 'Career status updated successfully!');
+      }
+    } catch (err) {
+      console.error('Error saving openToWork:', err);
+      alert('Could not update #OpenToWork status: ' + (err.message || 'Error'));
+    } finally {
+      setOpenToWorkSaving(false);
+    }
+  };
+
   const handleOpenEdit = () => {
     setEditName(profileData.name || '');
     setEditUsername(profileData.username || '');
@@ -987,157 +1126,299 @@ const DEFAULT_TAGGED_POSTS = [];
 
       <ScrollView ref={profileScrollViewRef} showsVerticalScrollIndicator={false}>
         {/* Cover Banner */}
-        <View style={{ width: '100%', height: isWeb ? 130 : 96, backgroundColor: '#002B5C', position: 'relative', overflow: 'hidden' }}>
-          <View style={{ position: 'absolute', right: -25, top: -25, width: 140, height: 140, borderRadius: 70, backgroundColor: 'rgba(255, 255, 255, 0.06)' }} />
-          <View style={{ position: 'absolute', right: 50, bottom: -30, width: 90, height: 90, borderRadius: 45, backgroundColor: 'rgba(251, 191, 36, 0.12)' }} />
-          <View style={{ position: 'absolute', left: 20, top: 16, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <Ionicons name="school" size={16} color="#FBBF24" />
-            <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '700', letterSpacing: 0.5 }}>
-              {profileData.institution || 'RV ALUMNI PORTAL'}
-            </Text>
+        <View style={styles.coverBanner}>
+          <View style={styles.coverDecorCircle1} />
+          <View style={styles.coverDecorCircle2} />
+          <View style={styles.coverTopRow}>
+            <View style={styles.coverInstitutionBadge}>
+              <Ionicons name="shield-checkmark" size={13} color="#FBBF24" />
+              <Text style={styles.coverInstitutionText}>
+                {profileData.institution || 'RV COLLEGE OF ENGINEERING'}
+              </Text>
+            </View>
+            <View style={styles.coverChapterBadge}>
+              <Ionicons name="school" size={13} color="#FFFFFF" />
+              <Text style={styles.coverChapterText}>
+                {profileData.batch ? `Class of '${String(profileData.batch).slice(-2)}` : 'ALUMNI'}
+              </Text>
+            </View>
           </View>
         </View>
 
-        {/* Profile Info Section */}
+        {/* Profile Identity & Showcase Container */}
         <View style={styles.profileInfoContainer}>
           <View style={styles.mainInfoRow}>
-            {/* Avatar */}
-            <View style={[styles.avatarWrapper, { marginTop: -40, backgroundColor: theme.card, borderRadius: 50, padding: 3 }]}>
-              <View style={styles.storyRing}>
+            {/* Avatar with LinkedIn #OpenToWork frame */}
+            <View style={styles.avatarWrapper}>
+              <TouchableOpacity 
+                activeOpacity={0.9}
+                onPress={handleOpenOpenToWork}
+                style={[
+                  styles.avatarOuterRing,
+                  profileData.isOpenToWork && styles.avatarOpenToWorkRing
+                ]}
+              >
                 <View style={styles.avatar}>
                   {profileData.avatar_url ? (
                     <Image 
                       source={{ uri: profileData.avatar_url }} 
-                      style={{ width: '100%', height: '100%', borderRadius: 40 }} 
+                      style={styles.avatarImg} 
                       resizeMode="cover"
                       onError={(e) => console.warn('[AVATAR LOAD ERROR]:', e?.nativeEvent?.error || e)}
                     />
                   ) : (
-                    <Text style={styles.avatarText}>{profileData.avatar || getInitials(profileData.name || profileData.email || 'User')}</Text>
+                    <Text style={styles.avatarText}>
+                      {profileData.avatar || getInitials(profileData.name || profileData.email || 'User')}
+                    </Text>
                   )}
                 </View>
+
+                {/* LinkedIn-Style #OpenToWork Curved Bottom Frame / Ribbon */}
+                {profileData.isOpenToWork && (
+                  <View style={styles.openToWorkRibbon}>
+                    <Text style={styles.openToWorkRibbonText}>#OpenToWork</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+
+              {/* Camera photo update button */}
+              <TouchableOpacity 
+                onPress={handlePickProfilePhoto}
+                style={styles.avatarCameraBtn}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="camera" size={13} color="#FFFFFF" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Quick Action Buttons in Top Right */}
+            <View style={styles.topActionBtnsRow}>
+              <TouchableOpacity 
+                style={styles.topEditProfileBtn} 
+                onPress={handleOpenEdit} 
+                activeOpacity={0.75}
+              >
+                <Ionicons name="pencil" size={14} color="#FFFFFF" style={{ marginRight: 5 }} />
+                <Text style={styles.topEditProfileBtnText}>Edit Profile</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.topShareProfileBtn} 
+                onPress={() => setProfileShareModalVisible(true)} 
+                activeOpacity={0.75}
+              >
+                <Ionicons name="share-social-outline" size={16} color={theme.primary} />
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.topLogoutBtn} 
+                onPress={handleLogout} 
+                activeOpacity={0.75}
+              >
+                <Ionicons name="log-out-outline" size={17} color="#EF4444" />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Profile Name & Verified Header */}
+          <View style={styles.identityBlock}>
+            <View style={styles.nameRow}>
+              <Text style={styles.profileDisplayName}>{profileData.name || profileData.email || 'Alumni Member'}</Text>
+              <Ionicons name="checkmark-circle" size={19} color="#0284C7" />
+              {profileData.isOpenToWork && (
                 <TouchableOpacity 
-                  onPress={handlePickProfilePhoto}
-                  style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    right: 0,
-                    backgroundColor: theme.primary,
-                    width: 26,
-                    height: 26,
-                    borderRadius: 13,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    borderWidth: 2,
-                    borderColor: theme.card
-                  }}>
-                  <Ionicons name="camera" size={14} color="#FFFFFF" />
+                  style={styles.openToWorkBadgeInline}
+                  onPress={handleOpenOpenToWork}
+                  activeOpacity={0.75}
+                >
+                  <View style={styles.otwInlineDot} />
+                  <Text style={styles.openToWorkBadgeInlineText}>#OpenToWork</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+
+            {/* Headline / Domain */}
+            <Text style={styles.headlineText}>
+              {profileData.domain || profileData.branch || 'RVCE Alumni Community Member'}
+              {profileData.batch ? ` • Class of ${profileData.batch}` : ''}
+            </Text>
+
+            {/* Academic Department & Class Badges */}
+            <View style={styles.credentialsChipsRow}>
+              {profileData.institution ? (
+                <View style={styles.credentialChip}>
+                  <Ionicons name="school" size={12} color="#002B5C" />
+                  <Text style={styles.credentialChipText}>{profileData.institution}</Text>
+                </View>
+              ) : null}
+              {profileData.branch ? (
+                <View style={styles.credentialChip}>
+                  <Ionicons name="ribbon" size={12} color="#0284C7" />
+                  <Text style={styles.credentialChipText}>{profileData.branch}</Text>
+                </View>
+              ) : null}
+              {profileData.batch ? (
+                <View style={styles.credentialChip}>
+                  <Ionicons name="calendar-outline" size={12} color="#D97706" />
+                  <Text style={styles.credentialChipText}>Batch {profileData.batch}</Text>
+                </View>
+              ) : null}
+            </View>
+
+            {/* Bio */}
+            {profileData.bio ? (
+              <Text style={styles.bioTextContent}>{profileData.bio}</Text>
+            ) : null}
+
+            {/* Contact / Links Row */}
+            <View style={styles.linksChipsRow}>
+              {profileData.linkedin ? (
+                <TouchableOpacity 
+                  style={styles.linkChip}
+                  onPress={() => {
+                    if (Platform.OS === 'web') window.open(profileData.linkedin, '_blank');
+                    else Linking.openURL(profileData.linkedin).catch(() => {});
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="logo-linkedin" size={14} color="#0A66C2" />
+                  <Text style={styles.linkChipText}>LinkedIn</Text>
+                  <Ionicons name="open-outline" size={11} color="#0A66C2" />
+                </TouchableOpacity>
+              ) : null}
+
+              {profileData.resumeUrl ? (
+                <TouchableOpacity 
+                  style={[styles.linkChip, { backgroundColor: '#EFF6FF', borderColor: '#BFDBFE' }]}
+                  onPress={() => {
+                    if (Platform.OS === 'web') window.open(profileData.resumeUrl, '_blank');
+                    else Linking.openURL(profileData.resumeUrl).catch(() => {});
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="document-text" size={14} color="#002B5C" />
+                  <Text style={[styles.linkChipText, { color: '#002B5C' }]}>
+                    {profileData.resumeFileName || 'Resume.pdf'}
+                  </Text>
+                  <Ionicons name="download-outline" size={12} color="#002B5C" />
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity 
+                  style={[styles.linkChip, { backgroundColor: '#F8FAFC' }]}
+                  onPress={handleOpenEdit}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="cloud-upload-outline" size={14} color="#64748B" />
+                  <Text style={[styles.linkChipText, { color: '#64748B' }]}>Upload Resume</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+
+          {/* ── Official LinkedIn #OpenToWork Showcase Box ────── */}
+          {profileData.isOpenToWork ? (
+            <View style={styles.openToWorkCard}>
+              <View style={styles.openToWorkCardHeader}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, flex: 1 }}>
+                  <View style={styles.otwPulseDot} />
+                  <Text style={styles.openToWorkCardTitle}>Open to work</Text>
+                  <View style={styles.otwBadgePill}>
+                    <Text style={styles.otwBadgePillText}>#OPENTOWORK</Text>
+                  </View>
+                </View>
+                <TouchableOpacity 
+                  style={styles.otwEditBtn} 
+                  onPress={handleOpenOpenToWork}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="pencil" size={13} color="#057642" />
+                  <Text style={styles.otwEditBtnText}>Edit</Text>
                 </TouchableOpacity>
               </View>
-            </View>
-            
-            {/* Instagram-style Profile Stats */}
-            <View style={styles.statsContainer}>
-              <TouchableOpacity 
-                style={styles.statBox} 
-                onPress={() => {
-                  setActiveTab('post');
-                  profileScrollViewRef.current?.scrollTo({ y: 320, animated: true });
-                }} 
-                activeOpacity={0.6}
-              >
-                <Text style={styles.statNumber}>{profileData.posts}</Text>
-                <Text style={styles.statLabel}>posts</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.statBox} 
-                onPress={() => setListModalType('connections')} 
-                activeOpacity={0.6}
-              >
-                <Text style={styles.statNumber}>{connections.length || profileData.followers}</Text>
-                <Text style={styles.statLabel}>connections</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.statBox} 
-                onPress={() => setListModalType('following')} 
-                activeOpacity={0.6}
-              >
-                <Text style={styles.statNumber}>{following.length || profileData.following}</Text>
-                <Text style={styles.statLabel}>following</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
 
-          {/* Bio */}
-          <View style={styles.bioContainer}>
-            <Text style={styles.nameText}>{profileData.name || profileData.email || 'Alumni Member'}</Text>
-            {profileData.institution ? (
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 3, marginBottom: 2 }}>
-                <Ionicons name="school-outline" size={14} color="#003366" style={{ marginRight: 5 }} />
-                <Text style={{ fontSize: 13.5, fontWeight: '700', color: '#003366' }}>
-                  {profileData.institution}
-                </Text>
-              </View>
-            ) : null}
-            {(profileData.branch || profileData.batch) ? (
-              <Text style={styles.occupationText}>
-                {profileData.branch ? profileData.branch : ''}
-                {profileData.branch && profileData.batch ? ' • ' : ''}
-                {profileData.batch ? `Class of ${profileData.batch}` : ''}
+              <Text style={styles.otwRolesText}>
+                {profileData.openToWorkRoles && profileData.openToWorkRoles.length > 0 
+                  ? (Array.isArray(profileData.openToWorkRoles) ? profileData.openToWorkRoles.join(' • ') : profileData.openToWorkRoles)
+                  : 'Software Engineer • Full Stack Developer • Product Engineer'}
               </Text>
-            ) : null}
-            <Text style={styles.bioText}>{profileData.bio}</Text>
-            {profileData.linkedin ? (
-              <TouchableOpacity onPress={() => Platform.OS === 'web' && window.open(profileData.linkedin, '_blank')}>
-                <Text style={{ color: '#0A66C2', fontWeight: '600', fontSize: 13, marginTop: 4 }}>
-                  🔗 {profileData.linkedin}
-                </Text>
-              </TouchableOpacity>
-            ) : null}
-          </View>
 
-          {/* Action Buttons */}
-          <View style={styles.buttonRow}>
-            <TouchableOpacity style={[styles.actionButton, { flex: 1, marginRight: 8 }]} onPress={handleOpenEdit} activeOpacity={0.7}>
-              <Text style={styles.actionButtonText}>Edit Profile</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.actionButton, { flex: 1, marginRight: 8, backgroundColor: 'rgba(0, 33, 68, 0.08)' }]} 
-              onPress={() => setProfileShareModalVisible(true)} 
-              activeOpacity={0.7}
-            >
-              <Ionicons name="share-social-outline" size={15} color={theme.primary} style={{ marginRight: 6 }} />
-              <Text style={[styles.actionButtonText, { color: theme.primary }]}>Share Profile</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.smallIconBtn} onPress={handleLogout} activeOpacity={0.7}>
-              <Ionicons name="log-out-outline" size={18} color="#FF3B30" />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Story Highlights (Instagram / Alumni Profile style) */}
-        <View style={{ marginBottom: 14, paddingHorizontal: 16 }}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 14 }}>
-            <TouchableOpacity 
-              style={{ alignItems: 'center', width: 68 }} 
-              onPress={() => navigation.navigate('PostCreation')}
-              activeOpacity={0.7}
-            >
-              <View style={{ width: 58, height: 58, borderRadius: 29, borderWidth: 1.5, borderColor: '#CBD5E1', borderStyle: 'dashed', justifyContent: 'center', alignItems: 'center', backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', marginBottom: 5 }}>
-                <Ionicons name="add" size={22} color="#002B5C" />
-              </View>
-              <Text style={{ fontSize: 11.5, color: theme.textSecondary, fontWeight: '600' }} numberOfLines={1}>New</Text>
-            </TouchableOpacity>
-
-            {highlights.map((h) => (
-              <TouchableOpacity key={h.id} style={{ alignItems: 'center', width: 68 }} activeOpacity={0.7}>
-                <View style={{ width: 58, height: 58, borderRadius: 29, borderWidth: 1.5, borderColor: '#E2E8F0', justifyContent: 'center', alignItems: 'center', backgroundColor: isDarkMode ? '#1E293B' : '#EFF6FF', marginBottom: 5 }}>
-                  <Ionicons name={h.icon} size={22} color="#002B5C" />
+              <View style={styles.otwDetailsRow}>
+                <View style={styles.otwDetailChip}>
+                  <Ionicons name="location-outline" size={13} color="#057642" />
+                  <Text style={styles.otwDetailChipText}>{profileData.openToWorkLocations || 'Bengaluru (Hybrid / Remote)'}</Text>
                 </View>
-                <Text style={{ fontSize: 11.5, color: theme.text, fontWeight: '600' }} numberOfLines={1}>{h.title}</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
+                <View style={styles.otwDetailChip}>
+                  <Ionicons name="briefcase-outline" size={13} color="#057642" />
+                  <Text style={styles.otwDetailChipText}>{profileData.openToWorkTypes || 'Full-time, Internship'}</Text>
+                </View>
+                <View style={styles.otwDetailChip}>
+                  <Ionicons name="home-outline" size={13} color="#057642" />
+                  <Text style={styles.otwDetailChipText}>{profileData.openToWorkWorkplace || 'Remote, Hybrid'}</Text>
+                </View>
+              </View>
+
+              <View style={styles.otwFooterNote}>
+                <Ionicons name="shield-checkmark-outline" size={12} color="#057642" />
+                <Text style={styles.otwVisibilityHint}>
+                  Visible to all alumni recruiters & hiring managers across RSST network
+                </Text>
+              </View>
+            </View>
+          ) : (
+            <TouchableOpacity 
+              style={styles.openToWorkPromptCard} 
+              onPress={handleOpenOpenToWork}
+              activeOpacity={0.8}
+            >
+              <View style={styles.otwPromptIconWrap}>
+                <Ionicons name="briefcase" size={20} color="#057642" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.otwPromptTitle}>Open to new opportunities?</Text>
+                <Text style={styles.otwPromptSub}>
+                  {"Show alumni & recruiters you're looking for job opportunities with the #OpenToWork badge"}
+                </Text>
+              </View>
+              <View style={styles.otwPromptActionBtn}>
+                <Text style={styles.otwPromptActionText}>Enable</Text>
+                <Ionicons name="chevron-forward" size={13} color="#057642" />
+              </View>
+            </TouchableOpacity>
+          )}
+
+          {/* Modern Executive Stat Pods */}
+          <View style={styles.statsPodsGrid}>
+            <TouchableOpacity 
+              style={styles.statPod} 
+              onPress={() => setListModalType('connections')} 
+              activeOpacity={0.7}
+            >
+              <Text style={styles.statPodNumber}>{connections.length || profileData.followers}</Text>
+              <Text style={styles.statPodLabel}>Connections</Text>
+              <Text style={styles.statPodSub}>Alumni Network</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={styles.statPod} 
+              onPress={() => setListModalType('following')} 
+              activeOpacity={0.7}
+            >
+              <Text style={styles.statPodNumber}>{following.length || profileData.following}</Text>
+              <Text style={styles.statPodLabel}>Following</Text>
+              <Text style={styles.statPodSub}>Community</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={styles.statPod} 
+              onPress={() => {
+                setActiveTab('post');
+                profileScrollViewRef.current?.scrollTo({ y: 380, animated: true });
+              }} 
+              activeOpacity={0.7}
+            >
+              <Text style={styles.statPodNumber}>{profileData.posts}</Text>
+              <Text style={styles.statPodLabel}>Posts</Text>
+              <Text style={styles.statPodSub}>Discussions</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Instagram-style Tabs with View Switcher */}
@@ -3269,6 +3550,235 @@ const DEFAULT_TAGGED_POSTS = [];
         </View>
       </Modal>
 
+      {/* LinkedIn-Style #OpenToWork Preferences Modal */}
+      <Modal 
+        visible={openToWorkModalVisible} 
+        transparent 
+        animationType="slide" 
+        onRequestClose={() => setOpenToWorkModalVisible(false)}
+      >
+        <View style={styles.otwModalOverlay}>
+          <View style={styles.otwModalContainer}>
+            {/* Modal Header */}
+            <View style={styles.otwModalHeader}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <View style={styles.otwHeaderIconWrap}>
+                  <Ionicons name="briefcase" size={18} color="#057642" />
+                </View>
+                <View>
+                  <Text style={styles.otwModalTitle}>Open to Work</Text>
+                  <Text style={styles.otwModalSubtitle}>Career & Job Preferences</Text>
+                </View>
+              </View>
+              <TouchableOpacity 
+                onPress={() => setOpenToWorkModalVisible(false)} 
+                style={styles.otwModalCloseBtn}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Ionicons name="close" size={22} color={theme.textSecondary} />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView 
+              showsVerticalScrollIndicator={false} 
+              contentContainerStyle={{ padding: 18, paddingBottom: 28 }}
+            >
+              {/* Status Toggle Card */}
+              <View style={styles.otwToggleCard}>
+                <View style={{ flex: 1, paddingRight: 12 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                    <Text style={styles.otwToggleTitle}>{"Show recruiters you're open"}</Text>
+                    {editOTWActive && (
+                      <View style={styles.otwActivePill}>
+                        <Text style={styles.otwActivePillText}>ACTIVE</Text>
+                      </View>
+                    )}
+                  </View>
+                  <Text style={styles.otwToggleSub}>
+                    Adds the official green #OpenToWork photo ring to your avatar and notifies campus & alumni recruiters.
+                  </Text>
+                </View>
+                <Switch
+                  value={editOTWActive}
+                  onValueChange={setEditOTWActive}
+                  trackColor={{ false: '#CBD5E1', true: '#86EFAC' }}
+                  thumbColor={editOTWActive ? '#057642' : '#F1F5F9'}
+                />
+              </View>
+
+              {/* Target Job Titles */}
+              <View style={styles.otwFieldGroup}>
+                <Text style={styles.otwFieldLabel}>Target Job Titles / Roles *</Text>
+                <Text style={styles.otwFieldHint}>Positions you want to be recruited for (comma-separated)</Text>
+                <TextInput
+                  style={styles.otwInput}
+                  value={editOTWRoles}
+                  onChangeText={setEditOTWRoles}
+                  placeholder="e.g. Software Engineer, Full Stack Developer, AI Specialist"
+                  placeholderTextColor={theme.textMuted || '#94A3B8'}
+                />
+                {/* Quick Role Suggestions */}
+                <View style={styles.otwQuickChipsRow}>
+                  {['Software Engineer', 'Full Stack Developer', 'Data Scientist', 'Product Manager', 'DevOps'].map((role) => {
+                    const isAdded = (editOTWRoles || '').toLowerCase().includes(role.toLowerCase());
+                    return (
+                      <TouchableOpacity
+                        key={role}
+                        style={[styles.otwQuickChip, isAdded && styles.otwQuickChipSelected]}
+                        onPress={() => {
+                          if (isAdded) {
+                            const updated = editOTWRoles.split(',').map(r => r.trim()).filter(r => r.toLowerCase() !== role.toLowerCase()).join(', ');
+                            setEditOTWRoles(updated);
+                          } else {
+                            const trimmed = (editOTWRoles || '').trim();
+                            setEditOTWRoles(trimmed ? `${trimmed}, ${role}` : role);
+                          }
+                        }}
+                      >
+                        <Ionicons name={isAdded ? "checkmark" : "add"} size={13} color={isAdded ? "#057642" : "#475569"} />
+                        <Text style={[styles.otwQuickChipText, isAdded && styles.otwQuickChipTextSelected]}>{role}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+
+              {/* Target Locations */}
+              <View style={styles.otwFieldGroup}>
+                <Text style={styles.otwFieldLabel}>Target Locations</Text>
+                <Text style={styles.otwFieldHint}>Cities or regions you are ready to work from</Text>
+                <TextInput
+                  style={styles.otwInput}
+                  value={editOTWLocations}
+                  onChangeText={setEditOTWLocations}
+                  placeholder="e.g. Bengaluru, India (Hybrid / Remote)"
+                  placeholderTextColor={theme.textMuted || '#94A3B8'}
+                />
+                <View style={styles.otwQuickChipsRow}>
+                  {['Bengaluru', 'Remote / Worldwide', 'Hyderabad', 'Mumbai', 'Delhi NCR'].map((loc) => {
+                    const isAdded = (editOTWLocations || '').toLowerCase().includes(loc.toLowerCase());
+                    return (
+                      <TouchableOpacity
+                        key={loc}
+                        style={[styles.otwQuickChip, isAdded && styles.otwQuickChipSelected]}
+                        onPress={() => {
+                          if (isAdded) {
+                            const updated = editOTWLocations.split(',').map(l => l.trim()).filter(l => !l.toLowerCase().includes(loc.toLowerCase())).join(', ');
+                            setEditOTWLocations(updated);
+                          } else {
+                            const trimmed = (editOTWLocations || '').trim();
+                            setEditOTWLocations(trimmed ? `${trimmed}, ${loc}` : loc);
+                          }
+                        }}
+                      >
+                        <Ionicons name={isAdded ? "checkmark" : "add"} size={13} color={isAdded ? "#057642" : "#475569"} />
+                        <Text style={[styles.otwQuickChipText, isAdded && styles.otwQuickChipTextSelected]}>{loc}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+
+              {/* Workplace Types */}
+              <View style={styles.otwFieldGroup}>
+                <Text style={styles.otwFieldLabel}>Workplace Preferences</Text>
+                <View style={styles.otwQuickChipsRow}>
+                  {['Remote', 'Hybrid', 'On-site'].map((type) => {
+                    const isSelected = (editOTWWorkplace || '').toLowerCase().includes(type.toLowerCase());
+                    return (
+                      <TouchableOpacity
+                        key={type}
+                        style={[styles.otwPillChoice, isSelected && styles.otwPillChoiceActive]}
+                        onPress={() => {
+                          let current = editOTWWorkplace ? editOTWWorkplace.split(',').map(s => s.trim()).filter(Boolean) : [];
+                          if (isSelected) {
+                            current = current.filter(s => s.toLowerCase() !== type.toLowerCase());
+                          } else {
+                            current.push(type);
+                          }
+                          setEditOTWWorkplace(current.join(', '));
+                        }}
+                      >
+                        <Ionicons 
+                          name={type === 'Remote' ? 'laptop-outline' : (type === 'Hybrid' ? 'business-outline' : 'location-outline')} 
+                          size={14} 
+                          color={isSelected ? '#057642' : '#64748B'} 
+                        />
+                        <Text style={[styles.otwPillChoiceText, isSelected && styles.otwPillChoiceTextActive]}>
+                          {type}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+
+              {/* Employment Job Types */}
+              <View style={styles.otwFieldGroup}>
+                <Text style={styles.otwFieldLabel}>Job Types</Text>
+                <View style={styles.otwQuickChipsRow}>
+                  {['Full-time', 'Internship', 'Contract', 'Part-time'].map((jType) => {
+                    const isSelected = (editOTWTypes || '').toLowerCase().includes(jType.toLowerCase());
+                    return (
+                      <TouchableOpacity
+                        key={jType}
+                        style={[styles.otwPillChoice, isSelected && styles.otwPillChoiceActive]}
+                        onPress={() => {
+                          let current = editOTWTypes ? editOTWTypes.split(',').map(s => s.trim()).filter(Boolean) : [];
+                          if (isSelected) {
+                            current = current.filter(s => s.toLowerCase() !== jType.toLowerCase());
+                          } else {
+                            current.push(jType);
+                          }
+                          setEditOTWTypes(current.join(', '));
+                        }}
+                      >
+                        <Ionicons name="checkmark-circle" size={14} color={isSelected ? '#057642' : '#CBD5E1'} />
+                        <Text style={[styles.otwPillChoiceText, isSelected && styles.otwPillChoiceTextActive]}>
+                          {jType}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+
+              {/* Visibility Guarantee Banner */}
+              <View style={styles.otwVisibilityNotice}>
+                <Ionicons name="shield-checkmark" size={18} color="#057642" />
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.otwVisibilityNoticeTitle}>Alumni & Recruiter Visibility</Text>
+                  <Text style={styles.otwVisibilityNoticeText}>
+                    By enabling this feature, your target roles will be prioritized in the Alumni Talent Directory and Job Portal for fellow alumni hiring managers.
+                  </Text>
+                </View>
+              </View>
+
+              {/* Action Buttons */}
+              <View style={styles.otwActionBtnsRow}>
+                <TouchableOpacity
+                  style={styles.otwCancelButton}
+                  onPress={() => setOpenToWorkModalVisible(false)}
+                  disabled={openToWorkSaving}
+                >
+                  <Text style={styles.otwCancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.otwSaveButton}
+                  onPress={handleSaveOpenToWork}
+                  disabled={openToWorkSaving}
+                >
+                  <Ionicons name="checkmark-sharp" size={18} color="#FFFFFF" style={{ marginRight: 6 }} />
+                  <Text style={styles.otwSaveButtonText}>
+                    {openToWorkSaving ? 'Saving...' : 'Save Preferences'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
       {/* Instagram-Style Edit Profile Modal (Matching Image 3) */}
       <Modal visible={editProfileModalVisible} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setEditProfileModalVisible(false)}>
         <SafeAreaView style={{ flex: 1, backgroundColor: theme.card }}>
@@ -4012,44 +4522,722 @@ const getStyles = (theme) => StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  // ── Cover Banner Styles ──
+  coverBanner: {
+    width: '100%',
+    height: 110,
+    backgroundColor: '#002B5C',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  coverDecorCircle1: {
+    position: 'absolute',
+    right: -25,
+    top: -25,
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+  },
+  coverDecorCircle2: {
+    position: 'absolute',
+    right: 50,
+    bottom: -30,
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: 'rgba(251, 191, 36, 0.12)',
+  },
+  coverTopRow: {
+    position: 'absolute',
+    left: 16,
+    right: 16,
+    top: 14,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  coverInstitutionBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+    paddingHorizontal: 10,
+    paddingVertical: 4.5,
+    borderRadius: 20,
+    gap: 5,
+  },
+  coverInstitutionText: {
+    color: '#FFFFFF',
+    fontSize: 11.5,
+    fontWeight: '700',
+    letterSpacing: 0.4,
+  },
+  coverChapterBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.18)',
+    paddingHorizontal: 9,
+    paddingVertical: 4.5,
+    borderRadius: 20,
+    gap: 4,
+  },
+  coverChapterText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+
+  // ── Profile Identity & Avatar Section ──
   profileInfoContainer: {
-    paddingHorizontal: 20,
-    paddingTop: 16,
+    paddingHorizontal: 18,
+    paddingTop: 0,
+    paddingBottom: 16,
   },
   mainInfoRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     justifyContent: 'space-between',
-    marginBottom: 16,
+    marginTop: -46,
+    marginBottom: 14,
   },
   avatarWrapper: {
     position: 'relative',
   },
-  storyRing: {
-    padding: 3,
-    borderRadius: 48,
-    borderWidth: 2.5,
-    borderColor: theme.primary,
-    shadowColor: theme.primary,
+  avatarOuterRing: {
+    padding: 3.5,
+    borderRadius: 52,
+    backgroundColor: theme.card,
+    borderWidth: 2,
+    borderColor: theme.border,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
+    shadowOpacity: 0.12,
     shadowRadius: 8,
     elevation: 4,
   },
+  avatarOpenToWorkRing: {
+    borderColor: '#057642',
+    borderWidth: 3.5,
+  },
   avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: theme.primary,
+    width: 84,
+    height: 84,
+    borderRadius: 42,
+    backgroundColor: '#002B5C',
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
+  },
+  avatarImg: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 42,
   },
   avatarText: {
     fontSize: 26,
     fontWeight: '800',
     color: '#FFFFFF',
     letterSpacing: 1,
+  },
+  openToWorkRibbon: {
+    position: 'absolute',
+    bottom: -6,
+    left: '50%',
+    transform: [{ translateX: -42 }],
+    backgroundColor: '#057642',
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#FFFFFF',
+    shadowColor: '#057642',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 3,
+    elevation: 3,
+    width: 84,
+    alignItems: 'center',
+  },
+  openToWorkRibbonText: {
+    color: '#FFFFFF',
+    fontSize: 9.5,
+    fontWeight: '900',
+    letterSpacing: 0.3,
+  },
+  avatarCameraBtn: {
+    position: 'absolute',
+    top: 0,
+    right: -4,
+    backgroundColor: '#002B5C',
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+    elevation: 5,
+  },
+
+  // ── Quick Top Actions Row ──
+  topActionBtnsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 4,
+  },
+  topEditProfileBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#002B5C',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    shadowColor: '#002B5C',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  topEditProfileBtnText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  topShareProfileBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: theme.cardSecondary || '#F1F5F9',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: theme.border,
+  },
+  topLogoutBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#FEF2F2',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#FEE2E2',
+  },
+
+  // ── Profile Identity Block ──
+  identityBlock: {
+    marginBottom: 16,
+  },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    flexWrap: 'wrap',
+    marginBottom: 4,
+  },
+  profileDisplayName: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: theme.text,
+    letterSpacing: -0.3,
+  },
+  openToWorkBadgeInline: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#DCFCE7',
+    paddingHorizontal: 8,
+    paddingVertical: 2.5,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#86EFAC',
+    gap: 4,
+  },
+  otwInlineDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#057642',
+  },
+  openToWorkBadgeInlineText: {
+    color: '#057642',
+    fontSize: 11,
+    fontWeight: '800',
+  },
+  headlineText: {
+    fontSize: 14,
+    color: theme.textSecondary,
+    fontWeight: '600',
+    marginBottom: 8,
+    lineHeight: 20,
+  },
+  credentialsChipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginBottom: 10,
+  },
+  credentialChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.cardSecondary || '#F8FAFC',
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: theme.border,
+    gap: 4,
+  },
+  credentialChipText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: theme.text,
+  },
+  bioTextContent: {
+    fontSize: 13.5,
+    color: theme.text,
+    lineHeight: 20,
+    marginBottom: 12,
+  },
+  linksChipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  linkChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F0F9FF',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#BAE6FD',
+    gap: 5,
+  },
+  linkChipText: {
+    fontSize: 12.5,
+    fontWeight: '700',
+    color: '#0369A1',
+  },
+
+  // ── Official LinkedIn #OpenToWork Showcase Box ──
+  openToWorkCard: {
+    backgroundColor: '#F0FDF4',
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: '#86EFAC',
+    padding: 14,
+    marginBottom: 16,
+    shadowColor: '#057642',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 1,
+  },
+  openToWorkCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  otwPulseDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#057642',
+  },
+  openToWorkCardTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#14532D',
+  },
+  otwBadgePill: {
+    backgroundColor: '#057642',
+    paddingHorizontal: 6,
+    paddingVertical: 1.5,
+    borderRadius: 6,
+  },
+  otwBadgePillText: {
+    color: '#FFFFFF',
+    fontSize: 9.5,
+    fontWeight: '900',
+    letterSpacing: 0.4,
+  },
+  otwEditBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 10,
+    paddingVertical: 3.5,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#86EFAC',
+    gap: 4,
+  },
+  otwEditBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#057642',
+  },
+  otwRolesText: {
+    fontSize: 13.5,
+    fontWeight: '700',
+    color: '#166534',
+    marginBottom: 8,
+  },
+  otwDetailsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginBottom: 10,
+  },
+  otwDetailChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    paddingHorizontal: 8,
+    paddingVertical: 3.5,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
+    gap: 4,
+  },
+  otwDetailChipText: {
+    fontSize: 11.5,
+    color: '#166534',
+    fontWeight: '600',
+  },
+  otwFooterNote: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    borderTopWidth: 1,
+    borderTopColor: '#DCFCE7',
+    paddingTop: 8,
+  },
+  otwVisibilityHint: {
+    fontSize: 11,
+    color: '#15803D',
+    fontWeight: '500',
+    flex: 1,
+  },
+  openToWorkPromptCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    padding: 14,
+    marginBottom: 16,
+    gap: 12,
+  },
+  otwPromptIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#DCFCE7',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  otwPromptTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: theme.text,
+    marginBottom: 2,
+  },
+  otwPromptSub: {
+    fontSize: 12,
+    color: theme.textSecondary,
+    lineHeight: 16,
+  },
+  otwPromptActionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#DCFCE7',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 14,
+    gap: 2,
+  },
+  otwPromptActionText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#057642',
+  },
+
+  // ── Executive Stat Pods ──
+  statsPodsGrid: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 16,
+  },
+  statPod: {
+    flex: 1,
+    backgroundColor: theme.card,
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: theme.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 1,
+  },
+  statPodNumber: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: theme.text,
+    letterSpacing: -0.3,
+  },
+  statPodLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#002B5C',
+    marginTop: 2,
+  },
+  statPodSub: {
+    fontSize: 10,
+    color: theme.textSecondary,
+    marginTop: 1,
+  },
+
+  // ── OpenToWork Modal Styles ──
+  otwModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(15, 23, 42, 0.65)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+  },
+  otwModalContainer: {
+    width: '100%',
+    maxWidth: 540,
+    maxHeight: '90%',
+    backgroundColor: theme.card,
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  otwModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 18,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.border,
+  },
+  otwHeaderIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#DCFCE7',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  otwModalTitle: {
+    fontSize: 17,
+    fontWeight: '800',
+    color: theme.text,
+  },
+  otwModalSubtitle: {
+    fontSize: 12,
+    color: theme.textSecondary,
+  },
+  otwModalCloseBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  otwToggleCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+    borderRadius: 14,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 16,
+  },
+  otwToggleTitle: {
+    fontSize: 14.5,
+    fontWeight: '700',
+    color: theme.text,
+  },
+  otwActivePill: {
+    backgroundColor: '#DCFCE7',
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 4,
+  },
+  otwActivePillText: {
+    fontSize: 9.5,
+    fontWeight: '800',
+    color: '#057642',
+  },
+  otwToggleSub: {
+    fontSize: 12,
+    color: theme.textSecondary,
+    lineHeight: 17,
+  },
+  otwFieldGroup: {
+    marginBottom: 16,
+  },
+  otwFieldLabel: {
+    fontSize: 13.5,
+    fontWeight: '700',
+    color: theme.text,
+    marginBottom: 2,
+  },
+  otwFieldHint: {
+    fontSize: 11.5,
+    color: theme.textSecondary,
+    marginBottom: 8,
+  },
+  otwInput: {
+    backgroundColor: theme.cardSecondary || '#F8FAFC',
+    borderWidth: 1,
+    borderColor: theme.border,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
+    color: theme.text,
+    marginBottom: 8,
+  },
+  otwQuickChipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  otwQuickChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.cardSecondary || '#F1F5F9',
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: theme.border,
+    gap: 4,
+  },
+  otwQuickChipSelected: {
+    backgroundColor: '#DCFCE7',
+    borderColor: '#86EFAC',
+  },
+  otwQuickChipText: {
+    fontSize: 11.5,
+    fontWeight: '600',
+    color: theme.textSecondary,
+  },
+  otwQuickChipTextSelected: {
+    color: '#057642',
+    fontWeight: '700',
+  },
+  otwPillChoice: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.cardSecondary || '#F1F5F9',
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: theme.border,
+    gap: 6,
+  },
+  otwPillChoiceActive: {
+    backgroundColor: '#DCFCE7',
+    borderColor: '#057642',
+    borderWidth: 1.5,
+  },
+  otwPillChoiceText: {
+    fontSize: 12.5,
+    fontWeight: '600',
+    color: theme.textSecondary,
+  },
+  otwPillChoiceTextActive: {
+    color: '#057642',
+    fontWeight: '800',
+  },
+  otwVisibilityNotice: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: '#F0FDF4',
+    borderRadius: 12,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
+    gap: 10,
+    marginBottom: 20,
+  },
+  otwVisibilityNoticeTitle: {
+    fontSize: 12.5,
+    fontWeight: '700',
+    color: '#166534',
+    marginBottom: 2,
+  },
+  otwVisibilityNoticeText: {
+    fontSize: 11.5,
+    color: '#15803D',
+    lineHeight: 16,
+  },
+  otwActionBtnsRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 4,
+  },
+  otwCancelButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: theme.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: theme.cardSecondary || '#F8FAFC',
+  },
+  otwCancelButtonText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: theme.textSecondary,
+  },
+  otwSaveButton: {
+    flex: 2,
+    flexDirection: 'row',
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#057642',
+    shadowColor: '#057642',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  otwSaveButtonText: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+
+  // Legacy & Compatibility Styles
+  storyRing: {
+    padding: 3,
+    borderRadius: 48,
+    borderWidth: 2.5,
+    borderColor: theme.primary,
   },
   statsContainer: {
     flexDirection: 'row',
@@ -4118,11 +5306,6 @@ const getStyles = (theme) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
   },
   actionButtonText: {
     fontSize: 13.5,
