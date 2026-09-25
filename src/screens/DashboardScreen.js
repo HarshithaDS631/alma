@@ -14,11 +14,9 @@ import {
   StatusBar,
   TextInput,
   Modal,
-  FlatList,
   KeyboardAvoidingView,
   Platform,
   useWindowDimensions,
-  ActivityIndicator,
   Linking,
 } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
@@ -35,6 +33,62 @@ import getInitials from '../lib/getInitials';
 
 // Pool of all known posts across all users — used as offline fallback
 const ALL_KNOWN_POSTS = [];
+
+const ALUMNI_SPOTLIGHTS = [
+  {
+    id: 'spot-1',
+    tag: 'DISTINGUISHED ALUM',
+    tagColor: '#B45309',
+    tagBg: '#FEF3C7',
+    icon: 'school',
+    iconBg: '#002B5C',
+    title: "Dr. Anand Deshpande ('84)",
+    subtitle: 'Founder & CMD, Persistent Systems',
+    desc: 'B.Tech CSE from RVCE, pioneering enterprise technology and active RSST student mentor.',
+    actionText: 'Connect in Directory',
+    route: 'Engage',
+    params: { tab: 'directory' },
+  },
+  {
+    id: 'spot-2',
+    tag: 'RSST INNOVATION',
+    tagColor: '#15803D',
+    tagBg: '#DCFCE7',
+    icon: 'rocket',
+    iconBg: '#064E3B',
+    title: '₹50L Innovation Seed Fund',
+    subtitle: 'Centre for Pre-Incubation & Research',
+    desc: 'Grants and dedicated lab space for RVCE alumni and student founders building deep-tech solutions.',
+    actionText: 'Grant Guidelines',
+    url: 'https://rvce.edu.in/rvce-centre-for-innovation',
+  },
+  {
+    id: 'spot-3',
+    tag: 'REFERRAL EXPRESS',
+    tagColor: '#0369A1',
+    tagBg: '#E0F2FE',
+    icon: 'briefcase',
+    iconBg: '#0369A1',
+    title: 'Executive Career Referrals',
+    subtitle: 'Google • Microsoft • Cisco • NVIDIA',
+    desc: 'Direct priority interview referrals from 200+ senior engineering alumni across tier-1 firms.',
+    actionText: 'Explore Referrals',
+    route: 'Jobs',
+  },
+  {
+    id: 'spot-4',
+    tag: 'RESUME BOOK',
+    tagColor: '#7E22CE',
+    tagBg: '#F3E8FF',
+    icon: 'document-text',
+    iconBg: '#581C87',
+    title: 'RV Candidate Resume Book',
+    subtitle: 'Verified Alumni & Graduating Batches',
+    desc: 'Browse portfolios, verified skills, and project repos of RVCE candidates open for direct hiring.',
+    actionText: 'Open Resume Book',
+    route: 'Jobs',
+  },
+];
 
 /**
  * Returns ONLY posts from followed users + own posts.
@@ -136,7 +190,7 @@ const formatPostObject = (p, myUserId) => {
 const DashboardScreen = ({ navigation }) => {
 
   const { theme, isDarkMode } = useTheme();
-  const styles = getStyles(theme);
+  const styles = getStyles(theme, isDarkMode);
   const { isAlumni, isAdmin, isSuperAdmin, isAdminOrSuper, userRole } = useUserRole();
 
   const { width } = useWindowDimensions();
@@ -154,6 +208,9 @@ const DashboardScreen = ({ navigation }) => {
   const [userInstitution, setUserInstitution] = useState('Our Network');
   const [userName, setUserName] = useState('');
   const [currentUser, setCurrentUser] = useState(null);
+  const [feedFilter, setFeedFilter] = useState('all');
+  const [unreadMessages, setUnreadMessages] = useState(0);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
 
   // Modal States
   const [activeModal, setActiveModal] = useState(null);
@@ -297,6 +354,48 @@ const DashboardScreen = ({ navigation }) => {
   // Real data states — initialize with all posts as open feed (filtered per user once we know who they are)
   // Start with empty feed — populated after we know who the user follows
   const [posts, setPosts] = useState([]);
+
+  const getPostCategory = useCallback((post) => {
+    const isReshared = Boolean(post?.isReshare || post?.originalPost || post?.originalAuthorName || (post?.content && /reshared\s+from/i.test(post.content)));
+    if (isReshared) return { label: 'AMPLIFIED', color: '#6366F1', bg: isDarkMode ? '#312E81' : '#EEF2FF', icon: 'repeat' };
+    
+    const content = (post?.content || '').toLowerCase();
+    const role = (post?.role || '').toLowerCase();
+    if (/hiring|referral|job|opening|career|internship|role|recruit|opportunity/i.test(content + ' ' + role)) {
+      return { label: 'JOB REFERRAL', color: '#059669', bg: isDarkMode ? '#064E3B' : '#ECFDF5', icon: 'briefcase' };
+    }
+    if (/reunion|alumni meet|meetup|gathering|jubilee|celebrat/i.test(content)) {
+      return { label: 'REUNION', color: '#D97706', bg: isDarkMode ? '#451A03' : '#FEF3C7', icon: 'people' };
+    }
+    if (/rvce|campus|convocation|exam|faculty|department|research|rsst|placement/i.test(content)) {
+      return { label: 'CAMPUS NOTICE', color: '#0284C7', bg: isDarkMode ? '#082F49' : '#E0F2FE', icon: 'school' };
+    }
+    return { label: 'ALUMNI UPDATE', color: '#64748B', bg: isDarkMode ? '#1E293B' : '#F1F5F9', icon: 'newspaper-outline' };
+  }, [isDarkMode]);
+
+  const filteredPosts = React.useMemo(() => {
+    if (!Array.isArray(posts)) return [];
+    if (feedFilter === 'all') return posts;
+    if (feedFilter === 'jobs') {
+      return posts.filter(p => /hiring|referral|job|opening|career|internship|role|recruit|opportunity/i.test((p.content || '') + ' ' + (p.role || '')));
+    }
+    if (feedFilter === 'campus') {
+      return posts.filter(p => /rvce|campus|convocation|exam|faculty|department|research|rsst|reunion|alumni meet/i.test((p.content || '') + ' ' + (p.role || '')));
+    }
+    if (feedFilter === 'network') {
+      return posts.filter(p => {
+        const isOwn = (p.authorId && (p.authorId === currentUser?._id || p.authorId === currentUser?.id)) ||
+          (p.user && currentUser?.name && p.user.toLowerCase().includes(currentUser.name.toLowerCase()));
+        const isFollowing = Boolean(
+          (p.authorId && followingMap[p.authorId]) ||
+          (p.user && followingMap[p.user.toLowerCase()])
+        );
+        return isOwn || isFollowing;
+      });
+    }
+    return posts;
+  }, [posts, feedFilter, currentUser, followingMap]);
+
   const [suggestions, setSuggestions] = useState([]);
   const [eventsAndJobs, setEventsAndJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -870,55 +969,75 @@ const DashboardScreen = ({ navigation }) => {
   // ─── Sub-components ────────────────────────────────────
   const renderPostCard = (post) => {
     const isReshared = Boolean(post.isReshare || post.originalPost || post.originalAuthorName || (post.content && /reshared\s+from/i.test(post.content)));
+    const category = getPostCategory(post);
+
+    const isOwnPost = (post.authorId && (post.authorId === currentUser?._id || post.authorId === currentUser?.id)) ||
+      (post.user && currentUser?.name && (
+        post.user.toLowerCase().includes(currentUser.name.toLowerCase()) ||
+        currentUser.name.toLowerCase().includes(post.user.toLowerCase())
+      ));
+
+    const isFollowing = Boolean(
+      (post.authorId && followingMap[post.authorId]) ||
+      (post.user && followingMap[post.user.toLowerCase()])
+    );
+
     return (
       <View key={post.id} style={styles.postCard}>
-        {/* Reshared Top Header Tag (Instagram / Threads style) */}
+        {/* Reshared Top Header Tag */}
         {isReshared && (
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10, paddingHorizontal: 2 }}>
-            <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: isDarkMode ? '#312E81' : '#EEF2FF', justifyContent: 'center', alignItems: 'center', marginRight: 8 }}>
-              <Ionicons name="repeat" size={13} color="#6366F1" />
+          <View style={styles.resharedHeaderTag}>
+            <View style={styles.resharedIconWrap}>
+              <Ionicons name="repeat" size={12} color="#6366F1" />
             </View>
-            <Text style={{ fontSize: 13, fontWeight: '600', color: theme.textSecondary || '#64748B' }}>
-              <Text style={{ fontWeight: '700', color: theme.text }}>{post.user}</Text> reposted
+            <Text style={styles.resharedText}>
+              <Text style={{ fontWeight: '700', color: theme.text }}>{post.user}</Text> amplified to alumni network
             </Text>
           </View>
         )}
 
-        {/* Post header */}
+        {/* Post Academic Header */}
         <View style={styles.postHeader}>
-          <View style={{ position: 'relative' }}>
-            <View style={styles.postUserAvatar}>
-              {post.isAvatarUrl ? (
-                <Image source={{ uri: post.avatar }} style={{ width: '100%', height: '100%', borderRadius: 20 }} />
-              ) : (
-                <Text style={styles.avatarText}>{post.avatar}</Text>
-              )}
-            </View>
-          </View>
+          <TouchableOpacity 
+            style={styles.postUserAvatar}
+            activeOpacity={0.8}
+            onPress={() => {
+              if (post.authorId) {
+                // Navigate to directory or profile
+              }
+            }}
+          >
+            {post.isAvatarUrl ? (
+              <Image source={{ uri: post.avatar }} style={{ width: '100%', height: '100%', borderRadius: 21 }} />
+            ) : (
+              <Text style={styles.avatarText}>{post.avatar || getInitials(post.user)}</Text>
+            )}
+          </TouchableOpacity>
+
           <View style={styles.postUserInfo}>
-            <Text style={styles.postUserName}>{post.user}</Text>
-            <Text style={styles.postUserRole}>{post.role}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, flexWrap: 'wrap' }}>
+              <Text style={styles.postUserName}>{post.user}</Text>
+              <Ionicons name="checkmark-circle" size={15} color="#0284C7" />
+            </View>
+            <Text style={styles.postUserRole} numberOfLines={1}>
+              {post.role || 'RVCE Alumni Member'}
+            </Text>
           </View>
-          {/* Follow button logic */}
-          {(() => {
-            const isOwnPost = (post.authorId && (post.authorId === currentUser?._id || post.authorId === currentUser?.id)) ||
-              (post.user && currentUser?.name && (
-                post.user.toLowerCase().includes(currentUser.name.toLowerCase()) ||
-                currentUser.name.toLowerCase().includes(post.user.toLowerCase())
-              ));
 
-            const isFollowing = Boolean(
-              (post.authorId && followingMap[post.authorId]) ||
-              (post.user && followingMap[post.user.toLowerCase()])
-            );
+          {/* Right Header Badges */}
+          <View style={{ alignItems: 'flex-end', gap: 6 }}>
+            {/* Category Intent Badge */}
+            <View style={[styles.categoryBadge, { backgroundColor: category.bg }]}>
+              <Ionicons name={category.icon} size={11} color={category.color} style={{ marginRight: 3 }} />
+              <Text style={[styles.categoryBadgeText, { color: category.color }]}>{category.label}</Text>
+            </View>
 
-            if (isOwnPost) return null; // Don't show follow button on own posts
-
-            return (
+            {/* Follow / Connect Button */}
+            {!isOwnPost && (
               <TouchableOpacity
                 style={[
                   styles.followBtn,
-                  isFollowing && { backgroundColor: 'transparent', borderWidth: 1, borderColor: theme.border || '#CBD5E1' }
+                  isFollowing && styles.followingBtn
                 ]}
                 activeOpacity={0.7}
                 onPress={() => {
@@ -935,45 +1054,41 @@ const DashboardScreen = ({ navigation }) => {
                   }
                 }}
               >
-                <Text style={[styles.followBtnText, isFollowing && { color: theme.textSecondary || '#64748B' }]}>
-                  {isFollowing ? 'Following' : '+ Follow'}
+                <Text style={[styles.followBtnText, isFollowing && styles.followingBtnText]}>
+                  {isFollowing ? 'Following' : '+ Connect'}
                 </Text>
               </TouchableOpacity>
-            );
-          })()}
+            )}
+          </View>
         </View>
 
-        {/* Reposter Note / Caption (if present) */}
-        {isReshared && post.content && !post.content.startsWith('Reshared:') && !post.content.startsWith('Reshared post') ? (
-          <Text style={[styles.postContent, { marginTop: 4, marginBottom: 10, paddingHorizontal: 2, fontSize: 14, lineHeight: 20 }]}>
-            {post.content}
-          </Text>
+        {/* Thoughtful Content Body (Rendered FIRST, above media) */}
+        {!isReshared && post.content ? (
+          <View style={styles.postBodyContainer}>
+            <Text style={styles.postContentText}>
+              {post.content}
+            </Text>
+          </View>
         ) : null}
 
-        {/* ─── Embedded Original Post Card for Reshares ─── */}
+        {/* Reposter Note / Caption (if present on reshares) */}
+        {isReshared && post.content && !post.content.startsWith('Reshared:') && !post.content.startsWith('Reshared post') ? (
+          <View style={styles.postBodyContainer}>
+            <Text style={styles.postContentText}>
+              {post.content}
+            </Text>
+          </View>
+        ) : null}
+
+        {/* Embedded Original Post Card for Reshares */}
         {isReshared && (
-          <View style={{
-            marginHorizontal: 2,
-            marginBottom: 12,
-            marginTop: 4,
-            borderRadius: 14,
-            borderWidth: 1,
-            borderColor: isDarkMode ? '#334155' : '#E2E8F0',
-            backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
-            overflow: 'hidden',
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.05,
-            shadowRadius: 3,
-            elevation: 1
-          }}>
-            {/* Original author header */}
-            <View style={{ flexDirection: 'row', alignItems: 'center', padding: 12, borderBottomWidth: 1, borderBottomColor: isDarkMode ? '#334155' : '#E2E8F0' }}>
-              <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', marginRight: 10, overflow: 'hidden' }}>
+          <View style={styles.embeddedReshareCard}>
+            <View style={styles.embeddedHeader}>
+              <View style={styles.embeddedAvatar}>
                 {post.originalPost?.isAvatarUrl ? (
-                  <Image source={{ uri: post.originalPost.avatar }} style={{ width: 34, height: 34, borderRadius: 17 }} />
+                  <Image source={{ uri: post.originalPost.avatar }} style={{ width: 32, height: 32, borderRadius: 16 }} />
                 ) : (
-                  <Text style={{ fontSize: 12, fontWeight: '700', color: '#FFF' }}>
+                  <Text style={{ fontSize: 11, fontWeight: '700', color: '#FFF' }}>
                     {post.originalPost?.avatar || getInitials(post.originalPost?.user || post.originalAuthorName || 'Alumni')}
                   </Text>
                 )}
@@ -991,23 +1106,21 @@ const DashboardScreen = ({ navigation }) => {
               ) : null}
             </View>
 
-            {/* Original post image */}
             {post.originalPost?.image ? (
               <Image 
                 source={{ uri: post.originalPost.image }} 
-                style={{ width: '100%', height: 220, backgroundColor: isDarkMode ? '#0F172A' : '#F1F5F9' }} 
+                style={styles.embeddedImage} 
                 resizeMode="cover" 
               />
             ) : null}
 
-            {/* Original post text */}
             {post.originalPost?.content ? (
-              <Text style={{ fontSize: 13, color: theme.text, padding: 12, lineHeight: 18 }} numberOfLines={4}>
+              <Text style={styles.embeddedContent} numberOfLines={4}>
                 {post.originalPost.content}
               </Text>
             ) : (
               (!post.originalPost?.image && post.content) ? (
-                <Text style={{ fontSize: 13, color: theme.text, padding: 12, lineHeight: 18 }} numberOfLines={4}>
+                <Text style={styles.embeddedContent} numberOfLines={4}>
                   {post.content.replace(/^Reshared:\s*/i, '')}
                 </Text>
               ) : null
@@ -1020,19 +1133,12 @@ const DashboardScreen = ({ navigation }) => {
           <TouchableOpacity 
             activeOpacity={0.95} 
             onPress={() => handleImageDoubleTap(post.id)}
-            style={{ position: 'relative', overflow: 'hidden' }}
+            style={styles.postImageWrapper}
           >
-            <Image source={{ uri: post.image }} style={[styles.postImage, { width: '100%', height: contentWidth * 0.65 }]} />
+            <Image source={{ uri: post.image }} style={[styles.postImage, { width: '100%', height: contentWidth * 0.62 }]} />
             {doubleTapHeart[post.id] && (
-              <View style={{
-                position: 'absolute',
-                top: 0, left: 0, right: 0, bottom: 0,
-                justifyContent: 'center',
-                alignItems: 'center',
-                backgroundColor: 'rgba(0,0,0,0.2)',
-                zIndex: 10
-              }}>
-                <Ionicons name="heart" size={96} color="#FF3040" style={{
+              <View style={styles.doubleTapHeartOverlay}>
+                <Ionicons name="heart" size={88} color="#FF3040" style={{
                   shadowColor: '#000',
                   shadowOffset: { width: 0, height: 4 },
                   shadowOpacity: 0.6,
@@ -1044,88 +1150,287 @@ const DashboardScreen = ({ navigation }) => {
           </TouchableOpacity>
         ) : null}
 
-        {/* Action row - 3D Tactile Buttons */}
-        <View style={styles.postActions}>
-          <View style={styles.leftActions}>
-            <TouchableOpacity 
-              style={[
-                styles.actionBtn, 
-                likedPosts[post.id] && { backgroundColor: isDarkMode ? 'rgba(244, 63, 94, 0.16)' : '#FFE4E6' }
-              ]} 
-              onPress={() => toggleLike(post.id)} 
-              activeOpacity={0.6}
-            >
-              <Ionicons
-                name={likedPosts[post.id] ? 'heart' : 'heart-outline'}
-                size={20}
-                color={likedPosts[post.id] ? '#F43F5E' : theme.text}
-              />
-              <Text style={{ fontSize: 12, fontWeight: '700', color: likedPosts[post.id] ? '#F43F5E' : theme.text }}>
-                {post.likes}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.actionBtn} activeOpacity={0.6} onPress={() => openModal('comments', post)}>
-              <Ionicons name="chatbubble-outline" size={19} color={theme.text} />
-              <Text style={{ fontSize: 12, fontWeight: '600', color: theme.text }}>
-                {post.commentsCount || 0}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.actionBtn} activeOpacity={0.6} onPress={() => openModal('reshare', post)}>
-              <Ionicons name="repeat-outline" size={20} color={isReshared ? '#6366F1' : theme.text} />
-              {post.resharesCount > 0 && (
-                <Text style={{ fontSize: 12, fontWeight: '600', color: theme.textSecondary }}>{post.resharesCount}</Text>
-              )}
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.actionBtn}
-              onPress={() => openModal('share', post)}
-              activeOpacity={0.6}
-            >
-              <Ionicons name="paper-plane-outline" size={19} color={theme.text} />
-            </TouchableOpacity>
-          </View>
+        {/* Alumni Engagement Action Bar */}
+        <View style={styles.alumniActionBar}>
           <TouchableOpacity 
-            style={[styles.actionBtn, bookmarkedPosts[post.id] && { backgroundColor: isDarkMode ? 'rgba(56, 189, 248, 0.16)' : '#E0EEFF' }]} 
+            style={[
+              styles.alumniActionBtn, 
+              likedPosts[post.id] && styles.alumniActionBtnLiked
+            ]} 
+            onPress={() => toggleLike(post.id)} 
+            activeOpacity={0.65}
+          >
+            <Ionicons
+              name={likedPosts[post.id] ? 'heart' : 'heart-outline'}
+              size={18}
+              color={likedPosts[post.id] ? '#F43F5E' : theme.text}
+            />
+            <Text style={[styles.alumniActionLabel, likedPosts[post.id] && { color: '#F43F5E', fontWeight: '700' }]}>
+              {post.likes > 0 ? `${post.likes} Applaud` : 'Applaud'}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.alumniActionBtn} 
+            activeOpacity={0.65} 
+            onPress={() => openModal('comments', post)}
+          >
+            <Ionicons name="chatbubble-ellipses-outline" size={17} color={theme.text} />
+            <Text style={styles.alumniActionLabel}>
+              {post.commentsCount > 0 ? `${post.commentsCount} Discuss` : 'Discuss'}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.alumniActionBtn} 
+            activeOpacity={0.65} 
+            onPress={() => openModal('reshare', post)}
+          >
+            <Ionicons name="repeat-outline" size={18} color={isReshared ? '#6366F1' : theme.text} />
+            <Text style={[styles.alumniActionLabel, isReshared && { color: '#6366F1' }]}>
+              {post.resharesCount > 0 ? `${post.resharesCount} Amplify` : 'Amplify'}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.alumniActionBtn}
+            onPress={() => openModal('share', post)}
+            activeOpacity={0.65}
+          >
+            <Ionicons name="share-social-outline" size={17} color={theme.text} />
+            <Text style={styles.alumniActionLabel}>Share</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.alumniActionBtn, bookmarkedPosts[post.id] && styles.alumniActionBtnSaved]} 
             onPress={() => toggleBookmark(post.id)} 
-            activeOpacity={0.6}
+            activeOpacity={0.65}
           >
             <Ionicons
               name={bookmarkedPosts[post.id] ? 'bookmark' : 'bookmark-outline'}
-              size={19}
+              size={17}
               color={bookmarkedPosts[post.id] ? theme.primary : theme.text}
             />
           </TouchableOpacity>
         </View>
 
-        {/* Footer */}
-        <View style={styles.postFooter}>
-          <Text style={styles.likesText}>
-            {post.likes} {post.likes === 1 ? 'like' : 'likes'}
-          </Text>
-          {!isReshared && post.content ? (
-            <Text style={styles.postContent} numberOfLines={3}>
-              {post.content}
-            </Text>
-          ) : null}
+        {/* Footer info: Comments teaser & Time */}
+        <View style={styles.postFooterBar}>
           {post.commentsCount > 0 && (
-            <TouchableOpacity style={styles.commentBtn} onPress={() => openModal('comments', post)}>
-              <Text style={styles.viewCommentsText}>
-                View all {post.commentsCount} comments
+            <TouchableOpacity onPress={() => openModal('comments', post)} activeOpacity={0.7}>
+              <Text style={styles.viewCommentsLink}>
+                View all {post.commentsCount} comments & insights
               </Text>
             </TouchableOpacity>
           )}
-          <Text style={styles.timeText}>{post.time}</Text>
+          <Text style={styles.postTimestampText}>{post.time}</Text>
         </View>
       </View>
     );
   };
 
-  // ─── Render ────────────────────────────────────────────
-  const [unreadMessages, setUnreadMessages] = useState(0);
-  const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const renderWelcomePulse = () => (
+    <View style={styles.welcomeBanner}>
+      <View style={styles.welcomeHeader}>
+        <View style={{ flex: 1 }}>
+          <View style={styles.welcomeInstitutionTag}>
+            <Ionicons name="shield-checkmark" size={13} color="#002B5C" />
+            <Text style={styles.welcomeInstitutionText}>RVCE ALUMNI NETWORK</Text>
+          </View>
+          <Text style={styles.welcomeTitle}>
+            Welcome back, {userName?.split(' ')[0] || 'Member'}! 🎓
+          </Text>
+          <Text style={styles.welcomeSubtitle}>
+            Connect with 25,000+ RVCE graduates across 12 global chapters and industry leadership.
+          </Text>
+        </View>
+      </View>
+
+      {/* 4 Quick-Pulse Access Tiles */}
+      <View style={styles.pulseGrid}>
+        <TouchableOpacity 
+          style={styles.pulseTile}
+          activeOpacity={0.8}
+          onPress={() => navigation.navigate('Engage', { tab: 'directory' })}
+        >
+          <View style={[styles.pulseIconWrap, { backgroundColor: '#EEF2FF' }]}>
+            <Ionicons name="people" size={18} color="#4F46E5" />
+          </View>
+          <Text style={styles.pulseLabel}>Directory</Text>
+          <Text style={styles.pulseSub}>Find Alums</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.pulseTile}
+          activeOpacity={0.8}
+          onPress={() => navigation.navigate('Jobs')}
+        >
+          <View style={[styles.pulseIconWrap, { backgroundColor: '#ECFDF5' }]}>
+            <Ionicons name="briefcase" size={18} color="#059669" />
+          </View>
+          <Text style={styles.pulseLabel}>Career Hub</Text>
+          <Text style={styles.pulseSub}>Referrals</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.pulseTile}
+          activeOpacity={0.8}
+          onPress={() => navigation.navigate('Main', { screen: 'Post', params: { view: 'events' } })}
+        >
+          <View style={[styles.pulseIconWrap, { backgroundColor: '#FEF3C7' }]}>
+            <Ionicons name="calendar" size={18} color="#D97706" />
+          </View>
+          <Text style={styles.pulseLabel}>Reunions</Text>
+          <Text style={styles.pulseSub}>Events</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.pulseTile}
+          activeOpacity={0.8}
+          onPress={() => navigation.navigate('Jobs')}
+        >
+          <View style={[styles.pulseIconWrap, { backgroundColor: '#F3E8FF' }]}>
+            <Ionicons name="document-text" size={18} color="#9333EA" />
+          </View>
+          <Text style={styles.pulseLabel}>Resume Book</Text>
+          <Text style={styles.pulseSub}>Talent Pool</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  const renderSpotlightsDeck = () => (
+    <View style={styles.spotlightsSection}>
+      <View style={styles.spotlightsHeader}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7 }}>
+          <View style={styles.spotlightHeaderBar} />
+          <Text style={styles.spotlightsTitle}>Alumni Radar & Spotlights</Text>
+        </View>
+        <TouchableOpacity onPress={() => navigation.navigate('Engage')} activeOpacity={0.7}>
+          <Text style={styles.spotlightsSeeAll}>Explore All</Text>
+        </TouchableOpacity>
+      </View>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.spotlightsScroll}>
+        {ALUMNI_SPOTLIGHTS.map(spot => (
+          <TouchableOpacity
+            key={spot.id}
+            style={styles.spotlightCard}
+            activeOpacity={0.88}
+            onPress={() => {
+              if (spot.url) {
+                handleOpenExternalUrl(spot.url);
+              } else if (spot.route) {
+                navigation.navigate(spot.route, spot.params);
+              }
+            }}
+          >
+            <View style={styles.spotlightTopRow}>
+              <View style={[styles.spotlightTag, { backgroundColor: spot.tagBg }]}>
+                <Text style={[styles.spotlightTagText, { color: spot.tagColor }]}>{spot.tag}</Text>
+              </View>
+              <View style={[styles.spotlightIconWrap, { backgroundColor: spot.iconBg }]}>
+                <Ionicons name={spot.icon} size={15} color="#FFFFFF" />
+              </View>
+            </View>
+            <Text style={styles.spotlightTitle} numberOfLines={1}>{spot.title}</Text>
+            <Text style={styles.spotlightSubtitle} numberOfLines={1}>{spot.subtitle}</Text>
+            <Text style={styles.spotlightDesc} numberOfLines={2}>{spot.desc}</Text>
+            <View style={styles.spotlightActionRow}>
+              <Text style={styles.spotlightActionText}>{spot.actionText}</Text>
+              <Ionicons name="arrow-forward" size={13} color={theme.primary} />
+            </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </View>
+  );
+
+  const renderAlumniComposer = () => (
+    <View style={styles.composerCard}>
+      <View style={styles.composerInputRow}>
+        <TouchableOpacity 
+          style={styles.composerAvatar}
+          onPress={() => navigation.navigate('Profile')}
+          activeOpacity={0.8}
+        >
+          {userAvatarUrl ? (
+            <Image source={{ uri: userAvatarUrl }} style={{ width: '100%', height: '100%' }} />
+          ) : (
+            <Text style={styles.composerAvatarInitials}>{getInitials(userName || currentUser?.name || 'User')}</Text>
+          )}
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.composerPromptBox}
+          onPress={() => navigation.navigate('PostCreation')}
+          activeOpacity={0.85}
+        >
+          <Text style={styles.composerPromptText}>Share an achievement, campus memory, or job referral...</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.composerActionsRow}>
+        <TouchableOpacity 
+          style={styles.composerActionChip}
+          onPress={() => navigation.navigate('PostCreation')}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="briefcase-outline" size={16} color="#059669" />
+          <Text style={styles.composerActionLabel}>Post Referral</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.composerActionChip}
+          onPress={() => navigation.navigate('Main', { screen: 'Post', params: { view: 'events' } })}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="calendar-outline" size={16} color="#D97706" />
+          <Text style={styles.composerActionLabel}>Campus Event</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.composerActionChip}
+          onPress={() => navigation.navigate('PostCreation')}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="image-outline" size={16} color="#2563EB" />
+          <Text style={styles.composerActionLabel}>Media Update</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  const renderFeedFilterPills = () => (
+    <View style={styles.feedFilterBar}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.feedFilterScroll}>
+        {[
+          { id: 'all', label: '🌟 All Highlights' },
+          { id: 'campus', label: '🎓 Campus & Notices' },
+          { id: 'jobs', label: '💼 Referrals & Hiring' },
+          { id: 'network', label: '👥 My Network' }
+        ].map(tab => {
+          const isActive = feedFilter === tab.id;
+          return (
+            <TouchableOpacity
+              key={tab.id}
+              style={[styles.filterPill, isActive && styles.filterPillActive]}
+              onPress={() => setFeedFilter(tab.id)}
+              activeOpacity={0.75}
+            >
+              <Text style={[styles.filterPillText, isActive && styles.filterPillTextActive]}>
+                {tab.label}
+              </Text>
+              {tab.id === 'all' && posts.length > 0 && (
+                <View style={[styles.filterCountBadge, isActive && styles.filterCountBadgeActive]}>
+                  <Text style={[styles.filterCountText, isActive && styles.filterCountTextActive]}>{posts.length}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
+    </View>
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -1207,34 +1512,68 @@ const DashboardScreen = ({ navigation }) => {
         )}
 
         {isDesktop ? (
-          // WEB GRID DASHBOARD (3-Column Layout)
-          <View style={{ flex: 1, padding: 24, flexDirection: 'row', gap: 24 }}>
-            
-            {/* 1. Left Column: Profile Card & Alumni Hub */}
-            <View style={{ flex: 3 }}>
-              {/* Profile Card with Cover Banner */}
-              <View style={{ backgroundColor: theme.card, borderRadius: 16, elevation: 3, borderWidth: 1, borderColor: theme.border, marginBottom: 18, overflow: 'hidden' }}>
-                {/* Cover Banner */}
-                <View style={{ height: 75, backgroundColor: '#002B5C', position: 'relative' }}>
-                  <View style={{ position: 'absolute', right: -20, top: -30, width: 110, height: 110, borderRadius: 55, backgroundColor: 'rgba(255,255,255,0.08)' }} />
-                  <View style={{ position: 'absolute', left: 24, bottom: -12, width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(251,191,36,0.18)' }} />
+          // EXECUTIVE 2-COLUMN ALUMNI WORKSPACE
+          <View style={styles.desktopContainer}>
+            {/* 1. Left Column: Welcome Pulse, Spotlights Deck, Composer, Filter Pills, Post Feed */}
+            <View style={styles.desktopMainColumn}>
+              {renderWelcomePulse()}
+              {renderSpotlightsDeck()}
+              {renderAlumniComposer()}
+              {renderFeedFilterPills()}
+
+              <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 60 }}>
+                {filteredPosts.length > 0 ? (
+                  filteredPosts.map(post => renderPostCard(post))
+                ) : (
+                  <View style={styles.emptyFeedBox}>
+                    <Ionicons name="newspaper-outline" size={44} color="#94A3B8" style={{ marginBottom: 10 }} />
+                    <Text style={styles.emptyFeedTitle}>No posts in this category yet</Text>
+                    <Text style={styles.emptyFeedDesc}>
+                      {feedFilter === 'jobs' 
+                        ? 'Be the first alumni to post a hiring referral or career opportunity!'
+                        : feedFilter === 'campus'
+                        ? 'Stay tuned for official RVCE campus updates, reunions, and notifications.'
+                        : feedFilter === 'network'
+                        ? 'Follow alumni from the Directory to populate your personal network feed.'
+                        : 'Share an update or milestone to spark alumni conversations!'}
+                    </Text>
+                    <TouchableOpacity
+                      style={styles.emptyFeedCta}
+                      onPress={() => feedFilter === 'network' ? navigation.navigate('Engage', { tab: 'directory' }) : navigation.navigate('PostCreation')}
+                    >
+                      <Text style={styles.emptyFeedCtaText}>
+                        {feedFilter === 'network' ? 'Explore Directory' : 'Share First Post'}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </ScrollView>
+            </View>
+
+            {/* 2. Right Column: Institutional Sidebar */}
+            <View style={styles.desktopSidebarColumn}>
+              {/* Profile Identity Card */}
+              <View style={styles.sidebarCard}>
+                <View style={styles.sidebarCoverBanner}>
+                  <View style={styles.sidebarCoverDecor1} />
+                  <View style={styles.sidebarCoverDecor2} />
                 </View>
 
-                {/* Overlapping Avatar & Info */}
-                <View style={{ alignItems: 'center', marginTop: -38, paddingHorizontal: 16, paddingBottom: 18 }}>
+                <View style={styles.sidebarProfileBody}>
                   <TouchableOpacity 
-                    style={{ width: 76, height: 76, borderRadius: 38, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', borderWidth: 3.5, borderColor: theme.card, shadowColor: '#000', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.15, shadowRadius: 6, overflow: 'hidden' }}
+                    style={styles.sidebarAvatarWrap}
                     onPress={() => navigation.navigate('Profile')}
                     activeOpacity={0.8}
                   >
                     {userAvatarUrl ? (
-                      <Image source={{ uri: userAvatarUrl }} style={{ width: 76, height: 76, borderRadius: 38 }} />
+                      <Image source={{ uri: userAvatarUrl }} style={{ width: '100%', height: '100%' }} />
                     ) : (
-                      <Text style={{ fontSize: 24, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(userName || currentUser?.name || currentUser?.email || 'User')}</Text>
+                      <Text style={{ fontSize: 24, fontWeight: '700', color: '#FFFFFF' }}>
+                        {getInitials(userName || currentUser?.name || currentUser?.email || 'User')}
+                      </Text>
                     )}
                   </TouchableOpacity>
 
-                  {/* Name with Verified Badge */}
                   <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10, gap: 5 }}>
                     <Text style={{ fontSize: 17, fontWeight: '800', color: theme.text }}>{userName || 'Alumni Member'}</Text>
                     <Ionicons name="checkmark-circle" size={17} color="#0284C7" />
@@ -1245,12 +1584,11 @@ const DashboardScreen = ({ navigation }) => {
                     {currentUser?.company ? ` @ ${currentUser.company}` : (currentUser?.institution ? `\n@ ${currentUser.institution}` : '')}
                   </Text>
 
-                  <View style={{ width: '100%', height: 1, backgroundColor: theme.border, marginVertical: 14 }} />
+                  <View style={styles.sidebarDivider} />
 
-                  {/* Dual Stat Pod */}
                   <View style={{ width: '100%', flexDirection: 'row', gap: 10 }}>
                     <TouchableOpacity 
-                      style={{ flex: 1, backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderRadius: 10, paddingVertical: 10, paddingHorizontal: 12, alignItems: 'center', borderWidth: 1, borderColor: theme.border }}
+                      style={styles.sidebarStatPod}
                       onPress={() => navigation.navigate('Profile')}
                     >
                       <Text style={{ color: theme.primary, fontWeight: '800', fontSize: 16 }}>{connectionsCount}</Text>
@@ -1258,7 +1596,7 @@ const DashboardScreen = ({ navigation }) => {
                     </TouchableOpacity>
 
                     <TouchableOpacity 
-                      style={{ flex: 1, backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderRadius: 10, paddingVertical: 10, paddingHorizontal: 12, alignItems: 'center', borderWidth: 1, borderColor: theme.border }}
+                      style={styles.sidebarStatPod}
                       onPress={() => navigation.navigate('Main', { screen: 'Post', params: { view: 'events' } })}
                     >
                       <Text style={{ color: '#D97706', fontWeight: '800', fontSize: 16 }}>{myEventsCount}</Text>
@@ -1266,18 +1604,17 @@ const DashboardScreen = ({ navigation }) => {
                     </TouchableOpacity>
                   </View>
 
-                  {/* View Profile Action */}
                   <TouchableOpacity
                     onPress={() => navigation.navigate('Profile')}
-                    style={{ width: '100%', marginTop: 14, backgroundColor: isDarkMode ? '#1E293B' : '#EFF6FF', borderRadius: 10, paddingVertical: 9, alignItems: 'center', borderWidth: 1, borderColor: isDarkMode ? '#334155' : '#BFDBFE' }}
+                    style={styles.sidebarViewProfileBtn}
                   >
                     <Text style={{ fontSize: 12.5, fontWeight: '700', color: theme.primary }}>View Full Profile</Text>
                   </TouchableOpacity>
                 </View>
               </View>
 
-              {/* Alumni Hub Quick Navigation - Community & Network Centric */}
-              <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 16, elevation: 2, borderWidth: 1, borderColor: theme.border, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8 }}>
+              {/* Alumni Hub: Mentorship & Chapters */}
+              <View style={styles.sidebarCardPadded}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7 }}>
                     <View style={{ width: 6, height: 16, borderRadius: 3, backgroundColor: '#0284C7' }} />
@@ -1285,18 +1622,18 @@ const DashboardScreen = ({ navigation }) => {
                       Alumni Hub
                     </Text>
                   </View>
-                  <View style={{ backgroundColor: isDarkMode ? '#1E293B' : '#F0F9FF', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10, borderWidth: 1, borderColor: isDarkMode ? '#334155' : '#BAE6FD' }}>
+                  <View style={styles.sidebarPillTag}>
                     <Text style={{ fontSize: 10, fontWeight: '800', color: '#0284C7' }}>COMMUNITY</Text>
                   </View>
                 </View>
-                
+
                 {/* 1. Mentorship Connect */}
                 <TouchableOpacity 
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 8, borderRadius: 10, gap: 10, marginBottom: 4 }}
+                  style={styles.sidebarHubItem}
                   onPress={() => navigation.navigate('Main', { screen: 'Engage', params: { tab: 'directory' } })}
                   activeOpacity={0.7}
                 >
-                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: isDarkMode ? '#312E81' : '#EEF2FF', justifyContent: 'center', alignItems: 'center' }}>
+                  <View style={[styles.sidebarHubIcon, { backgroundColor: isDarkMode ? '#312E81' : '#EEF2FF' }]}>
                     <Ionicons name="sparkles" size={17} color="#4F46E5" />
                   </View>
                   <View style={{ flex: 1 }}>
@@ -1313,11 +1650,11 @@ const DashboardScreen = ({ navigation }) => {
 
                 {/* 2. Global Alumni Chapters */}
                 <TouchableOpacity 
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 8, borderRadius: 10, gap: 10, marginBottom: 4 }}
+                  style={styles.sidebarHubItem}
                   onPress={() => navigation.navigate('Main', { screen: 'Engage', params: { tab: 'communities' } })}
                   activeOpacity={0.7}
                 >
-                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: isDarkMode ? '#082F49' : '#E0F2FE', justifyContent: 'center', alignItems: 'center' }}>
+                  <View style={[styles.sidebarHubIcon, { backgroundColor: isDarkMode ? '#082F49' : '#E0F2FE' }]}>
                     <Ionicons name="globe" size={17} color="#0284C7" />
                   </View>
                   <View style={{ flex: 1 }}>
@@ -1334,11 +1671,11 @@ const DashboardScreen = ({ navigation }) => {
 
                 {/* 3. Batchmate Circles */}
                 <TouchableOpacity 
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 8, borderRadius: 10, gap: 10, marginBottom: 4 }}
+                  style={styles.sidebarHubItem}
                   onPress={() => navigation.navigate('Main', { screen: 'Engage', params: { tab: 'directory' } })}
                   activeOpacity={0.7}
                 >
-                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: isDarkMode ? '#451A03' : '#FEF3C7', justifyContent: 'center', alignItems: 'center' }}>
+                  <View style={[styles.sidebarHubIcon, { backgroundColor: isDarkMode ? '#451A03' : '#FEF3C7' }]}>
                     <Ionicons name="people" size={17} color="#D97706" />
                   </View>
                   <View style={{ flex: 1 }}>
@@ -1353,13 +1690,13 @@ const DashboardScreen = ({ navigation }) => {
                   <Ionicons name="chevron-forward" size={14} color={theme.textMuted} />
                 </TouchableOpacity>
 
-                {/* 4. Founder & Career Referrals */}
+                {/* 4. Founder Referrals */}
                 <TouchableOpacity 
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 8, borderRadius: 10, gap: 10 }}
+                  style={styles.sidebarHubItem}
                   onPress={() => navigation.navigate('Main', { screen: 'Jobs' })}
                   activeOpacity={0.7}
                 >
-                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: isDarkMode ? '#064E3B' : '#ECFDF5', justifyContent: 'center', alignItems: 'center' }}>
+                  <View style={[styles.sidebarHubIcon, { backgroundColor: isDarkMode ? '#064E3B' : '#ECFDF5' }]}>
                     <Ionicons name="briefcase" size={17} color="#059669" />
                   </View>
                   <View style={{ flex: 1 }}>
@@ -1374,118 +1711,16 @@ const DashboardScreen = ({ navigation }) => {
                   <Ionicons name="chevron-forward" size={14} color={theme.textMuted} />
                 </TouchableOpacity>
               </View>
-            </View>
 
-            {/* 2. Middle Column: Main Feed & Composer */}
-            <View style={{ flex: 6 }}>
-              {/* Modern Post Composer */}
-              <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 16, elevation: 2, borderWidth: 1, borderColor: theme.border, marginBottom: 20 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-                  <TouchableOpacity 
-                    style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}
-                    onPress={() => navigation.navigate('Profile')}
-                    activeOpacity={0.8}
-                  >
-                    {userAvatarUrl ? (
-                      <Image source={{ uri: userAvatarUrl }} style={{ width: 44, height: 44, borderRadius: 22 }} />
-                    ) : (
-                      <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(userName || currentUser?.name || currentUser?.email || 'User')}</Text>
-                    )}
-                  </TouchableOpacity>
-
-                  <TouchableOpacity 
-                    style={{ flex: 1, backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9', borderRadius: 24, paddingHorizontal: 16, paddingVertical: 12, borderWidth: 1, borderColor: theme.border }}
-                    onPress={() => navigation.navigate('PostCreation')}
-                  >
-                    <Text style={{ color: theme.textMuted, fontSize: 13.5 }}>Start a post or share an update with alumni...</Text>
-                  </TouchableOpacity>
-                </View>
-
-                {/* 4 Interactive Media Pills */}
-                <View style={{ flexDirection: 'row', justifyContent: 'space-around', borderTopWidth: 1, borderTopColor: theme.border, paddingTop: 10 }}>
-                  <TouchableOpacity 
-                    style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 8 }}
-                    onPress={() => navigation.navigate('PostCreation')}
-                  >
-                    <Ionicons name="image" size={18} color="#2563EB" />
-                    <Text style={{ fontSize: 12.5, fontWeight: '700', color: theme.textSecondary }}>Photo</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity 
-                    style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 8 }}
-                    onPress={() => navigation.navigate('PostCreation')}
-                  >
-                    <Ionicons name="videocam" size={18} color="#16A34A" />
-                    <Text style={{ fontSize: 12.5, fontWeight: '700', color: theme.textSecondary }}>Video</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity 
-                    style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 8 }}
-                    onPress={() => navigation.navigate('Main', { screen: 'Post', params: { view: 'events' } })}
-                  >
-                    <Ionicons name="calendar" size={18} color="#D97706" />
-                    <Text style={{ fontSize: 12.5, fontWeight: '700', color: theme.textSecondary }}>Event</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity 
-                    style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 8 }}
-                    onPress={() => navigation.navigate('PostCreation')}
-                  >
-                    <Ionicons name="newspaper" size={18} color="#9333EA" />
-                    <Text style={{ fontSize: 12.5, fontWeight: '700', color: theme.textSecondary }}>Article</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              {/* Feed Content */}
-              <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
-                {posts.length > 0 ? (
-                  posts.map(post => renderPostCard(post))
-                ) : (
-                  <View>
-                    {/* Welcome Hero Banner */}
-                    <View style={{ backgroundColor: isDarkMode ? '#1E293B' : '#EFF6FF', borderRadius: 16, padding: 20, borderWidth: 1, borderColor: isDarkMode ? '#334155' : '#BFDBFE', marginBottom: 18 }}>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                        <Ionicons name="sparkles" size={20} color="#003366" />
-                        <Text style={{ fontSize: 16, fontWeight: '800', color: '#003366' }}>
-                          Welcome to the Alumni Feed, {userName?.split(' ')[0] || 'Member'}! 👋
-                        </Text>
-                      </View>
-                      <Text style={{ fontSize: 13, color: '#334155', lineHeight: 20, marginBottom: 14 }}>
-                        Connect with fellow graduates, celebrate batch achievements, and stay updated on reunions and exclusive alumni hiring opportunities.
-                      </Text>
-                      <View style={{ flexDirection: 'row', gap: 10 }}>
-                        <TouchableOpacity 
-                          style={{ backgroundColor: '#003366', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8 }}
-                          onPress={() => navigation.navigate('Engage', { tab: 'directory' })}
-                        >
-                          <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 12.5 }}>Find Batchmates</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity 
-                          style={{ backgroundColor: theme.card, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8, borderWidth: 1, borderColor: theme.border }}
-                          onPress={() => navigation.navigate('PostCreation')}
-                        >
-                          <Text style={{ color: theme.text, fontWeight: '700', fontSize: 12.5 }}>Share First Post</Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  </View>
-                )}
-              </ScrollView>
-            </View>
-
-            {/* 3. Right Column: Suggestions & Institutional Resources */}
-            <View style={{ flex: 3.5, paddingLeft: 4 }}>
               {/* Suggestions / Network Box */}
-              <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 18, elevation: 2, borderWidth: 1, borderColor: theme.border, marginBottom: 18 }}>
+              <View style={styles.sidebarCardPadded}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                  <Text style={{ fontSize: 14, fontWeight: '800', color: theme.text }}>Suggested for you</Text>
+                  <Text style={{ fontSize: 14, fontWeight: '800', color: theme.text }}>Suggested Connections</Text>
                   <TouchableOpacity onPress={() => navigation.navigate('Engage', { tab: 'directory' })} activeOpacity={0.7}>
                     <Text style={{ fontSize: 12, color: theme.primary, fontWeight: '700' }}>See all</Text>
                   </TouchableOpacity>
                 </View>
 
-                {/* Suggestions List (Only Real Data) */}
                 {suggestions && suggestions.length > 0 ? (
                   suggestions.slice(0, 4).map(s => (
                     <View key={s.id} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
@@ -1513,16 +1748,14 @@ const DashboardScreen = ({ navigation }) => {
                   ))
                 ) : (
                   <View style={{ alignItems: 'center', paddingVertical: 12 }}>
-                    <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#EFF6FF', justifyContent: 'center', alignItems: 'center', marginBottom: 10 }}>
-                      <Ionicons name="people-outline" size={24} color="#003366" />
-                    </View>
+                    <Ionicons name="people-outline" size={32} color="#003366" style={{ marginBottom: 8 }} />
                     <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text, textAlign: 'center', marginBottom: 4 }}>Expand Your Network</Text>
                     <Text style={{ fontSize: 11.5, color: theme.textSecondary, textAlign: 'center', lineHeight: 17, marginBottom: 14 }}>
-                      Find and connect with alumni from your department, batch, and chapters worldwide.
+                      Find and connect with alumni from your department and batch.
                     </Text>
                     <TouchableOpacity
                       onPress={() => navigation.navigate('Engage', { tab: 'directory' })}
-                      style={{ backgroundColor: '#002B5C', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8, flexDirection: 'row', alignItems: 'center', gap: 6 }}
+                      style={styles.sidebarDirectoryBtn}
                       activeOpacity={0.8}
                     >
                       <Ionicons name="search" size={13} color="#FFFFFF" />
@@ -1532,8 +1765,8 @@ const DashboardScreen = ({ navigation }) => {
                 )}
               </View>
 
-              {/* Campus Quick Links - Official RVCE Institutional & Academic Services */}
-              <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 18, elevation: 2, borderWidth: 1, borderColor: theme.border, marginBottom: 18, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8 }}>
+              {/* Campus Quick Links */}
+              <View style={styles.sidebarCardPadded}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7 }}>
                     <View style={{ width: 6, height: 16, borderRadius: 3, backgroundColor: '#002B5C' }} />
@@ -1541,19 +1774,19 @@ const DashboardScreen = ({ navigation }) => {
                       Campus Quick Links
                     </Text>
                   </View>
-                  <View style={{ backgroundColor: isDarkMode ? '#1E293B' : '#EEF2FF', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10, borderWidth: 1, borderColor: isDarkMode ? '#334155' : '#C7D2FE' }}>
+                  <View style={[styles.sidebarPillTag, { backgroundColor: isDarkMode ? '#1E293B' : '#EEF2FF', borderColor: isDarkMode ? '#334155' : '#C7D2FE' }]}>
                     <Text style={{ fontSize: 10, fontWeight: '800', color: '#002B5C' }}>RVCE SERVICES</Text>
                   </View>
                 </View>
 
                 {/* 1. Official RVCE Portal */}
                 <TouchableOpacity 
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 9, paddingHorizontal: 8, borderRadius: 10, gap: 10, marginBottom: 6 }}
+                  style={styles.sidebarCampusLink}
                   onPress={() => handleOpenExternalUrl('https://rvce.edu.in')}
                   activeOpacity={0.7}
                 >
-                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: isDarkMode ? '#1E293B' : '#EFF6FF', justifyContent: 'center', alignItems: 'center' }}>
-                    <Ionicons name="school" size={18} color="#002B5C" />
+                  <View style={[styles.sidebarCampusIcon, { backgroundColor: isDarkMode ? '#1E293B' : '#EFF6FF' }]}>
+                    <Ionicons name="school" size={17} color="#002B5C" />
                   </View>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
@@ -1567,12 +1800,12 @@ const DashboardScreen = ({ navigation }) => {
 
                 {/* 2. Transcripts & Degree Verification */}
                 <TouchableOpacity 
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 9, paddingHorizontal: 8, borderRadius: 10, gap: 10, marginBottom: 6 }}
+                  style={styles.sidebarCampusLink}
                   onPress={() => handleOpenExternalUrl('https://rvce.edu.in/exam-section')}
                   activeOpacity={0.7}
                 >
-                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: isDarkMode ? '#134E4A' : '#CCFBF1', justifyContent: 'center', alignItems: 'center' }}>
-                    <Ionicons name="document-text" size={18} color="#0F766E" />
+                  <View style={[styles.sidebarCampusIcon, { backgroundColor: isDarkMode ? '#134E4A' : '#CCFBF1' }]}>
+                    <Ionicons name="document-text" size={17} color="#0F766E" />
                   </View>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
@@ -1588,12 +1821,12 @@ const DashboardScreen = ({ navigation }) => {
 
                 {/* 3. RSST Incubation & Startup Centre */}
                 <TouchableOpacity 
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 9, paddingHorizontal: 8, borderRadius: 10, gap: 10, marginBottom: 6 }}
+                  style={styles.sidebarCampusLink}
                   onPress={() => handleOpenExternalUrl('https://rvce.edu.in/rvce-centre-for-innovation')}
                   activeOpacity={0.7}
                 >
-                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: isDarkMode ? '#7C2D12' : '#FFEDD5', justifyContent: 'center', alignItems: 'center' }}>
-                    <Ionicons name="rocket" size={18} color="#EA580C" />
+                  <View style={[styles.sidebarCampusIcon, { backgroundColor: isDarkMode ? '#7C2D12' : '#FFEDD5' }]}>
+                    <Ionicons name="rocket" size={17} color="#EA580C" />
                   </View>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
@@ -1609,12 +1842,12 @@ const DashboardScreen = ({ navigation }) => {
 
                 {/* 4. Virtual Campus Tour & Archives */}
                 <TouchableOpacity 
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 9, paddingHorizontal: 8, borderRadius: 10, gap: 10 }}
+                  style={styles.sidebarCampusLink}
                   onPress={() => handleOpenExternalUrl('https://rvce.edu.in/about-us')}
                   activeOpacity={0.7}
                 >
-                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: isDarkMode ? '#881337' : '#FFE4E6', justifyContent: 'center', alignItems: 'center' }}>
-                    <Ionicons name="compass" size={18} color="#E11D48" />
+                  <View style={[styles.sidebarCampusIcon, { backgroundColor: isDarkMode ? '#881337' : '#FFE4E6' }]}>
+                    <Ionicons name="compass" size={17} color="#E11D48" />
                   </View>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
@@ -1627,8 +1860,8 @@ const DashboardScreen = ({ navigation }) => {
                 </TouchableOpacity>
               </View>
 
-              {/* Footer Links */}
-              <View style={{ paddingHorizontal: 6 }}>
+              {/* Sidebar Footer */}
+              <View style={{ paddingHorizontal: 8, paddingBottom: 24 }}>
                 <Text style={{ fontSize: 11, color: '#94A3B8', lineHeight: 18 }}>
                   About • Guidelines • Career Hub • Privacy Policy • Terms • Institutional Verification
                 </Text>
@@ -1640,144 +1873,33 @@ const DashboardScreen = ({ navigation }) => {
           </View>
         ) : (
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-            {/* ─── 3D Stories & Alumni Highlights Carousel ─── */}
-            <View style={styles.storiesContainer}>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.storiesScroll}>
-                {/* User Story (Add) */}
-                <TouchableOpacity 
-                  style={styles.storyItem}
-                  onPress={() => navigation.navigate('PostCreation')}
-                  activeOpacity={0.7}
-                >
-                  <View style={[styles.storyRing, { borderColor: theme.primary, shadowColor: theme.primary }]}>
-                    <View style={styles.storyAvatarWrap}>
-                      {userAvatarUrl ? (
-                        <Image source={{ uri: userAvatarUrl }} style={styles.storyAvatar} />
-                      ) : (
-                        <Text style={styles.storyAvatarInitials}>{getInitials(userName)}</Text>
-                      )}
-                    </View>
-                    <View style={styles.storyAddBadge}>
-                      <Ionicons name="add" size={12} color="#FFF" />
-                    </View>
-                  </View>
-                  <Text style={styles.storyName} numberOfLines={1}>Your Story</Text>
-                </TouchableOpacity>
+            {renderWelcomePulse()}
+            {renderSpotlightsDeck()}
+            {renderAlumniComposer()}
+            {renderFeedFilterPills()}
 
-                {/* 3D Highlight Bubbles */}
-                {[
-                  { id: 'h1', title: 'Campus', icon: 'school', color: '#002B5C', border: '#38BDF8' },
-                  { id: 'h2', title: 'Placements', icon: 'briefcase', color: '#064E3B', border: '#10B981' },
-                  { id: 'h3', title: 'Reunions', icon: 'people', color: '#4C1D95', border: '#A855F7' },
-                  { id: 'h4', title: 'Mentors', icon: 'sparkles', color: '#78350F', border: '#F59E0B' },
-                  { id: 'h5', title: 'Global', icon: 'globe', color: '#0369A1', border: '#0284C7' }
-                ].map(h => (
-                  <TouchableOpacity 
-                    key={h.id} 
-                    style={styles.storyItem} 
-                    onPress={() => navigation.navigate('Engage')}
-                    activeOpacity={0.7}
-                  >
-                    <View style={[styles.storyRing, { borderColor: h.border, shadowColor: h.border }]}>
-                      <View style={[styles.storyAvatarWrap, { backgroundColor: h.color }]}>
-                        <Ionicons name={h.icon} size={20} color="#FFFFFF" />
-                      </View>
-                    </View>
-                    <Text style={styles.storyName} numberOfLines={1}>{h.title}</Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </View>
-
-            {/* ─── 3D Quick Feature Pods (Directory, Jobs, Events, Connect) ─── */}
-            <View style={styles.quickPodsGrid}>
-              <TouchableOpacity 
-                style={[styles.quickPod, { backgroundColor: isDarkMode ? '#131C2E' : '#FFFFFF' }]} 
-                onPress={() => navigation.navigate('Engage', { tab: 'directory' })}
-                activeOpacity={0.75}
-              >
-                <View style={[styles.quickPodIconWrap, { backgroundColor: '#2563EB', shadowColor: '#2563EB' }]}>
-                  <Ionicons name="people" size={18} color="#FFFFFF" />
-                </View>
-                <Text style={styles.quickPodTitle}>Directory</Text>
-                <Text style={styles.quickPodSubtitle}>Connect</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity 
-                style={[styles.quickPod, { backgroundColor: isDarkMode ? '#131C2E' : '#FFFFFF' }]} 
-                onPress={() => navigation.navigate('Jobs')}
-                activeOpacity={0.75}
-              >
-                <View style={[styles.quickPodIconWrap, { backgroundColor: '#10B981', shadowColor: '#10B981' }]}>
-                  <Ionicons name="briefcase" size={18} color="#FFFFFF" />
-                </View>
-                <Text style={styles.quickPodTitle}>Careers</Text>
-                <Text style={styles.quickPodSubtitle}>Openings</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity 
-                style={[styles.quickPod, { backgroundColor: isDarkMode ? '#131C2E' : '#FFFFFF' }]} 
-                onPress={() => navigation.navigate('Main', { screen: 'Post', params: { view: 'events' } })}
-                activeOpacity={0.75}
-              >
-                <View style={[styles.quickPodIconWrap, { backgroundColor: '#8B5CF6', shadowColor: '#8B5CF6' }]}>
-                  <Ionicons name="calendar" size={18} color="#FFFFFF" />
-                </View>
-                <Text style={styles.quickPodTitle}>Events</Text>
-                <Text style={styles.quickPodSubtitle}>Meetups</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity 
-                style={[styles.quickPod, { backgroundColor: isDarkMode ? '#131C2E' : '#FFFFFF' }]} 
-                onPress={() => navigation.navigate('Messages')}
-                activeOpacity={0.75}
-              >
-                <View style={[styles.quickPodIconWrap, { backgroundColor: '#0284C7', shadowColor: '#0284C7' }]}>
-                  <Ionicons name="chatbubbles" size={18} color="#FFFFFF" />
-                </View>
-                <Text style={styles.quickPodTitle}>Chats</Text>
-                <Text style={styles.quickPodSubtitle}>Direct DM</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Mobile Create Post Box */}
-            <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 14, marginHorizontal: 14, marginTop: 4, marginBottom: 14, borderWidth: 1.5, borderColor: theme.cardBorder || theme.border, shadowColor: theme.cardShadow || '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.12, shadowRadius: 8, elevation: 3, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <TouchableOpacity 
-                style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center' }}
-                onPress={() => navigation.navigate('Profile')}
-              >
-                {userAvatarUrl ? (
-                  <Image source={{ uri: userAvatarUrl }} style={{ width: 38, height: 38, borderRadius: 19 }} />
-                ) : (
-                  <Text style={{ fontSize: 13, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(userName)}</Text>
-                )}
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={{ flex: 1, backgroundColor: theme.surfaceDepressed || theme.inputBackground, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 9, borderWidth: 1, borderColor: theme.border }}
-                onPress={() => navigation.navigate('PostCreation')}
-              >
-                <Text style={{ color: theme.textMuted, fontSize: 13, fontWeight: '500' }}>Start a post or share an update...</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={{ padding: 8, backgroundColor: theme.cardSecondary || theme.background, borderRadius: 16 }}
-                onPress={() => navigation.navigate('PostCreation')}
-              >
-                <Ionicons name="image-outline" size={19} color={theme.primary} />
-              </TouchableOpacity>
-            </View>
-
-            {posts.length > 0 ? (
-              posts.map(post => renderPostCard(post))
+            {filteredPosts.length > 0 ? (
+              filteredPosts.map(post => renderPostCard(post))
             ) : (
-              <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 24, alignItems: 'center', margin: 16, borderWidth: 1, borderColor: theme.border }}>
-                <Ionicons name="people-outline" size={44} color={theme.primary} style={{ marginBottom: 8 }} />
-                <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text, marginBottom: 4, textAlign: 'center' }}>No Followed Alumni Posts Yet</Text>
-                <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: 'center', marginBottom: 12 }}>Follow alumni members from &quot;People you may know&quot; or the Directory to view their posts in your feed!</Text>
-                <TouchableOpacity 
-                  style={{ backgroundColor: theme.primary, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 16 }}
-                  onPress={() => navigation.navigate('Engage', { tab: 'directory' })}
+              <View style={styles.emptyFeedBox}>
+                <Ionicons name="newspaper-outline" size={44} color="#94A3B8" style={{ marginBottom: 10 }} />
+                <Text style={styles.emptyFeedTitle}>No posts in this category yet</Text>
+                <Text style={styles.emptyFeedDesc}>
+                  {feedFilter === 'jobs' 
+                    ? 'Be the first alumni to post a hiring referral or career opportunity!'
+                    : feedFilter === 'campus'
+                    ? 'Stay tuned for official RVCE campus updates, reunions, and notifications.'
+                    : feedFilter === 'network'
+                    ? 'Follow alumni from the Directory to populate your personal network feed.'
+                    : 'Share an update or milestone to spark alumni conversations!'}
+                </Text>
+                <TouchableOpacity
+                  style={styles.emptyFeedCta}
+                  onPress={() => feedFilter === 'network' ? navigation.navigate('Engage', { tab: 'directory' }) : navigation.navigate('PostCreation')}
                 >
-                  <Text style={{ color: '#FFF', fontWeight: '600', fontSize: 12 }}>Explore Directory</Text>
+                  <Text style={styles.emptyFeedCtaText}>
+                    {feedFilter === 'network' ? 'Explore Directory' : 'Share First Post'}
+                  </Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -1786,7 +1908,7 @@ const DashboardScreen = ({ navigation }) => {
             {suggestions.filter(s => !followingMap[s.id]).length > 0 && (
               <View style={styles.sectionContainer}>
                 <View style={styles.sectionHeader}>
-                  <Text style={styles.sectionTitle}>Suggestions for you</Text>
+                  <Text style={styles.sectionTitle}>Suggested Connections</Text>
                   <TouchableOpacity onPress={() => navigation.navigate('Engage', { tab: 'directory' })}><Text style={styles.seeAllText}>See all</Text></TouchableOpacity>
                 </View>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.suggestionsScroll}>
@@ -1796,17 +1918,17 @@ const DashboardScreen = ({ navigation }) => {
                         {s.isAvatarUrl ? (
                           <Image source={{ uri: s.avatar }} style={{ width: 44, height: 44, borderRadius: 22 }} />
                         ) : (
-                          <Text style={styles.suggestionAvatarText}>{s.avatar}</Text>
+                          <Text style={styles.suggestionAvatarText}>{s.avatar || getInitials(s.name)}</Text>
                         )}
                       </View>
                       <Text style={styles.suggestionName} numberOfLines={1}>{s.name}</Text>
-                      <Text style={styles.suggestionSubtitle} numberOfLines={1}>{s.subtitle}</Text>
+                      <Text style={styles.suggestionSubtitle} numberOfLines={1}>{s.subtitle || 'Alumni Member'}</Text>
                       <TouchableOpacity
                         style={[styles.suggestionFollowBtn, followingMap[s.id] && styles.suggestionFollowBtnActive]}
                         onPress={() => toggleSuggestionFollow(s.id)}
                       >
                         <Text style={[styles.suggestionFollowText, followingMap[s.id] && styles.suggestionFollowTextActive]}>
-                          {followingMap[s.id] ? 'Following' : 'Follow'}
+                          {followingMap[s.id] ? 'Following' : '+ Connect'}
                         </Text>
                       </TouchableOpacity>
                     </View>
@@ -1816,24 +1938,24 @@ const DashboardScreen = ({ navigation }) => {
             )}
 
             {/* Campus Quick Services on Mobile */}
-            <View style={{ marginHorizontal: 16, marginTop: 14, marginBottom: 40, backgroundColor: theme.card, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: theme.border, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 6, elevation: 2 }}>
+            <View style={styles.mobileCampusServices}>
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                   <Ionicons name="business" size={16} color="#002B5C" />
                   <Text style={{ fontSize: 13.5, fontWeight: '800', color: theme.text }}>Campus Quick Services</Text>
                 </View>
-                <View style={{ backgroundColor: isDarkMode ? '#1E293B' : '#EEF2FF', paddingHorizontal: 7, paddingVertical: 2, borderRadius: 8 }}>
+                <View style={styles.sidebarPillTag}>
                   <Text style={{ fontSize: 10, fontWeight: '800', color: '#002B5C' }}>RVCE OFFICIAL</Text>
                 </View>
               </View>
 
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
                 <TouchableOpacity 
-                  style={{ flex: 1, minWidth: '45%', backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', padding: 11, borderRadius: 12, borderWidth: 1, borderColor: theme.border, flexDirection: 'row', alignItems: 'center', gap: 8 }}
+                  style={styles.mobileServiceCard}
                   onPress={() => handleOpenExternalUrl('https://rvce.edu.in')}
                   activeOpacity={0.75}
                 >
-                  <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: '#EFF6FF', justifyContent: 'center', alignItems: 'center' }}>
+                  <View style={[styles.mobileServiceIcon, { backgroundColor: '#EFF6FF' }]}>
                     <Ionicons name="school" size={16} color="#002B5C" />
                   </View>
                   <View style={{ flex: 1 }}>
@@ -1843,11 +1965,11 @@ const DashboardScreen = ({ navigation }) => {
                 </TouchableOpacity>
 
                 <TouchableOpacity 
-                  style={{ flex: 1, minWidth: '45%', backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', padding: 11, borderRadius: 12, borderWidth: 1, borderColor: theme.border, flexDirection: 'row', alignItems: 'center', gap: 8 }}
+                  style={styles.mobileServiceCard}
                   onPress={() => handleOpenExternalUrl('https://rvce.edu.in/exam-section')}
                   activeOpacity={0.75}
                 >
-                  <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: '#CCFBF1', justifyContent: 'center', alignItems: 'center' }}>
+                  <View style={[styles.mobileServiceIcon, { backgroundColor: '#CCFBF1' }]}>
                     <Ionicons name="document-text" size={16} color="#0F766E" />
                   </View>
                   <View style={{ flex: 1 }}>
@@ -1857,11 +1979,11 @@ const DashboardScreen = ({ navigation }) => {
                 </TouchableOpacity>
 
                 <TouchableOpacity 
-                  style={{ flex: 1, minWidth: '45%', backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', padding: 11, borderRadius: 12, borderWidth: 1, borderColor: theme.border, flexDirection: 'row', alignItems: 'center', gap: 8 }}
+                  style={styles.mobileServiceCard}
                   onPress={() => handleOpenExternalUrl('https://rvce.edu.in/rvce-centre-for-innovation')}
                   activeOpacity={0.75}
                 >
-                  <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: '#FFEDD5', justifyContent: 'center', alignItems: 'center' }}>
+                  <View style={[styles.mobileServiceIcon, { backgroundColor: '#FFEDD5' }]}>
                     <Ionicons name="rocket" size={16} color="#EA580C" />
                   </View>
                   <View style={{ flex: 1 }}>
@@ -1871,11 +1993,11 @@ const DashboardScreen = ({ navigation }) => {
                 </TouchableOpacity>
 
                 <TouchableOpacity 
-                  style={{ flex: 1, minWidth: '45%', backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', padding: 11, borderRadius: 12, borderWidth: 1, borderColor: theme.border, flexDirection: 'row', alignItems: 'center', gap: 8 }}
+                  style={styles.mobileServiceCard}
                   onPress={() => handleOpenExternalUrl('https://rvce.edu.in/about-us')}
                   activeOpacity={0.75}
                 >
-                  <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: '#FFE4E6', justifyContent: 'center', alignItems: 'center' }}>
+                  <View style={[styles.mobileServiceIcon, { backgroundColor: '#FFE4E6' }]}>
                     <Ionicons name="compass" size={16} color="#E11D48" />
                   </View>
                   <View style={{ flex: 1 }}>
@@ -1885,45 +2007,18 @@ const DashboardScreen = ({ navigation }) => {
                 </TouchableOpacity>
               </View>
             </View>
+
+            {/* Mobile Footer */}
+            <View style={{ paddingHorizontal: 20, marginBottom: 30, alignItems: 'center' }}>
+              <Text style={{ fontSize: 11, color: '#94A3B8', textAlign: 'center', lineHeight: 16 }}>
+                RVCE Alumni Network • Rashtreeya Sikshana Samithi Trust
+              </Text>
+              <Text style={{ fontSize: 10.5, color: '#94A3B8', marginTop: 4 }}>
+                Bengaluru • Silicon Valley • Global Chapters
+              </Text>
+            </View>
           </ScrollView>
         )}
-
-        {/* Instagram Floating Messages Pill */}
-        <TouchableOpacity 
-          style={{
-            position: 'absolute',
-            bottom: 20,
-            right: 24,
-            backgroundColor: isDarkMode ? '#262626' : '#FFFFFF',
-            borderRadius: 24,
-            flexDirection: 'row',
-            alignItems: 'center',
-            paddingVertical: 10,
-            paddingHorizontal: 16,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.15,
-            shadowRadius: 10,
-            elevation: 8,
-            borderWidth: 1,
-            borderColor: isDarkMode ? '#363636' : '#E2E8F0',
-            zIndex: 9999,
-            gap: 8
-          }}
-          onPress={() => navigation.navigate('Messages')}
-          activeOpacity={0.85}
-        >
-          <Ionicons name="paper-plane-outline" size={20} color={theme.text} />
-          <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>Messages</Text>
-          <View style={{ flexDirection: 'row', marginLeft: 4 }}>
-            <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: '#3B82F6', borderWidth: 1.5, borderColor: theme.card, justifyContent: 'center', alignItems: 'center' }}>
-              <Text style={{ fontSize: 9, color: '#FFF', fontWeight: 'bold' }}>JD</Text>
-            </View>
-            <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: '#10B981', borderWidth: 1.5, borderColor: theme.card, marginLeft: -8, justifyContent: 'center', alignItems: 'center' }}>
-              <Text style={{ fontSize: 9, color: '#FFF', fontWeight: 'bold' }}>SK</Text>
-            </View>
-          </View>
-        </TouchableOpacity>
       </View>
 
       {/* ── Modals ────────────────────────────────────────────── */}
@@ -2385,7 +2480,7 @@ const DashboardScreen = ({ navigation }) => {
   );
 };
 
-const getStyles = (theme) => StyleSheet.create({
+const getStyles = (theme, isDarkMode) => StyleSheet.create({
   /* ── Container ──────────────────────────────────────── */
   container: {
     flex: 1,
@@ -2479,40 +2574,399 @@ const getStyles = (theme) => StyleSheet.create({
     borderColor: theme.card,
   },
 
-  /* ── Post Card ──────────────────────────────────────── */
+  /* ── Executive Welcome Banner & Pulse Dashboard ─────── */
+  welcomeBanner: {
+    backgroundColor: isDarkMode ? '#131C2E' : '#FFFFFF',
+    marginHorizontal: 14,
+    marginTop: 8,
+    marginBottom: 14,
+    borderRadius: 20,
+    padding: 18,
+    borderWidth: 1.5,
+    borderColor: isDarkMode ? '#1E293B' : '#E2E8F0',
+    shadowColor: '#002B5C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: isDarkMode ? 0.25 : 0.07,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  welcomeHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+  welcomeInstitutionTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: isDarkMode ? '#1E293B' : '#EFF6FF',
+    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    gap: 5,
+    marginBottom: 6,
+  },
+  welcomeInstitutionText: {
+    fontSize: 10.5,
+    fontWeight: '800',
+    color: '#002B5C',
+    letterSpacing: 0.5,
+  },
+  welcomeTitle: {
+    fontSize: 17,
+    fontWeight: '800',
+    color: theme.text,
+    letterSpacing: -0.3,
+  },
+  welcomeSubtitle: {
+    fontSize: 12,
+    color: theme.textSecondary,
+    marginTop: 3,
+    lineHeight: 17,
+  },
+  pulseGrid: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 4,
+  },
+  pulseTile: {
+    flex: 1,
+    backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+    borderRadius: 14,
+    paddingVertical: 10,
+    paddingHorizontal: 6,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: isDarkMode ? '#334155' : '#E2E8F0',
+  },
+  pulseIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  pulseLabel: {
+    fontSize: 11.5,
+    fontWeight: '800',
+    color: theme.text,
+    textAlign: 'center',
+  },
+  pulseSub: {
+    fontSize: 9.5,
+    color: theme.textSecondary,
+    marginTop: 1,
+    textAlign: 'center',
+  },
+
+  /* ── Alumni Radar & Spotlights ───────────────────────── */
+  spotlightsSection: {
+    marginBottom: 16,
+  },
+  spotlightsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    marginBottom: 10,
+  },
+  spotlightHeaderBar: {
+    width: 4,
+    height: 16,
+    borderRadius: 2,
+    backgroundColor: '#002B5C',
+  },
+  spotlightsTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: theme.text,
+    letterSpacing: 0.2,
+  },
+  spotlightsSeeAll: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: theme.primary,
+  },
+  spotlightsScroll: {
+    paddingHorizontal: 14,
+    gap: 12,
+  },
+  spotlightCard: {
+    width: 250,
+    backgroundColor: isDarkMode ? '#131C2E' : '#FFFFFF',
+    borderRadius: 16,
+    padding: 14,
+    borderWidth: 1.5,
+    borderColor: isDarkMode ? '#1E293B' : '#E2E8F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: isDarkMode ? 0.2 : 0.06,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  spotlightTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  spotlightTag: {
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  spotlightTagText: {
+    fontSize: 9.5,
+    fontWeight: '800',
+    letterSpacing: 0.3,
+  },
+  spotlightIconWrap: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  spotlightTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: theme.text,
+    marginBottom: 2,
+  },
+  spotlightSubtitle: {
+    fontSize: 11.5,
+    fontWeight: '600',
+    color: theme.primary,
+    marginBottom: 6,
+  },
+  spotlightDesc: {
+    fontSize: 11,
+    color: theme.textSecondary,
+    lineHeight: 16,
+    marginBottom: 12,
+  },
+  spotlightActionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 'auto',
+  },
+  spotlightActionText: {
+    fontSize: 11.5,
+    fontWeight: '700',
+    color: theme.primary,
+  },
+
+  /* ── Alumni Composer ─────────────────────────────────── */
+  composerCard: {
+    backgroundColor: isDarkMode ? '#131C2E' : '#FFFFFF',
+    borderRadius: 16,
+    padding: 14,
+    marginHorizontal: 14,
+    marginBottom: 14,
+    borderWidth: 1.5,
+    borderColor: isDarkMode ? '#1E293B' : '#E2E8F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: isDarkMode ? 0.2 : 0.05,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  composerInputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 10,
+  },
+  composerAvatar: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#002B5C',
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  composerAvatarInitials: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  composerPromptBox: {
+    flex: 1,
+    backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9',
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderWidth: 1,
+    borderColor: isDarkMode ? '#334155' : '#E2E8F0',
+  },
+  composerPromptText: {
+    fontSize: 12.5,
+    color: theme.textMuted,
+  },
+  composerActionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    borderTopWidth: 1,
+    borderTopColor: isDarkMode ? '#1E293B' : '#F1F5F9',
+    paddingTop: 8,
+  },
+  composerActionChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 5,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+  },
+  composerActionLabel: {
+    fontSize: 11.5,
+    fontWeight: '700',
+    color: theme.textSecondary,
+  },
+
+  /* ── Segmented Feed Filter Pills ─────────────────────── */
+  feedFilterBar: {
+    marginBottom: 14,
+    paddingHorizontal: 14,
+  },
+  feedFilterScroll: {
+    gap: 8,
+  },
+  filterPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 20,
+    backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9',
+    borderWidth: 1,
+    borderColor: isDarkMode ? '#334155' : '#E2E8F0',
+  },
+  filterPillActive: {
+    backgroundColor: '#002B5C',
+    borderColor: '#002B5C',
+  },
+  filterPillText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: theme.textSecondary,
+  },
+  filterPillTextActive: {
+    color: '#FFFFFF',
+  },
+  filterCountBadge: {
+    backgroundColor: isDarkMode ? '#334155' : '#E2E8F0',
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 10,
+  },
+  filterCountBadgeActive: {
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+  },
+  filterCountText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: theme.textSecondary,
+  },
+  filterCountTextActive: {
+    color: '#FFFFFF',
+  },
+
+  /* ── Empty Feed State ────────────────────────────────── */
+  emptyFeedBox: {
+    backgroundColor: isDarkMode ? '#131C2E' : '#FFFFFF',
+    borderRadius: 16,
+    padding: 28,
+    marginHorizontal: 14,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: isDarkMode ? '#1E293B' : '#E2E8F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  emptyFeedTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: theme.text,
+    marginBottom: 6,
+    textAlign: 'center',
+  },
+  emptyFeedDesc: {
+    fontSize: 12.5,
+    color: theme.textSecondary,
+    textAlign: 'center',
+    lineHeight: 18,
+    marginBottom: 16,
+    maxWidth: 320,
+  },
+  emptyFeedCta: {
+    backgroundColor: '#002B5C',
+    paddingHorizontal: 16,
+    paddingVertical: 9,
+    borderRadius: 10,
+  },
+  emptyFeedCtaText: {
+    color: '#FFFFFF',
+    fontSize: 12.5,
+    fontWeight: '700',
+  },
+
+  /* ── Academic & Professional Post Card ───────────────── */
   postCard: {
-    backgroundColor: theme.card,
+    backgroundColor: isDarkMode ? '#131C2E' : '#FFFFFF',
     marginHorizontal: 14,
     marginBottom: 16,
     borderRadius: 20,
     borderWidth: 1.5,
-    borderColor: theme.cardBorder || theme.border,
-    shadowColor: theme.cardShadow || '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.18,
-    shadowRadius: 12,
-    elevation: 4,
+    borderColor: isDarkMode ? '#1E293B' : '#E2E8F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: isDarkMode ? 0.25 : 0.07,
+    shadowRadius: 10,
+    elevation: 3,
     overflow: 'hidden',
+  },
+  resharedHeaderTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 14,
+    paddingTop: 10,
+    gap: 6,
+  },
+  resharedIconWrap: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: isDarkMode ? '#312E81' : '#EEF2FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  resharedText: {
+    fontSize: 12,
+    color: theme.textSecondary,
   },
   postHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     paddingVertical: 12,
   },
   postUserAvatar: {
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: theme.primary,
+    backgroundColor: '#002B5C',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 10,
-    shadowColor: theme.primary,
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
-    elevation: 3,
+    overflow: 'hidden',
   },
   avatarText: {
     color: '#FFFFFF',
@@ -2521,194 +2975,157 @@ const getStyles = (theme) => StyleSheet.create({
   },
   postUserInfo: {
     flex: 1,
+    marginRight: 8,
   },
   postUserName: {
-    fontSize: 15,
-    fontWeight: '700',
+    fontSize: 14.5,
+    fontWeight: '800',
     color: theme.text,
   },
   postUserRole: {
-    fontSize: 12,
+    fontSize: 11.5,
     color: theme.textSecondary,
-    marginTop: 1,
+    marginTop: 2,
+  },
+  categoryBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  categoryBadgeText: {
+    fontSize: 9.5,
+    fontWeight: '800',
+    letterSpacing: 0.3,
   },
   followBtn: {
-    paddingHorizontal: 14,
-    paddingVertical: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     borderRadius: 8,
+    backgroundColor: isDarkMode ? '#1E293B' : '#EFF6FF',
   },
   followBtnText: {
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: '700',
     color: theme.primary,
   },
-  postImage: {
-    backgroundColor: theme.border,
+  followingBtn: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: isDarkMode ? '#334155' : '#CBD5E1',
   },
-  postActions: {
+  followingBtnText: {
+    color: theme.textSecondary,
+  },
+  postBodyContainer: {
+    paddingHorizontal: 14,
+    paddingBottom: 10,
+  },
+  postContentText: {
+    fontSize: 13.5,
+    color: theme.text,
+    lineHeight: 20,
+  },
+  embeddedReshareCard: {
+    marginHorizontal: 12,
+    marginBottom: 12,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: isDarkMode ? '#334155' : '#E2E8F0',
+    backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+    overflow: 'hidden',
+  },
+  embeddedHeader: {
     flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: isDarkMode ? '#334155' : '#E2E8F0',
+  },
+  embeddedAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#002B5C',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
+    overflow: 'hidden',
+  },
+  embeddedImage: {
+    width: '100%',
+    height: 200,
+    backgroundColor: isDarkMode ? '#0F172A' : '#F1F5F9',
+  },
+  embeddedContent: {
+    fontSize: 12.5,
+    color: theme.text,
+    padding: 10,
+    lineHeight: 18,
+  },
+  postImageWrapper: {
+    width: '100%',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  postImage: {
+    backgroundColor: isDarkMode ? '#0F172A' : '#F1F5F9',
+  },
+  doubleTapHeartOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.25)',
+    zIndex: 10,
+  },
+  alumniActionBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.05)',
+    borderTopColor: isDarkMode ? '#1E293B' : '#F1F5F9',
   },
-  leftActions: {
+  alumniActionBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-  },
-  actionBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 12,
-    backgroundColor: theme.surfaceDepressed || 'rgba(0, 0, 0, 0.04)',
     gap: 5,
+    paddingVertical: 5,
+    paddingHorizontal: 8,
+    borderRadius: 8,
   },
-
-  /* ── 3D Stories Row ──────────────────────────────────── */
-  storiesContainer: {
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.cardBorder || theme.border,
-    backgroundColor: theme.card,
-    marginBottom: 10,
+  alumniActionBtnLiked: {
+    backgroundColor: isDarkMode ? 'rgba(244, 63, 94, 0.16)' : '#FFE4E6',
   },
-  storiesScroll: {
-    paddingHorizontal: 14,
-    gap: 14,
+  alumniActionBtnSaved: {
+    backgroundColor: isDarkMode ? 'rgba(2, 132, 199, 0.16)' : '#E0F2FE',
   },
-  storyItem: {
-    alignItems: 'center',
-    width: 64,
-  },
-  storyRing: {
-    width: 58,
-    height: 58,
-    borderRadius: 29,
-    borderWidth: 2.5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.35,
-    shadowRadius: 6,
-    elevation: 4,
-    position: 'relative',
-    backgroundColor: theme.card,
-  },
-  storyAvatarWrap: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    overflow: 'hidden',
-  },
-  storyAvatar: {
-    width: '100%',
-    height: '100%',
-  },
-  storyAvatarInitials: {
-    color: '#FFFFFF',
-    fontWeight: '800',
-    fontSize: 14,
-  },
-  storyAddBadge: {
-    position: 'absolute',
-    bottom: -1,
-    right: -1,
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    backgroundColor: '#2563EB',
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  storyName: {
-    fontSize: 11,
+  alumniActionLabel: {
+    fontSize: 11.5,
     fontWeight: '600',
     color: theme.text,
-    marginTop: 4,
-    textAlign: 'center',
   },
-
-  /* ── 3D Quick Feature Pods Grid ──────────────────────── */
-  quickPodsGrid: {
-    flexDirection: 'row',
+  postFooterBar: {
     paddingHorizontal: 14,
-    gap: 10,
-    marginBottom: 12,
-  },
-  quickPod: {
-    flex: 1,
-    borderRadius: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 6,
+    paddingBottom: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: theme.cardBorder || theme.border,
-    shadowColor: theme.cardShadow || '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 3,
   },
-  quickPodIconWrap: {
-    width: 38,
-    height: 38,
-    borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 6,
-    elevation: 4,
-    marginBottom: 6,
-  },
-  quickPodTitle: {
+  viewCommentsLink: {
     fontSize: 11.5,
-    fontWeight: '800',
-    color: theme.text,
-    letterSpacing: -0.2,
-    textAlign: 'center',
+    color: theme.primary,
+    fontWeight: '600',
   },
-  quickPodSubtitle: {
-    fontSize: 9.5,
-    fontWeight: '500',
-    color: theme.textSecondary,
-    marginTop: 1,
-    textAlign: 'center',
-  },
-  postFooter: {
-    paddingHorizontal: 16,
-    paddingBottom: 14,
-  },
-  likesText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: theme.text,
-  },
-  postContent: {
-    fontSize: 13.5,
-    color: theme.text,
-    lineHeight: 19,
-    marginTop: 4,
-  },
-  commentBtn: {
-    marginTop: 4,
-  },
-  viewCommentsText: {
-    fontSize: 13,
-    color: theme.textSecondary,
-  },
-  timeText: {
+  postTimestampText: {
     fontSize: 11,
     color: theme.textMuted,
-    marginTop: 6,
   },
 
   /* ── Section (Suggestions / Events) ─────────────────── */
@@ -2798,70 +3215,187 @@ const getStyles = (theme) => StyleSheet.create({
     color: theme.textSecondary,
   },
 
-  /* ── Events & Jobs ──────────────────────────────────── */
-  eventsScroll: {
-    paddingHorizontal: 16,
-    gap: 12,
-  },
-  eventRowCard: {
+  /* ── 2-Column Desktop Layout ─────────────────────────── */
+  desktopContainer: {
+    flex: 1,
+    padding: 24,
     flexDirection: 'row',
-    height: 110,
-    backgroundColor: theme.card,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: theme.border,
-    padding: 10,
-    marginRight: 4,
+    gap: 24,
+  },
+  desktopMainColumn: {
+    flex: 6.8,
+  },
+  desktopSidebarColumn: {
+    flex: 3.2,
+  },
+  sidebarCard: {
+    backgroundColor: isDarkMode ? '#131C2E' : '#FFFFFF',
+    borderRadius: 16,
+    elevation: 3,
+    borderWidth: 1.5,
+    borderColor: isDarkMode ? '#1E293B' : '#E2E8F0',
+    marginBottom: 18,
+    overflow: 'hidden',
+  },
+  sidebarCardPadded: {
+    backgroundColor: isDarkMode ? '#131C2E' : '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
+    elevation: 2,
+    borderWidth: 1.5,
+    borderColor: isDarkMode ? '#1E293B' : '#E2E8F0',
+    marginBottom: 18,
+  },
+  sidebarCoverBanner: {
+    height: 70,
+    backgroundColor: '#002B5C',
     position: 'relative',
   },
-  eventRowImage: {
-    width: 90,
-    height: 90,
-    borderRadius: 8,
-    backgroundColor: '#F1F5F9',
+  sidebarCoverDecor1: {
+    position: 'absolute',
+    right: -20,
+    top: -30,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(255,255,255,0.08)',
   },
-  eventRowContent: {
+  sidebarCoverDecor2: {
+    position: 'absolute',
+    left: 20,
+    bottom: -10,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(251,191,36,0.15)',
+  },
+  sidebarProfileBody: {
+    alignItems: 'center',
+    marginTop: -35,
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+  },
+  sidebarAvatarWrap: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: '#002B5C',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: isDarkMode ? '#131C2E' : '#FFFFFF',
+    overflow: 'hidden',
+  },
+  sidebarDivider: {
+    width: '100%',
+    height: 1,
+    backgroundColor: isDarkMode ? '#1E293B' : '#E2E8F0',
+    marginVertical: 12,
+  },
+  sidebarStatPod: {
     flex: 1,
-    marginLeft: 12,
-    justifyContent: 'space-between',
-    paddingVertical: 2,
+    backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: isDarkMode ? '#334155' : '#E2E8F0',
   },
-  eventRowTitle: {
-    fontSize: 13.5,
-    fontWeight: '700',
-    color: theme.text,
-    paddingRight: 16,
+  sidebarViewProfileBtn: {
+    width: '100%',
+    marginTop: 12,
+    backgroundColor: isDarkMode ? '#1E293B' : '#EFF6FF',
+    borderRadius: 10,
+    paddingVertical: 8,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: isDarkMode ? '#334155' : '#BFDBFE',
   },
-  eventRowSub: {
-    fontSize: 11,
-    color: theme.textSecondary,
+  sidebarPillTag: {
+    backgroundColor: isDarkMode ? '#1E293B' : '#F0F9FF',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: isDarkMode ? '#334155' : '#BAE6FD',
   },
-  eventRowBtn: {
-    backgroundColor: '#1E293B',
-    paddingHorizontal: 12,
-    paddingVertical: 5,
+  sidebarHubItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 9,
+    paddingHorizontal: 6,
+    borderRadius: 10,
+    gap: 10,
+    marginBottom: 4,
+  },
+  sidebarHubIcon: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  sidebarDirectoryBtn: {
+    backgroundColor: '#002B5C',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  sidebarCampusLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 6,
+    borderRadius: 10,
+    gap: 10,
+    marginBottom: 4,
+  },
+  sidebarCampusIcon: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  /* ── Mobile Campus Services ──────────────────────────── */
+  mobileCampusServices: {
+    marginHorizontal: 14,
+    marginTop: 14,
+    marginBottom: 30,
+    backgroundColor: isDarkMode ? '#131C2E' : '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1.5,
+    borderColor: isDarkMode ? '#1E293B' : '#E2E8F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  mobileServiceCard: {
+    flex: 1,
+    minWidth: '45%',
+    backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+    padding: 10,
     borderRadius: 12,
-    alignSelf: 'flex-start',
+    borderWidth: 1,
+    borderColor: isDarkMode ? '#334155' : '#E2E8F0',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
-  eventRowBtnText: {
-    color: theme.card,
-    fontSize: 9.5,
-    fontWeight: '700',
-  },
-  eventRowClose: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-  },
-  suggestCloseBtn: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-  },
-  suggestSubText: {
-    fontSize: 11,
-    color: theme.textSecondary,
-    marginBottom: 8,
+  mobileServiceIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   /* ── Modals ──────────────────────────────────────────── */
