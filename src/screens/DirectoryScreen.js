@@ -1737,6 +1737,13 @@ const DirectoryScreen = ({ navigation, route }) => {
             <TouchableOpacity 
               style={styles.headerIconBtn} 
               activeOpacity={0.7}
+              onPress={() => navigation.navigate('ResumeBook')}
+            >
+              <Ionicons name="document-text-outline" size={22} color="#002144" />
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.headerIconBtn} 
+              activeOpacity={0.7}
               onPress={() => navigation.navigate('Messages')}
             >
               <Ionicons name="chatbubble-ellipses-outline" size={22} color="#002144" />

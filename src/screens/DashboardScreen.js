@@ -1172,6 +1172,13 @@ const DashboardScreen = ({ navigation }) => {
             )}
             <TouchableOpacity
               style={styles.headerIconBtn}
+              onPress={() => navigation.navigate('ResumeBook')}
+              title="Resume Book"
+            >
+              <Ionicons name="document-text-outline" size={22} color={theme.primary} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.headerIconBtn}
               onPress={() => { setUnreadMessages(0); navigation.navigate('Messages'); }}
             >
               <Ionicons name="chatbubble-ellipses-outline" size={22} color={theme.primary} />
