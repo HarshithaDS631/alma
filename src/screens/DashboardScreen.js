@@ -346,6 +346,25 @@ const DashboardScreen = ({ navigation }) => {
     setCommentText('');
   };
 
+  const handleOpenExternalUrl = async (url) => {
+    try {
+      if (Platform.OS === 'web' && typeof window !== 'undefined') {
+        window.open(url, '_blank');
+        return;
+      }
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        await Linking.openURL(url);
+      }
+    } catch (_) {
+      if (Platform.OS === 'web' && typeof window !== 'undefined') {
+        window.open(url, '_blank');
+      }
+    }
+  };
+
   useEffect(() => {
     const fetchUserInfo = async () => {
       // Try to load connections count and following list from profileCache
@@ -1257,50 +1276,100 @@ const DashboardScreen = ({ navigation }) => {
                 </View>
               </View>
 
-              {/* Alumni Hub Quick Navigation */}
-              <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 16, elevation: 2, borderWidth: 1, borderColor: theme.border }}>
-                <Text style={{ fontSize: 12, fontWeight: '800', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>
-                  Alumni Hub
-                </Text>
+              {/* Alumni Hub Quick Navigation - Community & Network Centric */}
+              <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 16, elevation: 2, borderWidth: 1, borderColor: theme.border, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7 }}>
+                    <View style={{ width: 6, height: 16, borderRadius: 3, backgroundColor: '#0284C7' }} />
+                    <Text style={{ fontSize: 13, fontWeight: '800', color: theme.text, letterSpacing: 0.3 }}>
+                      Alumni Hub
+                    </Text>
+                  </View>
+                  <View style={{ backgroundColor: isDarkMode ? '#1E293B' : '#F0F9FF', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10, borderWidth: 1, borderColor: isDarkMode ? '#334155' : '#BAE6FD' }}>
+                    <Text style={{ fontSize: 10, fontWeight: '800', color: '#0284C7' }}>COMMUNITY</Text>
+                  </View>
+                </View>
                 
+                {/* 1. Mentorship Connect */}
                 <TouchableOpacity 
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 9, gap: 10 }}
-                  onPress={() => navigation.navigate('Main', { screen: 'Jobs' })}
-                >
-                  <View style={{ width: 34, height: 34, borderRadius: 9, backgroundColor: '#EFF6FF', justifyContent: 'center', alignItems: 'center' }}>
-                    <Ionicons name="briefcase" size={17} color="#0284C7" />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }}>Job Board</Text>
-                    <Text style={{ fontSize: 11, color: theme.textMuted }}>Explore alumni referrals</Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={14} color={theme.textMuted} />
-                </TouchableOpacity>
-
-                <TouchableOpacity 
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 9, gap: 10 }}
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 8, borderRadius: 10, gap: 10, marginBottom: 4 }}
                   onPress={() => navigation.navigate('Main', { screen: 'Engage', params: { tab: 'directory' } })}
+                  activeOpacity={0.7}
                 >
-                  <View style={{ width: 34, height: 34, borderRadius: 9, backgroundColor: '#F0FDF4', justifyContent: 'center', alignItems: 'center' }}>
-                    <Ionicons name="people" size={17} color="#16A34A" />
+                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: isDarkMode ? '#312E81' : '#EEF2FF', justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name="sparkles" size={17} color="#4F46E5" />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }}>Alumni Directory</Text>
-                    <Text style={{ fontSize: 11, color: theme.textMuted }}>Connect with batchmates</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                      <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }}>1-on-1 Mentorship</Text>
+                      <View style={{ backgroundColor: '#DCFCE7', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 6 }}>
+                        <Text style={{ fontSize: 9.5, fontWeight: '800', color: '#15803D' }}>ACTIVE</Text>
+                      </View>
+                    </View>
+                    <Text style={{ fontSize: 11, color: theme.textMuted, marginTop: 1 }}>Career advice with senior alumni</Text>
                   </View>
                   <Ionicons name="chevron-forward" size={14} color={theme.textMuted} />
                 </TouchableOpacity>
 
+                {/* 2. Global Alumni Chapters */}
                 <TouchableOpacity 
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 9, gap: 10 }}
-                  onPress={() => navigation.navigate('Main', { screen: 'Contribute' })}
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 8, borderRadius: 10, gap: 10, marginBottom: 4 }}
+                  onPress={() => navigation.navigate('Main', { screen: 'Engage', params: { tab: 'communities' } })}
+                  activeOpacity={0.7}
                 >
-                  <View style={{ width: 34, height: 34, borderRadius: 9, backgroundColor: '#FEF3C7', justifyContent: 'center', alignItems: 'center' }}>
-                    <Ionicons name="heart" size={17} color="#D97706" />
+                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: isDarkMode ? '#082F49' : '#E0F2FE', justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name="globe" size={17} color="#0284C7" />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }}>Giving & Mentorship</Text>
-                    <Text style={{ fontSize: 11, color: theme.textMuted }}>Support your alma mater</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                      <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }}>Global Chapters</Text>
+                      <View style={{ backgroundColor: '#E0F2FE', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 6 }}>
+                        <Text style={{ fontSize: 9.5, fontWeight: '800', color: '#0369A1' }}>12 CITIES</Text>
+                      </View>
+                    </View>
+                    <Text style={{ fontSize: 11, color: theme.textMuted, marginTop: 1 }}>Bengaluru, Silicon Valley, Europe</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={14} color={theme.textMuted} />
+                </TouchableOpacity>
+
+                {/* 3. Batchmate Circles */}
+                <TouchableOpacity 
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 8, borderRadius: 10, gap: 10, marginBottom: 4 }}
+                  onPress={() => navigation.navigate('Main', { screen: 'Engage', params: { tab: 'directory' } })}
+                  activeOpacity={0.7}
+                >
+                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: isDarkMode ? '#451A03' : '#FEF3C7', justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name="people" size={17} color="#D97706" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                      <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }}>Batchmate Circles</Text>
+                      <View style={{ backgroundColor: '#FEF3C7', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 6 }}>
+                        <Text style={{ fontSize: 9.5, fontWeight: '800', color: '#B45309' }}>REUNIONS</Text>
+                      </View>
+                    </View>
+                    <Text style={{ fontSize: 11, color: theme.textMuted, marginTop: 1 }}>Connect with your graduating class</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={14} color={theme.textMuted} />
+                </TouchableOpacity>
+
+                {/* 4. Founder & Career Referrals */}
+                <TouchableOpacity 
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 8, borderRadius: 10, gap: 10 }}
+                  onPress={() => navigation.navigate('Main', { screen: 'Jobs' })}
+                  activeOpacity={0.7}
+                >
+                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: isDarkMode ? '#064E3B' : '#ECFDF5', justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name="briefcase" size={17} color="#059669" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                      <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }}>Founder Referrals</Text>
+                      <View style={{ backgroundColor: '#DCFCE7', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 6 }}>
+                        <Text style={{ fontSize: 9.5, fontWeight: '800', color: '#166534' }}>HIRING</Text>
+                      </View>
+                    </View>
+                    <Text style={{ fontSize: 11, color: theme.textMuted, marginTop: 1 }}>Direct alumni company openings</Text>
                   </View>
                   <Ionicons name="chevron-forward" size={14} color={theme.textMuted} />
                 </TouchableOpacity>
@@ -1463,34 +1532,98 @@ const DashboardScreen = ({ navigation }) => {
                 )}
               </View>
 
-              {/* Quick Links & Resources */}
-              <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 18, elevation: 2, borderWidth: 1, borderColor: theme.border, marginBottom: 18 }}>
-                <Text style={{ fontSize: 13, fontWeight: '800', color: theme.text, marginBottom: 12 }}>
-                  Campus Quick Links
-                </Text>
+              {/* Campus Quick Links - Official RVCE Institutional & Academic Services */}
+              <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 18, elevation: 2, borderWidth: 1, borderColor: theme.border, marginBottom: 18, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7 }}>
+                    <View style={{ width: 6, height: 16, borderRadius: 3, backgroundColor: '#002B5C' }} />
+                    <Text style={{ fontSize: 13, fontWeight: '800', color: theme.text, letterSpacing: 0.3 }}>
+                      Campus Quick Links
+                    </Text>
+                  </View>
+                  <View style={{ backgroundColor: isDarkMode ? '#1E293B' : '#EEF2FF', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10, borderWidth: 1, borderColor: isDarkMode ? '#334155' : '#C7D2FE' }}>
+                    <Text style={{ fontSize: 10, fontWeight: '800', color: '#002B5C' }}>RVCE SERVICES</Text>
+                  </View>
+                </View>
 
+                {/* 1. Official RVCE Portal */}
                 <TouchableOpacity 
-                  style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}
-                  onPress={() => navigation.navigate('Engage', { tab: 'directory' })}
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 9, paddingHorizontal: 8, borderRadius: 10, gap: 10, marginBottom: 6 }}
+                  onPress={() => handleOpenExternalUrl('https://rvce.edu.in')}
+                  activeOpacity={0.7}
                 >
-                  <Ionicons name="school-outline" size={16} color="#002B5C" style={{ marginRight: 8 }} />
-                  <Text style={{ fontSize: 12.5, fontWeight: '600', color: theme.text }}>Alumni Directory</Text>
+                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: isDarkMode ? '#1E293B' : '#EFF6FF', justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name="school" size={18} color="#002B5C" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                      <Text style={{ fontSize: 12.5, fontWeight: '700', color: theme.text }}>Official RVCE Portal</Text>
+                      <Ionicons name="open-outline" size={12} color="#64748B" />
+                    </View>
+                    <Text style={{ fontSize: 11, color: theme.textMuted }}>rvce.edu.in • Academic calendars</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={14} color={theme.textMuted} />
                 </TouchableOpacity>
 
+                {/* 2. Transcripts & Degree Verification */}
                 <TouchableOpacity 
-                  style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}
-                  onPress={() => navigation.navigate('Main', { screen: 'Jobs' })}
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 9, paddingHorizontal: 8, borderRadius: 10, gap: 10, marginBottom: 6 }}
+                  onPress={() => handleOpenExternalUrl('https://rvce.edu.in/exam-section')}
+                  activeOpacity={0.7}
                 >
-                  <Ionicons name="briefcase-outline" size={16} color="#002B5C" style={{ marginRight: 8 }} />
-                  <Text style={{ fontSize: 12.5, fontWeight: '600', color: theme.text }}>Career Opportunities</Text>
+                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: isDarkMode ? '#134E4A' : '#CCFBF1', justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name="document-text" size={18} color="#0F766E" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                      <Text style={{ fontSize: 12.5, fontWeight: '700', color: theme.text }}>Transcripts & Verifications</Text>
+                      <View style={{ backgroundColor: '#CCFBF1', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 6 }}>
+                        <Text style={{ fontSize: 9, fontWeight: '800', color: '#0F766E' }}>EXAM CELL</Text>
+                      </View>
+                    </View>
+                    <Text style={{ fontSize: 11, color: theme.textMuted }}>Official degree & marksheet requests</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={14} color={theme.textMuted} />
                 </TouchableOpacity>
 
+                {/* 3. RSST Incubation & Startup Centre */}
                 <TouchableOpacity 
-                  style={{ flexDirection: 'row', alignItems: 'center' }}
-                  onPress={() => navigation.navigate('Contribute', { tab: 'support' })}
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 9, paddingHorizontal: 8, borderRadius: 10, gap: 10, marginBottom: 6 }}
+                  onPress={() => handleOpenExternalUrl('https://rvce.edu.in/rvce-centre-for-innovation')}
+                  activeOpacity={0.7}
                 >
-                  <Ionicons name="heart-outline" size={16} color="#002B5C" style={{ marginRight: 8 }} />
-                  <Text style={{ fontSize: 12.5, fontWeight: '600', color: theme.text }}>Support Community</Text>
+                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: isDarkMode ? '#7C2D12' : '#FFEDD5', justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name="rocket" size={18} color="#EA580C" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                      <Text style={{ fontSize: 12.5, fontWeight: '700', color: theme.text }}>Incubation & Research Lab</Text>
+                      <View style={{ backgroundColor: '#FFEDD5', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 6 }}>
+                        <Text style={{ fontSize: 9, fontWeight: '800', color: '#C2410C' }}>GRANTS</Text>
+                      </View>
+                    </View>
+                    <Text style={{ fontSize: 11, color: theme.textMuted }}>RSST seed funds & patent filing</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={14} color={theme.textMuted} />
+                </TouchableOpacity>
+
+                {/* 4. Virtual Campus Tour & Archives */}
+                <TouchableOpacity 
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 9, paddingHorizontal: 8, borderRadius: 10, gap: 10 }}
+                  onPress={() => handleOpenExternalUrl('https://rvce.edu.in/about-us')}
+                  activeOpacity={0.7}
+                >
+                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: isDarkMode ? '#881337' : '#FFE4E6', justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name="compass" size={18} color="#E11D48" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                      <Text style={{ fontSize: 12.5, fontWeight: '700', color: theme.text }}>Campus Tour & Heritage</Text>
+                      <Ionicons name="open-outline" size={12} color="#64748B" />
+                    </View>
+                    <Text style={{ fontSize: 11, color: theme.textMuted }}>Explore Mysore Road campus landmarks</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={14} color={theme.textMuted} />
                 </TouchableOpacity>
               </View>
 
@@ -1681,6 +1814,77 @@ const DashboardScreen = ({ navigation }) => {
                 </ScrollView>
               </View>
             )}
+
+            {/* Campus Quick Services on Mobile */}
+            <View style={{ marginHorizontal: 16, marginTop: 14, marginBottom: 40, backgroundColor: theme.card, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: theme.border, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 6, elevation: 2 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Ionicons name="business" size={16} color="#002B5C" />
+                  <Text style={{ fontSize: 13.5, fontWeight: '800', color: theme.text }}>Campus Quick Services</Text>
+                </View>
+                <View style={{ backgroundColor: isDarkMode ? '#1E293B' : '#EEF2FF', paddingHorizontal: 7, paddingVertical: 2, borderRadius: 8 }}>
+                  <Text style={{ fontSize: 10, fontWeight: '800', color: '#002B5C' }}>RVCE OFFICIAL</Text>
+                </View>
+              </View>
+
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+                <TouchableOpacity 
+                  style={{ flex: 1, minWidth: '45%', backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', padding: 11, borderRadius: 12, borderWidth: 1, borderColor: theme.border, flexDirection: 'row', alignItems: 'center', gap: 8 }}
+                  onPress={() => handleOpenExternalUrl('https://rvce.edu.in')}
+                  activeOpacity={0.75}
+                >
+                  <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: '#EFF6FF', justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name="school" size={16} color="#002B5C" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: theme.text }}>RVCE Portal</Text>
+                    <Text style={{ fontSize: 10, color: theme.textMuted }}>rvce.edu.in</Text>
+                  </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={{ flex: 1, minWidth: '45%', backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', padding: 11, borderRadius: 12, borderWidth: 1, borderColor: theme.border, flexDirection: 'row', alignItems: 'center', gap: 8 }}
+                  onPress={() => handleOpenExternalUrl('https://rvce.edu.in/exam-section')}
+                  activeOpacity={0.75}
+                >
+                  <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: '#CCFBF1', justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name="document-text" size={16} color="#0F766E" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: theme.text }}>Transcripts</Text>
+                    <Text style={{ fontSize: 10, color: theme.textMuted }}>Exam Cell</Text>
+                  </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={{ flex: 1, minWidth: '45%', backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', padding: 11, borderRadius: 12, borderWidth: 1, borderColor: theme.border, flexDirection: 'row', alignItems: 'center', gap: 8 }}
+                  onPress={() => handleOpenExternalUrl('https://rvce.edu.in/rvce-centre-for-innovation')}
+                  activeOpacity={0.75}
+                >
+                  <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: '#FFEDD5', justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name="rocket" size={16} color="#EA580C" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: theme.text }}>Incubation</Text>
+                    <Text style={{ fontSize: 10, color: theme.textMuted }}>Seed Grants</Text>
+                  </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={{ flex: 1, minWidth: '45%', backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', padding: 11, borderRadius: 12, borderWidth: 1, borderColor: theme.border, flexDirection: 'row', alignItems: 'center', gap: 8 }}
+                  onPress={() => handleOpenExternalUrl('https://rvce.edu.in/about-us')}
+                  activeOpacity={0.75}
+                >
+                  <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: '#FFE4E6', justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name="compass" size={16} color="#E11D48" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: theme.text }}>Campus Tour</Text>
+                    <Text style={{ fontSize: 10, color: theme.textMuted }}>360° Heritage</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </View>
           </ScrollView>
         )}
 

@@ -28,6 +28,8 @@ const EngageScreen = ({ navigation, route }) => {
     date: '',
     startTime: '',
     endTime: '',
+    location: '',
+    category: 'Networking',
     notifyPhone: true,
     notifyEmail: false,
     reminder: '1 hour before event',
@@ -150,29 +152,38 @@ const EngageScreen = ({ navigation, route }) => {
 
   const handleCreateEvent = async () => {
     if (!eventForm.name.trim()) {
-      Alert.alert('Required', 'Please enter an event name.');
+      if (Platform.OS === 'web') {
+        window.alert('Please enter an event name.');
+      } else {
+        Alert.alert('Required', 'Please enter an event name.');
+      }
       return;
     }
     try {
       const payload = {
         title: eventForm.name.trim(),
         description: eventForm.description.trim() || 'Alumni network meetup and networking opportunity.',
-        date: eventForm.date || new Date().toISOString(),
-        location: 'RVCE Main Campus',
-        type: 'Meetup'
+        date: eventForm.date ? eventForm.date.trim() : new Date().toISOString(),
+        location: eventForm.location.trim() || 'RVCE Main Campus / Hybrid',
+        type: eventForm.category || 'Networking'
       };
 
       await createEventApi(payload).catch(() => ({}));
 
+      const parsedDate = eventForm.date ? new Date(eventForm.date) : new Date();
+      const validDate = !isNaN(parsedDate.getTime()) ? parsedDate : new Date();
+
       const newEvt = {
         id: 'evt_' + Date.now(),
         title: payload.title,
-        date: new Date().toLocaleDateString(),
-        day: String(new Date().getDate()),
-        month: new Date().toLocaleString('default', { month: 'short' }).toUpperCase(),
-        time: eventForm.startTime ? `${eventForm.startTime} - ${eventForm.endTime}` : '10:00 AM - 1:00 PM',
-        location: 'RVCE Main Campus / Hybrid',
-        type: 'Meetup',
+        date: eventForm.date ? eventForm.date.trim() : validDate.toLocaleDateString(),
+        day: String(validDate.getDate()),
+        month: validDate.toLocaleString('default', { month: 'short' }).toUpperCase(),
+        time: (eventForm.startTime && eventForm.endTime)
+          ? `${eventForm.startTime.trim()} - ${eventForm.endTime.trim()}`
+          : (eventForm.startTime ? eventForm.startTime.trim() : '10:00 AM - 1:00 PM'),
+        location: payload.location,
+        type: payload.type,
         description: payload.description,
         attendeesCount: 1,
         image: 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=700&h=350&q=80'
@@ -181,11 +192,30 @@ const EngageScreen = ({ navigation, route }) => {
       const updated = [newEvt, ...events];
       setEvents(updated);
       AsyncStorage.setItem('cachedAlumniEvents', JSON.stringify(updated)).catch(() => {});
-      setEventForm({ name: '', date: '', startTime: '', endTime: '', notifyPhone: true, notifyEmail: false, reminder: '1 hour before event', description: '' });
+      setEventForm({
+        name: '',
+        date: '',
+        startTime: '',
+        endTime: '',
+        location: '',
+        category: 'Networking',
+        notifyPhone: true,
+        notifyEmail: false,
+        reminder: '1 hour before event',
+        description: ''
+      });
       setCurrentView('joinEvent');
-      Alert.alert('Success', 'Event created and published successfully!');
+      if (Platform.OS === 'web') {
+        window.alert('Event created and published successfully!');
+      } else {
+        Alert.alert('Success', 'Event created and published successfully!');
+      }
     } catch (err) {
-      Alert.alert('Error', err.message || 'Could not create event');
+      if (Platform.OS === 'web') {
+        window.alert('Error creating event: ' + err.message);
+      } else {
+        Alert.alert('Error', err.message || 'Could not create event');
+      }
     }
   };
 
@@ -323,66 +353,170 @@ const EngageScreen = ({ navigation, route }) => {
         <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
         <View style={webContainerStyle}>
           <View style={styles.subScreenHeader}>
-            <TouchableOpacity onPress={() => setCurrentView('feed')}>
-              <Ionicons name="close" size={24} color="#002144" />
+            <TouchableOpacity onPress={() => setCurrentView('joinEvent')} style={{ padding: 4 }}>
+              <Ionicons name="close" size={24} color={theme.text} />
             </TouchableOpacity>
             <Text style={styles.subScreenTitle}>Create Event</Text>
-            <View style={{ width: 24 }} />
+            <View style={{ width: 32 }} />
           </View>
-          <ScrollView contentContainerStyle={styles.createEventBody}>
+          <ScrollView contentContainerStyle={styles.createEventBody} showsVerticalScrollIndicator={false}>
+            {/* Event Name */}
             <Text style={styles.fieldLabel}>Event Name</Text>
-            <TextInput style={styles.fieldInput} placeholder="Enter event name" placeholderTextColor="#94A3B8" value={eventForm.name} onChangeText={t => setEventForm({...eventForm, name: t})} />
+            <TextInput 
+              style={styles.fieldInput} 
+              placeholder="e.g. Annual Alumni Tech Meet 2026 or Founder Keynote" 
+              placeholderTextColor="#94A3B8" 
+              value={eventForm.name} 
+              onChangeText={t => setEventForm({ ...eventForm, name: t })} 
+            />
 
-            <View style={styles.dateTimeRow}>
-              <View style={styles.dateField}>
-                <Ionicons name="calendar-outline" size={18} color="#64748B" />
-                <Text style={styles.dateTimeText}>{eventForm.date}</Text>
-              </View>
-              <View style={styles.colorDots}>
-                <View style={[styles.colorDot, { backgroundColor: '#CBD5E1' }]} />
-                <View style={[styles.colorDot, { backgroundColor: theme.primary }]} />
-                <View style={[styles.colorDot, { backgroundColor: '#CBD5E1' }]} />
-                <View style={[styles.colorDot, { backgroundColor: '#CBD5E1' }]} />
-              </View>
+            {/* Event Date */}
+            <Text style={styles.fieldLabel}>Event Date</Text>
+            <View style={styles.inputWithIconRow}>
+              <Ionicons name="calendar-outline" size={19} color="#002B5C" style={{ marginRight: 10 }} />
+              <TextInput 
+                style={styles.fieldInputEmbedded} 
+                placeholder="e.g. 28 Oct 2026 or Next Saturday" 
+                placeholderTextColor="#94A3B8" 
+                value={eventForm.date} 
+                onChangeText={t => setEventForm({ ...eventForm, date: t })} 
+              />
             </View>
 
+            {/* Event Timing */}
+            <Text style={styles.fieldLabel}>Event Timing</Text>
             <View style={styles.timeRow}>
               <View style={styles.timeField}>
-                <Ionicons name="time-outline" size={18} color="#64748B" />
-                <Text style={styles.dateTimeText}>{eventForm.startTime}</Text>
+                <Ionicons name="time-outline" size={18} color="#002B5C" />
+                <TextInput 
+                  style={styles.fieldInputEmbedded} 
+                  placeholder="Start (10:00 AM)" 
+                  placeholderTextColor="#94A3B8" 
+                  value={eventForm.startTime} 
+                  onChangeText={t => setEventForm({ ...eventForm, startTime: t })} 
+                />
               </View>
               <Ionicons name="arrow-forward" size={16} color="#94A3B8" />
               <View style={styles.timeField}>
-                <Text style={styles.dateTimeText}>{eventForm.endTime}</Text>
+                <Ionicons name="time-outline" size={18} color="#002B5C" />
+                <TextInput 
+                  style={styles.fieldInputEmbedded} 
+                  placeholder="End (01:00 PM)" 
+                  placeholderTextColor="#94A3B8" 
+                  value={eventForm.endTime} 
+                  onChangeText={t => setEventForm({ ...eventForm, endTime: t })} 
+                />
               </View>
             </View>
 
-            <View style={styles.hostRow}>
-              <View style={styles.hostAvatar}><Text style={styles.hostAvatarText}>{getInitials(currentUser?.name, 'AL')}</Text></View>
-              <Text style={styles.hostName}>{currentUser?.name || 'User'}</Text>
-              <Ionicons name="chevron-down" size={16} color="#002144" />
+            {/* Venue / Location */}
+            <Text style={styles.fieldLabel}>Venue / Platform</Text>
+            <View style={styles.inputWithIconRow}>
+              <Ionicons name="location-outline" size={19} color="#002B5C" style={{ marginRight: 10 }} />
+              <TextInput 
+                style={styles.fieldInputEmbedded} 
+                placeholder="e.g. RVCE Campus Main Auditorium or Zoom / Meet" 
+                placeholderTextColor="#94A3B8" 
+                value={eventForm.location} 
+                onChangeText={t => setEventForm({ ...eventForm, location: t })} 
+              />
             </View>
 
+            {/* Event Category Chips */}
+            <Text style={styles.fieldLabel}>Event Category</Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 4 }}>
+              {['Networking', 'Keynote & Tech', 'Reunion', 'Workshop', 'Mentorship'].map(cat => {
+                const isSelected = eventForm.category === cat;
+                return (
+                  <TouchableOpacity
+                    key={cat}
+                    onPress={() => setEventForm({ ...eventForm, category: cat })}
+                    style={{
+                      paddingHorizontal: 14,
+                      paddingVertical: 7,
+                      borderRadius: 20,
+                      backgroundColor: isSelected ? theme.primary : (isDarkMode ? '#1E293B' : '#F1F5F9'),
+                      borderWidth: 1,
+                      borderColor: isSelected ? theme.primary : (isDarkMode ? '#334155' : '#CBD5E1')
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={{ fontSize: 12.5, fontWeight: '700', color: isSelected ? '#FFFFFF' : theme.text }}>
+                      {cat}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            {/* Organizer Row */}
+            <View style={styles.hostRow}>
+              <View style={styles.hostAvatar}><Text style={styles.hostAvatarText}>{getInitials(currentUser?.name, 'AL')}</Text></View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.hostName}>{currentUser?.name || 'Verified Alumni Member'}</Text>
+                <Text style={{ fontSize: 11.5, color: '#64748B' }}>Event Organizer & Host</Text>
+              </View>
+              <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#EFF6FF', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 }}>
+                <Ionicons name="shield-checkmark" size={13} color="#002B5C" style={{ marginRight: 4 }} />
+                <Text style={{ fontSize: 11, fontWeight: '700', color: '#002B5C' }}>Verified</Text>
+              </View>
+            </View>
+
+            {/* Get notified on */}
             <Text style={styles.fieldLabel}>Get notified on</Text>
             <View style={styles.notifyRow}>
               <TouchableOpacity style={[styles.notifyOption, eventForm.notifyPhone && styles.notifyActive]} onPress={() => setEventForm({...eventForm, notifyPhone: !eventForm.notifyPhone})}>
+                <Ionicons name="phone-portrait-outline" size={15} color={eventForm.notifyPhone ? '#FFFFFF' : '#475569'} />
                 <Text style={[styles.notifyText, eventForm.notifyPhone && styles.notifyActiveText]}>On phone</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.notifyOption, eventForm.notifyEmail && styles.notifyActive]} onPress={() => setEventForm({...eventForm, notifyEmail: !eventForm.notifyEmail})}>
+                <Ionicons name="mail-outline" size={15} color={eventForm.notifyEmail ? '#FFFFFF' : '#475569'} />
                 <Text style={[styles.notifyText, eventForm.notifyEmail && styles.notifyActiveText]}>Email</Text>
               </TouchableOpacity>
             </View>
 
+            {/* Set reminder */}
             <Text style={styles.fieldLabel}>Set reminder</Text>
-            <View style={styles.fieldInput}><Text style={{ color: theme.primary, fontSize: 15 }}>{eventForm.reminder}</Text></View>
+            <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
+              {['15 mins before', '1 hour before event', '1 day before', '1 week before'].map(rem => {
+                const isSelected = eventForm.reminder === rem;
+                return (
+                  <TouchableOpacity
+                    key={rem}
+                    onPress={() => setEventForm({ ...eventForm, reminder: rem })}
+                    style={{
+                      paddingHorizontal: 12,
+                      paddingVertical: 7,
+                      borderRadius: 10,
+                      backgroundColor: isSelected ? (isDarkMode ? '#1E3A8A' : '#EFF6FF') : (isDarkMode ? '#0F172A' : '#F8FAFC'),
+                      borderWidth: 1,
+                      borderColor: isSelected ? theme.primary : theme.border
+                    }}
+                  >
+                    <Text style={{ fontSize: 12, fontWeight: isSelected ? '700' : '500', color: isSelected ? theme.primary : theme.textSecondary }}>
+                      {rem}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
 
+            {/* Add description */}
             <Text style={styles.fieldLabel}>Add description</Text>
             <View style={styles.descriptionWrapper}>
-              <TextInput style={[styles.fieldInput, { height: 100, textAlignVertical: 'top', paddingTop: 12, flex: 1 }]} placeholder="Add description" placeholderTextColor="#94A3B8" multiline value={eventForm.description} onChangeText={t => setEventForm({...eventForm, description: t})} />
+              <TextInput 
+                style={[styles.fieldInput, { height: 110, textAlignVertical: 'top', paddingTop: 12, flex: 1 }]} 
+                placeholder="Describe agenda, guest speakers, key takeaways, and who should attend..." 
+                placeholderTextColor="#94A3B8" 
+                multiline 
+                value={eventForm.description} 
+                onChangeText={t => setEventForm({...eventForm, description: t})} 
+              />
               <Ionicons name="pencil-outline" size={16} color="#94A3B8" style={styles.descPencilIcon} />
             </View>
 
-            <TouchableOpacity style={styles.createEventButton} onPress={handleCreateEvent}>
+            <TouchableOpacity style={styles.createEventButton} onPress={handleCreateEvent} activeOpacity={0.85}>
+              <Ionicons name="paper-plane" size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
               <Text style={styles.createEventButtonText}>Create & Publish Event</Text>
             </TouchableOpacity>
           </ScrollView>
@@ -913,26 +1047,28 @@ const getStyles = (theme) => StyleSheet.create({
   // Create Event
   subScreenHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 14, backgroundColor: theme.card, borderBottomWidth: 1, borderBottomColor: theme.border },
   subScreenTitle: { fontSize: 18, fontWeight: '800', color: theme.primary },
-  createEventBody: { padding: 20, paddingBottom: 40 },
-  fieldLabel: { fontSize: 14, fontWeight: '600', color: '#475569', marginBottom: 8, marginTop: 16 },
-  fieldInput: { backgroundColor: theme.background, borderRadius: 12, borderWidth: 1, borderColor: theme.border, paddingHorizontal: 16, height: 48, justifyContent: 'center', fontSize: 15, color: theme.primary },
+  createEventBody: { padding: 20, paddingBottom: 50 },
+  fieldLabel: { fontSize: 13.5, fontWeight: '700', color: theme.text, marginBottom: 8, marginTop: 16 },
+  fieldInput: { backgroundColor: theme.background, borderRadius: 12, borderWidth: 1, borderColor: theme.border, paddingHorizontal: 16, height: 48, fontSize: 14.5, color: theme.text },
+  inputWithIconRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: theme.background, borderRadius: 12, borderWidth: 1, borderColor: theme.border, paddingHorizontal: 14, height: 48 },
+  fieldInputEmbedded: { flex: 1, fontSize: 14.5, color: theme.text, height: '100%', paddingVertical: 0 },
   dateTimeRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 16 },
   dateField: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: theme.background, borderRadius: 12, borderWidth: 1, borderColor: theme.border, paddingHorizontal: 16, height: 48, flex: 1, marginRight: 12 },
   colorDots: { flexDirection: 'row', gap: 6 },
   colorDot: { width: 16, height: 16, borderRadius: 8 },
   dateTimeText: { fontSize: 15, color: theme.primary, fontWeight: '500' },
-  timeRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 12 },
-  timeField: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: theme.background, borderRadius: 12, borderWidth: 1, borderColor: theme.border, paddingHorizontal: 16, height: 48, flex: 1 },
-  hostRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 16, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: theme.border },
-  hostAvatar: { width: 36, height: 36, borderRadius: 18, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center' },
-  hostAvatarText: { color: theme.card, fontSize: 13, fontWeight: '700' },
-  hostName: { fontSize: 15, fontWeight: '600', color: theme.primary },
-  notifyRow: { flexDirection: 'row', gap: 10 },
-  notifyOption: { borderWidth: 1, borderColor: theme.border, borderRadius: 20, paddingHorizontal: 16, paddingVertical: 8, backgroundColor: theme.card },
+  timeRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 4 },
+  timeField: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: theme.background, borderRadius: 12, borderWidth: 1, borderColor: theme.border, paddingHorizontal: 12, height: 48, flex: 1 },
+  hostRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 20, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: theme.border },
+  hostAvatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center' },
+  hostAvatarText: { color: theme.card, fontSize: 14, fontWeight: '700' },
+  hostName: { fontSize: 15, fontWeight: '700', color: theme.text },
+  notifyRow: { flexDirection: 'row', gap: 10, marginTop: 4 },
+  notifyOption: { flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1, borderColor: theme.border, borderRadius: 20, paddingHorizontal: 16, paddingVertical: 9, backgroundColor: theme.card },
   notifyActive: { backgroundColor: theme.primary, borderColor: theme.primary },
   notifyText: { fontSize: 13, fontWeight: '600', color: '#475569' },
   notifyActiveText: { color: theme.card },
-  createEventButton: { backgroundColor: theme.primary, height: 52, borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginTop: 24 },
+  createEventButton: { flexDirection: 'row', backgroundColor: theme.primary, height: 52, borderRadius: 14, alignItems: 'center', justifyContent: 'center', marginTop: 28, shadowColor: theme.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.25, shadowRadius: 8, elevation: 4 },
   createEventButtonText: { color: theme.card, fontSize: 16, fontWeight: '700' },
 
   // Events Subscreen Header & Attractive Host Button
