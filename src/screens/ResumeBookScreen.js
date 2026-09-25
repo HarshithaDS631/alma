@@ -263,13 +263,15 @@ const VALUE_PROPS = [
   { icon: 'checkmark-circle', text: 'Requesting the referrers and recruiters to push your profile in their current company to schedule interviews' }
 ];
 
-export default function ResumeBookScreen({ navigation }) {
+export default function ResumeBookScreen({ navigation, route }) {
   const { theme, isDarkMode } = useTheme();
   const { width } = useWindowDimensions();
   const isDesktop = Platform.OS === 'web' && width >= 768;
 
-  // State
-  const [viewMode, setViewMode] = useState('landing'); // 'landing' | 'talent_list'
+  // On mobile apps, default directly to the talent/resumes directory list
+  // so mobile users don't get a heavy desktop landing page dumped on them.
+  const initialMode = route?.params?.initialMode || (isDesktop ? 'landing' : 'talent_list');
+  const [viewMode, setViewMode] = useState(initialMode);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDomain, setSelectedDomain] = useState('All Domains');
   const [selectedExperience, setSelectedExperience] = useState('All Experience');
@@ -299,6 +301,18 @@ export default function ResumeBookScreen({ navigation }) {
       if (str) setCurrentUser(JSON.parse(str));
     }).catch(() => {});
   }, []);
+
+  // Listen to route params when navigating with specific initialMode
+  useEffect(() => {
+    if (route?.params?.initialMode) {
+      if (route.params.initialMode === 'get_listed') {
+        setViewMode('talent_list');
+        setShowGetListedModal(true);
+      } else {
+        setViewMode(route.params.initialMode);
+      }
+    }
+  }, [route?.params]);
 
   // Filtered talents
   const filteredTalents = useMemo(() => {
@@ -414,48 +428,98 @@ export default function ResumeBookScreen({ navigation }) {
           backgroundColor: isDarkMode ? '#1E293B' : '#F5F7FA',
           borderColor: isDarkMode ? '#334155' : '#E2E8F0',
         }]}>
-          {/* Top Section: Avatar + Info */}
-          <View style={styles.talentCardTop}>
-            {/* Left: Avatar + Name */}
-            <View style={styles.talentCardLeft}>
-              <AvatarCircle name={talent.name} size={isDesktop ? 80 : 64} />
-              <Text style={[styles.talentName, { color: theme.text }]}>{talent.name}</Text>
-              <TouchableOpacity onPress={() => navigation.navigate('Profile', { userId: talent.id })}>
-                <Text style={[styles.moreInfoLink, { color: '#00BFA5' }]}>More Info</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Right: Skills + Details */}
-            <View style={styles.talentCardRight}>
-              {/* Skills */}
-              <View style={styles.skillsRow}>
-                <Ionicons name="globe-outline" size={16} color={isDarkMode ? '#94A3B8' : '#64748B'} style={{ marginRight: 6, marginTop: 2 }} />
-                <View style={styles.skillsWrap}>
-                  {talent.skills.map((skill, i) => (
-                    <SkillTag key={i} skill={skill} />
-                  ))}
-                </View>
+          {/* Top Section: Desktop Split vs Mobile Native Layout */}
+          {isDesktop ? (
+            <View style={styles.talentCardTop}>
+              {/* Left: Avatar + Name */}
+              <View style={styles.talentCardLeft}>
+                <AvatarCircle name={talent.name} size={80} />
+                <Text style={[styles.talentName, { color: theme.text }]}>{talent.name}</Text>
+                <TouchableOpacity onPress={() => navigation.navigate('Profile', { userId: talent.id })}>
+                  <Text style={[styles.moreInfoLink, { color: '#00BFA5' }]}>More Info</Text>
+                </TouchableOpacity>
               </View>
 
-              {/* Company */}
-              {talent.company ? (
+              {/* Right: Skills + Details */}
+              <View style={styles.talentCardRight}>
+                {/* Skills */}
+                <View style={styles.skillsRow}>
+                  <Ionicons name="globe-outline" size={16} color={isDarkMode ? '#94A3B8' : '#64748B'} style={{ marginRight: 6, marginTop: 2 }} />
+                  <View style={styles.skillsWrap}>
+                    {talent.skills.map((skill, i) => (
+                      <SkillTag key={i} skill={skill} />
+                    ))}
+                  </View>
+                </View>
+
+                {/* Company */}
+                {talent.company ? (
+                  <View style={styles.detailRow}>
+                    <Ionicons name="briefcase-outline" size={16} color={isDarkMode ? '#94A3B8' : '#64748B'} />
+                    <Text style={[styles.detailText, { color: theme.text }]}>
+                      {talent.company} - <Text style={{ color: '#00BFA5' }}>{talent.position}</Text>
+                    </Text>
+                  </View>
+                ) : null}
+
+                {/* Domain + Experience */}
                 <View style={styles.detailRow}>
-                  <Ionicons name="briefcase-outline" size={16} color={isDarkMode ? '#94A3B8' : '#64748B'} />
+                  <MaterialCommunityIcons name="domain" size={16} color={isDarkMode ? '#94A3B8' : '#64748B'} />
                   <Text style={[styles.detailText, { color: theme.text }]}>
-                    {talent.company} - <Text style={{ color: '#00BFA5' }}>{talent.position}</Text>
+                    {talent.domain} <Text style={{ color: '#00BFA5' }}>{talent.experience}</Text>
                   </Text>
                 </View>
-              ) : null}
-
-              {/* Domain + Experience */}
-              <View style={styles.detailRow}>
-                <MaterialCommunityIcons name="domain" size={16} color={isDarkMode ? '#94A3B8' : '#64748B'} />
-                <Text style={[styles.detailText, { color: theme.text }]}>
-                  {talent.domain} <Text style={{ color: '#00BFA5' }}>{talent.experience}</Text>
-                </Text>
               </View>
             </View>
-          </View>
+          ) : (
+            /* Mobile Native Profile Card */
+            <View style={styles.mobileTalentCardTop}>
+              <View style={styles.mobileTalentHeaderRow}>
+                <AvatarCircle name={talent.name} size={50} />
+                <View style={{ flex: 1, marginLeft: 12 }}>
+                  <Text style={[styles.mobileTalentName, { color: theme.text }]} numberOfLines={1}>
+                    {talent.name}
+                  </Text>
+                  {talent.company ? (
+                    <Text style={[styles.mobileTalentRole, { color: theme.textSecondary }]} numberOfLines={1}>
+                      {talent.position} • <Text style={{ color: '#00BFA5', fontWeight: '700' }}>{talent.company}</Text>
+                    </Text>
+                  ) : (
+                    <Text style={[styles.mobileTalentRole, { color: '#00BFA5', fontWeight: '700' }]} numberOfLines={1}>
+                      {talent.position || talent.domain}
+                    </Text>
+                  )}
+                  <View style={styles.mobileMetaRow}>
+                    <View style={[styles.mobileDomainBadge, { backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9' }]}>
+                      <Text style={[styles.mobileDomainBadgeText, { color: isDarkMode ? '#94A3B8' : '#475569' }]} numberOfLines={1}>
+                        {talent.domain}
+                      </Text>
+                    </View>
+                    <View style={[styles.mobileExpBadge, { backgroundColor: isDarkMode ? '#0F766E22' : '#E0F7FA' }]}>
+                      <Text style={{ fontSize: 10.5, fontWeight: '700', color: '#00BFA5' }}>
+                        {talent.experience}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+                <TouchableOpacity 
+                  onPress={() => navigation.navigate('Profile', { userId: talent.id })}
+                  style={styles.mobileMoreInfoBtn}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
+                  <Text style={{ fontSize: 11, fontWeight: '700', color: '#00BFA5', marginRight: 2 }}>Profile</Text>
+                  <Ionicons name="chevron-forward" size={14} color="#00BFA5" />
+                </TouchableOpacity>
+              </View>
+
+              {/* Skills Container */}
+              <View style={styles.mobileSkillsContainer}>
+                {talent.skills.map((skill, i) => (
+                  <SkillTag key={i} skill={skill} />
+                ))}
+              </View>
+            </View>
+          )}
 
           {/* Bio */}
           {talent.bio ? (
@@ -468,14 +532,20 @@ export default function ResumeBookScreen({ navigation }) {
           <View style={[styles.cardDivider, { backgroundColor: isDarkMode ? '#334155' : '#E2E8F0' }]} />
 
           {/* Actions */}
-          <View style={styles.cardActions}>
-            <TouchableOpacity style={styles.actionBtn} onPress={() => handleShowResume(talent)}>
-              <Ionicons name="open-outline" size={16} color="#00BFA5" />
-              <Text style={styles.actionText}>Show Resume</Text>
+          <View style={isDesktop ? styles.cardActions : styles.mobileCardActions}>
+            <TouchableOpacity 
+              style={isDesktop ? styles.actionBtn : styles.mobileActionBtnPrimary} 
+              onPress={() => handleShowResume(talent)}
+            >
+              <Ionicons name="open-outline" size={16} color={isDesktop ? '#00BFA5' : '#FFFFFF'} />
+              <Text style={isDesktop ? styles.actionText : styles.mobileActionTextPrimary}>Show Resume</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionBtn} onPress={() => handleForwardResume(talent)}>
+            <TouchableOpacity 
+              style={isDesktop ? styles.actionBtn : styles.mobileActionBtnSecondary} 
+              onPress={() => handleForwardResume(talent)}
+            >
               <Ionicons name="arrow-redo" size={16} color="#00BFA5" />
-              <Text style={styles.actionText}>Forward Resume</Text>
+              <Text style={styles.actionText}>Forward</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -569,7 +639,7 @@ export default function ResumeBookScreen({ navigation }) {
                 </Text>
               </View>
               <Text style={[{ fontSize: 11, color: isDarkMode ? '#94A3B8' : '#64748B', marginTop: 8, fontStyle: 'italic' }]} numberOfLines={2}>
-                I'm a highly talented professional with good skills...
+                {"I'm a highly talented professional with good skills..."}
               </Text>
               <TouchableOpacity style={{ marginTop: 10 }}>
                 <Text style={{ color: '#00BFA5', fontSize: 12, fontWeight: '700' }}>Show resume ✓</Text>
@@ -633,11 +703,23 @@ export default function ResumeBookScreen({ navigation }) {
   const renderTalentList = () => (
     <View style={{ flex: 1 }}>
       {/* Job Seeker Banner */}
-      <View style={[styles.jobSeekerBanner, {
-        backgroundColor: isDarkMode ? '#1E293B' : '#FFFFFF',
-        borderColor: isDarkMode ? '#334155' : '#E2E8F0'
-      }]}>
-        <Text style={[styles.bannerQuestion, { color: theme.text }]}>Are you a job seeker?</Text>
+      <View style={[
+        styles.jobSeekerBanner, 
+        {
+          backgroundColor: isDarkMode ? '#1E293B' : '#FFFFFF',
+          borderColor: isDarkMode ? '#334155' : '#E2E8F0',
+          marginHorizontal: isDesktop ? 60 : 16,
+        },
+        !isDesktop && styles.mobileJobSeekerBanner
+      ]}>
+        <View style={{ flex: 1 }}>
+          <Text style={[styles.bannerQuestion, { color: theme.text }]}>Are you a job seeker?</Text>
+          {!isDesktop && (
+            <Text style={{ fontSize: 11.5, color: theme.textMuted, marginTop: 2 }}>
+              Get discovered by alumni recruiters
+            </Text>
+          )}
+        </View>
         <View style={styles.bannerBtns}>
           <TouchableOpacity
             style={[styles.bannerBtn, { backgroundColor: '#00BFA5' }]}
@@ -651,12 +733,14 @@ export default function ResumeBookScreen({ navigation }) {
           >
             <Text style={styles.bannerBtnText}>{isListed ? 'Listed ✓' : 'Get Listed'}</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.bannerBtnOutline, { borderColor: isDarkMode ? '#475569' : '#CBD5E1' }]}
-            onPress={() => setViewMode('landing')}
-          >
-            <Text style={[styles.bannerBtnOutlineText, { color: theme.text }]}>Learn More</Text>
-          </TouchableOpacity>
+          {isDesktop && (
+            <TouchableOpacity
+              style={[styles.bannerBtnOutline, { borderColor: isDarkMode ? '#475569' : '#CBD5E1' }]}
+              onPress={() => setViewMode('landing')}
+            >
+              <Text style={[styles.bannerBtnOutlineText, { color: theme.text }]}>Learn More</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
@@ -666,10 +750,15 @@ export default function ResumeBookScreen({ navigation }) {
       </Text>
 
       {/* Search + Filters */}
-      <View style={[styles.searchFilterRow, { paddingHorizontal: isDesktop ? 60 : 16 }]}>
+      <View style={[
+        styles.searchFilterRow, 
+        { paddingHorizontal: isDesktop ? 60 : 16 },
+        !isDesktop && styles.mobileSearchFilterContainer
+      ]}>
         <View style={[styles.searchBar, {
           backgroundColor: isDarkMode ? '#1E293B' : '#FFFFFF',
-          borderColor: isDarkMode ? '#334155' : '#E2E8F0'
+          borderColor: isDarkMode ? '#334155' : '#E2E8F0',
+          minWidth: isDesktop ? 200 : '100%',
         }]}>
           <Ionicons name="search" size={18} color={isDarkMode ? '#94A3B8' : '#94A3B8'} />
           <TextInput
@@ -686,78 +775,85 @@ export default function ResumeBookScreen({ navigation }) {
           ) : null}
         </View>
 
-        {/* Domain Filter */}
-        <View style={{ position: 'relative', zIndex: 10 }}>
-          <TouchableOpacity
-            style={[styles.filterDropdown, {
-              backgroundColor: isDarkMode ? '#1E293B' : '#FFFFFF',
-              borderColor: selectedDomain !== 'All Domains' ? '#00BFA5' : (isDarkMode ? '#334155' : '#E2E8F0')
-            }]}
-            onPress={() => { setShowDomainDropdown(!showDomainDropdown); setShowExperienceDropdown(false); }}
-          >
-            <Text style={[styles.filterText, {
-              color: selectedDomain !== 'All Domains' ? '#00BFA5' : (isDarkMode ? '#CBD5E1' : '#475569')
-            }]} numberOfLines={1}>
-              {selectedDomain}
-            </Text>
-            <Ionicons name={showDomainDropdown ? 'chevron-up' : 'chevron-down'} size={16} color={isDarkMode ? '#94A3B8' : '#64748B'} />
-          </TouchableOpacity>
-          {showDomainDropdown && (
-            <View style={[styles.dropdownList, {
-              backgroundColor: isDarkMode ? '#1E293B' : '#FFFFFF',
-              borderColor: isDarkMode ? '#334155' : '#E2E8F0'
-            }]}>
-              <ScrollView style={{ maxHeight: 200 }} nestedScrollEnabled>
-                {DOMAIN_FILTERS.map((d, i) => (
-                  <TouchableOpacity key={i} style={[styles.dropdownItem, {
-                    backgroundColor: selectedDomain === d ? (isDarkMode ? '#0F766E22' : '#E0F7FA') : 'transparent'
-                  }]} onPress={() => { setSelectedDomain(d); setShowDomainDropdown(false); }}>
-                    <Text style={[styles.dropdownItemText, {
-                      color: selectedDomain === d ? '#00BFA5' : (isDarkMode ? '#CBD5E1' : '#475569'),
-                      fontWeight: selectedDomain === d ? '700' : '500'
-                    }]}>{d}</Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </View>
-          )}
-        </View>
+        {/* Dropdowns Row on Mobile */}
+        <View style={!isDesktop ? styles.mobileDropdownsRow : { flexDirection: 'row', gap: 10 }}>
+          {/* Domain Filter */}
+          <View style={{ position: 'relative', zIndex: 10, flex: isDesktop ? undefined : 1 }}>
+            <TouchableOpacity
+              style={[styles.filterDropdown, {
+                backgroundColor: isDarkMode ? '#1E293B' : '#FFFFFF',
+                borderColor: selectedDomain !== 'All Domains' ? '#00BFA5' : (isDarkMode ? '#334155' : '#E2E8F0'),
+                minWidth: isDesktop ? 140 : '100%',
+                width: isDesktop ? 'auto' : '100%',
+              }]}
+              onPress={() => { setShowDomainDropdown(!showDomainDropdown); setShowExperienceDropdown(false); }}
+            >
+              <Text style={[styles.filterText, {
+                color: selectedDomain !== 'All Domains' ? '#00BFA5' : (isDarkMode ? '#CBD5E1' : '#475569')
+              }]} numberOfLines={1}>
+                {selectedDomain}
+              </Text>
+              <Ionicons name={showDomainDropdown ? 'chevron-up' : 'chevron-down'} size={16} color={isDarkMode ? '#94A3B8' : '#64748B'} />
+            </TouchableOpacity>
+            {showDomainDropdown && (
+              <View style={[styles.dropdownList, {
+                backgroundColor: isDarkMode ? '#1E293B' : '#FFFFFF',
+                borderColor: isDarkMode ? '#334155' : '#E2E8F0'
+              }]}>
+                <ScrollView style={{ maxHeight: 200 }} nestedScrollEnabled>
+                  {DOMAIN_FILTERS.map((d, i) => (
+                    <TouchableOpacity key={i} style={[styles.dropdownItem, {
+                      backgroundColor: selectedDomain === d ? (isDarkMode ? '#0F766E22' : '#E0F7FA') : 'transparent'
+                    }]} onPress={() => { setSelectedDomain(d); setShowDomainDropdown(false); }}>
+                      <Text style={[styles.dropdownItemText, {
+                        color: selectedDomain === d ? '#00BFA5' : (isDarkMode ? '#CBD5E1' : '#475569'),
+                        fontWeight: selectedDomain === d ? '700' : '500'
+                      }]}>{d}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+          </View>
 
-        {/* Experience Filter */}
-        <View style={{ position: 'relative', zIndex: 9 }}>
-          <TouchableOpacity
-            style={[styles.filterDropdown, {
-              backgroundColor: isDarkMode ? '#1E293B' : '#FFFFFF',
-              borderColor: selectedExperience !== 'All Experience' ? '#00BFA5' : (isDarkMode ? '#334155' : '#E2E8F0')
-            }]}
-            onPress={() => { setShowExperienceDropdown(!showExperienceDropdown); setShowDomainDropdown(false); }}
-          >
-            <Text style={[styles.filterText, {
-              color: selectedExperience !== 'All Experience' ? '#00BFA5' : (isDarkMode ? '#CBD5E1' : '#475569')
-            }]} numberOfLines={1}>
-              {selectedExperience}
-            </Text>
-            <Ionicons name={showExperienceDropdown ? 'chevron-up' : 'chevron-down'} size={16} color={isDarkMode ? '#94A3B8' : '#64748B'} />
-          </TouchableOpacity>
-          {showExperienceDropdown && (
-            <View style={[styles.dropdownList, {
-              backgroundColor: isDarkMode ? '#1E293B' : '#FFFFFF',
-              borderColor: isDarkMode ? '#334155' : '#E2E8F0'
-            }]}>
-              <ScrollView style={{ maxHeight: 200 }} nestedScrollEnabled>
-                {EXPERIENCE_FILTERS.map((e, i) => (
-                  <TouchableOpacity key={i} style={[styles.dropdownItem, {
-                    backgroundColor: selectedExperience === e ? (isDarkMode ? '#0F766E22' : '#E0F7FA') : 'transparent'
-                  }]} onPress={() => { setSelectedExperience(e); setShowExperienceDropdown(false); }}>
-                    <Text style={[styles.dropdownItemText, {
-                      color: selectedExperience === e ? '#00BFA5' : (isDarkMode ? '#CBD5E1' : '#475569'),
-                      fontWeight: selectedExperience === e ? '700' : '500'
-                    }]}>{e}</Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </View>
-          )}
+          {/* Experience Filter */}
+          <View style={{ position: 'relative', zIndex: 9, flex: isDesktop ? undefined : 1 }}>
+            <TouchableOpacity
+              style={[styles.filterDropdown, {
+                backgroundColor: isDarkMode ? '#1E293B' : '#FFFFFF',
+                borderColor: selectedExperience !== 'All Experience' ? '#00BFA5' : (isDarkMode ? '#334155' : '#E2E8F0'),
+                minWidth: isDesktop ? 140 : '100%',
+                width: isDesktop ? 'auto' : '100%',
+              }]}
+              onPress={() => { setShowExperienceDropdown(!showExperienceDropdown); setShowDomainDropdown(false); }}
+            >
+              <Text style={[styles.filterText, {
+                color: selectedExperience !== 'All Experience' ? '#00BFA5' : (isDarkMode ? '#CBD5E1' : '#475569')
+              }]} numberOfLines={1}>
+                {selectedExperience}
+              </Text>
+              <Ionicons name={showExperienceDropdown ? 'chevron-up' : 'chevron-down'} size={16} color={isDarkMode ? '#94A3B8' : '#64748B'} />
+            </TouchableOpacity>
+            {showExperienceDropdown && (
+              <View style={[styles.dropdownList, {
+                backgroundColor: isDarkMode ? '#1E293B' : '#FFFFFF',
+                borderColor: isDarkMode ? '#334155' : '#E2E8F0'
+              }]}>
+                <ScrollView style={{ maxHeight: 200 }} nestedScrollEnabled>
+                  {EXPERIENCE_FILTERS.map((e, i) => (
+                    <TouchableOpacity key={i} style={[styles.dropdownItem, {
+                      backgroundColor: selectedExperience === e ? (isDarkMode ? '#0F766E22' : '#E0F7FA') : 'transparent'
+                    }]} onPress={() => { setSelectedExperience(e); setShowExperienceDropdown(false); }}>
+                      <Text style={[styles.dropdownItemText, {
+                        color: selectedExperience === e ? '#00BFA5' : (isDarkMode ? '#CBD5E1' : '#475569'),
+                        fontWeight: selectedExperience === e ? '700' : '500'
+                      }]}>{e}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+          </View>
         </View>
       </View>
 
@@ -805,7 +901,7 @@ export default function ResumeBookScreen({ navigation }) {
           {/* Header */}
           <View style={[styles.resumeModalHeader, { borderBottomColor: isDarkMode ? '#334155' : '#E2E8F0' }]}>
             <Text style={[styles.resumeModalTitle, { color: theme.text }]}>
-              {selectedTalent?.name}'s Resume
+              {`${selectedTalent?.name || ''}'s Resume`}
             </Text>
             <TouchableOpacity onPress={() => setShowResumeModal(false)}>
               <Ionicons name="close" size={24} color={theme.text} />
@@ -917,7 +1013,7 @@ export default function ResumeBookScreen({ navigation }) {
 
           <View style={{ padding: 20 }}>
             <Text style={[styles.forwardLabel, { color: isDarkMode ? '#94A3B8' : '#64748B' }]}>
-              Forwarding {selectedTalent?.name}'s resume
+              {`Forwarding ${selectedTalent?.name || ''}'s resume`}
             </Text>
             <TextInput
               style={[styles.forwardInput, {
@@ -1322,5 +1418,100 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     gap: 8, paddingVertical: 14, borderRadius: 10, marginTop: 24
   },
-  submitListingText: { fontSize: 15, fontWeight: '800', color: '#FFF' }
+  submitListingText: { fontSize: 15, fontWeight: '800', color: '#FFF' },
+
+  // Mobile-specific styles for Talent List & Card
+  mobileJobSeekerBanner: {
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    gap: 10,
+  },
+  mobileSearchFilterContainer: {
+    gap: 8,
+  },
+  mobileDropdownsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    width: '100%',
+  },
+  mobileTalentCardTop: {
+    width: '100%',
+  },
+  mobileTalentHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  mobileTalentName: {
+    fontSize: 15,
+    fontWeight: '800',
+  },
+  mobileTalentRole: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+  mobileMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 4,
+  },
+  mobileDomainBadge: {
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 6,
+    maxWidth: 160,
+  },
+  mobileDomainBadgeText: {
+    fontSize: 10.5,
+    fontWeight: '600',
+  },
+  mobileExpBadge: {
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  mobileMoreInfoBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+  },
+  mobileSkillsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 4,
+  },
+  mobileCardActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginTop: 4,
+  },
+  mobileActionBtnPrimary: {
+    flex: 1.2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: '#00BFA5',
+    paddingVertical: 9,
+    borderRadius: 10,
+  },
+  mobileActionTextPrimary: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  mobileActionBtnSecondary: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 8,
+    borderRadius: 10,
+    borderWidth: 1.2,
+    borderColor: '#00BFA5',
+  },
 });

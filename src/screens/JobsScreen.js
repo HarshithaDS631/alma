@@ -767,165 +767,244 @@ const JobsScreen = ({ navigation, route }) => {
         style={[
           styles.fabContainer,
           {
-            bottom: isDesktop ? 28 : Math.max(insets?.bottom || 0, 10) + 76,
+            bottom: isDesktop ? 28 : Math.max(insets?.bottom || 0, 10) + 68,
+            right: isDesktop ? 24 : 16,
           }
         ]}
         pointerEvents="box-none"
       >
         <TouchableOpacity
-          style={styles.fabPillButton}
+          style={[
+            styles.fabPillButton,
+            !isDesktop && styles.fabPillButtonMobile
+          ]}
           onPress={() => setFabMenuVisible(prev => !prev)}
           activeOpacity={0.85}
           accessibilityLabel="Resume Book Menu"
         >
           <Ionicons 
             name={fabMenuVisible ? 'close' : 'menu'} 
-            size={20} 
+            size={isDesktop ? 20 : 18} 
             color="#FFFFFF" 
           />
-          <Text style={styles.fabPillButtonText}>
+          <Text style={[styles.fabPillButtonText, !isDesktop && styles.fabPillButtonTextMobile]}>
             {fabMenuVisible ? 'Close' : 'Resume Book'}
           </Text>
         </TouchableOpacity>
       </View>
 
-      {/* Unique Dedicated Resume Book Showcase Modal */}
+      {/* Dedicated Resume Book Modal (Desktop Card vs Mobile Bottom Sheet) */}
       <Modal
         visible={fabMenuVisible}
         transparent
-        animationType="fade"
+        animationType={isDesktop ? 'fade' : 'slide'}
         onRequestClose={() => setFabMenuVisible(false)}
       >
         <TouchableOpacity
-          style={styles.fabBackdrop}
+          style={isDesktop ? styles.fabBackdrop : styles.mobileSheetBackdrop}
           activeOpacity={1}
           onPress={() => setFabMenuVisible(false)}
         >
-          <View 
-            style={[
-              styles.resumeShowcaseCard,
-              {
-                bottom: isDesktop ? 96 : Math.max(insets?.bottom || 0, 10) + 140,
-                right: 20,
-                maxWidth: Math.min(screenWidth - 40, 360),
-              }
-            ]}
-            onStartShouldSetResponder={() => true}
-          >
-            {/* Top Brand Bar */}
-            <View style={styles.showcaseTopBanner}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
-                <View style={styles.showcaseIconPod}>
-                  <Ionicons name="school" size={20} color="#FBBF24" />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                    <Text style={styles.showcaseBrandTitle}>RV ALUMNI</Text>
-                    <View style={styles.showcaseOfficialBadge}>
-                      <Text style={styles.showcaseOfficialBadgeText}>OFFICIAL</Text>
-                    </View>
-                  </View>
-                  <Text style={styles.showcaseBrandSub}>Exclusive Candidate Pool</Text>
-                </View>
-              </View>
-              <TouchableOpacity 
-                onPress={() => setFabMenuVisible(false)} 
-                hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-                style={styles.showcaseCloseBtn}
-              >
-                <Ionicons name="close" size={18} color="#94A3B8" />
-              </TouchableOpacity>
-            </View>
-
-            {/* Showcase Body */}
-            <View style={styles.showcaseBody}>
-              <View style={styles.showcaseTagRow}>
-                <View style={styles.showcasePill}>
-                  <Ionicons name="sparkles" size={12} color="#7C3AED" style={{ marginRight: 4 }} />
-                  <Text style={styles.showcasePillText}>RESUME BOOK</Text>
-                </View>
-                <Text style={styles.showcaseStatText}>850+ Verified Profiles</Text>
-              </View>
-
-              <Text style={styles.showcaseTitle}>RVCE Alumni Resume Book</Text>
-              <Text style={styles.showcaseSubtitle}>
-                Verified alumni resumes across top tech, product, and leadership domains ready for hire & referrals.
-              </Text>
-
-              {/* 3 Metric Badges */}
-              <View style={styles.showcaseMetricsRow}>
-                <View style={styles.showcaseMetricItem}>
-                  <Text style={styles.showcaseMetricValue}>850+</Text>
-                  <Text style={styles.showcaseMetricLabel}>Candidates</Text>
-                </View>
-                <View style={styles.showcaseMetricDivider} />
-                <View style={styles.showcaseMetricItem}>
-                  <Text style={styles.showcaseMetricValue}>120+</Text>
-                  <Text style={styles.showcaseMetricLabel}>Companies</Text>
-                </View>
-                <View style={styles.showcaseMetricDivider} />
-                <View style={styles.showcaseMetricItem}>
-                  <Text style={styles.showcaseMetricValue}>2012–25</Text>
-                  <Text style={styles.showcaseMetricLabel}>Batches</Text>
-                </View>
-              </View>
-
-              {/* Live Preview Sample Card */}
-              <View style={styles.spotlightCard}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                  <View style={styles.spotlightAvatar}>
-                    <Text style={styles.spotlightAvatarText}>RV</Text>
+          {isDesktop ? (
+            /* DESKTOP WEB CARD */
+            <View 
+              style={[
+                styles.resumeShowcaseCard,
+                { bottom: 96, right: 24, width: 340 }
+              ]}
+              onStartShouldSetResponder={() => true}
+            >
+              {/* Top Brand Bar */}
+              <View style={styles.showcaseTopBanner}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
+                  <View style={styles.showcaseIconPod}>
+                    <Ionicons name="school" size={20} color="#FBBF24" />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <Text style={styles.spotlightName}>Alumni Candidate</Text>
-                      <View style={styles.spotlightBadge}>
-                        <View style={styles.spotlightDot} />
-                        <Text style={styles.spotlightBadgeText}>Open to Hire</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                      <Text style={styles.showcaseBrandTitle}>RV ALUMNI</Text>
+                      <View style={styles.showcaseOfficialBadge}>
+                        <Text style={styles.showcaseOfficialBadgeText}>OFFICIAL</Text>
                       </View>
                     </View>
-                    <Text style={styles.spotlightRole}>Full Stack & Cloud • 3+ Yrs Exp</Text>
+                    <Text style={styles.showcaseBrandSub}>Exclusive Candidate Pool</Text>
                   </View>
                 </View>
-                <View style={styles.spotlightSkillsRow}>
-                  {['React', 'Python', 'AWS', 'System Design'].map((skill, idx) => (
-                    <View key={idx} style={styles.spotlightSkillChip}>
-                      <Text style={styles.spotlightSkillText}>{skill}</Text>
+                <TouchableOpacity 
+                  onPress={() => setFabMenuVisible(false)} 
+                  hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                  style={styles.showcaseCloseBtn}
+                >
+                  <Ionicons name="close" size={18} color="#94A3B8" />
+                </TouchableOpacity>
+              </View>
+
+              {/* Showcase Body */}
+              <View style={styles.showcaseBody}>
+                <View style={styles.showcaseTagRow}>
+                  <View style={styles.showcasePill}>
+                    <Ionicons name="sparkles" size={12} color="#7C3AED" style={{ marginRight: 4 }} />
+                    <Text style={styles.showcasePillText}>RESUME BOOK</Text>
+                  </View>
+                  <Text style={styles.showcaseStatText}>850+ Verified Profiles</Text>
+                </View>
+
+                <Text style={styles.showcaseTitle}>RVCE Alumni Resume Book</Text>
+                <Text style={styles.showcaseSubtitle}>
+                  Verified alumni resumes across top tech, product, and leadership domains ready for hire & referrals.
+                </Text>
+
+                {/* 3 Metric Badges */}
+                <View style={styles.showcaseMetricsRow}>
+                  <View style={styles.showcaseMetricItem}>
+                    <Text style={styles.showcaseMetricValue}>850+</Text>
+                    <Text style={styles.showcaseMetricLabel}>Candidates</Text>
+                  </View>
+                  <View style={styles.showcaseMetricDivider} />
+                  <View style={styles.showcaseMetricItem}>
+                    <Text style={styles.showcaseMetricValue}>120+</Text>
+                    <Text style={styles.showcaseMetricLabel}>Companies</Text>
+                  </View>
+                  <View style={styles.showcaseMetricDivider} />
+                  <View style={styles.showcaseMetricItem}>
+                    <Text style={styles.showcaseMetricValue}>2012–25</Text>
+                    <Text style={styles.showcaseMetricLabel}>Batches</Text>
+                  </View>
+                </View>
+
+                {/* Live Preview Sample Card */}
+                <View style={styles.spotlightCard}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    <View style={styles.spotlightAvatar}>
+                      <Text style={styles.spotlightAvatarText}>RV</Text>
                     </View>
-                  ))}
+                    <View style={{ flex: 1 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Text style={styles.spotlightName}>Alumni Candidate</Text>
+                        <View style={styles.spotlightBadge}>
+                          <View style={styles.spotlightDot} />
+                          <Text style={styles.spotlightBadgeText}>Open to Hire</Text>
+                        </View>
+                      </View>
+                      <Text style={styles.spotlightRole}>Full Stack & Cloud • 3+ Yrs Exp</Text>
+                    </View>
+                  </View>
+                  <View style={styles.spotlightSkillsRow}>
+                    {['React', 'Python', 'AWS', 'System Design'].map((skill, idx) => (
+                      <View key={idx} style={styles.spotlightSkillChip}>
+                        <Text style={styles.spotlightSkillText}>{skill}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+
+                {/* Glowing CTA Button */}
+                <TouchableOpacity
+                  style={styles.showcaseCtaBtn}
+                  activeOpacity={0.85}
+                  onPress={() => {
+                    setFabMenuVisible(false);
+                    navigation.navigate('ResumeBook', { initialMode: 'talent_list' });
+                  }}
+                >
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <Ionicons name="document-text" size={18} color="#FFFFFF" />
+                    <Text style={styles.showcaseCtaBtnText}>Browse Resume Book</Text>
+                  </View>
+                  <Ionicons name="arrow-forward" size={18} color="#FFFFFF" />
+                </TouchableOpacity>
+
+                {/* Secondary Link for Job Seekers */}
+                <TouchableOpacity
+                  style={styles.showcaseSecondaryLink}
+                  onPress={() => {
+                    setFabMenuVisible(false);
+                    navigation.navigate('ResumeBook', { initialMode: 'get_listed' });
+                  }}
+                >
+                  <Text style={styles.showcaseSecondaryText}>
+                    Job seeker? <Text style={styles.showcaseSecondaryLinkBold}>Get Listed in Resume Book →</Text>
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ) : (
+            /* MOBILE NATIVE BOTTOM SHEET */
+            <View 
+              style={[
+                styles.mobileBottomSheet,
+                { paddingBottom: Math.max(insets?.bottom || 0, 16) + 12 }
+              ]}
+              onStartShouldSetResponder={() => true}
+            >
+              {/* Native Drag Handle */}
+              <View style={styles.sheetHandle} />
+
+              {/* Mobile Header */}
+              <View style={styles.mobileSheetHeader}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
+                  <View style={styles.mobileIconPod}>
+                    <Ionicons name="document-text" size={22} color="#7C3AED" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.mobileSheetTitle}>Resume Book</Text>
+                    <Text style={styles.mobileSheetSub}>RVCE Alumni Candidate Directory</Text>
+                  </View>
+                </View>
+                <TouchableOpacity 
+                  onPress={() => setFabMenuVisible(false)} 
+                  hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                  style={styles.mobileCloseBtn}
+                >
+                  <Ionicons name="close" size={20} color={theme.textMuted} />
+                </TouchableOpacity>
+              </View>
+
+              {/* Mobile Compact Value Badges */}
+              <View style={styles.mobilePillsRow}>
+                <View style={styles.mobilePillBadge}>
+                  <Text style={styles.mobilePillBadgeText}>⚡ 850+ Resumes</Text>
+                </View>
+                <View style={styles.mobilePillBadge}>
+                  <Text style={styles.mobilePillBadgeText}>🏢 Top Tech Firms</Text>
+                </View>
+                <View style={styles.mobilePillBadge}>
+                  <Text style={styles.mobilePillBadgeText}>🎓 Batches 2012–25</Text>
                 </View>
               </View>
 
-              {/* Glowing CTA Button */}
+              <Text style={styles.mobileSheetDesc}>
+                Explore pre-screened alumni profiles seeking engineering, product, and leadership roles.
+              </Text>
+
+              {/* Primary Mobile Action Button */}
               <TouchableOpacity
-                style={styles.showcaseCtaBtn}
+                style={styles.mobileCtaBtn}
                 activeOpacity={0.85}
                 onPress={() => {
                   setFabMenuVisible(false);
-                  navigation.navigate('ResumeBook');
+                  navigation.navigate('ResumeBook', { initialMode: 'talent_list' });
                 }}
               >
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                  <Ionicons name="document-text" size={18} color="#FFFFFF" />
-                  <Text style={styles.showcaseCtaBtnText}>Browse Resume Book</Text>
-                </View>
-                <Ionicons name="arrow-forward" size={18} color="#FFFFFF" />
+                <Ionicons name="book-outline" size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
+                <Text style={styles.mobileCtaBtnText}>Browse Resume Book</Text>
+                <Ionicons name="arrow-forward" size={18} color="#FFFFFF" style={{ marginLeft: 6 }} />
               </TouchableOpacity>
 
-              {/* Secondary Link for Job Seekers */}
+              {/* Secondary Mobile Link */}
               <TouchableOpacity
-                style={styles.showcaseSecondaryLink}
+                style={styles.mobileSecondaryLink}
                 onPress={() => {
                   setFabMenuVisible(false);
-                  navigation.navigate('ResumeBook');
+                  navigation.navigate('ResumeBook', { initialMode: 'get_listed' });
                 }}
               >
-                <Text style={styles.showcaseSecondaryText}>
-                  Job seeker? <Text style={styles.showcaseSecondaryLinkBold}>Get Listed in Resume Book →</Text>
+                <Text style={styles.mobileSecondaryText}>
+                  Job seeker? <Text style={styles.mobileSecondaryBold}>Get Listed in Resume Book →</Text>
                 </Text>
               </TouchableOpacity>
             </View>
-          </View>
+          )}
         </TouchableOpacity>
       </Modal>
     </SafeAreaView>
@@ -1477,6 +1556,131 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   showcaseSecondaryLinkBold: {
     fontWeight: '800',
     color: isDarkMode ? '#C4B5FD' : '#7C3AED',
+  },
+  // Mobile Specific Responsive Styles
+  fabPillButtonMobile: {
+    height: 40,
+    paddingHorizontal: 12,
+    gap: 6,
+  },
+  fabPillButtonTextMobile: {
+    fontSize: 12,
+  },
+  mobileSheetBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.55)',
+    justifyContent: 'flex-end',
+  },
+  mobileBottomSheet: {
+    backgroundColor: theme.card,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderColor: isDarkMode ? '#334155' : '#E2E8F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 20,
+  },
+  sheetHandle: {
+    width: 38,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: isDarkMode ? '#475569' : '#CBD5E1',
+    alignSelf: 'center',
+    marginBottom: 14,
+  },
+  mobileSheetHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  mobileIconPod: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: isDarkMode ? '#1E1B4B' : '#F5F3FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: isDarkMode ? '#4C1D95' : '#DDD6FE',
+  },
+  mobileSheetTitle: {
+    fontSize: 17,
+    fontWeight: '800',
+    color: theme.text,
+  },
+  mobileSheetSub: {
+    fontSize: 11.5,
+    color: theme.textMuted,
+    marginTop: 1,
+  },
+  mobileCloseBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  mobilePillsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 10,
+    flexWrap: 'wrap',
+  },
+  mobilePillBadge: {
+    backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: isDarkMode ? '#334155' : '#E2E8F0',
+  },
+  mobilePillBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: isDarkMode ? '#94A3B8' : '#475569',
+  },
+  mobileSheetDesc: {
+    fontSize: 12.5,
+    color: theme.textSecondary,
+    lineHeight: 18,
+    marginBottom: 16,
+  },
+  mobileCtaBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#7C3AED',
+    paddingVertical: 13,
+    borderRadius: 14,
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  mobileCtaBtnText: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+  mobileSecondaryLink: {
+    marginTop: 12,
+    alignItems: 'center',
+  },
+  mobileSecondaryText: {
+    fontSize: 12,
+    color: theme.textMuted,
+  },
+  mobileSecondaryBold: {
+    fontWeight: '800',
+    color: isDarkMode ? '#A78BFA' : '#7C3AED',
   },
 });
 
