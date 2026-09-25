@@ -773,23 +773,19 @@ const JobsScreen = ({ navigation, route }) => {
         pointerEvents="box-none"
       >
         <TouchableOpacity
-          style={styles.fabButton}
+          style={styles.fabPillButton}
           onPress={() => setFabMenuVisible(prev => !prev)}
           activeOpacity={0.85}
-          accessibilityLabel="Resume Book Talent Menu"
+          accessibilityLabel="Resume Book Menu"
         >
           <Ionicons 
             name={fabMenuVisible ? 'close' : 'menu'} 
-            size={24} 
+            size={20} 
             color="#FFFFFF" 
           />
-          {/* Subtle Resume Book Pill Indicator */}
-          {!fabMenuVisible && (
-            <View style={styles.fabPillBadge}>
-              <Ionicons name="document-text" size={10} color="#FFFFFF" style={{ marginRight: 2 }} />
-              <Text style={styles.fabPillBadgeText}>TALENT</Text>
-            </View>
-          )}
+          <Text style={styles.fabPillButtonText}>
+            {fabMenuVisible ? 'Close' : 'Resume Book'}
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -1221,13 +1217,14 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     right: 20,
     zIndex: 999,
   },
-  fabButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: isDarkMode ? '#2563EB' : '#002B5C',
-    justifyContent: 'center',
+  fabPillButton: {
+    flexDirection: 'row',
     alignItems: 'center',
+    height: 48,
+    paddingHorizontal: 16,
+    borderRadius: 24,
+    backgroundColor: isDarkMode ? '#2563EB' : '#002B5C',
+    gap: 8,
     shadowColor: isDarkMode ? '#38BDF8' : '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
@@ -1236,27 +1233,15 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     borderWidth: 2,
     borderColor: isDarkMode ? '#60A5FA' : '#93C5FD',
   },
+  fabPillButtonText: {
+    fontSize: 13.5,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: 0.2,
+  },
   fabBackdrop: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.45)',
-  },
-  fabPillBadge: {
-    position: 'absolute',
-    top: -4,
-    right: -4,
-    backgroundColor: '#7C3AED',
-    borderRadius: 8,
-    paddingHorizontal: 5,
-    paddingVertical: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: '#FFFFFF',
-  },
-  fabPillBadgeText: {
-    fontSize: 8,
-    fontWeight: '800',
-    color: '#FFFFFF',
   },
   resumeShowcaseCard: {
     position: 'absolute',
