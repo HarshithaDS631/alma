@@ -1170,13 +1170,38 @@ const DashboardScreen = ({ navigation }) => {
                 <Ionicons name="calendar-outline" size={22} color={theme.primary} />
               </TouchableOpacity>
             )}
-            <TouchableOpacity
-              style={styles.headerIconBtn}
-              onPress={() => navigation.navigate('ResumeBook')}
-              title="Resume Book"
-            >
-              <Ionicons name="document-text-outline" size={22} color={theme.primary} />
-            </TouchableOpacity>
+            {isDesktop ? (
+              <TouchableOpacity
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  backgroundColor: isDarkMode ? 'rgba(99, 102, 241, 0.15)' : '#EEF2FF',
+                  paddingHorizontal: 12,
+                  paddingVertical: 7,
+                  borderRadius: 20,
+                  gap: 6,
+                  borderWidth: 1,
+                  borderColor: isDarkMode ? '#4F46E5' : '#C7D2FE',
+                  marginRight: 4,
+                }}
+                onPress={() => navigation.navigate('ResumeBook')}
+                activeOpacity={0.8}
+                title="Resume Book"
+              >
+                <Ionicons name="document-text" size={16} color={isDarkMode ? '#818CF8' : '#4F46E5'} />
+                <Text style={{ fontSize: 12.5, fontWeight: '800', color: isDarkMode ? '#818CF8' : '#4F46E5' }}>
+                  Resume Book
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={styles.headerIconBtn}
+                onPress={() => navigation.navigate('ResumeBook')}
+                title="Resume Book"
+              >
+                <Ionicons name="document-text-outline" size={22} color={theme.primary} />
+              </TouchableOpacity>
+            )}
             <TouchableOpacity
               style={styles.headerIconBtn}
               onPress={() => { setUnreadMessages(0); navigation.navigate('Messages'); }}
@@ -1362,7 +1387,7 @@ const DashboardScreen = ({ navigation }) => {
 
                 {/* 4. Founder & Career Referrals */}
                 <TouchableOpacity 
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 8, borderRadius: 10, gap: 10 }}
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 8, borderRadius: 10, gap: 10, marginBottom: 4 }}
                   onPress={() => navigation.navigate('Main', { screen: 'Jobs' })}
                   activeOpacity={0.7}
                 >
@@ -1377,6 +1402,27 @@ const DashboardScreen = ({ navigation }) => {
                       </View>
                     </View>
                     <Text style={{ fontSize: 11, color: theme.textMuted, marginTop: 1 }}>Direct alumni company openings</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={14} color={theme.textMuted} />
+                </TouchableOpacity>
+
+                {/* 5. Resume Book (Talent Pool) */}
+                <TouchableOpacity 
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 8, borderRadius: 10, gap: 10 }}
+                  onPress={() => navigation.navigate('ResumeBook')}
+                  activeOpacity={0.7}
+                >
+                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: isDarkMode ? '#1E1B4B' : '#EDE9FE', justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name="document-text" size={17} color="#7C3AED" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                      <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }}>Resume Book</Text>
+                      <View style={{ backgroundColor: '#EDE9FE', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 6 }}>
+                        <Text style={{ fontSize: 9.5, fontWeight: '800', color: '#6D28D9' }}>TALENT POOL</Text>
+                      </View>
+                    </View>
+                    <Text style={{ fontSize: 11, color: theme.textMuted, marginTop: 1 }}>Browse alumni candidate resumes</Text>
                   </View>
                   <Ionicons name="chevron-forward" size={14} color={theme.textMuted} />
                 </TouchableOpacity>

@@ -284,6 +284,7 @@ function MainTabs() {
             if (route.name === 'Engage') iconComp = <MaterialCommunityIcons name={focused ? 'handshake' : 'handshake-outline'} size={20} color={focused ? (isDarkMode ? '#38BDF8' : '#002B5C') : color} />;
             if (route.name === 'Post') iconComp = <Ionicons name={focused ? 'add-circle' : 'add-circle-outline'} size={22} color={focused ? (isDarkMode ? '#38BDF8' : '#002B5C') : color} />;
             if (route.name === 'Jobs') iconComp = <Ionicons name={focused ? 'briefcase' : 'briefcase-outline'} size={20} color={focused ? (isDarkMode ? '#38BDF8' : '#002B5C') : color} />;
+            if (route.name === 'ResumeBook') iconComp = <Ionicons name={focused ? 'document-text' : 'document-text-outline'} size={20} color={focused ? (isDarkMode ? '#38BDF8' : '#002B5C') : color} />;
             if (route.name === 'Contribute') iconComp = <MaterialCommunityIcons name={focused ? 'hand-heart' : 'hand-heart-outline'} size={20} color={focused ? (isDarkMode ? '#38BDF8' : '#002B5C') : color} />;
             return (
               <View style={{
@@ -301,10 +302,11 @@ function MainTabs() {
         })}
       >
         <Drawer.Screen name="Home" component={DashboardScreen} />
-        <Drawer.Screen name="Engage" component={DirectoryScreen} />
-        <Drawer.Screen name="Post" component={EngageScreen} />
-        <Drawer.Screen name="Jobs" component={JobsScreen} />
-        <Drawer.Screen name="Contribute" component={ContributeScreen} />
+        <Drawer.Screen name="Engage" component={DirectoryScreen} options={{ drawerLabel: 'Directory' }} />
+        <Drawer.Screen name="ResumeBook" component={ResumeBookScreen} options={{ drawerLabel: 'Resume Book' }} />
+        <Drawer.Screen name="Post" component={EngageScreen} options={{ drawerLabel: 'Feed & Events' }} />
+        <Drawer.Screen name="Jobs" component={JobsScreen} options={{ drawerLabel: 'Jobs' }} />
+        <Drawer.Screen name="Contribute" component={ContributeScreen} options={{ drawerLabel: 'Support' }} />
       </Drawer.Navigator>
     );
   }
@@ -581,6 +583,7 @@ const linking = {
         screens: {
           Home: 'home',
           Engage: 'directory',
+          ResumeBook: 'resume-book',
           Post: 'engage',
           Jobs: 'jobs',
           Contribute: 'contribute',
