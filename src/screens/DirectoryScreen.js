@@ -35,6 +35,49 @@ import InstagramProfileShareModal from '../components/InstagramProfileShareModal
 
 const DEFAULT_ALUMNI_MEMBERS = [];
 
+const DEFAULT_WHATSAPP_COMMUNITIES = [
+  {
+    id: 'comm_rvce_global',
+    name: 'RVCE Alumni Global Community',
+    institution: 'RV College of Engineering',
+    description: 'Official global community connecting 45,000+ alumni, faculty, and research fellows worldwide.',
+    membersCount: '4,850 Members • Official Community',
+    avatar_url: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=200&h=200&q=80',
+    announcement: {
+      id: 'ann_rvce_1',
+      name: 'Announcements',
+      lastMessage: '📢 Annual Alumni Homecoming 2026 dates announced! Registrations are now open on the portal.',
+      time: 'Yesterday',
+      unread: true,
+    },
+    groups: [
+      { id: 'grp_rvce_gen', name: 'General Alumni Chat', icon: 'chatbubbles', lastSender: 'Suresh N.', lastMessage: 'Great catching up at the tech symposium!', time: '11:45 AM', unreadCount: 3 },
+      { id: 'grp_rvce_jobs', name: 'Jobs & Referral Pipeline', icon: 'briefcase', lastSender: 'Pooja Hegde', lastMessage: 'Hiring 4 Senior Fullstack Engineers at NVIDIA Bangalore.', time: '10:15 AM', unreadCount: 6 },
+      { id: 'grp_rvce_tech', name: 'Tech, AI & Innovation Hub', icon: 'code-slash', lastSender: 'Vikram Sethi', lastMessage: 'Anyone experimenting with local LLM deployments?', time: 'Yesterday', unreadCount: 0 },
+      { id: 'grp_rvce_blr', name: 'Bengaluru Chapter & Meetups', icon: 'location', lastSender: 'Ananya S.', lastMessage: 'Sunday campus breakfast meetup confirmed at 9:30 AM.', time: 'Sep 23', unreadCount: 0 },
+    ]
+  },
+  {
+    id: 'comm_rv_entrepreneurs',
+    name: 'RV Alumni Founders & Angels',
+    institution: 'RV Educational Institutions',
+    description: 'Venture network for alumni founders, startup operators, angels, and technology executives.',
+    membersCount: '1,320 Members • Verified Network',
+    avatar_url: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=200&h=200&q=80',
+    announcement: {
+      id: 'ann_rv_found_1',
+      name: 'Announcements',
+      lastMessage: '🚀 RSST Innovation Grant 2026: Up to ₹25 Lakhs non-dilutive grant for alumni startups.',
+      time: 'Sep 21',
+      unread: false,
+    },
+    groups: [
+      { id: 'grp_found_pitch', name: 'Pitch Decks & Feedback', icon: 'rocket', lastSender: 'Rahul V.', lastMessage: 'Launched on Product Hunt today! Would love your upvotes.', time: '9:30 AM', unreadCount: 2 },
+      { id: 'grp_found_mentors', name: 'Angel Mentorship & Advisory', icon: 'bulb', lastSender: 'Karthik Raja', lastMessage: 'Hosting office hours for early-stage B2B SaaS this Friday.', time: 'Sep 22', unreadCount: 0 },
+    ]
+  }
+];
+
 const DirectoryScreen = ({ navigation, route }) => {
   const { theme, isDarkMode } = useTheme();
   const styles = getStyles(theme);
@@ -46,7 +89,6 @@ const DirectoryScreen = ({ navigation, route }) => {
   const [requests, setRequests] = useState([]);
   const [dbAlumni, setDbAlumni] = useState([]);
   const [sentConnectMap, setSentConnectMap] = useState({});
-  const [desktopViewMode, setDesktopViewMode] = useState('cards'); // 'cards' | 'table'
 
   React.useEffect(() => {
     if (route?.params?.tab) {
@@ -270,7 +312,20 @@ const DirectoryScreen = ({ navigation, route }) => {
   const [communityDesc, setCommunityDesc] = useState('');
   const [communityIconUri, setCommunityIconUri] = useState(null);
   const [selectedGroups, setSelectedGroups] = useState(['announcement']);
-  const [userCommunities, setUserCommunities] = useState([]);
+  const [userCommunities, setUserCommunities] = useState(DEFAULT_WHATSAPP_COMMUNITIES);
+
+  useEffect(() => {
+    AsyncStorage.getItem('alumni_whatsapp_communities').then(savedStr => {
+      if (savedStr) {
+        try {
+          const parsed = JSON.parse(savedStr);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setUserCommunities(parsed);
+          }
+        } catch (_) {}
+      }
+    }).catch(() => {});
+  }, []);
 
   const handlePickCommunityIcon = async () => {
     try {
@@ -406,17 +461,31 @@ const DirectoryScreen = ({ navigation, route }) => {
       return;
     }
     const newComm = {
-      id: Date.now().toString(),
-      name: communityName,
-      description: communityDesc,
+      id: 'comm_' + Date.now().toString(),
+      name: communityName.trim(),
+      description: communityDesc.trim() || 'Alumni Community',
+      institution: userInstitution || 'RV Institutions',
+      membersCount: '1 Member • You',
+      avatar_url: communityIconUri || 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=200&h=200&q=80',
       iconUri: communityIconUri,
-      avatar_url: communityIconUri,
-      groups: availableGroups.filter(g => selectedGroups.includes(g.id)).map(g => ({
+      announcement: {
+        id: 'ann_' + Date.now(),
+        name: 'Announcements',
+        lastMessage: `📢 Welcome to the official ${communityName} announcement channel!`,
+        time: 'Just now',
+        unread: false,
+      },
+      groups: availableGroups.filter(g => selectedGroups.includes(g.id) && g.id !== 'announcement').map(g => ({
         ...g,
-        lastMessage: g.id === 'announcement' ? `Welcome to ${communityName} Announcements!` : 'No messages yet'
+        lastSender: currentUser?.name || 'You',
+        lastMessage: `Created ${g.name} channel`,
+        time: 'Just now',
+        unreadCount: 0
       }))
     };
-    setUserCommunities((prev) => [...prev, newComm]);
+    const updated = [newComm, ...userCommunities];
+    setUserCommunities(updated);
+    AsyncStorage.setItem('alumni_whatsapp_communities', JSON.stringify(updated)).catch(() => {});
     setCommunityStep(3);
   };
 
@@ -429,111 +498,155 @@ const DirectoryScreen = ({ navigation, route }) => {
     setCommunityModalVisible(false);
   };
 
+  // ─── WhatsApp-Style Communities ──────────────────────────────────────
   const renderCommunityTab = () => {
-    if (userCommunities.length > 0) {
-      return (
-        <ScrollView style={styles.tabContent} contentContainerStyle={styles.commListContainer} showsVerticalScrollIndicator={false}>
-          <View style={styles.commSectionHeader}>
-            <Text style={styles.commSectionTitle}>Communities You Manage</Text>
-            <TouchableOpacity style={styles.commNewBtn} onPress={() => setCommunityModalVisible(true)}>
-              <Ionicons name="add" size={16} color="#FFFFFF" />
-              <Text style={styles.commNewBtnText}>New</Text>
-            </TouchableOpacity>
-          </View>
-
-          {userCommunities.map((comm) => (
-            <View key={comm.id} style={styles.commCard}>
-              <View style={styles.commCardHeader}>
-                <View style={[styles.commAvatar, { overflow: 'hidden', backgroundColor: '#003366' }]}>
-                  {comm.avatar_url || comm.iconUri ? (
-                    <Image source={{ uri: comm.avatar_url || comm.iconUri }} style={{ width: '100%', height: '100%', borderRadius: 16 }} />
-                  ) : (
-                    <Ionicons name="people" size={24} color="#FFFFFF" />
-                  )}
-                </View>
-                <View style={styles.commInfo}>
-                  <Text style={styles.commName}>{comm.name}</Text>
-                  <Text style={styles.commSubText} numberOfLines={1}>{comm.description || 'No description'}</Text>
-                </View>
-                <TouchableOpacity style={styles.commMoreBtn} activeOpacity={0.7}>
-                  <Ionicons name="ellipsis-vertical" size={18} color="#64748B" />
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.commGroupsList}>
-                {comm.groups.map((group) => (
-                  <TouchableOpacity key={group.id} style={styles.commGroupRow} activeOpacity={0.7}>
-                    <View style={[styles.commGroupIconBg, group.id === 'announcement' && styles.announcementBg]}>
-                      <Ionicons name={group.id === 'announcement' ? "megaphone" : (group.icon || "chatbubbles")} size={16} color={group.id === 'announcement' ? "#003366" : "#475569"} />
-                    </View>
-                    <View style={styles.commGroupInfo}>
-                      <Text style={styles.commGroupName}>
-                        {group.id === 'announcement' ? 'Announcements' : group.name}
-                      </Text>
-                      <Text style={styles.commGroupMessage} numberOfLines={1}>{group.lastMessage}</Text>
-                    </View>
-                    <View style={{ width: 24, height: 24, justifyContent: 'center', alignItems: 'center' }}>
-                      <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
-                    </View>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-          ))}
-        </ScrollView>
-      );
-    }
-
     return (
-      <ScrollView
-        style={styles.tabContent}
-        contentContainerStyle={styles.communityContainer}
+      <ScrollView 
+        style={styles.tabContent} 
+        contentContainerStyle={styles.commListContainer} 
         showsVerticalScrollIndicator={false}
       >
-        {/* Illustration Placeholder */}
-        <View style={styles.illustrationWrapper}>
-          <View style={styles.illustrationCircle}>
-            <View style={styles.illustrationInner}>
-              {/* Mountain landscape icon composition */}
-              <View style={styles.landscapeContainer}>
-                <View style={styles.sunCircle} />
-                <View style={styles.mountainGroup}>
-                  <View style={styles.mountainLeft} />
-                  <View style={styles.mountainRight} />
-                </View>
-                <View style={styles.groundStrip} />
-              </View>
-              <Ionicons name="people" size={40} color="#003366" style={styles.peopleIcon} />
+        {/* WhatsApp "New Community" Entry Card */}
+        <TouchableOpacity 
+          style={styles.waNewCommunityCard}
+          onPress={() => setCommunityModalVisible(true)}
+          activeOpacity={0.8}
+        >
+          <View style={styles.waNewCommunityIconPod}>
+            <Ionicons name="people" size={24} color="#FFFFFF" />
+            <View style={styles.waNewCommunityPlusBadge}>
+              <Ionicons name="add" size={13} color="#FFFFFF" />
             </View>
           </View>
-          {/* Decorative dots */}
-          <View style={[styles.decorDot, styles.dotTopLeft]} />
-          <View style={[styles.decorDot, styles.dotTopRight]} />
-          <View style={[styles.decorDot, styles.dotBottomLeft]} />
-          <View style={[styles.decorDot, styles.dotBottomRight]} />
-        </View>
-
-        {/* Text Content */}
-        <Text style={styles.communityTitle}>Stay Connected with a Community</Text>
-        <Text style={styles.communityDescription}>
-          Bring alumni together in one place. Create a community to share updates,
-          organize events, and build meaningful connections that last beyond campus.
-        </Text>
-        <Text style={styles.communityDescriptionSecondary}>
-          Communities help you stay in touch with batchmates, department peers,
-          and interest groups — all in a single, organized space.
-        </Text>
-
-        {/* CTA Button */}
-        <TouchableOpacity style={styles.communityBtn} activeOpacity={0.8} onPress={() => setCommunityModalVisible(true)}>
-          <Ionicons name="people-circle-outline" size={22} color="#FFFFFF" style={{ marginRight: 8 }} />
-          <Text style={styles.communityBtnText}>Start your community</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.waNewCommunityTitle}>New Community</Text>
+            <Text style={styles.waNewCommunitySubtitle}>
+              Bring together batchmates, department clubs, or regional chapters
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color="#94A3B8" />
         </TouchableOpacity>
+
+        {/* Communities Feed */}
+        {userCommunities.map((comm) => (
+          <View key={comm.id} style={styles.waCommunityBlock}>
+            {/* Community Header: Avatar + Title + Verified Badge */}
+            <View style={styles.waCommunityHeader}>
+              <View style={styles.waCommunityAvatarPod}>
+                {comm.avatar_url || comm.iconUri ? (
+                  <Image source={{ uri: comm.avatar_url || comm.iconUri }} style={styles.waCommunityAvatarImg} />
+                ) : (
+                  <Ionicons name="people" size={24} color="#FFFFFF" />
+                )}
+              </View>
+              <View style={{ flex: 1, marginRight: 8 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                  <Text style={styles.waCommunityName} numberOfLines={1}>{comm.name}</Text>
+                  <Ionicons name="checkmark-circle" size={15} color="#0284C7" />
+                </View>
+                <Text style={styles.waCommunityMeta}>{comm.membersCount || 'Active Community'}</Text>
+                {comm.description ? (
+                  <Text style={styles.waCommunityDesc} numberOfLines={1}>{comm.description}</Text>
+                ) : null}
+              </View>
+              <TouchableOpacity 
+                style={{ padding: 6 }} 
+                activeOpacity={0.7}
+                onPress={() => Alert.alert(comm.name, comm.description || 'Alumni Community')}
+              >
+                <Ionicons name="ellipsis-vertical" size={18} color="#94A3B8" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Pinned Announcements Channel */}
+            {comm.announcement && (
+              <TouchableOpacity 
+                style={styles.waAnnouncementRow}
+                onPress={() => navigation.navigate('Chat', { 
+                  user: { 
+                    id: comm.announcement.id, 
+                    name: `${comm.name} Announcements`, 
+                    role: 'Official Broadcast Channel', 
+                    initials: 'AN' 
+                  } 
+                })}
+                activeOpacity={0.75}
+              >
+                <View style={styles.waMegaphonePod}>
+                  <Ionicons name="megaphone" size={17} color="#FFFFFF" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                      <Text style={styles.waChannelTitle}>Announcements</Text>
+                      <Ionicons name="volume-high" size={12} color="#00A884" />
+                    </View>
+                    <Text style={styles.waChannelTime}>{comm.announcement.time || 'Yesterday'}</Text>
+                  </View>
+                  <Text style={styles.waChannelSnippet} numberOfLines={1}>
+                    {comm.announcement.lastMessage}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            )}
+
+            {/* Connected Sub-Groups */}
+            <View style={styles.waGroupsContainer}>
+              {(comm.groups || []).map((group, gIdx) => (
+                <TouchableOpacity 
+                  key={group.id || gIdx} 
+                  style={styles.waGroupRow}
+                  onPress={() => navigation.navigate('Chat', { 
+                    user: { 
+                      id: group.id, 
+                      name: group.name, 
+                      role: `${comm.name} • Channel`, 
+                      initials: (group.name || 'GP').substring(0, 2).toUpperCase() 
+                    } 
+                  })}
+                  activeOpacity={0.72}
+                >
+                  <View style={styles.waGroupIconPod}>
+                    <Ionicons name={group.icon || "chatbubbles"} size={16} color="#002B5C" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Text style={styles.waGroupName} numberOfLines={1}>{group.name}</Text>
+                      <Text style={styles.waGroupTime}>{group.time || '10:00 AM'}</Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 2 }}>
+                      <Text style={styles.waGroupSnippet} numberOfLines={1}>
+                        {group.lastSender ? `${group.lastSender}: ` : ''}{group.lastMessage || 'Tap to join chat'}
+                      </Text>
+                      {group.unreadCount > 0 ? (
+                        <View style={styles.waUnreadBadge}>
+                          <Text style={styles.waUnreadText}>{group.unreadCount}</Text>
+                        </View>
+                      ) : null}
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {/* Community Footer */}
+            <View style={styles.waCommunityFooter}>
+              <TouchableOpacity 
+                style={styles.waViewAllBtn}
+                onPress={() => setCommunityModalVisible(true)}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="add-circle-outline" size={16} color="#002B5C" />
+                <Text style={styles.waViewAllText}>Add Group to Community</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ))}
       </ScrollView>
     );
   };
 
-
+  // ─── Single Unique Recent-Trend: Bento-style Interactive Alumni Cards ────────
   const renderWebDirectoryTab = () => {
     const filteredDirectory = directoryAlumni.filter(
       (a) =>
@@ -545,77 +658,41 @@ const DirectoryScreen = ({ navigation, route }) => {
 
     return (
       <View style={{ flex: 1, padding: 20, backgroundColor: theme.background }}>
-        {/* Top Control Bar: Member Count + View Switcher */}
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
+        {/* Top Control Bar: Member Count & Search Stats */}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 10 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Ionicons name="people" size={20} color="#002B5C" />
-            <Text style={{ fontSize: 16, fontWeight: '800', color: theme.text }}>
-              {filteredDirectory.length} {filteredDirectory.length === 1 ? 'Alumni Member' : 'Alumni Members'}
-            </Text>
+            <View style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: '#002B5C', justifyContent: 'center', alignItems: 'center' }}>
+              <Ionicons name="people" size={18} color="#FFFFFF" />
+            </View>
+            <View>
+              <Text style={{ fontSize: 16.5, fontWeight: '800', color: theme.text, letterSpacing: -0.2 }}>
+                {filteredDirectory.length} {filteredDirectory.length === 1 ? 'Alumni Member' : 'Alumni Members'}
+              </Text>
+              <Text style={{ fontSize: 12, color: theme.textSecondary }}>Official verified network directory</Text>
+            </View>
             {userInstitution ? (
-              <View style={{ backgroundColor: '#EFF6FF', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, borderWidth: 1, borderColor: '#BFDBFE' }}>
+              <View style={{ backgroundColor: '#EFF6FF', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, borderWidth: 1, borderColor: '#BFDBFE', marginLeft: 6 }}>
                 <Text style={{ fontSize: 12, fontWeight: '700', color: '#1D4ED8' }}>{userInstitution}</Text>
               </View>
             ) : null}
           </View>
-
-          {/* View Mode Toggle (Cards vs Table) */}
-          <View style={{ flexDirection: 'row', backgroundColor: theme.card, borderRadius: 8, padding: 3, borderWidth: 1, borderColor: theme.border }}>
-            <TouchableOpacity
-              onPress={() => setDesktopViewMode('cards')}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 6,
-                paddingHorizontal: 14,
-                paddingVertical: 6,
-                borderRadius: 6,
-                backgroundColor: desktopViewMode === 'cards' ? '#002B5C' : 'transparent'
-              }}
-              activeOpacity={0.7}
-            >
-              <Ionicons name="grid-outline" size={15} color={desktopViewMode === 'cards' ? '#FFFFFF' : theme.textSecondary} />
-              <Text style={{ fontSize: 12.5, fontWeight: '700', color: desktopViewMode === 'cards' ? '#FFFFFF' : theme.textSecondary }}>
-                Cards
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => setDesktopViewMode('table')}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 6,
-                paddingHorizontal: 14,
-                paddingVertical: 6,
-                borderRadius: 6,
-                backgroundColor: desktopViewMode === 'table' ? '#002B5C' : 'transparent'
-              }}
-              activeOpacity={0.7}
-            >
-              <Ionicons name="list-outline" size={15} color={desktopViewMode === 'table' ? '#FFFFFF' : theme.textSecondary} />
-              <Text style={{ fontSize: 12.5, fontWeight: '700', color: desktopViewMode === 'table' ? '#FFFFFF' : theme.textSecondary }}>
-                Table
-              </Text>
-            </TouchableOpacity>
-          </View>
         </View>
 
         {loadingDirectory ? (
-          <View style={{ padding: 60, alignItems: 'center', backgroundColor: theme.card, borderRadius: 16 }}>
+          <View style={{ padding: 60, alignItems: 'center', backgroundColor: theme.card, borderRadius: 18, borderWidth: 1, borderColor: theme.border }}>
             <Ionicons name="people-circle-outline" size={54} color="#CBD5E1" />
-            <Text style={{ marginTop: 16, fontSize: 15, color: '#64748B', fontWeight: '600' }}>Loading alumni members...</Text>
+            <Text style={{ marginTop: 16, fontSize: 15, color: '#64748B', fontWeight: '600' }}>Loading alumni directory...</Text>
           </View>
         ) : filteredDirectory.length === 0 ? (
-          <View style={{ padding: 60, alignItems: 'center', backgroundColor: theme.card, borderRadius: 16, borderWidth: 1, borderColor: theme.border }}>
+          <View style={{ padding: 60, alignItems: 'center', backgroundColor: theme.card, borderRadius: 18, borderWidth: 1, borderColor: theme.border }}>
             <Ionicons name="people-outline" size={54} color="#CBD5E1" />
             <Text style={{ marginTop: 16, fontSize: 17, color: '#475569', fontWeight: '700' }}>No Members Found</Text>
             <Text style={{ marginTop: 8, fontSize: 13.5, color: '#94A3B8', textAlign: 'center', maxWidth: 400 }}>
               {searchQuery ? `No results match "${searchQuery}". Try searching by another name, branch, or company.` : 'No registered alumni members found in directory.'}
             </Text>
           </View>
-        ) : desktopViewMode === 'cards' ? (
-          /* ── Modern User-Friendly Alumni Cards Grid ──────────────────────── */
+        ) : (
+          /* Single Unique 2026 Bento-style Interactive Alumni Cards Grid */
           <ScrollView showsVerticalScrollIndicator={false}>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 16, paddingBottom: 40 }}>
               {filteredDirectory.map((item) => {
@@ -629,79 +706,110 @@ const DirectoryScreen = ({ navigation, route }) => {
                   <View
                     key={item.id}
                     style={{
-                      width: 'calc(33.333% - 11px)',
-                      minWidth: 280,
+                      flexGrow: 1,
+                      width: 'calc(33.333% - 12px)',
+                      minWidth: 290,
+                      maxWidth: 420,
                       backgroundColor: theme.card,
-                      borderRadius: 16,
-                      borderWidth: 1,
-                      borderColor: theme.border,
+                      borderRadius: 18,
+                      borderWidth: 1.5,
+                      borderColor: isDarkMode ? '#334155' : '#E2E8F0',
                       padding: 18,
-                      shadowColor: '#000',
-                      shadowOffset: { width: 0, height: 2 },
-                      shadowOpacity: 0.05,
-                      shadowRadius: 6,
-                      elevation: 2,
-                      justifyContent: 'space-between'
+                      shadowColor: '#002B5C',
+                      shadowOffset: { width: 0, height: 4 },
+                      shadowOpacity: 0.06,
+                      shadowRadius: 10,
+                      elevation: 3,
+                      justifyContent: 'space-between',
+                      position: 'relative',
+                      overflow: 'hidden'
                     }}
                   >
-                    {/* Card Top: Institution & Status */}
+                    {/* Top Subtle Gradient Accent Line */}
+                    <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, backgroundColor: '#002B5C' }} />
+
                     <View>
+                      {/* Card Top: Institution Badge & Active Pulse */}
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                        <View style={{ backgroundColor: '#EFF6FF', paddingHorizontal: 9, paddingVertical: 4, borderRadius: 6, flexDirection: 'row', alignItems: 'center', gap: 5, maxWidth: '80%' }}>
+                        <View style={{ backgroundColor: '#EFF6FF', paddingHorizontal: 9, paddingVertical: 4, borderRadius: 8, flexDirection: 'row', alignItems: 'center', gap: 5, maxWidth: '82%', borderWidth: 1, borderColor: '#DBEAFE' }}>
                           <Ionicons name="school" size={13} color="#003366" />
                           <Text style={{ fontSize: 11.5, fontWeight: '700', color: '#003366' }} numberOfLines={1}>
-                            {item.institution || 'RV Institutions'}
+                            {item.institution || 'RV College of Engineering'}
                           </Text>
                         </View>
-                        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#10B981' }} />
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                          <View style={{ width: 7, height: 7, borderRadius: 3.5, backgroundColor: '#10B981' }} />
+                          <Text style={{ fontSize: 10.5, fontWeight: '700', color: '#059669' }}>Active</Text>
+                        </View>
                       </View>
 
                       {/* User Profile Info */}
                       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 14 }}>
-                        <View style={[styles.avatar, { backgroundColor: item.color || '#002B5C', width: 50, height: 50, borderRadius: 25, marginRight: 12 }]}>
-                          <Text style={[styles.avatarText, { fontSize: 17 }]}>{item.initials}</Text>
+                        <View style={[styles.avatar, { backgroundColor: item.color || '#002B5C', width: 52, height: 52, borderRadius: 26, marginRight: 12, borderWidth: 2, borderColor: '#BFDBFE' }]}>
+                          <Text style={[styles.avatarText, { fontSize: 18 }]}>{item.initials}</Text>
                         </View>
                         <View style={{ flex: 1 }}>
-                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                            <Text style={{ fontSize: 15, fontWeight: '800', color: theme.text }} numberOfLines={1}>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                            <Text style={{ fontSize: 15.5, fontWeight: '800', color: theme.text }} numberOfLines={1}>
                               {item.name}
                             </Text>
-                            <Ionicons name="checkmark-circle" size={15} color="#0284C7" />
+                            <Ionicons name="checkmark-circle" size={16} color="#0284C7" />
                           </View>
-                          <Text style={{ fontSize: 12.5, fontWeight: '600', color: '#002B5C', marginTop: 2 }} numberOfLines={1}>
-                            {item.title || 'Alumni Member'}
-                          </Text>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 }}>
+                            <Ionicons name="briefcase-outline" size={13} color="#64748B" />
+                            <Text style={{ fontSize: 12.5, fontWeight: '600', color: '#002B5C' }} numberOfLines={1}>
+                              {item.title || 'Alumni Member'}
+                            </Text>
+                          </View>
                         </View>
                       </View>
 
-                      {/* Branch & Batch */}
-                      <View style={{ backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8, marginBottom: 16 }}>
+                      {/* Branch & Batch Meta Pill */}
+                      <View style={{ backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8, marginBottom: 14, borderWidth: 1, borderColor: theme.border }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                           <Ionicons name="ribbon-outline" size={14} color="#64748B" />
-                          <Text style={{ fontSize: 12, color: '#475569', fontWeight: '500' }} numberOfLines={1}>
+                          <Text style={{ fontSize: 12, color: '#475569', fontWeight: '600' }} numberOfLines={1}>
                             {item.branch || 'Engineering & Technology'}
                           </Text>
                         </View>
                       </View>
+
+                      {/* Trending Skill Tags */}
+                      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 16 }}>
+                        <View style={{ backgroundColor: '#F1F5F9', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 }}>
+                          <Text style={{ fontSize: 11, fontWeight: '600', color: '#475569' }}>#Network</Text>
+                        </View>
+                        <View style={{ backgroundColor: '#F1F5F9', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 }}>
+                          <Text style={{ fontSize: 11, fontWeight: '600', color: '#475569' }}>#Mentorship</Text>
+                        </View>
+                        <View style={{ backgroundColor: '#F1F5F9', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 }}>
+                          <Text style={{ fontSize: 11, fontWeight: '600', color: '#475569' }}>#Alumni</Text>
+                        </View>
+                      </View>
                     </View>
 
-                    {/* Bottom Action Row */}
+                    {/* Bottom Unified Action Cluster */}
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, borderTopWidth: 1, borderTopColor: theme.border, paddingTop: 14 }}>
                       <TouchableOpacity
                         style={{
                           flex: 1,
                           paddingVertical: 9,
                           backgroundColor: isFollowing ? '#DEF7EC' : '#002B5C',
-                          borderRadius: 8,
+                          borderRadius: 10,
                           alignItems: 'center',
                           justifyContent: 'center',
                           borderWidth: isFollowing ? 1 : 0,
-                          borderColor: '#31C48D'
+                          borderColor: '#31C48D',
+                          shadowColor: isFollowing ? 'transparent' : '#002B5C',
+                          shadowOffset: { width: 0, height: 2 },
+                          shadowOpacity: isFollowing ? 0 : 0.2,
+                          shadowRadius: 4,
+                          elevation: isFollowing ? 0 : 2
                         }}
                         onPress={() => handleToggleFollow(item)}
-                        activeOpacity={0.7}
+                        activeOpacity={0.75}
                       >
-                        <Text style={{ fontSize: 12.5, fontWeight: '700', color: isFollowing ? '#03543F' : '#FFFFFF' }}>
+                        <Text style={{ fontSize: 12.5, fontWeight: '800', color: isFollowing ? '#03543F' : '#FFFFFF' }}>
                           {isFollowing ? 'Following ✓' : 'Follow'}
                         </Text>
                       </TouchableOpacity>
@@ -711,7 +819,7 @@ const DirectoryScreen = ({ navigation, route }) => {
                           width: 38,
                           height: 38,
                           backgroundColor: '#EFF6FF',
-                          borderRadius: 8,
+                          borderRadius: 10,
                           justifyContent: 'center',
                           alignItems: 'center',
                           borderWidth: 1,
@@ -729,7 +837,7 @@ const DirectoryScreen = ({ navigation, route }) => {
                           width: 38,
                           height: 38,
                           backgroundColor: '#E8FDF0',
-                          borderRadius: 8,
+                          borderRadius: 10,
                           justifyContent: 'center',
                           alignItems: 'center',
                           borderWidth: 1,
@@ -737,7 +845,7 @@ const DirectoryScreen = ({ navigation, route }) => {
                         }}
                         onPress={() => setSharedAlumni(item)}
                         activeOpacity={0.7}
-                        title="Share to WhatsApp"
+                        title="Share on WhatsApp"
                       >
                         <Ionicons name="logo-whatsapp" size={17} color="#25D366" />
                       </TouchableOpacity>
@@ -745,76 +853,6 @@ const DirectoryScreen = ({ navigation, route }) => {
                   </View>
                 );
               })}
-            </View>
-          </ScrollView>
-        ) : (
-          /* ── Spacious, Non-Overlapping Table View ───────────────────────── */
-          <ScrollView horizontal showsHorizontalScrollIndicator={true} style={{ flex: 1 }}>
-            <View style={[styles.webTableContainer, { minWidth: 980, margin: 0 }]}>
-              <View style={styles.webTableHeader}>
-                <Text style={[styles.webTableColHeader, { width: 220 }]}>Alumni Name</Text>
-                <Text style={[styles.webTableColHeader, { width: 190 }]}>Batch & Branch</Text>
-                <Text style={[styles.webTableColHeader, { width: 210 }]}>Current Role</Text>
-                <Text style={[styles.webTableColHeader, { width: 190 }]}>Institution</Text>
-                <Text style={[styles.webTableColHeader, { width: 170, textAlign: 'center' }]}>Action</Text>
-              </View>
-              <ScrollView style={styles.webTableBody}>
-                {filteredDirectory.map((item, index) => {
-                  const isFollowing = !!(
-                    followingMap[String(item._id || item.id)] ||
-                    followingMap[String(item.id || item._id)] ||
-                    followingMap[(item.name || '').toLowerCase().trim()]
-                  );
-                  return (
-                    <View key={item.id} style={[styles.webTableRow, index % 2 === 0 ? { backgroundColor: '#FFFFFF' } : { backgroundColor: '#F8FAFC' }]}>
-                      <View style={{ width: 220, flexDirection: 'row', alignItems: 'center' }}>
-                        <View style={[styles.avatar, { backgroundColor: item.color || '#002B5C', width: 34, height: 34, borderRadius: 17, marginRight: 12 }]}>
-                          <Text style={[styles.avatarText, { fontSize: 13 }]}>{item.initials}</Text>
-                        </View>
-                        <Text style={{ fontSize: 14, fontWeight: '700', color: '#0F172A' }} numberOfLines={1}>{item.name}</Text>
-                      </View>
-                      <View style={{ width: 190, justifyContent: 'center' }}>
-                        <Text style={{ fontSize: 13.5, color: '#475569' }} numberOfLines={1}>{item.branch}</Text>
-                      </View>
-                      <View style={{ width: 210, justifyContent: 'center' }}>
-                        <Text style={{ fontSize: 13.5, color: '#475569', fontWeight: '500' }} numberOfLines={1}>{item.title}</Text>
-                      </View>
-                      <View style={{ width: 190, justifyContent: 'center', paddingRight: 8 }}>
-                        <View style={{ backgroundColor: '#EFF6FF', paddingHorizontal: 9, paddingVertical: 4, borderRadius: 6, alignSelf: 'flex-start' }}>
-                          <Text style={{ fontSize: 12, fontWeight: '700', color: '#003366' }} numberOfLines={1}>{item.institution}</Text>
-                        </View>
-                      </View>
-                      <View style={{ width: 170, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8 }}>
-                        <TouchableOpacity
-                          style={{ paddingHorizontal: 12, paddingVertical: 6, backgroundColor: isFollowing ? '#DEF7EC' : '#002B5C', borderRadius: 6 }}
-                          onPress={() => handleToggleFollow(item)}
-                          activeOpacity={0.7}
-                        >
-                          <Text style={{ fontSize: 12, fontWeight: '700', color: isFollowing ? '#03543F' : '#FFFFFF' }}>
-                            {isFollowing ? 'Following ✓' : 'Follow'}
-                          </Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          style={{ padding: 6, backgroundColor: '#EFF6FF', borderRadius: 6, justifyContent: 'center', alignItems: 'center' }}
-                          onPress={() => navigation.navigate('Chat', { user: { id: item._id || item.id, name: item.name, role: item.institution || (item.branch ? `${item.branch} • ${item.title}` : item.title) || '', initials: item.initials } })}
-                          activeOpacity={0.7}
-                          title="Send Direct Message"
-                        >
-                          <Ionicons name="chatbubble-ellipses-outline" size={16} color="#1E40AF" />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          style={{ padding: 6, backgroundColor: '#E8FDF0', borderRadius: 6, justifyContent: 'center', alignItems: 'center' }}
-                          onPress={() => setSharedAlumni(item)}
-                          activeOpacity={0.7}
-                          title="Share to WhatsApp"
-                        >
-                          <Ionicons name="logo-whatsapp" size={16} color="#25D366" />
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  );
-                })}
-              </ScrollView>
             </View>
           </ScrollView>
         )}
@@ -1855,11 +1893,208 @@ const getStyles = (theme) => StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  webTableContainer: { flex: 1, backgroundColor: '#FFFFFF', borderRadius: 12, margin: 24, borderWidth: 1, borderColor: theme.border, overflow: 'hidden' },
-  webTableHeader: { flexDirection: 'row', padding: 16, backgroundColor: '#F1F5F9', borderBottomWidth: 1, borderBottomColor: theme.border },
-  webTableColHeader: { fontSize: 12, fontWeight: '700', color: '#475569', textTransform: 'uppercase' },
-  webTableBody: { flex: 1 },
-  webTableRow: { flexDirection: 'row', padding: 16, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
+  // ─── WhatsApp-Style Communities Design ─────────────────────────────────
+  waNewCommunityCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.card,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1.5,
+    borderColor: theme.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+    gap: 14,
+  },
+  waNewCommunityIconPod: {
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    backgroundColor: '#00A884',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  waNewCommunityPlusBadge: {
+    position: 'absolute',
+    bottom: -2,
+    right: -2,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: '#002B5C',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#FFFFFF',
+  },
+  waNewCommunityTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: theme.text,
+    letterSpacing: -0.2,
+  },
+  waNewCommunitySubtitle: {
+    fontSize: 12.5,
+    color: theme.textSecondary,
+    marginTop: 2,
+    lineHeight: 16,
+  },
+  waCommunityBlock: {
+    backgroundColor: theme.card,
+    borderRadius: 18,
+    borderWidth: 1.5,
+    borderColor: theme.border,
+    marginBottom: 20,
+    overflow: 'hidden',
+    shadowColor: '#002B5C',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  waCommunityHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: theme.background,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.border,
+  },
+  waCommunityAvatarPod: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: '#002B5C',
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+    marginRight: 12,
+  },
+  waCommunityAvatarImg: {
+    width: '100%',
+    height: '100%',
+  },
+  waCommunityName: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: theme.text,
+    letterSpacing: -0.2,
+  },
+  waCommunityMeta: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#059669',
+    marginTop: 2,
+  },
+  waCommunityDesc: {
+    fontSize: 11.5,
+    color: theme.textSecondary,
+    marginTop: 2,
+  },
+  waAnnouncementRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.border,
+    backgroundColor: 'rgba(0, 168, 132, 0.05)',
+    gap: 12,
+  },
+  waMegaphonePod: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#00A884',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  waChannelTitle: {
+    fontSize: 14.5,
+    fontWeight: '800',
+    color: theme.text,
+  },
+  waChannelTime: {
+    fontSize: 11.5,
+    color: theme.textMuted,
+  },
+  waChannelSnippet: {
+    fontSize: 12.5,
+    color: theme.textSecondary,
+    marginTop: 3,
+  },
+  waGroupsContainer: {
+    paddingVertical: 4,
+  },
+  waGroupRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.border,
+    gap: 12,
+  },
+  waGroupIconPod: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#EFF6FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#DBEAFE',
+  },
+  waGroupName: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: theme.text,
+  },
+  waGroupTime: {
+    fontSize: 11,
+    color: theme.textMuted,
+  },
+  waGroupSnippet: {
+    fontSize: 12,
+    color: theme.textSecondary,
+    flex: 1,
+    marginRight: 8,
+  },
+  waUnreadBadge: {
+    backgroundColor: '#25D366',
+    borderRadius: 10,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    minWidth: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  waUnreadText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '800',
+  },
+  waCommunityFooter: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: theme.background,
+    alignItems: 'center',
+  },
+  waViewAllBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  waViewAllText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#002B5C',
+  },
 });
 
 export default DirectoryScreen;

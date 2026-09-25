@@ -126,6 +126,11 @@ export const getEvents = async () => {
     return data;
 };
 
+export const createEventApi = async (eventData) => {
+    const { data } = await api.post('/events', eventData);
+    return data;
+};
+
 export const logout = async () => {
     const { data } = await api.post('/auth/logout');
     return data;
