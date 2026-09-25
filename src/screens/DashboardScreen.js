@@ -34,62 +34,6 @@ import getInitials from '../lib/getInitials';
 // Pool of all known posts across all users — used as offline fallback
 const ALL_KNOWN_POSTS = [];
 
-const ALUMNI_SPOTLIGHTS = [
-  {
-    id: 'spot-1',
-    tag: 'DISTINGUISHED ALUM',
-    tagColor: '#B45309',
-    tagBg: '#FEF3C7',
-    icon: 'school',
-    iconBg: '#002B5C',
-    title: "Dr. Anand Deshpande ('84)",
-    subtitle: 'Founder & CMD, Persistent Systems',
-    desc: 'B.Tech CSE from RVCE, pioneering enterprise technology and active RSST student mentor.',
-    actionText: 'Connect in Directory',
-    route: 'Engage',
-    params: { tab: 'directory' },
-  },
-  {
-    id: 'spot-2',
-    tag: 'RSST INNOVATION',
-    tagColor: '#15803D',
-    tagBg: '#DCFCE7',
-    icon: 'rocket',
-    iconBg: '#064E3B',
-    title: '₹50L Innovation Seed Fund',
-    subtitle: 'Centre for Pre-Incubation & Research',
-    desc: 'Grants and dedicated lab space for RVCE alumni and student founders building deep-tech solutions.',
-    actionText: 'Grant Guidelines',
-    url: 'https://rvce.edu.in/rvce-centre-for-innovation',
-  },
-  {
-    id: 'spot-3',
-    tag: 'REFERRAL EXPRESS',
-    tagColor: '#0369A1',
-    tagBg: '#E0F2FE',
-    icon: 'briefcase',
-    iconBg: '#0369A1',
-    title: 'Executive Career Referrals',
-    subtitle: 'Google • Microsoft • Cisco • NVIDIA',
-    desc: 'Direct priority interview referrals from 200+ senior engineering alumni across tier-1 firms.',
-    actionText: 'Explore Referrals',
-    route: 'Jobs',
-  },
-  {
-    id: 'spot-4',
-    tag: 'RESUME BOOK',
-    tagColor: '#7E22CE',
-    tagBg: '#F3E8FF',
-    icon: 'document-text',
-    iconBg: '#581C87',
-    title: 'RV Candidate Resume Book',
-    subtitle: 'Verified Alumni & Graduating Batches',
-    desc: 'Browse portfolios, verified skills, and project repos of RVCE candidates open for direct hiring.',
-    actionText: 'Open Resume Book',
-    route: 'Jobs',
-  },
-];
-
 /**
  * Returns ONLY posts from followed users + own posts.
  * Instagram-style: you only see posts from people you follow.
@@ -1229,206 +1173,125 @@ const DashboardScreen = ({ navigation }) => {
     );
   };
 
-  const renderWelcomePulse = () => (
-    <View style={styles.welcomeBanner}>
-      <View style={styles.welcomeHeader}>
+  const renderFeedHeader = () => (
+    <View style={styles.feedHeaderContainer}>
+      {/* 1. Concise, collegiate title header */}
+      <View style={styles.feedTitleRow}>
         <View style={{ flex: 1 }}>
-          <View style={styles.welcomeInstitutionTag}>
-            <Ionicons name="shield-checkmark" size={13} color="#002B5C" />
-            <Text style={styles.welcomeInstitutionText}>RVCE ALUMNI NETWORK</Text>
+          <View style={styles.feedInstitutionTag}>
+            <Ionicons name="shield-checkmark" size={12} color="#002B5C" />
+            <Text style={styles.feedInstitutionText}>RVCE ALUMNI NETWORK</Text>
           </View>
-          <Text style={styles.welcomeTitle}>
-            Welcome back, {userName?.split(' ')[0] || 'Member'}! 🎓
-          </Text>
-          <Text style={styles.welcomeSubtitle}>
-            Connect with 25,000+ RVCE graduates across 12 global chapters and industry leadership.
-          </Text>
+          <Text style={styles.feedMainTitle}>Alumni Updates & Feed</Text>
         </View>
-      </View>
-
-      {/* 4 Quick-Pulse Access Tiles */}
-      <View style={styles.pulseGrid}>
         <TouchableOpacity 
-          style={styles.pulseTile}
-          activeOpacity={0.8}
+          style={styles.feedDirectoryShortcut}
           onPress={() => navigation.navigate('Engage', { tab: 'directory' })}
+          activeOpacity={0.75}
         >
-          <View style={[styles.pulseIconWrap, { backgroundColor: '#EEF2FF' }]}>
-            <Ionicons name="people" size={18} color="#4F46E5" />
-          </View>
-          <Text style={styles.pulseLabel}>Directory</Text>
-          <Text style={styles.pulseSub}>Find Alums</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={styles.pulseTile}
-          activeOpacity={0.8}
-          onPress={() => navigation.navigate('Jobs')}
-        >
-          <View style={[styles.pulseIconWrap, { backgroundColor: '#ECFDF5' }]}>
-            <Ionicons name="briefcase" size={18} color="#059669" />
-          </View>
-          <Text style={styles.pulseLabel}>Career Hub</Text>
-          <Text style={styles.pulseSub}>Referrals</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={styles.pulseTile}
-          activeOpacity={0.8}
-          onPress={() => navigation.navigate('Main', { screen: 'Post', params: { view: 'events' } })}
-        >
-          <View style={[styles.pulseIconWrap, { backgroundColor: '#FEF3C7' }]}>
-            <Ionicons name="calendar" size={18} color="#D97706" />
-          </View>
-          <Text style={styles.pulseLabel}>Reunions</Text>
-          <Text style={styles.pulseSub}>Events</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={styles.pulseTile}
-          activeOpacity={0.8}
-          onPress={() => navigation.navigate('Jobs')}
-        >
-          <View style={[styles.pulseIconWrap, { backgroundColor: '#F3E8FF' }]}>
-            <Ionicons name="document-text" size={18} color="#9333EA" />
-          </View>
-          <Text style={styles.pulseLabel}>Resume Book</Text>
-          <Text style={styles.pulseSub}>Talent Pool</Text>
+          <Ionicons name="people-outline" size={13} color="#002B5C" />
+          <Text style={styles.feedDirectoryShortcutText}>Find Alumni</Text>
         </TouchableOpacity>
       </View>
-    </View>
-  );
 
-  const renderSpotlightsDeck = () => (
-    <View style={styles.spotlightsSection}>
-      <View style={styles.spotlightsHeader}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7 }}>
-          <View style={styles.spotlightHeaderBar} />
-          <Text style={styles.spotlightsTitle}>Alumni Radar & Spotlights</Text>
-        </View>
-        <TouchableOpacity onPress={() => navigation.navigate('Engage')} activeOpacity={0.7}>
-          <Text style={styles.spotlightsSeeAll}>Explore All</Text>
-        </TouchableOpacity>
-      </View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.spotlightsScroll}>
-        {ALUMNI_SPOTLIGHTS.map(spot => (
-          <TouchableOpacity
-            key={spot.id}
-            style={styles.spotlightCard}
-            activeOpacity={0.88}
-            onPress={() => {
-              if (spot.url) {
-                handleOpenExternalUrl(spot.url);
-              } else if (spot.route) {
-                navigation.navigate(spot.route, spot.params);
-              }
-            }}
-          >
-            <View style={styles.spotlightTopRow}>
-              <View style={[styles.spotlightTag, { backgroundColor: spot.tagBg }]}>
-                <Text style={[styles.spotlightTagText, { color: spot.tagColor }]}>{spot.tag}</Text>
-              </View>
-              <View style={[styles.spotlightIconWrap, { backgroundColor: spot.iconBg }]}>
-                <Ionicons name={spot.icon} size={15} color="#FFFFFF" />
-              </View>
-            </View>
-            <Text style={styles.spotlightTitle} numberOfLines={1}>{spot.title}</Text>
-            <Text style={styles.spotlightSubtitle} numberOfLines={1}>{spot.subtitle}</Text>
-            <Text style={styles.spotlightDesc} numberOfLines={2}>{spot.desc}</Text>
-            <View style={styles.spotlightActionRow}>
-              <Text style={styles.spotlightActionText}>{spot.actionText}</Text>
-              <Ionicons name="arrow-forward" size={13} color={theme.primary} />
-            </View>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-    </View>
-  );
-
-  const renderAlumniComposer = () => (
-    <View style={styles.composerCard}>
-      <View style={styles.composerInputRow}>
+      {/* 2. Sleek, Single-Line Quick Composer */}
+      <View style={styles.compactComposerCard}>
         <TouchableOpacity 
-          style={styles.composerAvatar}
+          style={styles.compactComposerAvatar}
           onPress={() => navigation.navigate('Profile')}
           activeOpacity={0.8}
         >
           {userAvatarUrl ? (
             <Image source={{ uri: userAvatarUrl }} style={{ width: '100%', height: '100%' }} />
           ) : (
-            <Text style={styles.composerAvatarInitials}>{getInitials(userName || currentUser?.name || 'User')}</Text>
+            <Text style={styles.compactComposerAvatarInitials}>{getInitials(userName || currentUser?.name || 'User')}</Text>
           )}
         </TouchableOpacity>
 
         <TouchableOpacity 
-          style={styles.composerPromptBox}
+          style={styles.compactComposerInput}
           onPress={() => navigation.navigate('PostCreation')}
           activeOpacity={0.85}
         >
-          <Text style={styles.composerPromptText}>Share an achievement, campus memory, or job referral...</Text>
+          <Text style={styles.compactComposerPlaceholder}>Share an update, referral, or notice...</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.compactComposerBtn}
+          onPress={() => navigation.navigate('PostCreation')}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="add" size={16} color="#FFFFFF" />
+          <Text style={styles.compactComposerBtnText}>Post</Text>
         </TouchableOpacity>
       </View>
 
-      <View style={styles.composerActionsRow}>
-        <TouchableOpacity 
-          style={styles.composerActionChip}
-          onPress={() => navigation.navigate('PostCreation')}
-          activeOpacity={0.7}
-        >
-          <Ionicons name="briefcase-outline" size={16} color="#059669" />
-          <Text style={styles.composerActionLabel}>Post Referral</Text>
-        </TouchableOpacity>
+      {/* 3. Intuitive Category Filter Bar with counts */}
+      <View style={styles.feedFilterBar}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.feedFilterScroll}>
+          {[
+            { id: 'all', label: 'All Updates', icon: 'layers-outline' },
+            { id: 'jobs', label: 'Careers & Referrals', icon: 'briefcase-outline' },
+            { id: 'campus', label: 'Campus & Notices', icon: 'school-outline' },
+            { id: 'network', label: 'Following', icon: 'people-outline' },
+          ].map(tab => {
+            const isActive = feedFilter === tab.id;
+            const count = tab.id === 'all' 
+              ? posts.length 
+              : tab.id === 'jobs' 
+              ? posts.filter(p => getPostCategory(p).id === 'job').length
+              : tab.id === 'campus'
+              ? posts.filter(p => getPostCategory(p).id === 'campus').length
+              : filteredPosts.length;
 
-        <TouchableOpacity 
-          style={styles.composerActionChip}
-          onPress={() => navigation.navigate('Main', { screen: 'Post', params: { view: 'events' } })}
-          activeOpacity={0.7}
-        >
-          <Ionicons name="calendar-outline" size={16} color="#D97706" />
-          <Text style={styles.composerActionLabel}>Campus Event</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={styles.composerActionChip}
-          onPress={() => navigation.navigate('PostCreation')}
-          activeOpacity={0.7}
-        >
-          <Ionicons name="image-outline" size={16} color="#2563EB" />
-          <Text style={styles.composerActionLabel}>Media Update</Text>
-        </TouchableOpacity>
+            return (
+              <TouchableOpacity
+                key={tab.id}
+                style={[styles.filterPill, isActive && styles.filterPillActive]}
+                onPress={() => setFeedFilter(tab.id)}
+                activeOpacity={0.75}
+              >
+                <Ionicons 
+                  name={tab.icon} 
+                  size={14} 
+                  color={isActive ? '#FFFFFF' : theme.textSecondary} 
+                  style={{ marginRight: 4 }} 
+                />
+                <Text style={[styles.filterPillText, isActive && styles.filterPillTextActive]}>
+                  {tab.label}
+                </Text>
+                {count > 0 && (
+                  <View style={[styles.filterCountBadge, isActive && styles.filterCountBadgeActive]}>
+                    <Text style={[styles.filterCountText, isActive && styles.filterCountTextActive]}>{count}</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
       </View>
-    </View>
-  );
 
-  const renderFeedFilterPills = () => (
-    <View style={styles.feedFilterBar}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.feedFilterScroll}>
-        {[
-          { id: 'all', label: '🌟 All Highlights' },
-          { id: 'campus', label: '🎓 Campus & Notices' },
-          { id: 'jobs', label: '💼 Referrals & Hiring' },
-          { id: 'network', label: '👥 My Network' }
-        ].map(tab => {
-          const isActive = feedFilter === tab.id;
-          return (
-            <TouchableOpacity
-              key={tab.id}
-              style={[styles.filterPill, isActive && styles.filterPillActive]}
-              onPress={() => setFeedFilter(tab.id)}
-              activeOpacity={0.75}
-            >
-              <Text style={[styles.filterPillText, isActive && styles.filterPillTextActive]}>
-                {tab.label}
-              </Text>
-              {tab.id === 'all' && posts.length > 0 && (
-                <View style={[styles.filterCountBadge, isActive && styles.filterCountBadgeActive]}>
-                  <Text style={[styles.filterCountText, isActive && styles.filterCountTextActive]}>{posts.length}</Text>
-                </View>
-              )}
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
+      {/* 4. Information Context Bar: Explicitly tells user what they are seeing */}
+      <View style={styles.infoContextBar}>
+        <Ionicons 
+          name={
+            feedFilter === 'jobs' ? 'briefcase' : 
+            feedFilter === 'campus' ? 'school' : 
+            feedFilter === 'network' ? 'people' : 'information-circle'
+          } 
+          size={14} 
+          color={isDarkMode ? '#93C5FD' : '#002B5C'} 
+        />
+        <Text style={styles.infoContextText}>
+          {feedFilter === 'jobs' 
+            ? 'Career opportunities, alumni job openings & priority hiring referrals'
+            : feedFilter === 'campus'
+            ? 'Official campus notifications, department announcements & reunions'
+            : feedFilter === 'network'
+            ? 'Activity and discussions from alumni members you follow'
+            : 'Live alumni feed across all batches, branches, and chapters'}
+        </Text>
+      </View>
     </View>
   );
 
@@ -1512,14 +1375,10 @@ const DashboardScreen = ({ navigation }) => {
         )}
 
         {isDesktop ? (
-          // EXECUTIVE 2-COLUMN ALUMNI WORKSPACE
           <View style={styles.desktopContainer}>
-            {/* 1. Left Column: Welcome Pulse, Spotlights Deck, Composer, Filter Pills, Post Feed */}
+            {/* 1. Left Column: Streamlined Feed Header & Posts */}
             <View style={styles.desktopMainColumn}>
-              {renderWelcomePulse()}
-              {renderSpotlightsDeck()}
-              {renderAlumniComposer()}
-              {renderFeedFilterPills()}
+              {renderFeedHeader()}
 
               <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 60 }}>
                 {filteredPosts.length > 0 ? (
@@ -1873,10 +1732,7 @@ const DashboardScreen = ({ navigation }) => {
           </View>
         ) : (
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-            {renderWelcomePulse()}
-            {renderSpotlightsDeck()}
-            {renderAlumniComposer()}
-            {renderFeedFilterPills()}
+            {renderFeedHeader()}
 
             {filteredPosts.length > 0 ? (
               filteredPosts.map(post => renderPostCard(post))
@@ -1936,77 +1792,6 @@ const DashboardScreen = ({ navigation }) => {
                 </ScrollView>
               </View>
             )}
-
-            {/* Campus Quick Services on Mobile */}
-            <View style={styles.mobileCampusServices}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                  <Ionicons name="business" size={16} color="#002B5C" />
-                  <Text style={{ fontSize: 13.5, fontWeight: '800', color: theme.text }}>Campus Quick Services</Text>
-                </View>
-                <View style={styles.sidebarPillTag}>
-                  <Text style={{ fontSize: 10, fontWeight: '800', color: '#002B5C' }}>RVCE OFFICIAL</Text>
-                </View>
-              </View>
-
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
-                <TouchableOpacity 
-                  style={styles.mobileServiceCard}
-                  onPress={() => handleOpenExternalUrl('https://rvce.edu.in')}
-                  activeOpacity={0.75}
-                >
-                  <View style={[styles.mobileServiceIcon, { backgroundColor: '#EFF6FF' }]}>
-                    <Ionicons name="school" size={16} color="#002B5C" />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 12, fontWeight: '700', color: theme.text }}>RVCE Portal</Text>
-                    <Text style={{ fontSize: 10, color: theme.textMuted }}>rvce.edu.in</Text>
-                  </View>
-                </TouchableOpacity>
-
-                <TouchableOpacity 
-                  style={styles.mobileServiceCard}
-                  onPress={() => handleOpenExternalUrl('https://rvce.edu.in/exam-section')}
-                  activeOpacity={0.75}
-                >
-                  <View style={[styles.mobileServiceIcon, { backgroundColor: '#CCFBF1' }]}>
-                    <Ionicons name="document-text" size={16} color="#0F766E" />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 12, fontWeight: '700', color: theme.text }}>Transcripts</Text>
-                    <Text style={{ fontSize: 10, color: theme.textMuted }}>Exam Cell</Text>
-                  </View>
-                </TouchableOpacity>
-
-                <TouchableOpacity 
-                  style={styles.mobileServiceCard}
-                  onPress={() => handleOpenExternalUrl('https://rvce.edu.in/rvce-centre-for-innovation')}
-                  activeOpacity={0.75}
-                >
-                  <View style={[styles.mobileServiceIcon, { backgroundColor: '#FFEDD5' }]}>
-                    <Ionicons name="rocket" size={16} color="#EA580C" />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 12, fontWeight: '700', color: theme.text }}>Incubation</Text>
-                    <Text style={{ fontSize: 10, color: theme.textMuted }}>Seed Grants</Text>
-                  </View>
-                </TouchableOpacity>
-
-                <TouchableOpacity 
-                  style={styles.mobileServiceCard}
-                  onPress={() => handleOpenExternalUrl('https://rvce.edu.in/about-us')}
-                  activeOpacity={0.75}
-                >
-                  <View style={[styles.mobileServiceIcon, { backgroundColor: '#FFE4E6' }]}>
-                    <Ionicons name="compass" size={16} color="#E11D48" />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 12, fontWeight: '700', color: theme.text }}>Campus Tour</Text>
-                    <Text style={{ fontSize: 10, color: theme.textMuted }}>360° Heritage</Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-            </View>
 
             {/* Mobile Footer */}
             <View style={{ paddingHorizontal: 20, marginBottom: 30, alignItems: 'center' }}>
@@ -2574,263 +2359,116 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     borderColor: theme.card,
   },
 
-  /* ── Executive Welcome Banner & Pulse Dashboard ─────── */
-  welcomeBanner: {
-    backgroundColor: isDarkMode ? '#131C2E' : '#FFFFFF',
-    marginHorizontal: 14,
-    marginTop: 8,
-    marginBottom: 14,
-    borderRadius: 20,
-    padding: 18,
-    borderWidth: 1.5,
-    borderColor: isDarkMode ? '#1E293B' : '#E2E8F0',
-    shadowColor: '#002B5C',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: isDarkMode ? 0.25 : 0.07,
-    shadowRadius: 10,
-    elevation: 3,
+  /* ── Clean Alumni Feed Header & Info Context ───────── */
+  feedHeaderContainer: {
+    paddingHorizontal: 14,
+    paddingTop: 10,
+    paddingBottom: 4,
   },
-  welcomeHeader: {
+  feedTitleRow: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 14,
+    marginBottom: 10,
   },
-  welcomeInstitutionTag: {
+  feedInstitutionTag: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: isDarkMode ? '#1E293B' : '#EFF6FF',
     alignSelf: 'flex-start',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
     borderRadius: 6,
-    gap: 5,
-    marginBottom: 6,
+    gap: 4,
+    marginBottom: 4,
   },
-  welcomeInstitutionText: {
-    fontSize: 10.5,
+  feedInstitutionText: {
+    fontSize: 10,
     fontWeight: '800',
     color: '#002B5C',
     letterSpacing: 0.5,
   },
-  welcomeTitle: {
-    fontSize: 17,
+  feedMainTitle: {
+    fontSize: 18,
     fontWeight: '800',
     color: theme.text,
     letterSpacing: -0.3,
   },
-  welcomeSubtitle: {
-    fontSize: 12,
-    color: theme.textSecondary,
-    marginTop: 3,
-    lineHeight: 17,
-  },
-  pulseGrid: {
-    flexDirection: 'row',
-    gap: 8,
-    marginTop: 4,
-  },
-  pulseTile: {
-    flex: 1,
-    backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
-    borderRadius: 14,
-    paddingVertical: 10,
-    paddingHorizontal: 6,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: isDarkMode ? '#334155' : '#E2E8F0',
-  },
-  pulseIconWrap: {
-    width: 36,
-    height: 36,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  pulseLabel: {
-    fontSize: 11.5,
-    fontWeight: '800',
-    color: theme.text,
-    textAlign: 'center',
-  },
-  pulseSub: {
-    fontSize: 9.5,
-    color: theme.textSecondary,
-    marginTop: 1,
-    textAlign: 'center',
-  },
-
-  /* ── Alumni Radar & Spotlights ───────────────────────── */
-  spotlightsSection: {
-    marginBottom: 16,
-  },
-  spotlightsHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    marginBottom: 10,
-  },
-  spotlightHeaderBar: {
-    width: 4,
-    height: 16,
-    borderRadius: 2,
-    backgroundColor: '#002B5C',
-  },
-  spotlightsTitle: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: theme.text,
-    letterSpacing: 0.2,
-  },
-  spotlightsSeeAll: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: theme.primary,
-  },
-  spotlightsScroll: {
-    paddingHorizontal: 14,
-    gap: 12,
-  },
-  spotlightCard: {
-    width: 250,
-    backgroundColor: isDarkMode ? '#131C2E' : '#FFFFFF',
-    borderRadius: 16,
-    padding: 14,
-    borderWidth: 1.5,
-    borderColor: isDarkMode ? '#1E293B' : '#E2E8F0',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: isDarkMode ? 0.2 : 0.06,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  spotlightTopRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  spotlightTag: {
-    paddingHorizontal: 7,
-    paddingVertical: 3,
-    borderRadius: 6,
-  },
-  spotlightTagText: {
-    fontSize: 9.5,
-    fontWeight: '800',
-    letterSpacing: 0.3,
-  },
-  spotlightIconWrap: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  spotlightTitle: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: theme.text,
-    marginBottom: 2,
-  },
-  spotlightSubtitle: {
-    fontSize: 11.5,
-    fontWeight: '600',
-    color: theme.primary,
-    marginBottom: 6,
-  },
-  spotlightDesc: {
-    fontSize: 11,
-    color: theme.textSecondary,
-    lineHeight: 16,
-    marginBottom: 12,
-  },
-  spotlightActionRow: {
+  feedDirectoryShortcut: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    marginTop: 'auto',
+    backgroundColor: isDarkMode ? '#1E293B' : '#EFF6FF',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: isDarkMode ? '#334155' : '#DBEAFE',
   },
-  spotlightActionText: {
+  feedDirectoryShortcutText: {
     fontSize: 11.5,
     fontWeight: '700',
-    color: theme.primary,
+    color: '#002B5C',
   },
 
-  /* ── Alumni Composer ─────────────────────────────────── */
-  composerCard: {
-    backgroundColor: isDarkMode ? '#131C2E' : '#FFFFFF',
-    borderRadius: 16,
-    padding: 14,
-    marginHorizontal: 14,
-    marginBottom: 14,
-    borderWidth: 1.5,
-    borderColor: isDarkMode ? '#1E293B' : '#E2E8F0',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: isDarkMode ? 0.2 : 0.05,
-    shadowRadius: 6,
-    elevation: 2,
-  },
-  composerInputRow: {
+  /* ── Compact Single-Line Composer ────────────────────── */
+  compactComposerCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    backgroundColor: isDarkMode ? '#131C2E' : '#FFFFFF',
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 9,
     marginBottom: 10,
+    borderWidth: 1.5,
+    borderColor: isDarkMode ? '#1E293B' : '#E2E8F0',
+    gap: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: isDarkMode ? 0.2 : 0.04,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  composerAvatar: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+  compactComposerAvatar: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     backgroundColor: '#002B5C',
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
   },
-  composerAvatarInitials: {
-    fontSize: 13,
+  compactComposerAvatarInitials: {
+    fontSize: 12.5,
     fontWeight: '700',
     color: '#FFFFFF',
   },
-  composerPromptBox: {
+  compactComposerInput: {
     flex: 1,
-    backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9',
-    borderRadius: 20,
-    paddingHorizontal: 14,
-    paddingVertical: 9,
-    borderWidth: 1,
-    borderColor: isDarkMode ? '#334155' : '#E2E8F0',
+    paddingVertical: 6,
   },
-  composerPromptText: {
-    fontSize: 12.5,
+  compactComposerPlaceholder: {
+    fontSize: 13,
     color: theme.textMuted,
   },
-  composerActionsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    borderTopWidth: 1,
-    borderTopColor: isDarkMode ? '#1E293B' : '#F1F5F9',
-    paddingTop: 8,
-  },
-  composerActionChip: {
+  compactComposerBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    paddingVertical: 5,
-    paddingHorizontal: 8,
-    borderRadius: 8,
+    gap: 3,
+    backgroundColor: '#002B5C',
+    paddingHorizontal: 11,
+    paddingVertical: 6,
+    borderRadius: 10,
   },
-  composerActionLabel: {
-    fontSize: 11.5,
+  compactComposerBtnText: {
+    fontSize: 12,
     fontWeight: '700',
-    color: theme.textSecondary,
+    color: '#FFFFFF',
   },
 
-  /* ── Segmented Feed Filter Pills ─────────────────────── */
+  /* ── Segmented Feed Filter Bar ───────────────────────── */
   feedFilterBar: {
-    marginBottom: 14,
-    paddingHorizontal: 14,
+    marginBottom: 8,
   },
   feedFilterScroll: {
     gap: 8,
@@ -2838,10 +2476,9 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   filterPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
     paddingHorizontal: 12,
     paddingVertical: 7,
-    borderRadius: 20,
+    borderRadius: 18,
     backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9',
     borderWidth: 1,
     borderColor: isDarkMode ? '#334155' : '#E2E8F0',
@@ -2863,6 +2500,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 1,
     borderRadius: 10,
+    marginLeft: 5,
   },
   filterCountBadgeActive: {
     backgroundColor: 'rgba(255, 255, 255, 0.25)',
@@ -2874,6 +2512,26 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   },
   filterCountTextActive: {
     color: '#FFFFFF',
+  },
+
+  /* ── Information Context Explanation Bar ─────────────── */
+  infoContextBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    backgroundColor: isDarkMode ? '#111E33' : '#F8FAFC',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: isDarkMode ? '#1E293B' : '#E2E8F0',
+  },
+  infoContextText: {
+    fontSize: 11.5,
+    fontWeight: '600',
+    color: isDarkMode ? '#93C5FD' : '#002B5C',
+    flex: 1,
   },
 
   /* ── Empty Feed State ────────────────────────────────── */
