@@ -1143,22 +1143,15 @@ const DEFAULT_TAGGED_POSTS = [];
       </View>
 
       <ScrollView ref={profileScrollViewRef} showsVerticalScrollIndicator={false}>
-        {/* Modern Vibrant Mesh Gradient Cover Banner */}
+        {/* Modern Prestigious University Campus Hero Banner */}
         <View style={styles.coverBanner}>
-          {Platform.OS !== 'web' ? (
-            <ImageBackground
-              source={DEFAULT_COVER_BANNER}
-              style={styles.coverBannerImg}
-              resizeMode="cover"
-            >
-              <View style={styles.coverGradientOverlay} />
-            </ImageBackground>
-          ) : (
-            <View style={styles.coverBannerContentWeb}>
-              <View style={styles.ambientOrb1} />
-              <View style={styles.ambientOrb2} />
-            </View>
-          )}
+          <ImageBackground
+            source={DEFAULT_COVER_BANNER}
+            style={styles.coverBannerImg}
+            resizeMode="cover"
+          >
+            <View style={styles.coverGradientOverlay} />
+          </ImageBackground>
         </View>
 
         {/* Profile Identity & Showcase Container */}
@@ -4501,48 +4494,14 @@ const getStyles = (theme) => StyleSheet.create({
   // ── Cover Banner Styles ──
   coverBanner: {
     width: '100%',
-    height: 165,
-    backgroundColor: '#0284C7',
+    height: 180,
+    backgroundColor: '#0A192F',
     position: 'relative',
     overflow: 'hidden',
-    ...Platform.select({
-      web: {
-        backgroundImage: 'radial-gradient(at 10% 20%, #38BDF8 0px, transparent 55%), radial-gradient(at 90% 10%, #6366F1 0px, transparent 50%), radial-gradient(at 50% 95%, #0EA5E9 0px, transparent 60%), radial-gradient(at 80% 90%, #4338CA 0px, transparent 50%), #1E40AF',
-      },
-    }),
-  },
-  coverBannerContentWeb: {
-    width: '100%',
-    height: '100%',
-    justifyContent: 'flex-start',
-    alignItems: 'flex-end',
-    padding: 16,
-    position: 'relative',
-  },
-  ambientOrb1: {
-    position: 'absolute',
-    left: -30,
-    top: -30,
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: 'rgba(56, 189, 248, 0.3)',
-  },
-  ambientOrb2: {
-    position: 'absolute',
-    right: 50,
-    bottom: -30,
-    width: 170,
-    height: 170,
-    borderRadius: 85,
-    backgroundColor: 'rgba(129, 140, 248, 0.3)',
   },
   coverBannerImg: {
     width: '100%',
     height: '100%',
-    justifyContent: 'flex-start',
-    alignItems: 'flex-end',
-    padding: 14,
   },
   coverGradientOverlay: {
     position: 'absolute',
@@ -4550,28 +4509,28 @@ const getStyles = (theme) => StyleSheet.create({
     right: 0,
     top: 0,
     bottom: 0,
-    backgroundColor: 'rgba(15, 23, 42, 0.08)',
+    backgroundColor: 'rgba(10, 25, 47, 0.15)',
   },
 
   // ── Profile Identity & Avatar Section ──
   profileInfoContainer: {
     backgroundColor: theme.card,
     marginHorizontal: 0,
-    marginTop: -30,
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
+    marginTop: -34,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
     paddingHorizontal: 20,
     paddingTop: 0,
     paddingBottom: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 5,
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 8,
   },
   avatarCenterRow: {
     alignItems: 'center',
-    marginTop: -52,
+    marginTop: -56,
     marginBottom: 14,
   },
   mainInfoRow: {
