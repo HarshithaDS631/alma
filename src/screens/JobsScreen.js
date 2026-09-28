@@ -91,11 +91,31 @@ const JobsScreen = ({ navigation, route }) => {
   const [postingJob, setPostingJob] = useState(false);
 
   useEffect(() => {
+    (async () => {
+      try {
+        const cached = await AsyncStorage.getItem('cached_jobs_list');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setJobs(parsed);
+            setLoading(false);
+          }
+        }
+      } catch (e) {}
+    })();
+  }, []);
+
+  useEffect(() => {
     loadAllData();
   }, [activeTab, selectedWorkplace, selectedJobType]);
 
   const loadAllData = async () => {
-    setLoading(true);
+    const hasData = (activeTab === 'search' && jobs.length > 0) ||
+                    (activeTab === 'recommended' && recommendedJobs.length > 0) ||
+                    (activeTab === 'tracker' && (savedJobs.length > 0 || appliedJobs.length > 0));
+    if (!hasData) {
+      setLoading(true);
+    }
     try {
       if (activeTab === 'search') {
         const filters = {};
@@ -103,14 +123,21 @@ const JobsScreen = ({ navigation, route }) => {
         if (selectedWorkplace !== 'All') filters.workplaceType = selectedWorkplace;
         if (selectedJobType !== 'All') filters.jobType = selectedJobType;
         const res = await fetchJobs(filters);
-        setJobs(res);
+        if (Array.isArray(res)) {
+          setJobs(res);
+          if (!searchQuery && selectedWorkplace === 'All' && selectedJobType === 'All') {
+            AsyncStorage.setItem('cached_jobs_list', JSON.stringify(res)).catch(() => {});
+          }
+        }
       } else if (activeTab === 'tracker') {
         const trackerData = await fetchJobTracker();
         setSavedJobs(trackerData.savedJobs || []);
         setAppliedJobs(trackerData.appliedJobs || []);
       } else if (activeTab === 'recommended') {
         const recs = await fetchRecommendedJobs();
-        setRecommendedJobs(recs);
+        if (Array.isArray(recs)) {
+          setRecommendedJobs(recs);
+        }
       } else if (activeTab === 'preferences') {
         try {
           const cachedStr = await AsyncStorage.getItem('cached_job_preferences');
@@ -443,7 +470,7 @@ const JobsScreen = ({ navigation, route }) => {
               </ScrollView>
             </View>
 
-            {loading ? (
+            {loading && jobs.length === 0 ? (
               <ActivityIndicator size="large" color={isDarkMode ? '#3B82F6' : '#003366'} style={{ marginTop: 40 }} />
             ) : (
               <FlatList
@@ -633,7 +660,7 @@ const JobsScreen = ({ navigation, route }) => {
               </Text>
             </View>
 
-            {loading ? (
+            {loading && recommendedJobs.length === 0 ? (
               <ActivityIndicator size="large" color={isDarkMode ? '#3B82F6' : '#003366'} style={{ marginTop: 40 }} />
             ) : (
               <FlatList

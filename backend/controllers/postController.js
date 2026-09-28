@@ -80,6 +80,7 @@ exports.getPosts = async (req, res) => {
                 populate: { path: 'user', select: 'name department branch batchYear avatar_url' }
             })
             .sort({ createdAt: -1 })
+            .limit(50)
             .lean();
 
         res.json(posts);

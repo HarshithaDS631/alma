@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import {
@@ -655,9 +655,13 @@ const DirectoryScreen = ({ navigation, route }) => {
     }
   };
 
+  const lastDirectoryFetchRef = useRef(0);
+
   const fetchUsers = async () => {
     try {
-      setLoadingDirectory(true);
+      if (dbAlumni.length === 0) {
+        setLoadingDirectory(true);
+      }
       let institution = userInstitution;
       if (!institution) {
         try {
@@ -738,17 +742,16 @@ const DirectoryScreen = ({ navigation, route }) => {
 
   useFocusEffect(
     useCallback(() => {
+      const now = Date.now();
+      if (now - lastDirectoryFetchRef.current < 35000 && dbAlumni.length > 0) {
+        return;
+      }
+      lastDirectoryFetchRef.current = now;
       fetchUsers();
       fetchConnectionRequests();
       fetchFollowingData();
-    }, [])
+    }, [dbAlumni.length])
   );
-
-  useEffect(() => {
-    fetchUsers();
-    fetchConnectionRequests();
-    fetchFollowingData();
-  }, []);
 
   // ─── Merged Directory of Exact RVCE Members + Real Registered Users ──
   const unifiedDirectory = useMemo(() => {

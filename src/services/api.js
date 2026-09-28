@@ -1,21 +1,33 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-// FOR PHYSICAL DEVICE TESTING: Replace 'localhost' with your machine's IP address (e.g. 192.168.x.x)
-// FOR EMULATOR TESTING: Use 10.0.2.2 for Android
-// FOR VERCEL DEPLOYMENT: Configure EXPO_PUBLIC_API_URL in Vercel settings
 import { Platform } from 'react-native';
 
 const getApiUrl = () => {
-  // On web running locally, always use local backend
-  if (typeof window !== 'undefined' && 
-      (window.location?.hostname === 'localhost' || window.location?.hostname === '127.0.0.1')) {
-    return 'http://localhost:5000/api';
+  // 1. Web browser environment
+  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    if (window.location?.hostname === 'localhost' || window.location?.hostname === '127.0.0.1') {
+      return 'http://localhost:5000/api';
+    }
+    if (window.location?.origin && window.location.origin.includes('vercel.app')) {
+      return `${window.location.origin}/api`;
+    }
   }
-  // On web deployed on Vercel, use same-origin /api
-  if (typeof window !== 'undefined' && window.location?.origin && window.location.origin.includes('vercel.app')) {
-    return `${window.location.origin}/api`;
+
+  // 2. Native Mobile environment (Android / iOS)
+  if (Platform.OS !== 'web') {
+    const envUrl = process.env.EXPO_PUBLIC_API_URL;
+    // If explicit production/cloud URL provided
+    if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
+      return envUrl;
+    }
+    // In local development on Android emulator
+    if (typeof __DEV__ !== 'undefined' && __DEV__ && Platform.OS === 'android') {
+      return 'http://10.0.2.2:5000/api';
+    }
+    // In standalone release build or physical device, localhost is unreachable: fallback to live cloud API
+    return 'https://alma-orpin-delta.vercel.app/api';
   }
+
   if (process.env.EXPO_PUBLIC_API_URL) {
     return process.env.EXPO_PUBLIC_API_URL;
   }
@@ -25,9 +37,39 @@ const getApiUrl = () => {
 export const API_URL = getApiUrl();
 const BASE_URL = API_URL;
 
+// High-performance Axios instance with 7-second fail-fast timeout
 const api = axios.create({
   baseURL: BASE_URL,
+  timeout: 7000,
 });
+
+// Fast In-Memory Cache for idempotent GET requests (TTL: 25 seconds)
+const apiCache = new Map();
+const CACHE_TTL = 25000;
+
+export const fastGet = async (url, config = {}) => {
+  const key = `${url}_${JSON.stringify(config.params || {})}`;
+  const now = Date.now();
+  if (apiCache.has(key)) {
+    const entry = apiCache.get(key);
+    if (now - entry.timestamp < CACHE_TTL) {
+      return entry.data;
+    }
+  }
+  const { data } = await api.get(url, config);
+  apiCache.set(key, { data, timestamp: now });
+  return data;
+};
+
+export const invalidateApiCache = (prefix = '') => {
+  if (!prefix) {
+    apiCache.clear();
+    return;
+  }
+  for (const k of apiCache.keys()) {
+    if (k.startsWith(prefix)) apiCache.delete(k);
+  }
+};
 
 api.interceptors.request.use(
   async (config) => {
@@ -38,7 +80,7 @@ api.interceptors.request.use(
       try {
         const val = await AsyncStorage.getItem(key);
         if (val) { token = val; break; }
-      } catch (e) {}
+      } catch (_) {}
     }
 
     if (!token) {
@@ -48,7 +90,7 @@ api.interceptors.request.use(
           const parsed = JSON.parse(userInfoRaw);
           token = parsed.token || parsed.accessToken || parsed.idToken || parsed.jwt;
         }
-      } catch (e) {}
+      } catch (_) {}
     }
 
     // Web localStorage fallback
@@ -65,7 +107,7 @@ api.interceptors.request.use(
             token = parsed?.token || parsed?.accessToken || parsed?.idToken;
           }
         }
-      } catch (e) {}
+      } catch (_) {}
     }
 
     if (token) {
@@ -90,9 +132,15 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     
+    // Invalidate cache on mutations
+    if (['post', 'put', 'delete', 'patch'].includes(originalRequest?.method?.toLowerCase())) {
+      invalidateApiCache();
+    }
+
     // If 401 Unauthorized, not already retried, and not an auth/refresh endpoint
     if (
       error.response?.status === 401 &&
+      originalRequest &&
       !originalRequest._retry &&
       !originalRequest.url?.includes('/auth/login') &&
       !originalRequest.url?.includes('/auth/refresh-token')
@@ -112,7 +160,7 @@ api.interceptors.response.use(
         }
 
         if (refreshToken) {
-          const res = await axios.post(`${BASE_URL}/auth/refresh-token`, { refreshToken });
+          const res = await axios.post(`${BASE_URL}/auth/refresh-token`, { refreshToken }, { timeout: 5000 });
           if (res.data?.token) {
             const newToken = res.data.token;
             await AsyncStorage.setItem('userToken', newToken);
@@ -144,12 +192,12 @@ api.interceptors.response.use(
         console.warn('Token refresh failed:', refreshErr?.message);
       }
 
-      // If token refresh failed or token is revoked, remove stale tokens to prevent repeated 401 loops
+      // Stale token cleanup
       const staleKeys = ['userToken', 'token', 'jwtToken', 'firebase_id_token', 'auth_token'];
       for (const k of staleKeys) {
-        try { await AsyncStorage.removeItem(k); } catch (e) {}
+        try { await AsyncStorage.removeItem(k); } catch (_) {}
         if (Platform.OS === 'web' && typeof window !== 'undefined' && window.localStorage) {
-          try { window.localStorage.removeItem(k); } catch (e) {}
+          try { window.localStorage.removeItem(k); } catch (_) {}
         }
       }
     }
@@ -158,4 +206,3 @@ api.interceptors.response.use(
 );
 
 export default api;
-

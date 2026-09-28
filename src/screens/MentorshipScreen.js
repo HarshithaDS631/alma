@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView,
   Image, StatusBar, TextInput, Modal, Alert, Platform,
@@ -9,8 +9,9 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import getInitials from '../lib/getInitials';
+import { API_URL } from '../services/api';
 
-const API_BASE = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_BASE = API_URL;
 
 // ─── ALMACONNECT STANDARD AREAS & DEPARTMENTS ────────────────
 const FOCUS_AREAS = [
@@ -236,42 +237,68 @@ const MentorshipScreen = ({ navigation }) => {
     maxMentees: 3
   });
 
-  // Load Data
-  const loadData = useCallback(async () => {
-    try {
-      setLoading(true);
-      const userStr = await AsyncStorage.getItem('userInfo');
-      if (userStr) setCurrentUser(JSON.parse(userStr));
+  const lastFetchTimeRef = useRef(0);
 
-      const storedConns = await AsyncStorage.getItem('myMentorships');
+  // Load Data with Zero-Latency Stale-While-Revalidate and 3.5s Timeout
+  const loadData = useCallback(async (force = false) => {
+    // 1. Read offline cache first (immediate 0ms render)
+    try {
+      const [cachedMentors, cachedMentees, storedConns, userStr] = await Promise.all([
+        AsyncStorage.getItem('cached_mentorship_mentors'),
+        AsyncStorage.getItem('cached_mentorship_mentees'),
+        AsyncStorage.getItem('myMentorships'),
+        AsyncStorage.getItem('userInfo')
+      ]);
+
+      if (userStr) setCurrentUser(JSON.parse(userStr));
       if (storedConns) {
         const parsed = JSON.parse(storedConns);
         setMyConnections(parsed);
         setRequestedIds(new Set(parsed.map(c => c.mentorId || c.targetId)));
       }
+      if (cachedMentors) {
+        const parsed = JSON.parse(cachedMentors);
+        if (Array.isArray(parsed) && parsed.length > 0) setMentors(parsed);
+      }
+      if (cachedMentees) {
+        const parsed = JSON.parse(cachedMentees);
+        if (Array.isArray(parsed) && parsed.length > 0) setMentees(parsed);
+      }
+    } catch (_) {}
 
-      // Fetch Mentors from API
-      try {
-        const resMentors = await fetch(`${API_BASE}/mentorship/mentors`);
-        if (resMentors.ok) {
-          const data = await resMentors.json();
-          if (Array.isArray(data) && data.length > 0) setMentors(data);
-        }
-      } catch (_) {}
+    // Cooldown check: don't refetch network if already fetched in last 45s unless forced
+    const now = Date.now();
+    if (!force && now - lastFetchTimeRef.current < 45000 && mentors.length > 0) {
+      return;
+    }
+    lastFetchTimeRef.current = now;
 
-      // Fetch Mentees from API
-      try {
-        const resMentees = await fetch(`${API_BASE}/mentorship/mentees`);
-        if (resMentees.ok) {
-          const data = await resMentees.json();
-          if (Array.isArray(data) && data.length > 0) setMentees(data);
-        }
-      } catch (_) {}
+    // 2. Background parallel network revalidation with 3.5s fast timeout
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 3500);
+
+      const [resMentors, resMentees] = await Promise.allSettled([
+        fetch(`${API_BASE}/mentorship/mentors`, { signal: controller.signal })
+          .then(r => r.ok ? r.json() : null),
+        fetch(`${API_BASE}/mentorship/mentees`, { signal: controller.signal })
+          .then(r => r.ok ? r.json() : null),
+      ]);
+      clearTimeout(timer);
+
+      if (resMentors.status === 'fulfilled' && Array.isArray(resMentors.value) && resMentors.value.length > 0) {
+        setMentors(resMentors.value);
+        AsyncStorage.setItem('cached_mentorship_mentors', JSON.stringify(resMentors.value)).catch(() => {});
+      }
+      if (resMentees.status === 'fulfilled' && Array.isArray(resMentees.value) && resMentees.value.length > 0) {
+        setMentees(resMentees.value);
+        AsyncStorage.setItem('cached_mentorship_mentees', JSON.stringify(resMentees.value)).catch(() => {});
+      }
     } catch (_) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [mentors.length]);
 
   useFocusEffect(
     useCallback(() => {
@@ -1280,15 +1307,11 @@ const MentorshipScreen = ({ navigation }) => {
                   </TouchableOpacity>
                 </View>
 
-                {loading ? (
-                  <ActivityIndicator size="small" color="#002B5C" style={{ marginVertical: 20 }} />
-                ) : (
-                  <View style={isWide ? { flexDirection: 'row', flexWrap: 'wrap', gap: 12 } : {}}>
-                    {filteredMentors.map(renderMentorCard)}
-                  </View>
-                )}
+                <View style={isWide ? { flexDirection: 'row', flexWrap: 'wrap', gap: 12 } : {}}>
+                  {filteredMentors.map(renderMentorCard)}
+                </View>
 
-                {filteredMentors.length === 0 && !loading && (
+                {filteredMentors.length === 0 && (
                   <View style={styles.emptyState}>
                     <Ionicons name="search-outline" size={48} color={isDarkMode ? '#475569' : '#CBD5E1'} />
                     <Text style={[styles.emptyTitle, { color: theme.text }]}>No mentors found</Text>
@@ -1323,13 +1346,9 @@ const MentorshipScreen = ({ navigation }) => {
                   Students Seeking Guidance ({filteredMentees.length})
                 </Text>
 
-                {loading ? (
-                  <ActivityIndicator size="small" color="#002B5C" style={{ marginVertical: 20 }} />
-                ) : (
-                  filteredMentees.map(renderMenteeCard)
-                )}
+                {filteredMentees.map(renderMenteeCard)}
 
-                {filteredMentees.length === 0 && !loading && (
+                {filteredMentees.length === 0 && (
                   <View style={styles.emptyState}>
                     <Ionicons name="people-outline" size={48} color={isDarkMode ? '#475569' : '#CBD5E1'} />
                     <Text style={[styles.emptyTitle, { color: theme.text }]}>No mentee applications yet</Text>

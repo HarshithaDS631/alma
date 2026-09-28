@@ -436,9 +436,25 @@ const DashboardScreen = ({ navigation }) => {
           // Seed feed using the Instagram filter
           const myId = (cachedUser?._id || cachedUser?.id || '').toString();
           const myName = (cachedUser?.name || '').toLowerCase();
-          const cachedPosts = getDefaultPostsForUser(myId, myName, cachedFollowingIds);
-          if (cachedPosts.length > 0) {
-            setPosts(cachedPosts);
+          
+          let hasCachedFeed = false;
+          try {
+            const cachedFeed = await AsyncStorage.getItem('cached_dashboard_feed');
+            if (cachedFeed) {
+              const parsedFeed = JSON.parse(cachedFeed);
+              if (Array.isArray(parsedFeed) && parsedFeed.length > 0) {
+                setPosts(parsedFeed);
+                setLoading(false);
+                hasCachedFeed = true;
+              }
+            }
+          } catch (_) {}
+
+          if (!hasCachedFeed) {
+            const cachedPosts = getDefaultPostsForUser(myId, myName, cachedFollowingIds);
+            if (cachedPosts.length > 0) {
+              setPosts(cachedPosts);
+            }
           }
         }
       } catch (e) {}
@@ -527,18 +543,26 @@ const DashboardScreen = ({ navigation }) => {
   const userAvatarPath = currentUser?.profilePicture || currentUser?.avatar_url || currentUser?.avatar;
   const userAvatarUrl = userAvatarPath ? getImageUrl(userAvatarPath) : null;
 
+  const lastDashboardFetchRef = useRef(0);
+
   // Fetch real data from API instantly in parallel
   useFocusEffect(
     useCallback(() => {
+      const now = Date.now();
+      if (now - lastDashboardFetchRef.current < 35000 && posts.length > 0) {
+        return;
+      }
+      lastDashboardFetchRef.current = now;
+
       let isMounted = true;
       const fetchData = async () => {
         try {
-          // Only show full loading spinner on initial cold launch
+          // Only show full loading spinner on initial cold launch if we have no posts
           if (posts.length === 0) {
             setLoading(true);
           }
 
-          // Execute ALL network requests simultaneously in parallel (1 single roundtrip)
+          // Execute lightweight network requests simultaneously in parallel (1 single roundtrip)
           const [
             profileRes,
             postsRes,
@@ -546,8 +570,7 @@ const DashboardScreen = ({ navigation }) => {
             eventsRes,
             jobsRes,
             followingRes,
-            followersRes,
-            usersRes
+            followersRes
           ] = await Promise.allSettled([
             getProfile().catch(() => null),
             getPosts().catch(() => []),
@@ -556,7 +579,6 @@ const DashboardScreen = ({ navigation }) => {
             fetchJobs().catch(() => []),
             getFollowing().catch(() => []),
             getFollowers().catch(() => []),
-            getUsers().catch(() => []),
           ]);
 
           if (!isMounted) return;
@@ -572,10 +594,6 @@ const DashboardScreen = ({ navigation }) => {
 
           if (followersRes.status === 'fulfilled' && Array.isArray(followersRes.value)) {
             setFollowersList(followersRes.value);
-          }
-
-          if (usersRes.status === 'fulfilled' && Array.isArray(usersRes.value)) {
-            setDirectoryUsers(usersRes.value);
           }
 
           const currentUserInfo = profileRes.status === 'fulfilled' ? profileRes.value : null;
@@ -651,6 +669,7 @@ const DashboardScreen = ({ navigation }) => {
             // Use filtered posts; fall back to defaults if nothing matches
             if (dbFormatted.length > 0) {
               setPosts(dbFormatted);
+              AsyncStorage.setItem('cached_dashboard_feed', JSON.stringify(dbFormatted.slice(0, 30))).catch(() => {});
             } else {
               const freshUser = currentUserInfo;
               const freshFollowingIds = [...followedUserIds];

@@ -52,7 +52,9 @@ exports.getJobs = async (req, res) => {
 
         const jobs = await Job.find(query)
             .populate('postedBy', 'name profilePicture role company designation institution')
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .limit(60)
+            .lean();
 
         res.json(jobs);
     } catch (error) {
@@ -279,11 +281,13 @@ exports.getRecommendedJobs = async (req, res) => {
 
         const allJobs = await Job.find(query)
             .populate('postedBy', 'name company profilePicture role institution')
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .limit(60)
+            .lean();
 
         // Score each job with keyword detection engine
         const scoredJobs = allJobs.map(job => {
-            const jobObj = job.toObject();
+            const jobObj = typeof job.toObject === 'function' ? job.toObject() : { ...job };
             if (!jobObj.keywords || jobObj.keywords.length === 0) {
                 jobObj.keywords = extractKeywords(jobObj.title, jobObj.description, jobObj.requirements);
             }
@@ -359,7 +363,8 @@ exports.getResumeBook = async (req, res) => {
         const candidates = await User.find(query)
             .select('_id name email institution branch department batchYear company designation headline domain experienceYears skills resumeUrl resumeFileName resumeUpdatedAt isJobSeeker avatar_url profilePicture bio')
             .sort({ resumeUpdatedAt: -1, updatedAt: -1 })
-            .limit(100);
+            .limit(100)
+            .lean();
 
         res.json(candidates);
     } catch (error) {
