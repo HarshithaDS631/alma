@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Image, ScrollView, useWindowDimensions, Alert, StatusBar, Modal, TextInput, Platform, Share, Switch, Linking } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Image, ImageBackground, ScrollView, useWindowDimensions, Alert, StatusBar, Modal, TextInput, Platform, Share, Switch, Linking } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,6 +13,8 @@ import * as DocumentPicker from 'expo-document-picker';
 import { institutionDepartments, defaultDepartments } from '../constants/institutionDepartments';
 import getInitials from '../lib/getInitials';
 import InstagramProfileShareModal from '../components/InstagramProfileShareModal';
+
+const DEFAULT_COVER_BANNER = require('../../assets/images/profile-banner-mesh.jpg');
 
 const validatePasswordStrength = (password) => {
   if (password.length < 8) {
@@ -175,6 +177,7 @@ const DEFAULT_CONNECTIONS = [];
     following: '0',
     avatar: '',
     avatar_url: '',
+    cover_url: '',
     isOpenToWork: true,
     openToWorkRoles: 'Software Engineer, Full Stack Developer',
     openToWorkLocations: 'Bengaluru, India (Hybrid / Remote)',
@@ -256,6 +259,16 @@ const DEFAULT_CONNECTIONS = [];
             following: cachedProfile.following || prev.following || '0',
             avatar: getInitials(uName),
             avatar_url: rawAvatar ? getImageUrl(rawAvatar) : '',
+            cover_url: (() => {
+              const raw = cached.cover_url || cached.coverImage;
+              if (raw && (raw.includes('8ac7152a') || raw.includes('localhost:5000'))) {
+                delete cached.cover_url;
+                delete cached.coverImage;
+                AsyncStorage.setItem('userInfo', JSON.stringify(cached)).catch(() => {});
+                return '';
+              }
+              return raw ? getImageUrl(raw) : '';
+            })(),
             isOpenToWork: otwActive,
             openToWorkRoles: otwRoles,
             openToWorkLocations: otwLocations,
@@ -442,6 +455,11 @@ const DEFAULT_TAGGED_POSTS = [];
               skills: activeUser.skills || [],
               avatar: getInitials(uName),
               avatar_url: fullAvatarUrl,
+              cover_url: (() => {
+                const raw = activeUser.cover_url || activeUser.coverImage;
+                if (raw && (raw.includes('8ac7152a') || raw.includes('localhost:5000'))) return '';
+                return raw ? getImageUrl(raw) : '';
+              })(),
               isOpenToWork: otwActive,
               openToWorkRoles: otwRoles,
               openToWorkLocations: otwLocations,
@@ -857,6 +875,61 @@ const DEFAULT_TAGGED_POSTS = [];
     }
   };
 
+  const handlePickCoverPhoto = async () => {
+    try {
+      if (Platform.OS !== 'web') {
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (!permissionResult.granted) {
+          alert('Permission to access photos is required to update cover photo.');
+          return;
+        }
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [16, 9],
+        quality: 0.5,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const selectedUri = result.assets[0].uri;
+        let uploadedUrl = selectedUri;
+        try {
+          uploadedUrl = await uploadFile(selectedUri, 'image/jpeg', `cover_${Date.now()}.jpg`);
+        } catch (uploadErr) {
+          console.warn('Backend cover upload warning, using URI:', uploadErr);
+        }
+
+        setProfileData(prev => ({
+          ...prev,
+          cover_url: uploadedUrl
+        }));
+
+        try {
+          await updateProfile({ cover_url: uploadedUrl, coverImage: uploadedUrl });
+        } catch (e) {
+          console.warn('Backend update cover failed:', e);
+        }
+
+        try {
+          const cachedStr = await AsyncStorage.getItem('userInfo');
+          if (cachedStr) {
+            const cached = JSON.parse(cachedStr);
+            cached.cover_url = uploadedUrl;
+            cached.coverImage = uploadedUrl;
+            await AsyncStorage.setItem('userInfo', JSON.stringify(cached));
+          }
+        } catch (e) {}
+
+        alert('📸 Cover photo updated!');
+      }
+    } catch (error) {
+      console.error('Error updating cover photo:', error);
+      alert('Could not update cover photo: ' + (error.message || 'Cancelled'));
+    }
+  };
+
   // Settings States
   const [privateAccount, setPrivateAccount] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
@@ -1125,26 +1198,54 @@ const DEFAULT_TAGGED_POSTS = [];
       </View>
 
       <ScrollView ref={profileScrollViewRef} showsVerticalScrollIndicator={false}>
-        {/* Cover Banner */}
+        {/* Modern Vibrant Mesh Gradient Cover Banner */}
         <View style={styles.coverBanner}>
-          <View style={styles.coverGradientOverlay} />
-          <View style={styles.coverDecorCircle1} />
-          <View style={styles.coverDecorCircle2} />
-          <View style={styles.coverDecorCircle3} />
-          <View style={styles.coverTopRow}>
-            <View style={styles.coverInstitutionBadge}>
-              <Ionicons name="shield-checkmark" size={13} color="#FBBF24" />
-              <Text style={styles.coverInstitutionText}>
-                {profileData.institution || 'RV COLLEGE OF ENGINEERING'}
-              </Text>
+          {profileData.cover_url ? (
+            <ImageBackground
+              source={{ uri: profileData.cover_url }}
+              style={styles.coverBannerImg}
+              resizeMode="cover"
+            >
+              <View style={styles.coverGradientOverlay} />
+              <TouchableOpacity 
+                style={styles.coverEditBtn}
+                onPress={handlePickCoverPhoto}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="camera" size={13} color="#FFFFFF" />
+                <Text style={styles.coverEditBtnText}>Change Cover</Text>
+              </TouchableOpacity>
+            </ImageBackground>
+          ) : Platform.OS !== 'web' ? (
+            <ImageBackground
+              source={DEFAULT_COVER_BANNER}
+              style={styles.coverBannerImg}
+              resizeMode="cover"
+            >
+              <View style={styles.coverGradientOverlay} />
+              <TouchableOpacity 
+                style={styles.coverEditBtn}
+                onPress={handlePickCoverPhoto}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="camera" size={13} color="#FFFFFF" />
+                <Text style={styles.coverEditBtnText}>Change Cover</Text>
+              </TouchableOpacity>
+            </ImageBackground>
+          ) : (
+            <View style={styles.coverBannerContentWeb}>
+              <View style={styles.ambientOrb1} />
+              <View style={styles.ambientOrb2} />
+              <TouchableOpacity 
+                style={styles.coverEditBtn}
+                onPress={handlePickCoverPhoto}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="camera" size={13} color="#FFFFFF" />
+                <Text style={styles.coverEditBtnText}>Change Cover</Text>
+              </TouchableOpacity>
             </View>
-            <View style={styles.coverChapterBadge}>
-              <Ionicons name="school" size={13} color="#FFFFFF" />
-              <Text style={styles.coverChapterText}>
-                {profileData.batch ? `Class of '${String(profileData.batch).slice(-2)}` : 'ALUMNI'}
-              </Text>
-            </View>
-          </View>
+          )}
         </View>
 
         {/* Profile Identity & Showcase Container */}
@@ -1367,7 +1468,7 @@ const DEFAULT_TAGGED_POSTS = [];
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.otwPromptTitle}>Open to opportunities?</Text>
-                <Text style={styles.otwPromptSub}>Show recruiters you're available</Text>
+                <Text style={styles.otwPromptSub}>{"Show recruiters you're available"}</Text>
               </View>
               <View style={styles.otwPromptActionBtn}>
                 <Text style={styles.otwPromptActionText}>Enable</Text>
@@ -4487,83 +4588,74 @@ const getStyles = (theme) => StyleSheet.create({
   // ── Cover Banner Styles ──
   coverBanner: {
     width: '100%',
-    height: 150,
-    backgroundColor: '#001D3D',
+    height: 165,
+    backgroundColor: '#0284C7',
     position: 'relative',
     overflow: 'hidden',
+    ...Platform.select({
+      web: {
+        backgroundImage: 'radial-gradient(at 10% 20%, #38BDF8 0px, transparent 55%), radial-gradient(at 90% 10%, #6366F1 0px, transparent 50%), radial-gradient(at 50% 95%, #0EA5E9 0px, transparent 60%), radial-gradient(at 80% 90%, #4338CA 0px, transparent 50%), #1E40AF',
+      },
+    }),
+  },
+  coverBannerContentWeb: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-end',
+    padding: 16,
+    position: 'relative',
+  },
+  ambientOrb1: {
+    position: 'absolute',
+    left: -30,
+    top: -30,
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: 'rgba(56, 189, 248, 0.3)',
+  },
+  ambientOrb2: {
+    position: 'absolute',
+    right: 50,
+    bottom: -30,
+    width: 170,
+    height: 170,
+    borderRadius: 85,
+    backgroundColor: 'rgba(129, 140, 248, 0.3)',
+  },
+  coverBannerImg: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-end',
+    padding: 14,
   },
   coverGradientOverlay: {
     position: 'absolute',
     left: 0,
     right: 0,
+    top: 0,
     bottom: 0,
-    height: 80,
-    backgroundColor: 'rgba(0, 43, 92, 0.6)',
+    backgroundColor: 'rgba(15, 23, 42, 0.08)',
   },
-  coverDecorCircle1: {
-    position: 'absolute',
-    right: -40,
-    top: -40,
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: 'rgba(2, 132, 199, 0.15)',
-  },
-  coverDecorCircle2: {
-    position: 'absolute',
-    left: -30,
-    bottom: -50,
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    backgroundColor: 'rgba(251, 191, 36, 0.1)',
-  },
-  coverDecorCircle3: {
-    position: 'absolute',
-    right: 80,
-    top: 20,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  },
-  coverTopRow: {
-    position: 'absolute',
-    left: 16,
-    right: 16,
-    top: 16,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  coverInstitutionBadge: {
+  coverEditBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    gap: 6,
+    backgroundColor: 'rgba(15, 23, 42, 0.45)',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
-    gap: 6,
-    backdropFilter: 'blur(8px)',
-  },
-  coverInstitutionText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '700',
-    letterSpacing: 0.3,
-  },
-  coverChapterBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    paddingHorizontal: 11,
-    paddingVertical: 6,
-    borderRadius: 20,
-    gap: 5,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.18,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  coverChapterText: {
+  coverEditBtnText: {
     color: '#FFFFFF',
     fontSize: 11.5,
     fontWeight: '700',
