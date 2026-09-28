@@ -1,390 +1,544 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView,
-  Image, StatusBar, TextInput, Modal, FlatList, Alert, Platform,
-  useWindowDimensions, ActivityIndicator, Animated, Linking
+  Image, StatusBar, TextInput, Modal, Alert, Platform,
+  useWindowDimensions, ActivityIndicator
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { getImageUrl } from '../services/uploadService';
 import getInitials from '../lib/getInitials';
 
-// ─── RVCE MENTOR DATA ────────────────────────────────────────
-const RVCE_MENTORS = [
-  {
-    id: 'm1', name: 'Dr. Raghav Sharma', batch: '2005', department: 'Computer Science',
-    company: 'Google', designation: 'Principal Engineer',
-    expertise: ['System Design', 'Machine Learning', 'Cloud Architecture'],
-    location: 'Mountain View, CA', mentees: 12, rating: 4.9,
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80',
-    bio: 'Passionate about building scalable systems. 18+ years in tech, love to guide aspiring engineers.',
-    availability: 'Weekends, 2 slots/month', isVerified: true, isFeatured: true,
-  },
-  {
-    id: 'm2', name: 'Priya Nair', batch: '2010', department: 'Electronics & Communication',
-    company: 'Microsoft', designation: 'Senior Product Manager',
-    expertise: ['Product Strategy', 'UX Research', 'Agile Methodologies'],
-    location: 'Hyderabad, India', mentees: 8, rating: 4.8,
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80',
-    bio: 'Transitioned from engineering to product. Happy to help navigate career pivots.',
-    availability: 'Tue & Thu evenings', isVerified: true, isFeatured: true,
-  },
-  {
-    id: 'm3', name: 'Arun Patel', batch: '2008', department: 'Mechanical Engineering',
-    company: 'Tesla', designation: 'Staff Mechanical Engineer',
-    expertise: ['Automotive Engineering', 'CAD/CAM', 'Manufacturing'],
-    location: 'Austin, TX', mentees: 5, rating: 4.7,
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&auto=format&fit=crop&q=80',
-    bio: 'From RVCE workshops to Tesla factory floors. Bridging academia and industry innovation.',
-    availability: 'Flexible, bi-weekly', isVerified: true, isFeatured: false,
-  },
-  {
-    id: 'm4', name: 'Dr. Kavitha Reddy', batch: '2003', department: 'Biotechnology',
-    company: 'Biocon', designation: 'VP R&D',
-    expertise: ['Bioinformatics', 'Drug Discovery', 'Clinical Trials'],
-    location: 'Bengaluru, India', mentees: 15, rating: 4.9,
-    avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&auto=format&fit=crop&q=80',
-    bio: 'Leading pharmaceutical research for 20+ years. Mentor to dozens of biotech researchers.',
-    availability: 'Weekends, 3 slots/month', isVerified: true, isFeatured: true,
-  },
-  {
-    id: 'm5', name: 'Vikram Joshi', batch: '2012', department: 'Information Science',
-    company: 'Amazon', designation: 'Engineering Manager',
-    expertise: ['Backend Systems', 'Team Leadership', 'Distributed Systems'],
-    location: 'Seattle, WA', mentees: 9, rating: 4.6,
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80',
-    bio: 'IC to EM transition. I help engineers grow into leaders and navigate big tech culture.',
-    availability: 'Sat mornings IST', isVerified: true, isFeatured: false,
-  },
-  {
-    id: 'm6', name: 'Sneha Kulkarni', batch: '2015', department: 'Computer Science',
-    company: 'Flipkart', designation: 'Lead Data Scientist',
-    expertise: ['Data Science', 'NLP', 'Analytics', 'Python'],
-    location: 'Bengaluru, India', mentees: 6, rating: 4.8,
-    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&auto=format&fit=crop&q=80',
-    bio: 'Data nerd from RVCE. Building recommendation engines at scale. Love helping freshers break into DS.',
-    availability: 'Tue & Thu, 1 slot/week', isVerified: true, isFeatured: false,
-  },
-  {
-    id: 'm7', name: 'Rajesh Iyer', batch: '2001', department: 'Civil Engineering',
-    company: 'L&T Construction', designation: 'Project Director',
-    expertise: ['Infrastructure', 'Project Management', 'Sustainable Construction'],
-    location: 'Mumbai, India', mentees: 11, rating: 4.5,
-    avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=200&auto=format&fit=crop&q=80',
-    bio: '22 years in mega infra projects. RVCE civil alumnus guiding the next generation of builders.',
-    availability: 'Sundays, flexible', isVerified: true, isFeatured: false,
-  },
-  {
-    id: 'm8', name: 'Ananya Desai', batch: '2018', department: 'Electronics & Communication',
-    company: 'Qualcomm', designation: 'ASIC Design Engineer',
-    expertise: ['VLSI Design', 'RTL', 'SoC Architecture', 'Verilog'],
-    location: 'San Diego, CA', mentees: 3, rating: 4.7,
-    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80',
-    bio: 'Recent RVCE grad turned chip designer. Relatable mentor for final-year and fresh grads in VLSI.',
-    availability: 'Weekends IST', isVerified: true, isFeatured: false,
-  },
+const API_BASE = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:5000/api';
+
+// ─── ALMACONNECT STANDARD AREAS & DEPARTMENTS ────────────────
+const FOCUS_AREAS = [
+  'All',
+  'Software Engineering',
+  'System Design',
+  'Higher Studies',
+  'Core Engineering',
+  'Product Management',
+  'Machine Learning',
+  'Civil Services',
+  'Entrepreneurship',
+  'Research',
+  'VLSI Design',
+  'Finance'
 ];
 
-const DEPARTMENTS = ['All Departments', 'Computer Science', 'Electronics & Communication', 'Mechanical Engineering',
-  'Civil Engineering', 'Information Science', 'Biotechnology', 'Electrical Engineering', 'Chemical Engineering'];
+const DEPARTMENTS = [
+  'All Departments',
+  'Computer Science',
+  'Electronics & Communication',
+  'Mechanical Engineering',
+  'Civil Engineering',
+  'Information Science',
+  'Biotechnology',
+  'Electrical Engineering'
+];
 
-const EXPERTISE_TAGS = ['All', 'System Design', 'Machine Learning', 'Product Strategy', 'Data Science',
-  'Backend Systems', 'VLSI Design', 'Project Management', 'Cloud Architecture', 'Leadership'];
+// Fallback Curated Mentors
+const DEFAULT_MENTORS = [
+  {
+    id: 'curated_m1',
+    name: 'Dr. Raghav Sharma',
+    batchYear: '2005',
+    department: 'Computer Science',
+    company: 'Google',
+    designation: 'Principal Engineer',
+    location: 'Mountain View, CA',
+    avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80',
+    about: 'Passionate about building scalable distributed systems and cloud infrastructure. 18+ years in tech, happy to guide aspiring engineers and leaders.',
+    availability: 'Weekends, 2 slots/month',
+    areas: ['Software Engineering', 'System Design', 'Machine Learning'],
+    skills: ['System Design', 'Cloud Architecture', 'Go', 'Kubernetes'],
+    menteesCount: 14,
+    rating: 4.9,
+    institution: 'RV College of Engineering',
+    isVerified: true
+  },
+  {
+    id: 'curated_m2',
+    name: 'Priya Nair',
+    batchYear: '2010',
+    department: 'Electronics & Communication',
+    company: 'Microsoft',
+    designation: 'Senior Product Manager',
+    location: 'Hyderabad, India',
+    avatar_url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80',
+    about: 'Transitioned from technical engineering to product management. Happy to mentor on APM preparation, product strategy, and career transitions.',
+    availability: 'Tue & Thu evenings',
+    areas: ['Product Management', 'Career Strategy', 'Agile Methodologies'],
+    skills: ['Product Strategy', 'UX Research', 'Agile', 'Analytics'],
+    menteesCount: 9,
+    rating: 4.8,
+    institution: 'RV College of Engineering',
+    isVerified: true
+  },
+  {
+    id: 'curated_m3',
+    name: 'Arun Patel',
+    batchYear: '2008',
+    department: 'Mechanical Engineering',
+    company: 'Tesla',
+    designation: 'Staff Mechanical Engineer',
+    location: 'Austin, TX',
+    avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&auto=format&fit=crop&q=80',
+    about: 'From RVCE mechanical workshops to Tesla Gigafactory floors. Guiding students in automotive engineering, CAD/CAM, and EV hardware design.',
+    availability: 'Flexible, bi-weekly',
+    areas: ['Core Engineering', 'Automotive Engineering', 'CAD/CAM'],
+    skills: ['Automotive Engineering', 'CAD/CAM', 'Manufacturing', 'SolidWorks'],
+    menteesCount: 7,
+    rating: 4.7,
+    institution: 'RV College of Engineering',
+    isVerified: true
+  },
+  {
+    id: 'curated_m4',
+    name: 'Dr. Kavitha Reddy',
+    batchYear: '2003',
+    department: 'Biotechnology',
+    company: 'Biocon',
+    designation: 'VP R&D',
+    location: 'Bengaluru, India',
+    avatar_url: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&auto=format&fit=crop&q=80',
+    about: 'Leading biopharmaceutical research for over 20 years. Dedicated mentor to biotech students, researchers, and aspiring PhD scholars.',
+    availability: 'Weekends, 3 slots/month',
+    areas: ['Research', 'Biotechnology', 'Higher Studies'],
+    skills: ['Bioinformatics', 'Drug Discovery', 'Clinical Trials'],
+    menteesCount: 16,
+    rating: 4.9,
+    institution: 'RV College of Engineering',
+    isVerified: true
+  }
+];
+
+// Fallback Curated Mentees (AlmaConnect Mentee Questionnaire Profiles)
+const DEFAULT_MENTEES = [
+  {
+    id: 'curated_mentee_1',
+    name: 'Rohan Kulkarni',
+    batchYear: '2025',
+    department: 'Computer Science',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=200&auto=format&fit=crop&q=80',
+    areas: ['Software Engineering', 'System Design'],
+    whyMentor: 'I want guidance from an industry veteran on transitioning from college projects to scalable backend architectures, understanding distributed systems in production, and cracking product-based company technical rounds.',
+    guidance: 'Backend engineering with Node.js/Go, microservices patterns, Docker/Kubernetes, and system design case studies.',
+    progress: 'Completed AWS Certified Cloud Practitioner. Built a real-time collaborative code editor with WebSockets and Redis. Solved 300+ LeetCode problems.',
+    activities: 'Technical Lead at RVCE Coding Club, Organized 8th Mile Hackathon 2024, Member of IEEE RVCE Student Branch.'
+  },
+  {
+    id: 'curated_mentee_2',
+    name: 'Ananya Sharma',
+    batchYear: '2025',
+    department: 'Electronics & Communication',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
+    areas: ['Higher Studies', 'VLSI Design', 'Research'],
+    whyMentor: 'Aiming to pursue MS in Electrical & Computer Engineering with a specialization in Chip Design / Computer Architecture in the US for Fall 2026. Looking for guidance on research publications, SOP drafting, and university selection.',
+    guidance: 'Digital VLSI design, Verilog/SystemVerilog, physical design flow, and MS application strategy for top US universities.',
+    progress: 'Published a conference paper on Low Power ALU design at IEEE Confluence. Completed coursework in VLSI & Embedded Systems with a 9.2 CGPA. Cleared GRE (Score: 324).',
+    activities: 'Core Committee Member of Rotaract Club RVCE, Technical volunteer at Astra Robotics, Class Representative.'
+  },
+  {
+    id: 'curated_mentee_3',
+    name: 'Varun Nambiar',
+    batchYear: '2024',
+    department: 'Mechanical Engineering',
+    institution: 'RV College of Engineering',
+    avatar_url: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&auto=format&fit=crop&q=80',
+    areas: ['Core Engineering', 'Automotive Engineering'],
+    whyMentor: 'Seeking mentorship on breaking into EV powertrain design and transitioning core mechanical skills to modern electric vehicle platforms.',
+    guidance: 'Thermal management in battery packs, FEA analysis using ANSYS, CAD modeling (SolidWorks/CATIA), and career pathways in EV startups.',
+    progress: 'Lead chassis design engineer for Ashwa Racing (Formula Student Team of RVCE). Completed internship at Bosch Automotive.',
+    activities: 'Chassis Lead at Ashwa Racing, SAE India Collegiate Club Member, Badminton Team RVCE.'
+  }
+];
+
+// AlmaConnect Standard FAQ Content
+const FAQS = [
+  {
+    q: 'Who decides the mentor-mentee match?',
+    a: 'The program empowers you with direct choice. Mentees can browse registered mentors and send connection requests directly. Mentors can also browse Mentee Profiles and proactively offer guidance. For students who need assistance, the RVCE Alumni Relations Team reviews applications and provides recommended matches.'
+  },
+  {
+    q: 'How much time commitment is expected?',
+    a: 'Mentorship is designed to be flexible. Most pairs communicate asynchronously via in-app messaging, with scheduled 30–45 minute calls once or twice a month based on mutual agreement.'
+  },
+  {
+    q: 'Can a mentee have more than one mentor?',
+    a: 'Yes! You can connect with multiple mentors for different career tracks — for example, one mentor for technical systems preparation and another for higher studies / GRE advice.'
+  },
+  {
+    q: 'What if a mentor is inactive or non-responsive?',
+    a: 'If a mentor is unable to respond within 7 days, you can cancel the request and connect with another alumnus. You can also reach out to the alumni committee for a curated reassignment.'
+  },
+  {
+    q: 'What is expected from a student mentee?',
+    a: 'Be punctual, respectful of the alumni mentor\'s time, come prepared with specific questions or agendas, and actively communicate your progress.'
+  }
+];
 
 const MentorshipScreen = ({ navigation }) => {
   const { theme, isDarkMode } = useTheme();
   const { width } = useWindowDimensions();
   const isWeb = Platform.OS === 'web';
   const isWide = width >= 768;
+  const styles = getStyles(theme, isDarkMode);
 
-  // State
-  const [activeTab, setActiveTab] = useState('explore'); // 'explore' | 'myMentors' | 'apply' | 'resources'
-  const [mentors, setMentors] = useState(RVCE_MENTORS);
+  // Active Tab: 'mentors' | 'mentees' | 'connections' | 'faq'
+  const [activeTab, setActiveTab] = useState('mentors');
+
+  // Directory Data
+  const [mentors, setMentors] = useState(DEFAULT_MENTORS);
+  const [mentees, setMentees] = useState(DEFAULT_MENTEES);
+  const [loading, setLoading] = useState(false);
+
+  // Search & Filter
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedArea, setSelectedArea] = useState('All');
   const [selectedDept, setSelectedDept] = useState('All Departments');
-  const [selectedExpertise, setSelectedExpertise] = useState('All');
-  const [showFilterModal, setShowFilterModal] = useState(false);
+
+  // Modals
+  const [selectedMentor, setSelectedMentor] = useState(null);
+  const [selectedMentee, setSelectedMentee] = useState(null);
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [applyType, setApplyType] = useState('mentee'); // 'mentor' | 'mentee'
-  const [selectedMentor, setSelectedMentor] = useState(null);
-  const [showMentorDetail, setShowMentorDetail] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [myMentorships, setMyMentorships] = useState([]);
-  const [requestedMentors, setRequestedMentors] = useState(new Set());
+  const [showSampleModal, setShowSampleModal] = useState(false);
+  const [showRequestModal, setShowRequestModal] = useState(false);
+  const [requestTarget, setRequestTarget] = useState(null); // person to request or connect
+  const [requestGoal, setRequestGoal] = useState('');
+  const [requestNote, setRequestNote] = useState('');
 
-  // Application form
+  // Expandable Mentee Profile Card Tracking
+  const [expandedMenteeIds, setExpandedMenteeIds] = useState(new Set());
+  // Active FAQ Accordion Index
+  const [expandedFaqIndex, setExpandedFaqIndex] = useState(0);
+
+  // User & Connections
+  const [currentUser, setCurrentUser] = useState(null);
+  const [myConnections, setMyConnections] = useState([]);
+  const [requestedIds, setRequestedIds] = useState(new Set());
+
+  // Form Data for Registration
   const [formData, setFormData] = useState({
-    keywords: '', whyMentor: '', guidance: '', progress: '', activities: ''
+    areas: [],
+    customArea: '',
+    whyMentor: '',
+    guidance: '',
+    progress: '',
+    activities: '',
+    about: '',
+    availability: 'Weekends, 2 slots/month',
+    maxMentees: 3
   });
 
-  useEffect(() => {
-    loadUser();
-    loadMyMentorships();
+  // Load Data
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const userStr = await AsyncStorage.getItem('userInfo');
+      if (userStr) setCurrentUser(JSON.parse(userStr));
+
+      const storedConns = await AsyncStorage.getItem('myMentorships');
+      if (storedConns) {
+        const parsed = JSON.parse(storedConns);
+        setMyConnections(parsed);
+        setRequestedIds(new Set(parsed.map(c => c.mentorId || c.targetId)));
+      }
+
+      // Fetch Mentors from API
+      try {
+        const resMentors = await fetch(`${API_BASE}/mentorship/mentors`);
+        if (resMentors.ok) {
+          const data = await resMentors.json();
+          if (Array.isArray(data) && data.length > 0) setMentors(data);
+        }
+      } catch (_) {}
+
+      // Fetch Mentees from API
+      try {
+        const resMentees = await fetch(`${API_BASE}/mentorship/mentees`);
+        if (resMentees.ok) {
+          const data = await resMentees.json();
+          if (Array.isArray(data) && data.length > 0) setMentees(data);
+        }
+      } catch (_) {}
+    } catch (_) {
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const loadUser = async () => {
-    try {
-      const str = await AsyncStorage.getItem('userInfo');
-      if (str) setCurrentUser(JSON.parse(str));
-    } catch (_) {}
-  };
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [loadData])
+  );
 
-  const loadMyMentorships = async () => {
-    try {
-      const str = await AsyncStorage.getItem('myMentorships');
-      if (str) {
-        const parsed = JSON.parse(str);
-        setMyMentorships(parsed);
-        setRequestedMentors(new Set(parsed.map(m => m.mentorId)));
-      }
-    } catch (_) {}
-  };
-
-  // Filter mentors
+  // Filter Mentors
   const filteredMentors = mentors.filter(m => {
-    const matchesSearch = !searchQuery ||
-      m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      m.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      m.expertise.some(e => e.toLowerCase().includes(searchQuery.toLowerCase()));
+    const q = searchQuery.toLowerCase();
+    const matchesSearch = !q ||
+      (m.name && m.name.toLowerCase().includes(q)) ||
+      (m.company && m.company.toLowerCase().includes(q)) ||
+      (m.designation && m.designation.toLowerCase().includes(q)) ||
+      (m.areas && m.areas.some(a => a.toLowerCase().includes(q)));
     const matchesDept = selectedDept === 'All Departments' || m.department === selectedDept;
-    const matchesExpertise = selectedExpertise === 'All' ||
-      m.expertise.some(e => e.toLowerCase().includes(selectedExpertise.toLowerCase()));
-    return matchesSearch && matchesDept && matchesExpertise;
+    const matchesArea = selectedArea === 'All' || (m.areas && m.areas.includes(selectedArea));
+    return matchesSearch && matchesDept && matchesArea;
   });
 
-  const featuredMentors = filteredMentors.filter(m => m.isFeatured);
+  // Filter Mentees
+  const filteredMentees = mentees.filter(m => {
+    const q = searchQuery.toLowerCase();
+    const matchesSearch = !q ||
+      (m.name && m.name.toLowerCase().includes(q)) ||
+      (m.department && m.department.toLowerCase().includes(q)) ||
+      (m.guidance && m.guidance.toLowerCase().includes(q)) ||
+      (m.areas && m.areas.some(a => a.toLowerCase().includes(q)));
+    const matchesDept = selectedDept === 'All Departments' || m.department === selectedDept;
+    const matchesArea = selectedArea === 'All' || (m.areas && m.areas.includes(selectedArea));
+    return matchesSearch && matchesDept && matchesArea;
+  });
 
-  const handleRequestMentor = async (mentor) => {
-    if (requestedMentors.has(mentor.id)) {
-      Alert.alert('Already Requested', `You have already sent a mentorship request to ${mentor.name}.`);
-      return;
-    }
+  // Toggle Mentee Details Expansion
+  const toggleMenteeExpand = (id) => {
+    setExpandedMenteeIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
-    const newMentorship = {
-      id: 'ms_' + Date.now(),
-      mentorId: mentor.id,
-      mentorName: mentor.name,
-      mentorCompany: mentor.company,
-      mentorDesignation: mentor.designation,
-      mentorAvatar: mentor.avatar,
-      mentorExpertise: mentor.expertise,
+  // Toggle Focus Area Selection in Registration Form
+  const toggleFormArea = (area) => {
+    setFormData(prev => {
+      const exists = prev.areas.includes(area);
+      const nextAreas = exists ? prev.areas.filter(a => a !== area) : [...prev.areas, area];
+      return { ...prev, areas: nextAreas };
+    });
+  };
+
+  // Handle Mentorship Request Submission
+  const handleSendRequest = async () => {
+    if (!requestTarget) return;
+
+    const isMentorTarget = !requestTarget.whyMentor;
+    const connectionItem = {
+      id: 'conn_' + Date.now(),
+      targetId: requestTarget.id || requestTarget._id,
+      name: requestTarget.name,
+      role: requestTarget.designation || 'Student Mentee',
+      company: requestTarget.company || requestTarget.institution || 'RVCE',
+      department: requestTarget.department,
+      avatar: requestTarget.avatar_url,
+      type: isMentorTarget ? 'Mentor' : 'Mentee',
+      goals: requestGoal || 'Career & Technical Guidance',
+      message: requestNote,
       status: 'Pending',
-      requestedAt: new Date().toISOString(),
+      requestedAt: new Date().toISOString()
     };
 
-    const updated = [...myMentorships, newMentorship];
-    setMyMentorships(updated);
-    setRequestedMentors(prev => new Set([...prev, mentor.id]));
+    const updated = [connectionItem, ...myConnections];
+    setMyConnections(updated);
+    setRequestedIds(prev => new Set([...prev, connectionItem.targetId]));
+    await AsyncStorage.setItem('myMentorships', JSON.stringify(updated));
 
+    // Also dispatch to API if user is authenticated
     try {
-      await AsyncStorage.setItem('myMentorships', JSON.stringify(updated));
+      const token = await AsyncStorage.getItem('userToken');
+      if (token) {
+        await fetch(`${API_BASE}/mentorship/request`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            mentorId: requestTarget.userId || requestTarget.id,
+            goals: requestGoal,
+            message: requestNote
+          })
+        });
+      }
     } catch (_) {}
+
+    setShowRequestModal(false);
+    setRequestGoal('');
+    setRequestNote('');
 
     Alert.alert(
       '✅ Request Sent!',
-      `Your mentorship request has been sent to ${mentor.name} (${mentor.company}). They'll be notified via email.`,
-      [{ text: 'Great!' }]
-    );
-  };
-
-  const handleSubmitApplication = async () => {
-    if (!formData.keywords.trim()) {
-      Alert.alert('Required', 'Please enter your area of interest / keywords.');
-      return;
-    }
-    if (applyType === 'mentee' && !formData.whyMentor.trim()) {
-      Alert.alert('Required', 'Please tell us why you want a mentor.');
-      return;
-    }
-
-    const application = {
-      id: 'app_' + Date.now(),
-      type: applyType === 'mentor' ? 'Mentor' : 'Mentee',
-      applicantName: currentUser?.name || 'Alumni Member',
-      applicantEmail: currentUser?.email || '',
-      applicantInstitution: currentUser?.institution || 'RV College of Engineering',
-      keyword: formData.keywords,
-      why: formData.whyMentor,
-      guidance: formData.guidance,
-      progress: formData.progress,
-      activities: formData.activities,
-      status: 'Pending',
-      appliedAt: new Date().toISOString()
-    };
-
-    try {
-      const existing = await AsyncStorage.getItem('mentorshipApplications');
-      const apps = existing ? JSON.parse(existing) : [];
-      apps.unshift(application);
-      await AsyncStorage.setItem('mentorshipApplications', JSON.stringify(apps));
-    } catch (_) {}
-
-    setShowApplyModal(false);
-    setFormData({ keywords: '', whyMentor: '', guidance: '', progress: '', activities: '' });
-
-    Alert.alert(
-      '🎉 Application Submitted!',
-      applyType === 'mentor'
-        ? 'Thank you for volunteering as a mentor! Our team will review your profile within 48 hours.'
-        : 'Your mentee application has been submitted. We\'ll match you with the best mentor soon!',
+      `Your mentorship ${isMentorTarget ? 'request' : 'connection offer'} has been submitted to ${requestTarget.name}. They will be notified via email and in-app message.`,
       [{ text: 'OK' }]
     );
   };
 
-  const webContainerStyle = isWeb ? { alignSelf: 'center', width: '100%', maxWidth: 900, flex: 1 } : { flex: 1 };
+  // Handle Registration Submit (Mentor / Mentee)
+  const handleSubmitRegistration = async () => {
+    if (formData.areas.length === 0 && !formData.customArea.trim()) {
+      Alert.alert('Selection Required', 'Please select at least one area of interest.');
+      return;
+    }
 
-  // ─── RENDER: MENTOR CARD ───────────────────────────────────
-  const renderMentorCard = (mentor, isFeatured = false) => (
-    <TouchableOpacity
-      key={mentor.id}
-      activeOpacity={0.8}
-      onPress={() => { setSelectedMentor(mentor); setShowMentorDetail(true); }}
-      style={[
-        styles.mentorCard,
-        isFeatured && styles.featuredCard,
-        isWide && { width: '48%' }
-      ]}
-    >
-      {isFeatured && (
-        <View style={styles.featuredBadge}>
-          <Ionicons name="star" size={10} color="#FFF" />
-          <Text style={styles.featuredBadgeText}>Featured</Text>
-        </View>
-      )}
+    const finalAreas = [...formData.areas];
+    if (formData.customArea.trim()) {
+      finalAreas.push(formData.customArea.trim());
+    }
 
-      <View style={styles.mentorCardHeader}>
-        <Image source={{ uri: mentor.avatar }} style={styles.mentorAvatar} />
-        <View style={{ flex: 1, marginLeft: 12 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={[styles.mentorName, { color: theme.text }]} numberOfLines={1}>{mentor.name}</Text>
-            {mentor.isVerified && (
-              <Ionicons name="checkmark-circle" size={16} color="#3B82F6" style={{ marginLeft: 4 }} />
-            )}
-          </View>
-          <Text style={[styles.mentorDesignation, { color: theme.textSecondary || theme.textMuted }]} numberOfLines={1}>
-            {mentor.designation} at {mentor.company}
-          </Text>
-          <Text style={[styles.mentorBatch, { color: isDarkMode ? '#94A3B8' : '#64748B' }]}>
-            Class of {mentor.batch} • {mentor.department}
-          </Text>
-        </View>
-      </View>
+    if (applyType === 'mentee' && !formData.whyMentor.trim()) {
+      Alert.alert('Required Field', 'Please explain why you want an alumni mentor.');
+      return;
+    }
 
-      <View style={styles.expertiseContainer}>
-        {mentor.expertise.slice(0, 3).map((tag, i) => (
-          <View key={i} style={[styles.expertiseTag, { backgroundColor: isDarkMode ? '#1E3A5F' : '#EFF6FF' }]}>
-            <Text style={[styles.expertiseTagText, { color: isDarkMode ? '#93C5FD' : '#2563EB' }]}>{tag}</Text>
-          </View>
-        ))}
-      </View>
+    const payload = {
+      type: applyType,
+      areas: finalAreas,
+      whyMentor: formData.whyMentor,
+      guidance: formData.guidance,
+      progress: formData.progress,
+      activities: formData.activities,
+      about: formData.about,
+      availability: formData.availability,
+      maxMentees: formData.maxMentees
+    };
 
-      <View style={styles.mentorMetaRow}>
-        <View style={styles.metaItem}>
-          <Ionicons name="people-outline" size={14} color={isDarkMode ? '#94A3B8' : '#64748B'} />
-          <Text style={[styles.metaText, { color: isDarkMode ? '#94A3B8' : '#64748B' }]}>{mentor.mentees} mentees</Text>
-        </View>
-        <View style={styles.metaItem}>
-          <Ionicons name="star" size={14} color="#FBBF24" />
-          <Text style={[styles.metaText, { color: isDarkMode ? '#94A3B8' : '#64748B' }]}>{mentor.rating}</Text>
-        </View>
-        <View style={styles.metaItem}>
-          <Ionicons name="location-outline" size={14} color={isDarkMode ? '#94A3B8' : '#64748B'} />
-          <Text style={[styles.metaText, { color: isDarkMode ? '#94A3B8' : '#64748B' }]} numberOfLines={1}>{mentor.location}</Text>
-        </View>
-      </View>
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+      if (token) {
+        await fetch(`${API_BASE}/mentorship/register`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
+      }
+    } catch (_) {}
 
-      <TouchableOpacity
-        style={[
-          styles.requestButton,
-          requestedMentors.has(mentor.id) && styles.requestedButton
-        ]}
-        onPress={() => handleRequestMentor(mentor)}
-        disabled={requestedMentors.has(mentor.id)}
-      >
-        <Ionicons
-          name={requestedMentors.has(mentor.id) ? 'checkmark-circle' : 'hand-right-outline'}
-          size={16}
-          color={requestedMentors.has(mentor.id) ? '#10B981' : '#FFF'}
-        />
-        <Text style={[
-          styles.requestButtonText,
-          requestedMentors.has(mentor.id) && { color: '#10B981' }
-        ]}>
-          {requestedMentors.has(mentor.id) ? 'Requested' : 'Request Mentorship'}
-        </Text>
-      </TouchableOpacity>
-    </TouchableOpacity>
-  );
+    // Add directly to local lists so user sees immediate results
+    if (applyType === 'mentee') {
+      const newMentee = {
+        id: 'mentee_' + Date.now(),
+        name: currentUser?.name || 'Alumni Member',
+        batchYear: currentUser?.batchYear || '2025',
+        department: currentUser?.department || 'Computer Science',
+        institution: currentUser?.institution || 'RV College of Engineering',
+        avatar_url: currentUser?.avatar_url || currentUser?.profilePicture || '',
+        areas: finalAreas,
+        whyMentor: formData.whyMentor,
+        guidance: formData.guidance,
+        progress: formData.progress,
+        activities: formData.activities
+      };
+      setMentees(prev => [newMentee, ...prev]);
+    } else {
+      const newMentor = {
+        id: 'mentor_' + Date.now(),
+        name: currentUser?.name || 'Alumni Mentor',
+        batchYear: currentUser?.batchYear || '2016',
+        department: currentUser?.department || 'Engineering',
+        company: currentUser?.company || 'Industry Leader',
+        designation: currentUser?.designation || 'Senior Professional',
+        location: currentUser?.location || 'Bengaluru',
+        avatar_url: currentUser?.avatar_url || currentUser?.profilePicture || '',
+        about: formData.about,
+        availability: formData.availability,
+        areas: finalAreas,
+        skills: finalAreas,
+        menteesCount: 0,
+        rating: 5.0,
+        institution: currentUser?.institution || 'RV College of Engineering',
+        isVerified: true
+      };
+      setMentors(prev => [newMentor, ...prev]);
+    }
 
-  // ─── RENDER: STATS BAR ─────────────────────────────────────
-  const renderStatsBar = () => (
-    <View style={[styles.statsBar, { backgroundColor: isDarkMode ? '#0F172A' : '#002B5C' }]}>
-      {[
-        { value: '85+', label: 'Active Mentors', icon: 'school-outline' },
-        { value: '340+', label: 'Mentees Matched', icon: 'people-outline' },
-        { value: '92%', label: 'Success Rate', icon: 'trending-up-outline' },
-        { value: '4.8', label: 'Avg Rating', icon: 'star-outline' },
-      ].map((stat, i) => (
-        <View key={i} style={styles.statBlock}>
-          <View style={[styles.statIconWrap, { backgroundColor: 'rgba(251, 191, 36, 0.15)' }]}>
-            <Ionicons name={stat.icon} size={18} color="#FBBF24" />
-          </View>
-          <Text style={styles.statValue}>{stat.value}</Text>
-          <Text style={styles.statLabel}>{stat.label}</Text>
-        </View>
-      ))}
-    </View>
-  );
+    setShowApplyModal(false);
+    setFormData({
+      areas: [],
+      customArea: '',
+      whyMentor: '',
+      guidance: '',
+      progress: '',
+      activities: '',
+      about: '',
+      availability: 'Weekends, 2 slots/month',
+      maxMentees: 3
+    });
 
-  // ─── RENDER: HERO SECTION ──────────────────────────────────
+    Alert.alert(
+      '🎉 Profile Published!',
+      applyType === 'mentor'
+        ? 'Thank you for volunteering as a mentor! Your profile is now live in the Mentors directory.'
+        : 'Your mentee profile is now published in the Mentee Profiles directory for alumni to review and connect.',
+      [{ text: 'Awesome' }]
+    );
+  };
+
+  // Launch Direct Chat with Person
+  const openChatWithUser = (person) => {
+    if (selectedMentor) setSelectedMentor(null);
+    if (selectedMentee) setSelectedMentee(null);
+    navigation?.navigate?.('Chat', {
+      user: {
+        _id: person.userId || person.id || 'chat_user',
+        name: person.name,
+        avatar: person.avatar_url,
+        role: person.designation || 'Member',
+        company: person.company || person.institution
+      }
+    });
+  };
+
+  const webContainerStyle = isWeb ? { alignSelf: 'center', width: '100%', maxWidth: 1000, flex: 1 } : { flex: 1 };
+
+  // ─── RENDER HERO ──────────────────────────────────────────
   const renderHero = () => (
-    <View style={[styles.heroSection, {
-      backgroundColor: isDarkMode
-        ? 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)'
-        : undefined,
-      ...(isDarkMode ? {} : {}),
-    }]}>
-      <View style={[styles.heroGradient, { backgroundColor: isDarkMode ? '#0F172A' : '#002B5C' }]}>
-        <View style={styles.heroContent}>
-          <View style={styles.heroBadge}>
-            <MaterialCommunityIcons name="handshake" size={14} color="#FBBF24" />
-            <Text style={styles.heroBadgeText}>RVCE Mentorship Program</Text>
-          </View>
-          <Text style={styles.heroTitle}>Connect. Learn.{'\n'}Grow Together.</Text>
-          <Text style={styles.heroSubtitle}>
-            Join our thriving mentorship ecosystem connecting RVCE alumni across generations. Get career guidance, industry insights, and personalized coaching.
-          </Text>
-          <View style={styles.heroActions}>
-            <TouchableOpacity
-              style={styles.heroPrimaryBtn}
-              onPress={() => { setApplyType('mentee'); setShowApplyModal(true); }}
-            >
-              <Ionicons name="school-outline" size={18} color="#002B5C" />
-              <Text style={styles.heroPrimaryBtnText}>Find a Mentor</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.heroSecondaryBtn}
-              onPress={() => { setApplyType('mentor'); setShowApplyModal(true); }}
-            >
-              <MaterialCommunityIcons name="hand-heart-outline" size={18} color="#FBBF24" />
-              <Text style={styles.heroSecondaryBtnText}>Become a Mentor</Text>
-            </TouchableOpacity>
-          </View>
+    <View style={styles.heroGradient}>
+      <View style={styles.heroContent}>
+        <View style={styles.heroBadge}>
+          <MaterialCommunityIcons name="handshake" size={14} color="#FBBF24" />
+          <Text style={styles.heroBadgeText}>RVCE ALUMNI MENTORSHIP PROGRAM</Text>
+        </View>
+        <Text style={styles.heroTitle}>Connect. Guide.{'\n'}Accelerate Careers.</Text>
+        <Text style={styles.heroSubtitle}>
+          The official community-driven mentorship network. Connect directly with verified RV alumni leaders or mentor ambitious students shaping their futures.
+        </Text>
+        <View style={styles.heroActions}>
+          <TouchableOpacity
+            style={styles.heroPrimaryBtn}
+            onPress={() => { setApplyType('mentee'); setShowApplyModal(true); }}
+          >
+            <Ionicons name="school-outline" size={18} color="#002B5C" />
+            <Text style={styles.heroPrimaryBtnText}>Apply as Mentee</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.heroSecondaryBtn}
+            onPress={() => { setApplyType('mentor'); setShowApplyModal(true); }}
+          >
+            <MaterialCommunityIcons name="hand-heart-outline" size={18} color="#FBBF24" />
+            <Text style={styles.heroSecondaryBtnText}>Register as Mentor</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </View>
   );
 
-  // ─── RENDER: SEARCH & FILTER ───────────────────────────────
-  const renderSearchFilter = () => (
+  // ─── RENDER SEARCH & FILTER ───────────────────────────────
+  const renderFilters = () => (
     <View style={styles.searchSection}>
       <View style={[styles.searchBar, { backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}>
         <Ionicons name="search-outline" size={18} color={isDarkMode ? '#94A3B8' : '#64748B'} />
         <TextInput
           style={[styles.searchInput, { color: theme.text }]}
-          placeholder="Search mentors by name, company, skill..."
+          placeholder={activeTab === 'mentors' ? 'Search mentors by name, company, skill...' : 'Search mentees by name, branch, guidance...'}
           placeholderTextColor={isDarkMode ? '#64748B' : '#94A3B8'}
           value={searchQuery}
           onChangeText={setSearchQuery}
@@ -397,21 +551,21 @@ const MentorshipScreen = ({ navigation }) => {
       </View>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 12 }}>
-        {EXPERTISE_TAGS.map(tag => (
+        {FOCUS_AREAS.map(area => (
           <TouchableOpacity
-            key={tag}
+            key={area}
             style={[
               styles.filterChip,
-              selectedExpertise === tag && styles.filterChipActive,
+              selectedArea === area && styles.filterChipActive,
               { borderColor: isDarkMode ? '#334155' : '#E2E8F0' }
             ]}
-            onPress={() => setSelectedExpertise(tag)}
+            onPress={() => setSelectedArea(area)}
           >
             <Text style={[
               styles.filterChipText,
-              selectedExpertise === tag && styles.filterChipTextActive,
-              { color: selectedExpertise === tag ? '#FFF' : (isDarkMode ? '#94A3B8' : '#64748B') }
-            ]}>{tag}</Text>
+              selectedArea === area && styles.filterChipTextActive,
+              { color: selectedArea === area ? '#FFF' : (isDarkMode ? '#94A3B8' : '#64748B') }
+            ]}>{area}</Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -436,70 +590,275 @@ const MentorshipScreen = ({ navigation }) => {
     </View>
   );
 
-  // ─── RENDER: MY MENTORSHIPS TAB ────────────────────────────
-  const renderMyMentors = () => (
+  // ─── RENDER MENTOR CARD ───────────────────────────────────
+  const renderMentorCard = (m) => {
+    const isRequested = requestedIds.has(m.id || m._id);
+    return (
+      <View
+        key={m.id || m._id}
+        style={[styles.mentorCard, isWide && { width: '48.5%' }]}
+      >
+        <View style={styles.cardHeaderRow}>
+          {m.avatar_url ? (
+            <Image source={{ uri: m.avatar_url }} style={styles.avatarImg} />
+          ) : (
+            <View style={[styles.avatarPlaceholder, { backgroundColor: '#002B5C' }]}>
+              <Text style={styles.avatarInitials}>{getInitials(m.name)}</Text>
+            </View>
+          )}
+          <View style={{ flex: 1, marginLeft: 12 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={[styles.cardTitle, { color: theme.text }]} numberOfLines={1}>{m.name}</Text>
+              {m.isVerified && <Ionicons name="checkmark-circle" size={16} color="#3B82F6" style={{ marginLeft: 4 }} />}
+            </View>
+            <Text style={[styles.cardSubTitle, { color: theme.textSecondary || '#64748B' }]} numberOfLines={1}>
+              {m.designation} at {m.company}
+            </Text>
+            <Text style={[styles.cardMeta, { color: isDarkMode ? '#94A3B8' : '#64748B' }]}>
+              Class of {m.batchYear} • {m.department}
+            </Text>
+          </View>
+        </View>
+
+        {m.about ? (
+          <Text style={[styles.bioSnippet, { color: isDarkMode ? '#CBD5E1' : '#475569' }]} numberOfLines={2}>
+            {m.about}
+          </Text>
+        ) : null}
+
+        <View style={styles.tagWrap}>
+          {(m.areas || []).slice(0, 3).map((tag, i) => (
+            <View key={i} style={[styles.pillBadge, { backgroundColor: isDarkMode ? '#1E3A5F' : '#EFF6FF' }]}>
+              <Text style={[styles.pillText, { color: isDarkMode ? '#93C5FD' : '#2563EB' }]}>{tag}</Text>
+            </View>
+          ))}
+        </View>
+
+        <View style={styles.availabilityRow}>
+          <Ionicons name="time-outline" size={14} color="#16A34A" />
+          <Text style={styles.availabilityText}>{m.availability}</Text>
+        </View>
+
+        <View style={styles.cardActionsRow}>
+          <TouchableOpacity
+            style={[styles.primaryActionBtn, isRequested && styles.requestedActionBtn]}
+            onPress={() => {
+              if (isRequested) {
+                Alert.alert('Already Requested', `You already sent a request to ${m.name}.`);
+                return;
+              }
+              setRequestTarget(m);
+              setShowRequestModal(true);
+            }}
+          >
+            <Ionicons name={isRequested ? 'checkmark-circle' : 'hand-right-outline'} size={15} color={isRequested ? '#16A34A' : '#FFF'} />
+            <Text style={[styles.primaryActionText, isRequested && { color: '#16A34A' }]}>
+              {isRequested ? 'Requested' : 'Request Mentorship'}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.secondaryActionBtn, { borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
+            onPress={() => openChatWithUser(m)}
+          >
+            <Ionicons name="chatbubble-outline" size={15} color={isDarkMode ? '#60A5FA' : '#2563EB'} />
+            <Text style={[styles.secondaryActionText, { color: isDarkMode ? '#60A5FA' : '#2563EB' }]}>Message</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.iconActionBtn, { backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9' }]}
+            onPress={() => setSelectedMentor(m)}
+          >
+            <Ionicons name="information-circle-outline" size={18} color={isDarkMode ? '#94A3B8' : '#64748B'} />
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
+  // ─── RENDER MENTEE CARD (ALMACONNECT QUESTIONNAIRE CARD) ───
+  const renderMenteeCard = (mentee) => {
+    const isExpanded = expandedMenteeIds.has(mentee.id);
+    const isConnected = requestedIds.has(mentee.id);
+
+    return (
+      <View key={mentee.id} style={styles.menteeCard}>
+        <View style={styles.cardHeaderRow}>
+          {mentee.avatar_url ? (
+            <Image source={{ uri: mentee.avatar_url }} style={styles.avatarImg} />
+          ) : (
+            <View style={[styles.avatarPlaceholder, { backgroundColor: '#10B981' }]}>
+              <Text style={styles.avatarInitials}>{getInitials(mentee.name)}</Text>
+            </View>
+          )}
+          <View style={{ flex: 1, marginLeft: 12 }}>
+            <Text style={[styles.cardTitle, { color: theme.text }]}>{mentee.name}</Text>
+            <Text style={[styles.cardSubTitle, { color: theme.textSecondary || '#64748B' }]}>
+              {mentee.department} • Batch of {mentee.batchYear}
+            </Text>
+            <Text style={[styles.cardMeta, { color: isDarkMode ? '#94A3B8' : '#64748B' }]}>
+              {mentee.institution || 'RV College of Engineering'}
+            </Text>
+          </View>
+          <View style={styles.menteeSeekerBadge}>
+            <Text style={styles.menteeSeekerBadgeText}>Seeking Mentor</Text>
+          </View>
+        </View>
+
+        {/* Target Focus Areas */}
+        <View style={styles.tagWrap}>
+          {(mentee.areas || []).map((area, i) => (
+            <View key={i} style={[styles.pillBadge, { backgroundColor: isDarkMode ? '#1E3A5F' : '#EFF6FF' }]}>
+              <Text style={[styles.pillText, { color: isDarkMode ? '#93C5FD' : '#2563EB' }]}>🎯 {area}</Text>
+            </View>
+          ))}
+        </View>
+
+        {/* AlmaConnect Structured Questionnaire Responses */}
+        <View style={[styles.menteeQuestionnaireBox, { backgroundColor: isDarkMode ? '#0F172A' : '#F8FAFC', borderColor: isDarkMode ? '#1E293B' : '#E2E8F0' }]}>
+          <View style={styles.qnaBlock}>
+            <Text style={styles.qnaHeading}>🎯 Why do you want an alumni mentor?</Text>
+            <Text style={[styles.qnaAnswer, { color: isDarkMode ? '#CBD5E1' : '#334155' }]} numberOfLines={isExpanded ? undefined : 2}>
+              {mentee.whyMentor}
+            </Text>
+          </View>
+
+          {isExpanded && (
+            <>
+              <View style={[styles.qnaBlock, { marginTop: 12 }]}>
+                <Text style={styles.qnaHeading}>🔍 Field(s) requiring guidance in detail:</Text>
+                <Text style={[styles.qnaAnswer, { color: isDarkMode ? '#CBD5E1' : '#334155' }]}>
+                  {mentee.guidance}
+                </Text>
+              </View>
+
+              <View style={[styles.qnaBlock, { marginTop: 12 }]}>
+                <Text style={styles.qnaHeading}>📈 Progress & past work so far:</Text>
+                <Text style={[styles.qnaAnswer, { color: isDarkMode ? '#CBD5E1' : '#334155' }]}>
+                  {mentee.progress}
+                </Text>
+              </View>
+
+              <View style={[styles.qnaBlock, { marginTop: 12 }]}>
+                <Text style={styles.qnaHeading}>🏫 Campus activities & clubs:</Text>
+                <Text style={[styles.qnaAnswer, { color: isDarkMode ? '#CBD5E1' : '#334155' }]}>
+                  {mentee.activities}
+                </Text>
+              </View>
+            </>
+          )}
+
+          <TouchableOpacity
+            style={styles.expandToggleBtn}
+            onPress={() => toggleMenteeExpand(mentee.id)}
+          >
+            <Text style={styles.expandToggleText}>
+              {isExpanded ? 'Show Less ▲' : 'Read Full Application ▼'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Action Row */}
+        <View style={styles.cardActionsRow}>
+          <TouchableOpacity
+            style={[styles.primaryActionBtn, { backgroundColor: '#10B981' }]}
+            onPress={() => {
+              setRequestTarget(mentee);
+              setShowRequestModal(true);
+            }}
+          >
+            <Ionicons name="sparkles" size={15} color="#FFF" />
+            <Text style={styles.primaryActionText}>
+              {isConnected ? 'Offer Sent' : 'Offer Mentorship'}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.secondaryActionBtn, { borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
+            onPress={() => openChatWithUser(mentee)}
+          >
+            <Ionicons name="chatbubble-outline" size={15} color={isDarkMode ? '#60A5FA' : '#2563EB'} />
+            <Text style={[styles.secondaryActionText, { color: isDarkMode ? '#60A5FA' : '#2563EB' }]}>Message</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.iconActionBtn, { backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9' }]}
+            onPress={() => setSelectedMentee(mentee)}
+          >
+            <Ionicons name="eye-outline" size={18} color={isDarkMode ? '#94A3B8' : '#64748B'} />
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
+  // ─── RENDER CONNECTIONS TAB ───────────────────────────────
+  const renderConnectionsTab = () => (
     <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
-      <Text style={[styles.sectionTitle, { color: theme.text }]}>My Mentorship Connections</Text>
-      {myMentorships.length === 0 ? (
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <Text style={[styles.sectionTitle, { color: theme.text }]}>My Mentorship Requests & Connections</Text>
+        <Text style={{ fontSize: 12, color: '#64748B' }}>{myConnections.length} Active</Text>
+      </View>
+
+      {myConnections.length === 0 ? (
         <View style={styles.emptyState}>
           <View style={[styles.emptyIcon, { backgroundColor: isDarkMode ? '#1E293B' : '#EFF6FF' }]}>
             <MaterialCommunityIcons name="handshake-outline" size={48} color={isDarkMode ? '#60A5FA' : '#2563EB'} />
           </View>
           <Text style={[styles.emptyTitle, { color: theme.text }]}>No Connections Yet</Text>
           <Text style={[styles.emptySubtitle, { color: isDarkMode ? '#94A3B8' : '#64748B' }]}>
-            Browse mentors and send a request to get started on your mentorship journey.
+            Browse mentors to seek advice or check mentee profiles to volunteer guidance.
           </Text>
-          <TouchableOpacity
-            style={styles.emptyAction}
-            onPress={() => setActiveTab('explore')}
-          >
-            <Text style={styles.emptyActionText}>Explore Mentors</Text>
+          <TouchableOpacity style={styles.emptyAction} onPress={() => setActiveTab('mentors')}>
+            <Text style={styles.emptyActionText}>Find a Mentor</Text>
           </TouchableOpacity>
         </View>
       ) : (
-        myMentorships.map(ms => (
-          <View key={ms.id} style={[styles.myMentorCard, { backgroundColor: isDarkMode ? '#1E293B' : '#FFF', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}>
+        myConnections.map(conn => (
+          <View key={conn.id} style={[styles.connectionCard, { backgroundColor: isDarkMode ? '#1E293B' : '#FFF', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Image source={{ uri: ms.mentorAvatar }} style={styles.myMentorAvatar} />
+              {conn.avatar ? (
+                <Image source={{ uri: conn.avatar }} style={styles.myMentorAvatar} />
+              ) : (
+                <View style={[styles.avatarPlaceholder, { width: 44, height: 44, backgroundColor: '#002B5C' }]}>
+                  <Text style={styles.avatarInitials}>{getInitials(conn.name)}</Text>
+                </View>
+              )}
               <View style={{ flex: 1, marginLeft: 12 }}>
-                <Text style={[styles.myMentorName, { color: theme.text }]}>{ms.mentorName}</Text>
+                <Text style={[styles.myMentorName, { color: theme.text }]}>{conn.name}</Text>
                 <Text style={{ fontSize: 12, color: isDarkMode ? '#94A3B8' : '#64748B' }}>
-                  {ms.mentorDesignation} at {ms.mentorCompany}
+                  {conn.role} • {conn.company}
                 </Text>
               </View>
               <View style={[styles.statusBadge, {
-                backgroundColor: ms.status === 'Approved' ? '#DCFCE7' : ms.status === 'Pending' ? '#FEF3C7' : '#FEE2E2'
+                backgroundColor: conn.status === 'Active' ? '#DCFCE7' : conn.status === 'Pending' ? '#FEF3C7' : '#FEE2E2'
               }]}>
                 <View style={[styles.statusDot, {
-                  backgroundColor: ms.status === 'Approved' ? '#16A34A' : ms.status === 'Pending' ? '#D97706' : '#DC2626'
+                  backgroundColor: conn.status === 'Active' ? '#16A34A' : conn.status === 'Pending' ? '#D97706' : '#DC2626'
                 }]} />
                 <Text style={[styles.statusText, {
-                  color: ms.status === 'Approved' ? '#16A34A' : ms.status === 'Pending' ? '#D97706' : '#DC2626'
-                }]}>{ms.status}</Text>
+                  color: conn.status === 'Active' ? '#16A34A' : conn.status === 'Pending' ? '#D97706' : '#DC2626'
+                }]}>{conn.status}</Text>
               </View>
             </View>
-            {ms.mentorExpertise && (
-              <View style={[styles.expertiseContainer, { marginTop: 10 }]}>
-                {ms.mentorExpertise.slice(0, 3).map((tag, i) => (
-                  <View key={i} style={[styles.expertiseTag, { backgroundColor: isDarkMode ? '#1E3A5F' : '#EFF6FF' }]}>
-                    <Text style={[styles.expertiseTagText, { color: isDarkMode ? '#93C5FD' : '#2563EB' }]}>{tag}</Text>
-                  </View>
-                ))}
+
+            {conn.goals ? (
+              <View style={[styles.connGoalBox, { backgroundColor: isDarkMode ? '#0F172A' : '#F8FAFC' }]}>
+                <Text style={styles.connGoalLabel}>Goal / Note:</Text>
+                <Text style={[styles.connGoalText, { color: isDarkMode ? '#CBD5E1' : '#475569' }]}>{conn.goals}</Text>
               </View>
-            )}
+            ) : null}
+
             <View style={{ flexDirection: 'row', marginTop: 12, gap: 8 }}>
               <TouchableOpacity
                 style={[styles.actionBtnSmall, { backgroundColor: isDarkMode ? '#0F172A' : '#EFF6FF', flex: 1 }]}
-                onPress={() => navigation?.navigate?.('Chat', { recipientId: ms.mentorId, recipientName: ms.mentorName })}
+                onPress={() => openChatWithUser({ id: conn.targetId, name: conn.name, avatar_url: conn.avatar })}
               >
                 <Ionicons name="chatbubble-outline" size={14} color="#2563EB" />
-                <Text style={{ color: '#2563EB', fontSize: 12, fontWeight: '600', marginLeft: 4 }}>Message</Text>
+                <Text style={{ color: '#2563EB', fontSize: 12, fontWeight: '700', marginLeft: 4 }}>Open Chat</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.actionBtnSmall, { backgroundColor: isDarkMode ? '#0F172A' : '#F0FDF4', flex: 1 }]}
+                onPress={() => Alert.alert('Session Booking', `You can coordinate 1-on-1 meeting times directly in the in-app chat thread with ${conn.name}.`)}
               >
                 <Ionicons name="calendar-outline" size={14} color="#16A34A" />
-                <Text style={{ color: '#16A34A', fontSize: 12, fontWeight: '600', marginLeft: 4 }}>Schedule</Text>
+                <Text style={{ color: '#16A34A', fontSize: 12, fontWeight: '700', marginLeft: 4 }}>Schedule Call</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -508,156 +867,84 @@ const MentorshipScreen = ({ navigation }) => {
     </View>
   );
 
-  // ─── RENDER: RESOURCES TAB ─────────────────────────────────
-  const renderResources = () => (
+  // ─── RENDER FAQ TAB (ALMACONNECT RULES) ───────────────────
+  const renderFaqTab = () => (
     <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
-      <Text style={[styles.sectionTitle, { color: theme.text }]}>Mentorship Resources</Text>
-      {[
-        { icon: 'book-outline', title: 'Mentorship Playbook', desc: 'Best practices for mentors and mentees', color: '#3B82F6' },
-        { icon: 'videocam-outline', title: 'How to Get the Most from Mentoring', desc: 'Video guide • 12 min', color: '#8B5CF6' },
-        { icon: 'document-text-outline', title: 'Goal Setting Template', desc: 'Structure your mentorship sessions effectively', color: '#10B981' },
-        { icon: 'calendar-outline', title: 'Meeting Scheduler', desc: 'Book sessions with your mentors', color: '#F59E0B' },
-        { icon: 'stats-chart-outline', title: 'Progress Tracker', desc: 'Track milestones and growth areas', color: '#EF4444' },
-        { icon: 'people-outline', title: 'Alumni Success Stories', desc: 'Read about transformative mentorships', color: '#06B6D4' },
-      ].map((resource, i) => (
-        <TouchableOpacity
-          key={i}
-          style={[styles.resourceCard, { backgroundColor: isDarkMode ? '#1E293B' : '#FFF', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
-          activeOpacity={0.8}
-        >
-          <View style={[styles.resourceIcon, { backgroundColor: resource.color + '15' }]}>
-            <Ionicons name={resource.icon} size={22} color={resource.color} />
-          </View>
-          <View style={{ flex: 1, marginLeft: 12 }}>
-            <Text style={[styles.resourceTitle, { color: theme.text }]}>{resource.title}</Text>
-            <Text style={[styles.resourceDesc, { color: isDarkMode ? '#94A3B8' : '#64748B' }]}>{resource.desc}</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={18} color={isDarkMode ? '#475569' : '#CBD5E1'} />
-        </TouchableOpacity>
-      ))}
+      <View style={[styles.faqBanner, { backgroundColor: isDarkMode ? '#1E293B' : '#EFF6FF', borderColor: isDarkMode ? '#334155' : '#BFDBFE' }]}>
+        <Ionicons name="information-circle" size={24} color="#2563EB" />
+        <View style={{ flex: 1, marginLeft: 12 }}>
+          <Text style={[styles.faqBannerTitle, { color: isDarkMode ? '#93C5FD' : '#1E40AF' }]}>
+            AlmaConnect Mentorship Guidelines
+          </Text>
+          <Text style={[styles.faqBannerText, { color: isDarkMode ? '#CBD5E1' : '#1E3A8A' }]}>
+            Official policies governing RVCE alumni mentors and student mentees.
+          </Text>
+        </View>
+      </View>
+
+      <Text style={[styles.sectionTitle, { color: theme.text, marginTop: 18, marginBottom: 12 }]}>
+        Frequently Asked Questions
+      </Text>
+
+      {FAQS.map((faq, idx) => {
+        const isOpen = expandedFaqIndex === idx;
+        return (
+          <TouchableOpacity
+            key={idx}
+            activeOpacity={0.8}
+            onPress={() => setExpandedFaqIndex(isOpen ? -1 : idx)}
+            style={[styles.faqCard, { backgroundColor: isDarkMode ? '#1E293B' : '#FFF', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
+          >
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Text style={[styles.faqQuestion, { color: theme.text, flex: 1, marginRight: 8 }]}>
+                {faq.q}
+              </Text>
+              <Ionicons
+                name={isOpen ? 'chevron-up' : 'chevron-down'}
+                size={18}
+                color={isDarkMode ? '#94A3B8' : '#64748B'}
+              />
+            </View>
+            {isOpen && (
+              <Text style={[styles.faqAnswer, { color: isDarkMode ? '#94A3B8' : '#475569' }]}>
+                {faq.a}
+              </Text>
+            )}
+          </TouchableOpacity>
+        );
+      })}
+
+      <TouchableOpacity
+        style={styles.sampleAppButton}
+        onPress={() => setShowSampleModal(true)}
+      >
+        <Ionicons name="document-text-outline" size={18} color="#002B5C" />
+        <Text style={styles.sampleAppButtonText}>View Sample Exemplary Applications</Text>
+      </TouchableOpacity>
     </View>
   );
 
-  // ─── RENDER: MENTOR DETAIL MODAL ───────────────────────────
-  const renderMentorDetailModal = () => {
-    if (!selectedMentor) return null;
-    const m = selectedMentor;
-    return (
-      <Modal visible={showMentorDetail} animationType="slide" transparent>
-        <View style={styles.modalOverlay}>
-          <View style={[styles.detailModal, { backgroundColor: isDarkMode ? '#0F172A' : '#FFF' }]}>
-            <ScrollView showsVerticalScrollIndicator={false}>
-              {/* Close button */}
-              <TouchableOpacity style={styles.modalClose} onPress={() => setShowMentorDetail(false)}>
-                <Ionicons name="close" size={24} color={isDarkMode ? '#94A3B8' : '#64748B'} />
-              </TouchableOpacity>
-
-              {/* Header */}
-              <View style={{ alignItems: 'center', paddingTop: 20 }}>
-                <Image source={{ uri: m.avatar }} style={styles.detailAvatar} />
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
-                  <Text style={[styles.detailName, { color: theme.text }]}>{m.name}</Text>
-                  {m.isVerified && <Ionicons name="checkmark-circle" size={20} color="#3B82F6" style={{ marginLeft: 6 }} />}
-                </View>
-                <Text style={{ color: isDarkMode ? '#94A3B8' : '#64748B', fontSize: 14, marginTop: 4 }}>
-                  {m.designation} at {m.company}
-                </Text>
-                <Text style={{ color: isDarkMode ? '#64748B' : '#94A3B8', fontSize: 12, marginTop: 2 }}>
-                  Class of {m.batch} • {m.department}
-                </Text>
-              </View>
-
-              {/* Stats */}
-              <View style={[styles.detailStats, { backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}>
-                <View style={{ alignItems: 'center', flex: 1 }}>
-                  <Text style={[styles.detailStatVal, { color: theme.text }]}>{m.mentees}</Text>
-                  <Text style={{ fontSize: 11, color: isDarkMode ? '#94A3B8' : '#64748B' }}>Mentees</Text>
-                </View>
-                <View style={{ width: 1, height: 30, backgroundColor: isDarkMode ? '#334155' : '#E2E8F0' }} />
-                <View style={{ alignItems: 'center', flex: 1 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Ionicons name="star" size={14} color="#FBBF24" />
-                    <Text style={[styles.detailStatVal, { color: theme.text, marginLeft: 4 }]}>{m.rating}</Text>
-                  </View>
-                  <Text style={{ fontSize: 11, color: isDarkMode ? '#94A3B8' : '#64748B' }}>Rating</Text>
-                </View>
-                <View style={{ width: 1, height: 30, backgroundColor: isDarkMode ? '#334155' : '#E2E8F0' }} />
-                <View style={{ alignItems: 'center', flex: 1 }}>
-                  <Ionicons name="location" size={16} color="#3B82F6" />
-                  <Text style={{ fontSize: 11, color: isDarkMode ? '#94A3B8' : '#64748B', marginTop: 2 }} numberOfLines={1}>{m.location}</Text>
-                </View>
-              </View>
-
-              {/* Bio */}
-              <View style={{ paddingHorizontal: 20, marginTop: 16 }}>
-                <Text style={[styles.detailSectionTitle, { color: theme.text }]}>About</Text>
-                <Text style={{ color: isDarkMode ? '#CBD5E1' : '#475569', fontSize: 14, lineHeight: 22 }}>{m.bio}</Text>
-              </View>
-
-              {/* Expertise */}
-              <View style={{ paddingHorizontal: 20, marginTop: 16 }}>
-                <Text style={[styles.detailSectionTitle, { color: theme.text }]}>Areas of Expertise</Text>
-                <View style={styles.expertiseContainer}>
-                  {m.expertise.map((tag, i) => (
-                    <View key={i} style={[styles.expertiseTag, { backgroundColor: isDarkMode ? '#1E3A5F' : '#EFF6FF', paddingHorizontal: 14, paddingVertical: 8 }]}>
-                      <Text style={[styles.expertiseTagText, { color: isDarkMode ? '#93C5FD' : '#2563EB' }]}>{tag}</Text>
-                    </View>
-                  ))}
-                </View>
-              </View>
-
-              {/* Availability */}
-              <View style={{ paddingHorizontal: 20, marginTop: 16 }}>
-                <Text style={[styles.detailSectionTitle, { color: theme.text }]}>Availability</Text>
-                <View style={[styles.availabilityBlock, { backgroundColor: isDarkMode ? '#1E293B' : '#F0FDF4', borderColor: isDarkMode ? '#334155' : '#BBF7D0' }]}>
-                  <Ionicons name="time-outline" size={18} color="#16A34A" />
-                  <Text style={{ color: '#16A34A', fontSize: 14, fontWeight: '600', marginLeft: 8 }}>{m.availability}</Text>
-                </View>
-              </View>
-
-              {/* Action Buttons */}
-              <View style={{ paddingHorizontal: 20, marginTop: 24, paddingBottom: 30, gap: 10 }}>
-                <TouchableOpacity
-                  style={[styles.detailPrimaryBtn, requestedMentors.has(m.id) && { backgroundColor: '#10B981' }]}
-                  onPress={() => handleRequestMentor(m)}
-                  disabled={requestedMentors.has(m.id)}
-                >
-                  <Ionicons name={requestedMentors.has(m.id) ? 'checkmark-circle' : 'hand-right'} size={18} color="#FFF" />
-                  <Text style={styles.detailPrimaryBtnText}>
-                    {requestedMentors.has(m.id) ? 'Request Sent ✓' : 'Request Mentorship'}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.detailSecondaryBtn, { borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
-                  onPress={() => navigation?.navigate?.('Chat', { recipientId: m.id, recipientName: m.name })}
-                >
-                  <Ionicons name="chatbubble-outline" size={18} color={isDarkMode ? '#60A5FA' : '#2563EB'} />
-                  <Text style={[styles.detailSecondaryBtnText, { color: isDarkMode ? '#60A5FA' : '#2563EB' }]}>Send a Message</Text>
-                </TouchableOpacity>
-              </View>
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
-    );
-  };
-
-  // ─── RENDER: APPLICATION MODAL ─────────────────────────────
+  // ─── RENDER REGISTRATION MODAL (DUAL TRACK) ───────────────
   const renderApplyModal = () => (
     <Modal visible={showApplyModal} animationType="slide" transparent>
       <View style={styles.modalOverlay}>
         <View style={[styles.applyModal, { backgroundColor: isDarkMode ? '#0F172A' : '#FFF' }]}>
           <ScrollView showsVerticalScrollIndicator={false}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <Text style={[styles.modalTitle, { color: theme.text }]}>
-                {applyType === 'mentor' ? '🎓 Apply as Mentor' : '📚 Apply as Mentee'}
-              </Text>
+            <View style={styles.modalHeader}>
+              <View>
+                <Text style={[styles.modalTitle, { color: theme.text }]}>
+                  {applyType === 'mentor' ? '👨‍🏫 Mentor Registration' : '🎓 Mentee Registration'}
+                </Text>
+                <Text style={{ fontSize: 12, color: isDarkMode ? '#94A3B8' : '#64748B', marginTop: 2 }}>
+                  {applyType === 'mentor' ? 'Volunteer your time & guide students' : 'Structured questionnaire for alumni matching'}
+                </Text>
+              </View>
               <TouchableOpacity onPress={() => setShowApplyModal(false)}>
-                <Ionicons name="close-circle" size={28} color={isDarkMode ? '#94A3B8' : '#64748B'} />
+                <Ionicons name="close-circle" size={26} color={isDarkMode ? '#94A3B8' : '#64748B'} />
               </TouchableOpacity>
             </View>
 
-            {/* Type toggle */}
+            {/* Toggle Track */}
             <View style={[styles.typeToggle, { backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9' }]}>
               <TouchableOpacity
                 style={[styles.typeToggleBtn, applyType === 'mentee' && styles.typeToggleBtnActive]}
@@ -673,75 +960,133 @@ const MentorshipScreen = ({ navigation }) => {
               </TouchableOpacity>
             </View>
 
-            {/* Form Fields */}
-            <View style={{ gap: 14, marginTop: 16 }}>
-              <View>
-                <Text style={[styles.fieldLabel, { color: theme.text }]}>Areas of Interest / Keywords *</Text>
-                <TextInput
-                  style={[styles.formInput, { color: theme.text, backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
-                  placeholder="e.g., System Design, ML, Product Strategy"
-                  placeholderTextColor={isDarkMode ? '#64748B' : '#94A3B8'}
-                  value={formData.keywords}
-                  onChangeText={v => setFormData({ ...formData, keywords: v })}
-                />
-              </View>
+            {/* Helper link */}
+            <TouchableOpacity
+              style={{ marginTop: 12, alignSelf: 'flex-end', flexDirection: 'row', alignItems: 'center' }}
+              onPress={() => setShowSampleModal(true)}
+            >
+              <Ionicons name="help-circle-outline" size={14} color="#2563EB" />
+              <Text style={{ color: '#2563EB', fontSize: 12, fontWeight: '700', marginLeft: 4 }}>
+                View Sample Applications
+              </Text>
+            </TouchableOpacity>
 
-              {applyType === 'mentee' && (
+            {/* Tag Selection Chips */}
+            <View style={{ marginTop: 16 }}>
+              <Text style={[styles.fieldLabel, { color: theme.text }]}>
+                {applyType === 'mentor' ? 'Areas where you can offer mentorship *' : 'Areas looking for mentorship *'}
+              </Text>
+              <View style={styles.tagWrap}>
+                {FOCUS_AREAS.filter(a => a !== 'All').map(area => {
+                  const selected = formData.areas.includes(area);
+                  return (
+                    <TouchableOpacity
+                      key={area}
+                      style={[
+                        styles.selectChip,
+                        selected && styles.selectChipActive,
+                        { borderColor: isDarkMode ? '#334155' : '#E2E8F0' }
+                      ]}
+                      onPress={() => toggleFormArea(area)}
+                    >
+                      <Text style={[styles.selectChipText, selected && styles.selectChipTextActive]}>
+                        {selected ? '✓ ' : '+ '}{area}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+              <TextInput
+                style={[styles.formInput, { marginTop: 8, color: theme.text, backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
+                placeholder="Or type a custom area/domain..."
+                placeholderTextColor={isDarkMode ? '#64748B' : '#94A3B8'}
+                value={formData.customArea}
+                onChangeText={v => setFormData({ ...formData, customArea: v })}
+              />
+            </View>
+
+            {/* Mentee Specific Questions */}
+            {applyType === 'mentee' ? (
+              <View style={{ gap: 14, marginTop: 16 }}>
                 <View>
-                  <Text style={[styles.fieldLabel, { color: theme.text }]}>Why do you want a mentor? *</Text>
+                  <Text style={[styles.fieldLabel, { color: theme.text }]}>Why do you want an alumni mentor? *</Text>
                   <TextInput
                     style={[styles.formInput, styles.formTextArea, { color: theme.text, backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
-                    placeholder="Describe your goals and what you hope to achieve..."
+                    placeholder="Describe your current stage and why mentorship is important to you..."
                     placeholderTextColor={isDarkMode ? '#64748B' : '#94A3B8'}
                     value={formData.whyMentor}
                     onChangeText={v => setFormData({ ...formData, whyMentor: v })}
                     multiline
-                    numberOfLines={4}
                   />
                 </View>
-              )}
 
-              {applyType === 'mentor' && (
                 <View>
-                  <Text style={[styles.fieldLabel, { color: theme.text }]}>What guidance can you offer?</Text>
+                  <Text style={[styles.fieldLabel, { color: theme.text }]}>Describe in detail the field(s) requiring guidance</Text>
                   <TextInput
                     style={[styles.formInput, styles.formTextArea, { color: theme.text, backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
-                    placeholder="Your experience, industry insights, and how you can help..."
+                    placeholder="Specific technologies, higher education tracks, interview prep, etc."
                     placeholderTextColor={isDarkMode ? '#64748B' : '#94A3B8'}
                     value={formData.guidance}
                     onChangeText={v => setFormData({ ...formData, guidance: v })}
                     multiline
-                    numberOfLines={4}
                   />
                 </View>
-              )}
 
-              <View>
-                <Text style={[styles.fieldLabel, { color: theme.text }]}>Current Progress / Experience</Text>
-                <TextInput
-                  style={[styles.formInput, { color: theme.text, backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
-                  placeholder="Years of experience, current role, skills..."
-                  placeholderTextColor={isDarkMode ? '#64748B' : '#94A3B8'}
-                  value={formData.progress}
-                  onChangeText={v => setFormData({ ...formData, progress: v })}
-                />
+                <View>
+                  <Text style={[styles.fieldLabel, { color: theme.text }]}>Progress / Past Work</Text>
+                  <TextInput
+                    style={[styles.formInput, { color: theme.text, backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
+                    placeholder="Relevant projects, coursework, certifications completed"
+                    placeholderTextColor={isDarkMode ? '#64748B' : '#94A3B8'}
+                    value={formData.progress}
+                    onChangeText={v => setFormData({ ...formData, progress: v })}
+                  />
+                </View>
+
+                <View>
+                  <Text style={[styles.fieldLabel, { color: theme.text }]}>Activities during your time at the institute</Text>
+                  <TextInput
+                    style={[styles.formInput, { color: theme.text, backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
+                    placeholder="Clubs, committees, sports, hackathons, student branches"
+                    placeholderTextColor={isDarkMode ? '#64748B' : '#94A3B8'}
+                    value={formData.activities}
+                    onChangeText={v => setFormData({ ...formData, activities: v })}
+                  />
+                </View>
               </View>
+            ) : (
+              /* Mentor Specific Questions */
+              <View style={{ gap: 14, marginTop: 16 }}>
+                <View>
+                  <Text style={[styles.fieldLabel, { color: theme.text }]}>Info about you & guidance offered *</Text>
+                  <TextInput
+                    style={[styles.formInput, styles.formTextArea, { color: theme.text, backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
+                    placeholder="Share your career journey and how you can guide students (e.g. mock interviews, resume critiques, graduate school advice)..."
+                    placeholderTextColor={isDarkMode ? '#64748B' : '#94A3B8'}
+                    value={formData.about}
+                    onChangeText={v => setFormData({ ...formData, about: v })}
+                    multiline
+                  />
+                </View>
 
-              <View>
-                <Text style={[styles.fieldLabel, { color: theme.text }]}>Campus Activities / Clubs</Text>
-                <TextInput
-                  style={[styles.formInput, { color: theme.text, backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
-                  placeholder="Student chapters, clubs, volunteer work..."
-                  placeholderTextColor={isDarkMode ? '#64748B' : '#94A3B8'}
-                  value={formData.activities}
-                  onChangeText={v => setFormData({ ...formData, activities: v })}
-                />
+                <View>
+                  <Text style={[styles.fieldLabel, { color: theme.text }]}>Availability Preference</Text>
+                  <TextInput
+                    style={[styles.formInput, { color: theme.text, backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
+                    placeholder="e.g. Weekends, 2 slots/month or Asynchronous chat"
+                    placeholderTextColor={isDarkMode ? '#64748B' : '#94A3B8'}
+                    value={formData.availability}
+                    onChangeText={v => setFormData({ ...formData, availability: v })}
+                  />
+                </View>
               </View>
-            </View>
+            )}
 
-            <TouchableOpacity style={styles.submitBtn} onPress={handleSubmitApplication}>
-              <Ionicons name="paper-plane" size={18} color="#FFF" />
-              <Text style={styles.submitBtnText}>Submit Application</Text>
+            <TouchableOpacity style={styles.submitBtn} onPress={handleSubmitRegistration}>
+              <Ionicons name="cloud-upload-outline" size={18} color="#FFF" />
+              <Text style={styles.submitBtnText}>
+                {applyType === 'mentor' ? 'Publish Mentor Profile' : 'Submit Mentee Application'}
+              </Text>
             </TouchableOpacity>
           </ScrollView>
         </View>
@@ -749,45 +1094,156 @@ const MentorshipScreen = ({ navigation }) => {
     </Modal>
   );
 
-  // ─── MAIN RENDER ───────────────────────────────────────────
+  // ─── RENDER REQUEST / CONNECT MODAL ───────────────────────
+  const renderRequestModal = () => {
+    if (!requestTarget) return null;
+    const isMentor = !requestTarget.whyMentor;
+
+    return (
+      <Modal visible={showRequestModal} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={[styles.applyModal, { backgroundColor: isDarkMode ? '#0F172A' : '#FFF', maxHeight: '85%' }]}>
+            <View style={styles.modalHeader}>
+              <View>
+                <Text style={[styles.modalTitle, { color: theme.text }]}>
+                  {isMentor ? `Connect with ${requestTarget.name}` : `Offer Mentorship to ${requestTarget.name}`}
+                </Text>
+                <Text style={{ fontSize: 12, color: isDarkMode ? '#94A3B8' : '#64748B' }}>
+                  {isMentor ? `${requestTarget.designation} at ${requestTarget.company}` : `${requestTarget.department} • Batch ${requestTarget.batchYear}`}
+                </Text>
+              </View>
+              <TouchableOpacity onPress={() => setShowRequestModal(false)}>
+                <Ionicons name="close-circle" size={26} color={isDarkMode ? '#94A3B8' : '#64748B'} />
+              </TouchableOpacity>
+            </View>
+
+            <View style={{ gap: 14, marginTop: 16 }}>
+              <View>
+                <Text style={[styles.fieldLabel, { color: theme.text }]}>Primary Goal / Focus Area</Text>
+                <TextInput
+                  style={[styles.formInput, { color: theme.text, backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
+                  placeholder={isMentor ? 'e.g. System Design Mock Interview or MS in US Advice' : 'e.g. Guidance in Backend Systems & Career Prep'}
+                  placeholderTextColor={isDarkMode ? '#64748B' : '#94A3B8'}
+                  value={requestGoal}
+                  onChangeText={setRequestGoal}
+                />
+              </View>
+
+              <View>
+                <Text style={[styles.fieldLabel, { color: theme.text }]}>Personalized Introduction Note</Text>
+                <TextInput
+                  style={[styles.formInput, styles.formTextArea, { color: theme.text, backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
+                  placeholder="Introduce yourself, share your expectations, and let them know why you reached out..."
+                  placeholderTextColor={isDarkMode ? '#64748B' : '#94A3B8'}
+                  value={requestNote}
+                  onChangeText={setRequestNote}
+                  multiline
+                />
+              </View>
+            </View>
+
+            <TouchableOpacity style={styles.submitBtn} onPress={handleSendRequest}>
+              <Ionicons name="paper-plane" size={18} color="#FFF" />
+              <Text style={styles.submitBtnText}>Send Connection Request</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    );
+  };
+
+  // ─── RENDER SAMPLE APPLICATION MODAL ──────────────────────
+  const renderSampleModal = () => (
+    <Modal visible={showSampleModal} animationType="fade" transparent>
+      <View style={styles.modalOverlay}>
+        <View style={[styles.detailModal, { backgroundColor: isDarkMode ? '#0F172A' : '#FFF', padding: 20 }]}>
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <View style={styles.modalHeader}>
+              <Text style={[styles.modalTitle, { color: theme.text }]}>Sample Applications</Text>
+              <TouchableOpacity onPress={() => setShowSampleModal(false)}>
+                <Ionicons name="close-circle" size={26} color={isDarkMode ? '#94A3B8' : '#64748B'} />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={{ color: isDarkMode ? '#94A3B8' : '#64748B', fontSize: 13, marginBottom: 16 }}>
+              Adopted from AlmaConnect’s best-practice mentor and mentee profiles.
+            </Text>
+
+            <View style={[styles.sampleBox, { backgroundColor: isDarkMode ? '#1E293B' : '#F0FDF4', borderColor: '#86EFAC' }]}>
+              <Text style={[styles.sampleTitle, { color: '#16A34A' }]}>Exemplary Mentee Application</Text>
+              <Text style={styles.sampleSubHeading}>🎯 Why an alumni mentor?</Text>
+              <Text style={styles.sampleText}>
+                {"\"I am preparing for SDE-1 interviews at tier-1 product companies and seeking guidance on designing scalable microservices. Having an alumni mentor who has navigated this journey will help me bridge the academic-industry gap.\""}
+              </Text>
+              <Text style={[styles.sampleSubHeading, { marginTop: 8 }]}>📈 Progress so far:</Text>
+              <Text style={styles.sampleText}>
+                {"\"Built 2 full-stack projects in React & Node.js. 300+ Leetcode questions solved. Active participant in college hackathons.\""}
+              </Text>
+            </View>
+
+            <View style={[styles.sampleBox, { backgroundColor: isDarkMode ? '#1E293B' : '#EFF6FF', borderColor: '#93C5FD', marginTop: 14 }]}>
+              <Text style={[styles.sampleTitle, { color: '#2563EB' }]}>Exemplary Mentor Profile</Text>
+              <Text style={styles.sampleSubHeading}>💼 Guidance Offered:</Text>
+              <Text style={styles.sampleText}>
+                {"\"10+ years in software architecture at Microsoft. Happy to review system design portfolios, conduct 1 mock interview per month, and advise on navigating corporate tech careers.\""}
+              </Text>
+              <Text style={[styles.sampleSubHeading, { marginTop: 8 }]}>⏰ Availability:</Text>
+              <Text style={styles.sampleText}>
+                {"\"Alternate Saturday mornings IST. Asynchronous responses on in-app chat within 48 hours.\""}
+              </Text>
+            </View>
+
+            <TouchableOpacity
+              style={[styles.submitBtn, { backgroundColor: '#002B5C', marginTop: 20 }]}
+              onPress={() => setShowSampleModal(false)}
+            >
+              <Text style={styles.submitBtnText}>Got it!</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+      </View>
+    </Modal>
+  );
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <View style={webContainerStyle}>
-        {/* Header */}
+        {/* Top Header */}
         <View style={[styles.header, { backgroundColor: theme.card, borderBottomColor: isDarkMode ? '#1E293B' : '#E2E8F0' }]}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <TouchableOpacity onPress={() => navigation?.goBack?.()} style={{ marginRight: 12 }}>
               <Ionicons name="arrow-back" size={22} color={theme.text} />
             </TouchableOpacity>
             <View>
-              <Text style={[styles.headerTitle, { color: theme.text }]}>Mentorship</Text>
-              <Text style={{ fontSize: 11, color: isDarkMode ? '#64748B' : '#94A3B8', fontWeight: '500' }}>RVCE Alumni Network</Text>
+              <Text style={[styles.headerTitle, { color: theme.text }]}>Mentorship Network</Text>
+              <Text style={{ fontSize: 11, color: isDarkMode ? '#64748B' : '#94A3B8', fontWeight: '600' }}>RV Educational Institutions</Text>
             </View>
           </View>
+
           <View style={{ flexDirection: 'row', gap: 8 }}>
-            <TouchableOpacity
-              style={[styles.headerActionBtn, { backgroundColor: isDarkMode ? '#1E293B' : '#EFF6FF' }]}
-              onPress={() => setShowFilterModal(true)}
-            >
-              <Ionicons name="filter" size={18} color={isDarkMode ? '#60A5FA' : '#2563EB'} />
-            </TouchableOpacity>
             <TouchableOpacity
               style={[styles.headerActionBtn, { backgroundColor: isDarkMode ? '#1E293B' : '#FEF3C7' }]}
               onPress={() => { setApplyType('mentor'); setShowApplyModal(true); }}
             >
               <MaterialCommunityIcons name="hand-heart" size={18} color="#D97706" />
             </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.headerActionBtn, { backgroundColor: isDarkMode ? '#1E293B' : '#EFF6FF' }]}
+              onPress={() => { setApplyType('mentee'); setShowApplyModal(true); }}
+            >
+              <Ionicons name="school" size={18} color="#2563EB" />
+            </TouchableOpacity>
           </View>
         </View>
 
-        {/* Tab Bar */}
+        {/* 4-Tab AlmaConnect Navigation */}
         <View style={[styles.tabBar, { backgroundColor: theme.card, borderBottomColor: isDarkMode ? '#1E293B' : '#E2E8F0' }]}>
           {[
-            { key: 'explore', label: 'Explore', icon: 'compass-outline' },
-            { key: 'myMentors', label: 'My Mentors', icon: 'people-outline' },
-            { key: 'apply', label: 'Apply', icon: 'document-text-outline' },
-            { key: 'resources', label: 'Resources', icon: 'library-outline' },
+            { key: 'mentors', label: 'Find Mentors', icon: 'people-outline' },
+            { key: 'mentees', label: 'Mentee Profiles', icon: 'school-outline' },
+            { key: 'connections', label: 'My Requests', icon: 'handshake-outline' },
+            { key: 'faq', label: 'FAQ & Rules', icon: 'help-circle-outline' }
           ].map(tab => (
             <TouchableOpacity
               key={tab.key}
@@ -809,115 +1265,110 @@ const MentorshipScreen = ({ navigation }) => {
         </View>
 
         <ScrollView showsVerticalScrollIndicator={false}>
-          {activeTab === 'explore' && (
+          {activeTab === 'mentors' && (
             <>
               {renderHero()}
-              {renderStatsBar()}
-              {renderSearchFilter()}
+              {renderFilters()}
 
-              {/* Featured Mentors */}
-              {featuredMentors.length > 0 && (
-                <View style={{ paddingHorizontal: 16, marginTop: 16 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-                    <Ionicons name="star" size={18} color="#FBBF24" />
-                    <Text style={[styles.sectionTitle, { color: theme.text, marginLeft: 6 }]}>Featured Mentors</Text>
-                  </View>
+              <View style={{ paddingHorizontal: 16, marginTop: 16 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                  <Text style={[styles.sectionTitle, { color: theme.text }]}>
+                    Verified Alumni Mentors ({filteredMentors.length})
+                  </Text>
+                  <TouchableOpacity onPress={() => setShowSampleModal(true)}>
+                    <Text style={{ fontSize: 12, color: '#2563EB', fontWeight: '700' }}>View Best Practices</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {loading ? (
+                  <ActivityIndicator size="small" color="#002B5C" style={{ marginVertical: 20 }} />
+                ) : (
                   <View style={isWide ? { flexDirection: 'row', flexWrap: 'wrap', gap: 12 } : {}}>
-                    {featuredMentors.map(m => renderMentorCard(m, true))}
+                    {filteredMentors.map(renderMentorCard)}
                   </View>
-                </View>
-              )}
+                )}
 
-              {/* All Mentors */}
-              <View style={{ paddingHorizontal: 16, marginTop: 20 }}>
-                <Text style={[styles.sectionTitle, { color: theme.text }]}>
-                  All Mentors ({filteredMentors.length})
-                </Text>
-                <View style={isWide ? { flexDirection: 'row', flexWrap: 'wrap', gap: 12 } : {}}>
-                  {filteredMentors.map(m => renderMentorCard(m, false))}
-                </View>
-                {filteredMentors.length === 0 && (
+                {filteredMentors.length === 0 && !loading && (
                   <View style={styles.emptyState}>
                     <Ionicons name="search-outline" size={48} color={isDarkMode ? '#475569' : '#CBD5E1'} />
                     <Text style={[styles.emptyTitle, { color: theme.text }]}>No mentors found</Text>
                     <Text style={[styles.emptySubtitle, { color: isDarkMode ? '#94A3B8' : '#64748B' }]}>
-                      Try adjusting your search or filters
+                      Try clearing search keywords or department filters.
                     </Text>
                   </View>
                 )}
               </View>
-
-              <View style={{ height: 40 }} />
             </>
           )}
 
-          {activeTab === 'myMentors' && renderMyMentors()}
-          {activeTab === 'apply' && (
-            <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
-              <Text style={[styles.sectionTitle, { color: theme.text }]}>Mentorship Applications</Text>
-              <Text style={{ color: isDarkMode ? '#94A3B8' : '#64748B', fontSize: 13, marginBottom: 16 }}>
-                Apply to become a mentor or find a mentor to guide you.
-              </Text>
-              <View style={{ gap: 12 }}>
+          {activeTab === 'mentees' && (
+            <>
+              <View style={[styles.menteePoolBanner, { backgroundColor: isDarkMode ? '#0F172A' : '#002B5C' }]}>
+                <Text style={styles.menteePoolBannerTitle}>RVCE Mentee Profiles Pool</Text>
+                <Text style={styles.menteePoolBannerSubtitle}>
+                  Students and young alumni seeking guidance across industries. Alumni mentors can review applications and directly reach out.
+                </Text>
                 <TouchableOpacity
-                  style={[styles.applyCard, { backgroundColor: isDarkMode ? '#1E293B' : '#FFF', borderColor: isDarkMode ? '#1E3A5F' : '#DBEAFE' }]}
+                  style={styles.menteePoolCta}
                   onPress={() => { setApplyType('mentee'); setShowApplyModal(true); }}
                 >
-                  <View style={[styles.applyCardIcon, { backgroundColor: '#EFF6FF' }]}>
-                    <Ionicons name="school" size={28} color="#2563EB" />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={[styles.applyCardTitle, { color: theme.text }]}>Apply as Mentee</Text>
-                    <Text style={{ color: isDarkMode ? '#94A3B8' : '#64748B', fontSize: 12, lineHeight: 18 }}>
-                      Get matched with an experienced alumni mentor for personalized career guidance
-                    </Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={20} color={isDarkMode ? '#475569' : '#CBD5E1'} />
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.applyCard, { backgroundColor: isDarkMode ? '#1E293B' : '#FFF', borderColor: isDarkMode ? '#3B2F1E' : '#FDE68A' }]}
-                  onPress={() => { setApplyType('mentor'); setShowApplyModal(true); }}
-                >
-                  <View style={[styles.applyCardIcon, { backgroundColor: '#FFFBEB' }]}>
-                    <MaterialCommunityIcons name="hand-heart" size={28} color="#D97706" />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={[styles.applyCardTitle, { color: theme.text }]}>Apply as Mentor</Text>
-                    <Text style={{ color: isDarkMode ? '#94A3B8' : '#64748B', fontSize: 12, lineHeight: 18 }}>
-                      Share your industry experience and guide the next generation of RVCE alumni
-                    </Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={20} color={isDarkMode ? '#475569' : '#CBD5E1'} />
+                  <Text style={styles.menteePoolCtaText}>+ Submit Mentee Profile</Text>
                 </TouchableOpacity>
               </View>
-            </View>
+
+              {renderFilters()}
+
+              <View style={{ paddingHorizontal: 16, marginTop: 16 }}>
+                <Text style={[styles.sectionTitle, { color: theme.text, marginBottom: 12 }]}>
+                  Students Seeking Guidance ({filteredMentees.length})
+                </Text>
+
+                {loading ? (
+                  <ActivityIndicator size="small" color="#002B5C" style={{ marginVertical: 20 }} />
+                ) : (
+                  filteredMentees.map(renderMenteeCard)
+                )}
+
+                {filteredMentees.length === 0 && !loading && (
+                  <View style={styles.emptyState}>
+                    <Ionicons name="people-outline" size={48} color={isDarkMode ? '#475569' : '#CBD5E1'} />
+                    <Text style={[styles.emptyTitle, { color: theme.text }]}>No mentee applications yet</Text>
+                    <Text style={[styles.emptySubtitle, { color: isDarkMode ? '#94A3B8' : '#64748B' }]}>
+                      Be the first student to publish your mentorship application!
+                    </Text>
+                  </View>
+                )}
+              </View>
+            </>
           )}
-          {activeTab === 'resources' && renderResources()}
+
+          {activeTab === 'connections' && renderConnectionsTab()}
+          {activeTab === 'faq' && renderFaqTab()}
 
           <View style={{ height: 100 }} />
         </ScrollView>
       </View>
 
-      {renderMentorDetailModal()}
       {renderApplyModal()}
+      {renderRequestModal()}
+      {renderSampleModal()}
     </SafeAreaView>
   );
 };
 
 // ─── STYLES ──────────────────────────────────────────────────
-const getStyles = (theme) => StyleSheet.create({
+const getStyles = (theme, isDarkMode) => StyleSheet.create({
   container: { flex: 1 },
   header: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
     paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1,
   },
-  headerTitle: { fontSize: 20, fontWeight: '800', letterSpacing: -0.3 },
+  headerTitle: { fontSize: 18, fontWeight: '800', letterSpacing: -0.3 },
   headerActionBtn: {
     width: 36, height: 36, borderRadius: 12, justifyContent: 'center', alignItems: 'center',
   },
   tabBar: {
-    flexDirection: 'row', borderBottomWidth: 1, paddingHorizontal: 8,
+    flexDirection: 'row', borderBottomWidth: 1, paddingHorizontal: 4,
   },
   tab: {
     flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
@@ -926,211 +1377,206 @@ const getStyles = (theme) => StyleSheet.create({
   activeTab: {
     borderBottomWidth: 2.5, borderBottomColor: '#002B5C',
   },
-  tabText: { fontSize: 12, fontWeight: '600' },
+  tabText: { fontSize: 11, fontWeight: '600' },
   activeTabText: { fontWeight: '800' },
 
   // Hero
-  heroSection: {},
   heroGradient: {
-    paddingHorizontal: 20, paddingVertical: 32,
+    backgroundColor: isDarkMode ? '#0F172A' : '#002B5C',
+    paddingHorizontal: 20, paddingVertical: 28,
   },
   heroContent: { alignItems: 'center' },
   heroBadge: {
     flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(251, 191, 36, 0.15)',
-    paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, gap: 6, marginBottom: 16,
+    paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, gap: 6, marginBottom: 12,
   },
-  heroBadgeText: { color: '#FBBF24', fontSize: 11, fontWeight: '700', letterSpacing: 0.5 },
+  heroBadgeText: { color: '#FBBF24', fontSize: 10, fontWeight: '800', letterSpacing: 0.5 },
   heroTitle: {
-    fontSize: 28, fontWeight: '900', color: '#FFFFFF', textAlign: 'center', lineHeight: 36, letterSpacing: -0.5,
+    fontSize: 26, fontWeight: '900', color: '#FFFFFF', textAlign: 'center', lineHeight: 34, letterSpacing: -0.5,
   },
   heroSubtitle: {
-    fontSize: 14, color: 'rgba(255,255,255,0.8)', textAlign: 'center', marginTop: 12, lineHeight: 22, maxWidth: 400,
+    fontSize: 13, color: 'rgba(255,255,255,0.85)', textAlign: 'center', marginTop: 10, lineHeight: 20, maxWidth: 440,
   },
   heroActions: {
-    flexDirection: 'row', gap: 10, marginTop: 24, flexWrap: 'wrap', justifyContent: 'center',
+    flexDirection: 'row', gap: 10, marginTop: 20, flexWrap: 'wrap', justifyContent: 'center',
   },
   heroPrimaryBtn: {
     flexDirection: 'row', alignItems: 'center', backgroundColor: '#FBBF24',
-    paddingHorizontal: 20, paddingVertical: 12, borderRadius: 12, gap: 8,
+    paddingHorizontal: 18, paddingVertical: 10, borderRadius: 12, gap: 8,
   },
-  heroPrimaryBtnText: { color: '#002B5C', fontSize: 14, fontWeight: '800' },
+  heroPrimaryBtnText: { color: '#002B5C', fontSize: 13, fontWeight: '800' },
   heroSecondaryBtn: {
-    flexDirection: 'row', alignItems: 'center', borderWidth: 1.5, borderColor: 'rgba(251, 191, 36, 0.4)',
-    paddingHorizontal: 20, paddingVertical: 12, borderRadius: 12, gap: 8,
+    flexDirection: 'row', alignItems: 'center', borderWidth: 1.5, borderColor: 'rgba(251, 191, 36, 0.5)',
+    paddingHorizontal: 18, paddingVertical: 10, borderRadius: 12, gap: 8,
   },
-  heroSecondaryBtnText: { color: '#FBBF24', fontSize: 14, fontWeight: '700' },
+  heroSecondaryBtnText: { color: '#FBBF24', fontSize: 13, fontWeight: '700' },
 
-  // Stats Bar
-  statsBar: {
-    flexDirection: 'row', paddingVertical: 20, paddingHorizontal: 16, justifyContent: 'space-around',
+  // Mentee Pool Banner
+  menteePoolBanner: {
+    paddingHorizontal: 20, paddingVertical: 24, alignItems: 'center',
   },
-  statBlock: { alignItems: 'center', gap: 4 },
-  statIconWrap: {
-    width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center', marginBottom: 4,
+  menteePoolBannerTitle: { fontSize: 20, fontWeight: '900', color: '#FFF' },
+  menteePoolBannerSubtitle: {
+    fontSize: 12, color: 'rgba(255,255,255,0.8)', textAlign: 'center', marginTop: 6, lineHeight: 18, maxWidth: 480,
   },
-  statValue: { fontSize: 18, fontWeight: '900', color: '#FFFFFF' },
-  statLabel: { fontSize: 10, color: 'rgba(255,255,255,0.65)', fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.3 },
+  menteePoolCta: {
+    backgroundColor: '#FBBF24', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 10, marginTop: 14,
+  },
+  menteePoolCtaText: { color: '#002B5C', fontSize: 12, fontWeight: '800' },
 
-  // Search
-  searchSection: { paddingHorizontal: 16, paddingTop: 16 },
+  // Search & Filter
+  searchSection: { paddingHorizontal: 16, paddingTop: 14 },
   searchBar: {
     flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 14,
-    height: 44, borderWidth: 1,
+    height: 42, borderWidth: 1,
   },
-  searchInput: { flex: 1, marginLeft: 8, fontSize: 14 },
+  searchInput: { flex: 1, marginLeft: 8, fontSize: 13 },
   filterChip: {
-    paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20, borderWidth: 1, marginRight: 8,
+    paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1, marginRight: 6,
   },
   filterChipActive: { backgroundColor: '#002B5C', borderColor: '#002B5C' },
-  filterChipText: { fontSize: 12, fontWeight: '600' },
+  filterChipText: { fontSize: 11, fontWeight: '600' },
   filterChipTextActive: { color: '#FFF' },
   deptChip: {
-    paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, marginRight: 8,
-    backgroundColor: 'transparent', borderWidth: 1, borderColor: '#E2E8F0',
+    paddingHorizontal: 10, paddingVertical: 5, borderRadius: 14, marginRight: 6,
+    backgroundColor: 'transparent', borderWidth: 1, borderColor: '#CBD5E1',
   },
   deptChipActive: { backgroundColor: '#3B82F6', borderColor: '#3B82F6' },
-  deptChipText: { fontSize: 11, fontWeight: '600', color: '#64748B' },
+  deptChipText: { fontSize: 10, fontWeight: '600', color: '#64748B' },
   deptChipTextActive: { color: '#FFF' },
+
+  // Card Basics
+  cardHeaderRow: { flexDirection: 'row', alignItems: 'center' },
+  avatarImg: { width: 48, height: 48, borderRadius: 14 },
+  avatarPlaceholder: { width: 48, height: 48, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
+  avatarInitials: { color: '#FFF', fontSize: 16, fontWeight: '800' },
+  cardTitle: { fontSize: 15, fontWeight: '800' },
+  cardSubTitle: { fontSize: 12, marginTop: 1 },
+  cardMeta: { fontSize: 11, marginTop: 1 },
+  bioSnippet: { fontSize: 12, lineHeight: 18, marginTop: 10 },
+
+  tagWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 },
+  pillBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
+  pillText: { fontSize: 10, fontWeight: '700' },
+
+  availabilityRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 10 },
+  availabilityText: { fontSize: 11, color: '#16A34A', fontWeight: '600' },
+
+  cardActionsRow: { flexDirection: 'row', gap: 8, marginTop: 14, alignItems: 'center' },
+  primaryActionBtn: {
+    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#002B5C', paddingVertical: 9, borderRadius: 10, gap: 6,
+  },
+  requestedActionBtn: { backgroundColor: '#DCFCE7', borderWidth: 1, borderColor: '#86EFAC' },
+  primaryActionText: { color: '#FFF', fontSize: 12, fontWeight: '700' },
+  secondaryActionBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10, borderWidth: 1, gap: 4,
+  },
+  secondaryActionText: { fontSize: 12, fontWeight: '700' },
+  iconActionBtn: { width: 34, height: 34, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
 
   // Mentor Card
   mentorCard: {
-    backgroundColor: theme.card, borderRadius: 16, padding: 16, marginBottom: 12,
+    backgroundColor: theme.card, borderRadius: 14, padding: 14, marginBottom: 12,
     borderWidth: 1, borderColor: theme.border || '#E2E8F0',
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2,
   },
-  featuredCard: {
-    borderColor: '#FBBF2440', borderWidth: 1.5,
-    shadowColor: '#FBBF24', shadowOpacity: 0.08,
-  },
-  featuredBadge: {
-    position: 'absolute', top: 12, right: 12, flexDirection: 'row', alignItems: 'center',
-    backgroundColor: '#FBBF24', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, gap: 3, zIndex: 1,
-  },
-  featuredBadgeText: { color: '#FFF', fontSize: 9, fontWeight: '800', letterSpacing: 0.3 },
-  mentorCardHeader: { flexDirection: 'row', alignItems: 'center' },
-  mentorAvatar: { width: 52, height: 52, borderRadius: 16 },
-  mentorName: { fontSize: 15, fontWeight: '800' },
-  mentorDesignation: { fontSize: 12, marginTop: 1 },
-  mentorBatch: { fontSize: 11, marginTop: 1 },
-  expertiseContainer: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 10, gap: 6 },
-  expertiseTag: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
-  expertiseTagText: { fontSize: 11, fontWeight: '700' },
-  mentorMetaRow: { flexDirection: 'row', marginTop: 12, gap: 12, flexWrap: 'wrap' },
-  metaItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  metaText: { fontSize: 11, fontWeight: '500' },
-  requestButton: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    backgroundColor: '#002B5C', paddingVertical: 11, borderRadius: 12, marginTop: 14, gap: 6,
-  },
-  requestedButton: {
-    backgroundColor: '#DCFCE7', borderWidth: 1, borderColor: '#86EFAC',
-  },
-  requestButtonText: { color: '#FFF', fontSize: 13, fontWeight: '700' },
 
-  // Section
-  sectionTitle: { fontSize: 17, fontWeight: '800', marginBottom: 12 },
-
-  // Empty State
-  emptyState: { alignItems: 'center', paddingVertical: 48, paddingHorizontal: 24 },
-  emptyIcon: { width: 80, height: 80, borderRadius: 24, justifyContent: 'center', alignItems: 'center', marginBottom: 16 },
-  emptyTitle: { fontSize: 18, fontWeight: '800', marginTop: 8 },
-  emptySubtitle: { fontSize: 13, textAlign: 'center', marginTop: 6, lineHeight: 20, maxWidth: 280 },
-  emptyAction: {
-    backgroundColor: '#002B5C', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12, marginTop: 20,
+  // Mentee Card
+  menteeCard: {
+    backgroundColor: theme.card, borderRadius: 16, padding: 16, marginBottom: 14,
+    borderWidth: 1.5, borderColor: isDarkMode ? '#1E3A5F' : '#DBEAFE',
   },
-  emptyActionText: { color: '#FFF', fontSize: 14, fontWeight: '700' },
-
-  // My Mentors
-  myMentorCard: {
-    borderRadius: 14, padding: 14, marginBottom: 10, borderWidth: 1,
+  menteeSeekerBadge: {
+    backgroundColor: '#DCFCE7', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8,
   },
-  myMentorAvatar: { width: 44, height: 44, borderRadius: 14 },
-  myMentorName: { fontSize: 14, fontWeight: '700' },
+  menteeSeekerBadgeText: { color: '#16A34A', fontSize: 10, fontWeight: '800' },
+
+  menteeQuestionnaireBox: {
+    borderRadius: 12, padding: 12, marginTop: 12, borderWidth: 1,
+  },
+  qnaBlock: {},
+  qnaHeading: { fontSize: 11, fontWeight: '800', color: '#2563EB', marginBottom: 3 },
+  qnaAnswer: { fontSize: 12, lineHeight: 18 },
+  expandToggleBtn: { alignSelf: 'center', marginTop: 10, paddingVertical: 4 },
+  expandToggleText: { fontSize: 11, fontWeight: '800', color: '#2563EB' },
+
+  // Connections
+  connectionCard: { borderRadius: 14, padding: 14, marginBottom: 10, borderWidth: 1 },
+  myMentorAvatar: { width: 44, height: 44, borderRadius: 12 },
+  myMentorName: { fontSize: 14, fontWeight: '800' },
   statusBadge: {
-    flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, gap: 4,
+    flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10, gap: 4,
   },
   statusDot: { width: 6, height: 6, borderRadius: 3 },
-  statusText: { fontSize: 11, fontWeight: '700' },
+  statusText: { fontSize: 10, fontWeight: '800' },
+  connGoalBox: { borderRadius: 8, padding: 8, marginTop: 8 },
+  connGoalLabel: { fontSize: 10, fontWeight: '700', color: '#64748B' },
+  connGoalText: { fontSize: 12, marginTop: 2 },
   actionBtnSmall: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    paddingVertical: 8, borderRadius: 10,
+    paddingVertical: 8, borderRadius: 8,
   },
 
-  // Resources
-  resourceCard: {
-    flexDirection: 'row', alignItems: 'center', padding: 14, borderRadius: 14,
-    marginBottom: 10, borderWidth: 1,
+  // FAQ
+  faqBanner: { flexDirection: 'row', alignItems: 'center', padding: 14, borderRadius: 12, borderWidth: 1 },
+  faqBannerTitle: { fontSize: 14, fontWeight: '800' },
+  faqBannerText: { fontSize: 11, marginTop: 2, lineHeight: 16 },
+  faqCard: { borderRadius: 12, padding: 14, marginBottom: 8, borderWidth: 1 },
+  faqQuestion: { fontSize: 13, fontWeight: '800' },
+  faqAnswer: { fontSize: 12, lineHeight: 18, marginTop: 8 },
+  sampleAppButton: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#FBBF24', paddingVertical: 12, borderRadius: 12, gap: 8, marginTop: 16,
   },
-  resourceIcon: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
-  resourceTitle: { fontSize: 14, fontWeight: '700' },
-  resourceDesc: { fontSize: 12, marginTop: 2 },
+  sampleAppButtonText: { color: '#002B5C', fontSize: 13, fontWeight: '800' },
 
-  // Apply Cards
-  applyCard: {
-    flexDirection: 'row', alignItems: 'center', padding: 16, borderRadius: 16, borderWidth: 1.5, gap: 12,
+  // Sample Modal
+  sampleBox: { borderRadius: 12, padding: 12, borderWidth: 1 },
+  sampleTitle: { fontSize: 13, fontWeight: '900', marginBottom: 6 },
+  sampleSubHeading: { fontSize: 11, fontWeight: '700', color: '#64748B' },
+  sampleText: { fontSize: 12, color: '#334155', fontStyle: 'italic', marginTop: 2, lineHeight: 16 },
+
+  // Empty State
+  emptyState: { alignItems: 'center', paddingVertical: 36, paddingHorizontal: 20 },
+  emptyIcon: { width: 70, height: 70, borderRadius: 20, justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
+  emptyTitle: { fontSize: 16, fontWeight: '800', marginTop: 6 },
+  emptySubtitle: { fontSize: 12, textAlign: 'center', marginTop: 4, lineHeight: 18, maxWidth: 280 },
+  emptyAction: {
+    backgroundColor: '#002B5C', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 10, marginTop: 16,
   },
-  applyCardIcon: { width: 52, height: 52, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-  applyCardTitle: { fontSize: 15, fontWeight: '800', marginBottom: 4 },
+  emptyActionText: { color: '#FFF', fontSize: 13, fontWeight: '700' },
 
   // Modals
   modalOverlay: {
     flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end',
   },
   detailModal: {
-    borderTopLeftRadius: 24, borderTopRightRadius: 24, maxHeight: '92%',
-    shadowColor: '#000', shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.12, shadowRadius: 16, elevation: 10,
+    borderTopLeftRadius: 24, borderTopRightRadius: 24, maxHeight: '90%',
   },
-  modalClose: {
-    position: 'absolute', top: 16, right: 16, zIndex: 10,
-    width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center',
-  },
-  detailAvatar: { width: 80, height: 80, borderRadius: 24 },
-  detailName: { fontSize: 20, fontWeight: '900' },
-  detailStats: {
-    flexDirection: 'row', marginHorizontal: 20, marginTop: 20, padding: 14,
-    borderRadius: 14, borderWidth: 1,
-  },
-  detailStatVal: { fontSize: 16, fontWeight: '800' },
-  detailSectionTitle: { fontSize: 15, fontWeight: '800', marginBottom: 10 },
-  availabilityBlock: {
-    flexDirection: 'row', alignItems: 'center', padding: 12, borderRadius: 12, borderWidth: 1,
-  },
-  detailPrimaryBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    backgroundColor: '#002B5C', paddingVertical: 14, borderRadius: 14, gap: 8,
-  },
-  detailPrimaryBtnText: { color: '#FFF', fontSize: 15, fontWeight: '800' },
-  detailSecondaryBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    paddingVertical: 14, borderRadius: 14, gap: 8, borderWidth: 1.5,
-  },
-  detailSecondaryBtnText: { fontSize: 15, fontWeight: '700' },
-
-  // Application Modal
   applyModal: {
-    borderTopLeftRadius: 24, borderTopRightRadius: 24, maxHeight: '90%', padding: 20,
-    shadowColor: '#000', shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.12, shadowRadius: 16, elevation: 10,
+    borderTopLeftRadius: 24, borderTopRightRadius: 24, maxHeight: '92%', padding: 20,
   },
-  modalTitle: { fontSize: 20, fontWeight: '900' },
-  typeToggle: {
-    flexDirection: 'row', borderRadius: 12, padding: 4,
-  },
-  typeToggleBtn: {
-    flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: 'center',
-  },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  modalTitle: { fontSize: 18, fontWeight: '900' },
+  typeToggle: { flexDirection: 'row', borderRadius: 10, padding: 3 },
+  typeToggleBtn: { flex: 1, paddingVertical: 8, borderRadius: 8, alignItems: 'center' },
   typeToggleBtnActive: { backgroundColor: '#002B5C' },
-  typeToggleText: { fontSize: 13, fontWeight: '600', color: '#64748B' },
+  typeToggleText: { fontSize: 12, fontWeight: '600', color: '#64748B' },
   typeToggleTextActive: { color: '#FFF', fontWeight: '800' },
-  fieldLabel: { fontSize: 13, fontWeight: '700', marginBottom: 6 },
-  formInput: {
-    borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: 14, borderWidth: 1,
-  },
-  formTextArea: { minHeight: 100, textAlignVertical: 'top' },
+  fieldLabel: { fontSize: 12, fontWeight: '700', marginBottom: 6 },
+  selectChip: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 14, borderWidth: 1 },
+  selectChipActive: { backgroundColor: '#002B5C', borderColor: '#002B5C' },
+  selectChipText: { fontSize: 11, fontWeight: '600', color: '#64748B' },
+  selectChipTextActive: { color: '#FFF', fontWeight: '800' },
+  formInput: { borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, fontSize: 13, borderWidth: 1 },
+  formTextArea: { minHeight: 80, textAlignVertical: 'top' },
   submitBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    backgroundColor: '#002B5C', paddingVertical: 14, borderRadius: 14, gap: 8, marginTop: 24, marginBottom: 20,
+    backgroundColor: '#002B5C', paddingVertical: 13, borderRadius: 12, gap: 8, marginTop: 20, marginBottom: 24,
   },
-  submitBtnText: { color: '#FFF', fontSize: 15, fontWeight: '800' },
+  submitBtnText: { color: '#FFF', fontSize: 14, fontWeight: '800' },
+  sectionTitle: { fontSize: 16, fontWeight: '800' }
 });
 
 export default MentorshipScreen;
