@@ -1127,8 +1127,10 @@ const DEFAULT_TAGGED_POSTS = [];
       <ScrollView ref={profileScrollViewRef} showsVerticalScrollIndicator={false}>
         {/* Cover Banner */}
         <View style={styles.coverBanner}>
+          <View style={styles.coverGradientOverlay} />
           <View style={styles.coverDecorCircle1} />
           <View style={styles.coverDecorCircle2} />
+          <View style={styles.coverDecorCircle3} />
           <View style={styles.coverTopRow}>
             <View style={styles.coverInstitutionBadge}>
               <Ionicons name="shield-checkmark" size={13} color="#FBBF24" />
@@ -1147,8 +1149,8 @@ const DEFAULT_TAGGED_POSTS = [];
 
         {/* Profile Identity & Showcase Container */}
         <View style={styles.profileInfoContainer}>
-          <View style={styles.mainInfoRow}>
-            {/* Avatar with LinkedIn #OpenToWork frame */}
+          {/* Centered Avatar Row */}
+          <View style={styles.avatarCenterRow}>
             <View style={styles.avatarWrapper}>
               <TouchableOpacity 
                 activeOpacity={0.9}
@@ -1187,52 +1189,16 @@ const DEFAULT_TAGGED_POSTS = [];
                 style={styles.avatarCameraBtn}
                 activeOpacity={0.8}
               >
-                <Ionicons name="camera" size={13} color="#FFFFFF" />
-              </TouchableOpacity>
-            </View>
-
-            {/* Quick Action Buttons in Top Right */}
-            <View style={styles.topActionBtnsRow}>
-              <TouchableOpacity 
-                style={styles.topEditProfileBtn} 
-                onPress={handleOpenEdit} 
-                activeOpacity={0.75}
-              >
-                <Ionicons name="pencil" size={14} color="#FFFFFF" style={{ marginRight: 5 }} />
-                <Text style={styles.topEditProfileBtnText}>Edit Profile</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.topShareProfileBtn} 
-                onPress={() => setProfileShareModalVisible(true)} 
-                activeOpacity={0.75}
-              >
-                <Ionicons name="share-social-outline" size={16} color={theme.primary} />
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.topLogoutBtn} 
-                onPress={handleLogout} 
-                activeOpacity={0.75}
-              >
-                <Ionicons name="log-out-outline" size={17} color="#EF4444" />
+                <Ionicons name="camera" size={14} color="#FFFFFF" />
               </TouchableOpacity>
             </View>
           </View>
 
-          {/* Profile Name & Verified Header */}
+          {/* Centered Profile Name & Verified Header */}
           <View style={styles.identityBlock}>
             <View style={styles.nameRow}>
               <Text style={styles.profileDisplayName}>{profileData.name || profileData.email || 'Alumni Member'}</Text>
-              <Ionicons name="checkmark-circle" size={19} color="#0284C7" />
-              {profileData.isOpenToWork && (
-                <TouchableOpacity 
-                  style={styles.openToWorkBadgeInline}
-                  onPress={handleOpenOpenToWork}
-                  activeOpacity={0.75}
-                >
-                  <View style={styles.otwInlineDot} />
-                  <Text style={styles.openToWorkBadgeInlineText}>#OpenToWork</Text>
-                </TouchableOpacity>
-              )}
+              <Ionicons name="checkmark-circle" size={20} color="#0284C7" />
             </View>
 
             {/* Headline / Domain */}
@@ -1241,95 +1207,134 @@ const DEFAULT_TAGGED_POSTS = [];
               {profileData.batch ? ` • Class of ${profileData.batch}` : ''}
             </Text>
 
-            {/* Academic Department & Class Badges */}
-            <View style={styles.credentialsChipsRow}>
-              {profileData.institution ? (
-                <View style={styles.credentialChip}>
-                  <Ionicons name="school" size={12} color="#002B5C" />
-                  <Text style={styles.credentialChipText}>{profileData.institution}</Text>
-                </View>
-              ) : null}
-              {profileData.branch ? (
-                <View style={styles.credentialChip}>
-                  <Ionicons name="ribbon" size={12} color="#0284C7" />
-                  <Text style={styles.credentialChipText}>{profileData.branch}</Text>
-                </View>
-              ) : null}
-              {profileData.batch ? (
-                <View style={styles.credentialChip}>
-                  <Ionicons name="calendar-outline" size={12} color="#D97706" />
-                  <Text style={styles.credentialChipText}>Batch {profileData.batch}</Text>
-                </View>
-              ) : null}
-            </View>
+            {/* Institution badge - single clean line */}
+            {profileData.institution ? (
+              <View style={styles.institutionLine}>
+                <Ionicons name="school" size={14} color="#0284C7" />
+                <Text style={styles.institutionLineText}>{profileData.institution}</Text>
+              </View>
+            ) : null}
 
             {/* Bio */}
             {profileData.bio ? (
               <Text style={styles.bioTextContent}>{profileData.bio}</Text>
             ) : null}
-
-            {/* Contact / Links Row */}
-            <View style={styles.linksChipsRow}>
-              {profileData.linkedin ? (
-                <TouchableOpacity 
-                  style={styles.linkChip}
-                  onPress={() => {
-                    if (Platform.OS === 'web') window.open(profileData.linkedin, '_blank');
-                    else Linking.openURL(profileData.linkedin).catch(() => {});
-                  }}
-                  activeOpacity={0.7}
-                >
-                  <Ionicons name="logo-linkedin" size={14} color="#0A66C2" />
-                  <Text style={styles.linkChipText}>LinkedIn</Text>
-                  <Ionicons name="open-outline" size={11} color="#0A66C2" />
-                </TouchableOpacity>
-              ) : null}
-
-              {profileData.resumeUrl ? (
-                <TouchableOpacity 
-                  style={[styles.linkChip, { backgroundColor: '#EFF6FF', borderColor: '#BFDBFE' }]}
-                  onPress={() => {
-                    if (Platform.OS === 'web') window.open(profileData.resumeUrl, '_blank');
-                    else Linking.openURL(profileData.resumeUrl).catch(() => {});
-                  }}
-                  activeOpacity={0.7}
-                >
-                  <Ionicons name="document-text" size={14} color="#002B5C" />
-                  <Text style={[styles.linkChipText, { color: '#002B5C' }]}>
-                    {profileData.resumeFileName || 'Resume.pdf'}
-                  </Text>
-                  <Ionicons name="download-outline" size={12} color="#002B5C" />
-                </TouchableOpacity>
-              ) : (
-                <TouchableOpacity 
-                  style={[styles.linkChip, { backgroundColor: '#F8FAFC' }]}
-                  onPress={handleOpenEdit}
-                  activeOpacity={0.7}
-                >
-                  <Ionicons name="cloud-upload-outline" size={14} color="#64748B" />
-                  <Text style={[styles.linkChipText, { color: '#64748B' }]}>Upload Resume</Text>
-                </TouchableOpacity>
-              )}
-            </View>
           </View>
 
-          {/* ── Official LinkedIn #OpenToWork Showcase Box ────── */}
+          {/* Action Buttons Row - centered */}
+          <View style={styles.actionButtonsRow}>
+            <TouchableOpacity 
+              style={styles.topEditProfileBtn} 
+              onPress={handleOpenEdit} 
+              activeOpacity={0.75}
+            >
+              <Ionicons name="pencil" size={14} color="#FFFFFF" style={{ marginRight: 6 }} />
+              <Text style={styles.topEditProfileBtnText}>Edit Profile</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.topShareProfileBtn} 
+              onPress={() => setProfileShareModalVisible(true)} 
+              activeOpacity={0.75}
+            >
+              <Ionicons name="share-social-outline" size={17} color="#002B5C" />
+            </TouchableOpacity>
+            {profileData.linkedin ? (
+              <TouchableOpacity 
+                style={styles.linkedinBtn}
+                onPress={() => {
+                  if (Platform.OS === 'web') window.open(profileData.linkedin, '_blank');
+                  else Linking.openURL(profileData.linkedin).catch(() => {});
+                }}
+                activeOpacity={0.75}
+              >
+                <Ionicons name="logo-linkedin" size={17} color="#0A66C2" />
+              </TouchableOpacity>
+            ) : null}
+            {profileData.resumeUrl ? (
+              <TouchableOpacity 
+                style={styles.resumeBtn}
+                onPress={() => {
+                  if (Platform.OS === 'web') window.open(profileData.resumeUrl, '_blank');
+                  else Linking.openURL(profileData.resumeUrl).catch(() => {});
+                }}
+                activeOpacity={0.75}
+              >
+                <Ionicons name="document-text" size={17} color="#002B5C" />
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity 
+                style={styles.resumeBtn}
+                onPress={handleOpenEdit}
+                activeOpacity={0.75}
+              >
+                <Ionicons name="cloud-upload-outline" size={17} color="#64748B" />
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity 
+              style={styles.topLogoutBtn} 
+              onPress={handleLogout} 
+              activeOpacity={0.75}
+            >
+              <Ionicons name="log-out-outline" size={17} color="#EF4444" />
+            </TouchableOpacity>
+          </View>
+
+          {/* ── Colorful Stat Pods ────── */}
+          <View style={styles.statsPodsGrid}>
+            <TouchableOpacity 
+              style={[styles.statPod, styles.statPodConnections]} 
+              onPress={() => setListModalType('connections')} 
+              activeOpacity={0.7}
+            >
+              <View style={styles.statPodIconWrap}>
+                <Ionicons name="people" size={18} color="#0284C7" />
+              </View>
+              <Text style={[styles.statPodNumber, { color: '#0284C7' }]}>{connections.length || profileData.followers}</Text>
+              <Text style={styles.statPodLabel}>Connections</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.statPod, styles.statPodFollowing]} 
+              onPress={() => setListModalType('following')} 
+              activeOpacity={0.7}
+            >
+              <View style={styles.statPodIconWrap}>
+                <Ionicons name="heart" size={18} color="#7C3AED" />
+              </View>
+              <Text style={[styles.statPodNumber, { color: '#7C3AED' }]}>{following.length || profileData.following}</Text>
+              <Text style={styles.statPodLabel}>Following</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.statPod, styles.statPodPosts]} 
+              onPress={() => {
+                setActiveTab('post');
+                profileScrollViewRef.current?.scrollTo({ y: 380, animated: true });
+              }} 
+              activeOpacity={0.7}
+            >
+              <View style={styles.statPodIconWrap}>
+                <Ionicons name="chatbubbles" size={18} color="#D97706" />
+              </View>
+              <Text style={[styles.statPodNumber, { color: '#D97706' }]}>{profileData.posts}</Text>
+              <Text style={styles.statPodLabel}>Posts</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* ── OpenToWork Section ────── */}
           {profileData.isOpenToWork ? (
             <View style={styles.openToWorkCard}>
               <View style={styles.openToWorkCardHeader}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, flex: 1 }}>
                   <View style={styles.otwPulseDot} />
                   <Text style={styles.openToWorkCardTitle}>Open to work</Text>
-                  <View style={styles.otwBadgePill}>
-                    <Text style={styles.otwBadgePillText}>#OPENTOWORK</Text>
-                  </View>
                 </View>
                 <TouchableOpacity 
                   style={styles.otwEditBtn} 
                   onPress={handleOpenOpenToWork}
                   activeOpacity={0.7}
                 >
-                  <Ionicons name="pencil" size={13} color="#057642" />
+                  <Ionicons name="pencil" size={12} color="#057642" />
                   <Text style={styles.otwEditBtnText}>Edit</Text>
                 </TouchableOpacity>
               </View>
@@ -1337,29 +1342,18 @@ const DEFAULT_TAGGED_POSTS = [];
               <Text style={styles.otwRolesText}>
                 {profileData.openToWorkRoles && profileData.openToWorkRoles.length > 0 
                   ? (Array.isArray(profileData.openToWorkRoles) ? profileData.openToWorkRoles.join(' • ') : profileData.openToWorkRoles)
-                  : 'Software Engineer • Full Stack Developer • Product Engineer'}
+                  : 'Software Engineer • Full Stack Developer'}
               </Text>
 
               <View style={styles.otwDetailsRow}>
                 <View style={styles.otwDetailChip}>
-                  <Ionicons name="location-outline" size={13} color="#057642" />
-                  <Text style={styles.otwDetailChipText}>{profileData.openToWorkLocations || 'Bengaluru (Hybrid / Remote)'}</Text>
+                  <Ionicons name="location-outline" size={12} color="#057642" />
+                  <Text style={styles.otwDetailChipText}>{profileData.openToWorkLocations || 'Bengaluru (Remote)'}</Text>
                 </View>
                 <View style={styles.otwDetailChip}>
-                  <Ionicons name="briefcase-outline" size={13} color="#057642" />
-                  <Text style={styles.otwDetailChipText}>{profileData.openToWorkTypes || 'Full-time, Internship'}</Text>
+                  <Ionicons name="briefcase-outline" size={12} color="#057642" />
+                  <Text style={styles.otwDetailChipText}>{profileData.openToWorkTypes || 'Full-time'}</Text>
                 </View>
-                <View style={styles.otwDetailChip}>
-                  <Ionicons name="home-outline" size={13} color="#057642" />
-                  <Text style={styles.otwDetailChipText}>{profileData.openToWorkWorkplace || 'Remote, Hybrid'}</Text>
-                </View>
-              </View>
-
-              <View style={styles.otwFooterNote}>
-                <Ionicons name="shield-checkmark-outline" size={12} color="#057642" />
-                <Text style={styles.otwVisibilityHint}>
-                  Visible to all alumni recruiters & hiring managers across RSST network
-                </Text>
               </View>
             </View>
           ) : (
@@ -1369,13 +1363,11 @@ const DEFAULT_TAGGED_POSTS = [];
               activeOpacity={0.8}
             >
               <View style={styles.otwPromptIconWrap}>
-                <Ionicons name="briefcase" size={20} color="#057642" />
+                <Ionicons name="briefcase" size={18} color="#057642" />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={styles.otwPromptTitle}>Open to new opportunities?</Text>
-                <Text style={styles.otwPromptSub}>
-                  {"Show alumni & recruiters you're looking for job opportunities with the #OpenToWork badge"}
-                </Text>
+                <Text style={styles.otwPromptTitle}>Open to opportunities?</Text>
+                <Text style={styles.otwPromptSub}>Show recruiters you're available</Text>
               </View>
               <View style={styles.otwPromptActionBtn}>
                 <Text style={styles.otwPromptActionText}>Enable</Text>
@@ -1383,42 +1375,6 @@ const DEFAULT_TAGGED_POSTS = [];
               </View>
             </TouchableOpacity>
           )}
-
-          {/* Modern Executive Stat Pods */}
-          <View style={styles.statsPodsGrid}>
-            <TouchableOpacity 
-              style={styles.statPod} 
-              onPress={() => setListModalType('connections')} 
-              activeOpacity={0.7}
-            >
-              <Text style={styles.statPodNumber}>{connections.length || profileData.followers}</Text>
-              <Text style={styles.statPodLabel}>Connections</Text>
-              <Text style={styles.statPodSub}>Alumni Network</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={styles.statPod} 
-              onPress={() => setListModalType('following')} 
-              activeOpacity={0.7}
-            >
-              <Text style={styles.statPodNumber}>{following.length || profileData.following}</Text>
-              <Text style={styles.statPodLabel}>Following</Text>
-              <Text style={styles.statPodSub}>Community</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={styles.statPod} 
-              onPress={() => {
-                setActiveTab('post');
-                profileScrollViewRef.current?.scrollTo({ y: 380, animated: true });
-              }} 
-              activeOpacity={0.7}
-            >
-              <Text style={styles.statPodNumber}>{profileData.posts}</Text>
-              <Text style={styles.statPodLabel}>Posts</Text>
-              <Text style={styles.statPodSub}>Discussions</Text>
-            </TouchableOpacity>
-          </View>
         </View>
 
         {/* Instagram-style Tabs with View Switcher */}
@@ -4489,70 +4445,93 @@ const DEFAULT_TAGGED_POSTS = [];
 const getStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: '#F0F4F8',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingVertical: 14,
     backgroundColor: theme.card,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
+    borderBottomWidth: 0,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
   },
   headerUsername: {
-    fontSize: 18,
+    fontSize: 19,
     fontWeight: '800',
     color: theme.text,
+    letterSpacing: -0.3,
   },
   headerRight: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
+    gap: 14,
   },
   headerIcon: {
-    width: 36,
-    height: 36,
+    width: 38,
+    height: 38,
     justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 19,
   },
   // ── Cover Banner Styles ──
   coverBanner: {
     width: '100%',
-    height: 110,
-    backgroundColor: '#002B5C',
+    height: 150,
+    backgroundColor: '#001D3D',
     position: 'relative',
     overflow: 'hidden',
   },
+  coverGradientOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 80,
+    backgroundColor: 'rgba(0, 43, 92, 0.6)',
+  },
   coverDecorCircle1: {
     position: 'absolute',
-    right: -25,
-    top: -25,
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    right: -40,
+    top: -40,
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: 'rgba(2, 132, 199, 0.15)',
   },
   coverDecorCircle2: {
     position: 'absolute',
-    right: 50,
-    bottom: -30,
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    backgroundColor: 'rgba(251, 191, 36, 0.12)',
+    left: -30,
+    bottom: -50,
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    backgroundColor: 'rgba(251, 191, 36, 0.1)',
+  },
+  coverDecorCircle3: {
+    position: 'absolute',
+    right: 80,
+    top: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
   },
   coverTopRow: {
     position: 'absolute',
     left: 16,
     right: 16,
-    top: 14,
+    top: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -4560,38 +4539,57 @@ const getStyles = (theme) => StyleSheet.create({
   coverInstitutionBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.35)',
-    paddingHorizontal: 10,
-    paddingVertical: 4.5,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     borderRadius: 20,
-    gap: 5,
+    gap: 6,
+    backdropFilter: 'blur(8px)',
   },
   coverInstitutionText: {
     color: '#FFFFFF',
-    fontSize: 11.5,
+    fontSize: 12,
     fontWeight: '700',
-    letterSpacing: 0.4,
+    letterSpacing: 0.3,
   },
   coverChapterBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.18)',
-    paddingHorizontal: 9,
-    paddingVertical: 4.5,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    paddingHorizontal: 11,
+    paddingVertical: 6,
     borderRadius: 20,
-    gap: 4,
+    gap: 5,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   coverChapterText: {
     color: '#FFFFFF',
-    fontSize: 11,
+    fontSize: 11.5,
     fontWeight: '700',
+    letterSpacing: 0.2,
   },
 
   // ── Profile Identity & Avatar Section ──
   profileInfoContainer: {
-    paddingHorizontal: 18,
+    backgroundColor: theme.card,
+    marginHorizontal: 0,
+    marginTop: -30,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    paddingHorizontal: 20,
     paddingTop: 0,
-    paddingBottom: 16,
+    paddingBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 5,
+  },
+  avatarCenterRow: {
+    alignItems: 'center',
+    marginTop: -52,
+    marginBottom: 14,
   },
   mainInfoRow: {
     flexDirection: 'row',
@@ -4602,27 +4600,28 @@ const getStyles = (theme) => StyleSheet.create({
   },
   avatarWrapper: {
     position: 'relative',
+    alignItems: 'center',
   },
   avatarOuterRing: {
-    padding: 3.5,
-    borderRadius: 52,
+    padding: 4,
+    borderRadius: 58,
     backgroundColor: theme.card,
-    borderWidth: 2,
-    borderColor: theme.border,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 4,
+    borderWidth: 3,
+    borderColor: '#FFFFFF',
+    shadowColor: '#002B5C',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 8,
   },
   avatarOpenToWorkRing: {
     borderColor: '#057642',
     borderWidth: 3.5,
   },
   avatar: {
-    width: 84,
-    height: 84,
-    borderRadius: 42,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     backgroundColor: '#002B5C',
     justifyContent: 'center',
     alignItems: 'center',
@@ -4631,10 +4630,10 @@ const getStyles = (theme) => StyleSheet.create({
   avatarImg: {
     width: '100%',
     height: '100%',
-    borderRadius: 42,
+    borderRadius: 50,
   },
   avatarText: {
-    fontSize: 26,
+    fontSize: 32,
     fontWeight: '800',
     color: '#FFFFFF',
     letterSpacing: 1,
@@ -4643,43 +4642,54 @@ const getStyles = (theme) => StyleSheet.create({
     position: 'absolute',
     bottom: -6,
     left: '50%',
-    transform: [{ translateX: -42 }],
+    transform: [{ translateX: -48 }],
     backgroundColor: '#057642',
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-    borderRadius: 10,
-    borderWidth: 1.5,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
+    borderWidth: 2,
     borderColor: '#FFFFFF',
     shadowColor: '#057642',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.4,
-    shadowRadius: 3,
-    elevation: 3,
-    width: 84,
+    shadowRadius: 4,
+    elevation: 4,
+    width: 96,
     alignItems: 'center',
   },
   openToWorkRibbonText: {
     color: '#FFFFFF',
-    fontSize: 9.5,
+    fontSize: 10,
     fontWeight: '900',
     letterSpacing: 0.3,
   },
   avatarCameraBtn: {
     position: 'absolute',
-    top: 0,
-    right: -4,
-    backgroundColor: '#002B5C',
-    width: 26,
-    height: 26,
-    borderRadius: 13,
+    bottom: 4,
+    right: -2,
+    backgroundColor: '#0284C7',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
+    borderWidth: 2.5,
     borderColor: '#FFFFFF',
-    elevation: 5,
+    elevation: 6,
+    shadowColor: '#0284C7',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
 
-  // ── Quick Top Actions Row ──
+  // ── Action Buttons Row (centered) ──
+  actionButtonsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginBottom: 20,
+  },
   topActionBtnsRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -4690,57 +4700,97 @@ const getStyles = (theme) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#002B5C',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 20,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 24,
     shadowColor: '#002B5C',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 3,
   },
   topEditProfileBtnText: {
     color: '#FFFFFF',
-    fontSize: 13,
+    fontSize: 13.5,
     fontWeight: '700',
+    letterSpacing: 0.2,
   },
   topShareProfileBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: theme.cardSecondary || '#F1F5F9',
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#F1F5F9',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: theme.border,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+  },
+  linkedinBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#EFF6FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#BFDBFE',
+  },
+  resumeBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#F8FAFC',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
   },
   topLogoutBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     backgroundColor: '#FEF2F2',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#FEE2E2',
+    borderWidth: 1.5,
+    borderColor: '#FECACA',
   },
 
   // ── Profile Identity Block ──
   identityBlock: {
+    alignItems: 'center',
     marginBottom: 16,
   },
   nameRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 6,
     flexWrap: 'wrap',
     marginBottom: 4,
   },
   profileDisplayName: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: '800',
     color: theme.text,
-    letterSpacing: -0.3,
+    letterSpacing: -0.4,
+  },
+  institutionLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 5,
+    backgroundColor: '#EFF6FF',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#DBEAFE',
+  },
+  institutionLineText: {
+    fontSize: 12.5,
+    fontWeight: '600',
+    color: '#1E40AF',
   },
   openToWorkBadgeInline: {
     flexDirection: 'row',
@@ -4767,13 +4817,15 @@ const getStyles = (theme) => StyleSheet.create({
   headlineText: {
     fontSize: 14,
     color: theme.textSecondary,
-    fontWeight: '600',
+    fontWeight: '500',
     marginBottom: 8,
     lineHeight: 20,
+    textAlign: 'center',
   },
   credentialsChipsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    justifyContent: 'center',
     gap: 6,
     marginBottom: 10,
   },
@@ -4794,14 +4846,17 @@ const getStyles = (theme) => StyleSheet.create({
     color: theme.text,
   },
   bioTextContent: {
-    fontSize: 13.5,
-    color: theme.text,
-    lineHeight: 20,
+    fontSize: 14,
+    color: theme.textSecondary,
+    lineHeight: 21,
     marginBottom: 12,
+    textAlign: 'center',
+    paddingHorizontal: 8,
   },
   linksChipsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    justifyContent: 'center',
     gap: 8,
   },
   linkChip: {
@@ -4824,22 +4879,17 @@ const getStyles = (theme) => StyleSheet.create({
   // ── Official LinkedIn #OpenToWork Showcase Box ──
   openToWorkCard: {
     backgroundColor: '#F0FDF4',
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: '#86EFAC',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
     padding: 14,
-    marginBottom: 16,
-    shadowColor: '#057642',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 1,
+    marginBottom: 4,
   },
   openToWorkCardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   otwPulseDot: {
     width: 8,
@@ -4848,8 +4898,8 @@ const getStyles = (theme) => StyleSheet.create({
     backgroundColor: '#057642',
   },
   openToWorkCardTitle: {
-    fontSize: 15,
-    fontWeight: '800',
+    fontSize: 14,
+    fontWeight: '700',
     color: '#14532D',
   },
   otwBadgePill: {
@@ -4869,10 +4919,10 @@ const getStyles = (theme) => StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 10,
-    paddingVertical: 3.5,
+    paddingVertical: 4,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#86EFAC',
+    borderColor: '#BBF7D0',
     gap: 4,
   },
   otwEditBtnText: {
@@ -4881,16 +4931,16 @@ const getStyles = (theme) => StyleSheet.create({
     color: '#057642',
   },
   otwRolesText: {
-    fontSize: 13.5,
-    fontWeight: '700',
+    fontSize: 13,
+    fontWeight: '600',
     color: '#166534',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   otwDetailsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 6,
-    marginBottom: 10,
+    marginBottom: 0,
   },
   otwDetailChip: {
     flexDirection: 'row',
@@ -4925,32 +4975,32 @@ const getStyles = (theme) => StyleSheet.create({
   openToWorkPromptCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#FAFDF7',
     borderRadius: 14,
     borderWidth: 1,
     borderColor: '#E2E8F0',
-    padding: 14,
-    marginBottom: 16,
-    gap: 12,
+    padding: 12,
+    marginBottom: 4,
+    gap: 10,
   },
   otwPromptIconWrap: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: '#DCFCE7',
     justifyContent: 'center',
     alignItems: 'center',
   },
   otwPromptTitle: {
-    fontSize: 14,
+    fontSize: 13.5,
     fontWeight: '700',
     color: theme.text,
-    marginBottom: 2,
+    marginBottom: 1,
   },
   otwPromptSub: {
-    fontSize: 12,
+    fontSize: 11.5,
     color: theme.textSecondary,
-    lineHeight: 16,
+    lineHeight: 15,
   },
   otwPromptActionBtn: {
     flexDirection: 'row',
@@ -4972,32 +5022,54 @@ const getStyles = (theme) => StyleSheet.create({
     flexDirection: 'row',
     gap: 10,
     marginBottom: 16,
+    paddingHorizontal: 4,
   },
   statPod: {
     flex: 1,
-    backgroundColor: theme.card,
-    borderRadius: 12,
-    paddingVertical: 12,
+    borderRadius: 16,
+    paddingVertical: 14,
     paddingHorizontal: 10,
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: theme.border,
+    borderWidth: 0,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  statPodConnections: {
+    backgroundColor: '#EFF6FF',
+    borderWidth: 1,
+    borderColor: '#DBEAFE',
+  },
+  statPodFollowing: {
+    backgroundColor: '#F5F3FF',
+    borderWidth: 1,
+    borderColor: '#EDE9FE',
+  },
+  statPodPosts: {
+    backgroundColor: '#FFFBEB',
+    borderWidth: 1,
+    borderColor: '#FEF3C7',
+  },
+  statPodIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 6,
   },
   statPodNumber: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: '800',
-    color: theme.text,
-    letterSpacing: -0.3,
+    letterSpacing: -0.5,
   },
   statPodLabel: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#002B5C',
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#475569',
     marginTop: 2,
   },
   statPodSub: {
