@@ -875,61 +875,6 @@ const DEFAULT_TAGGED_POSTS = [];
     }
   };
 
-  const handlePickCoverPhoto = async () => {
-    try {
-      if (Platform.OS !== 'web') {
-        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (!permissionResult.granted) {
-          alert('Permission to access photos is required to update cover photo.');
-          return;
-        }
-      }
-
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [16, 9],
-        quality: 0.5,
-      });
-
-      if (!result.canceled && result.assets && result.assets.length > 0) {
-        const selectedUri = result.assets[0].uri;
-        let uploadedUrl = selectedUri;
-        try {
-          uploadedUrl = await uploadFile(selectedUri, 'image/jpeg', `cover_${Date.now()}.jpg`);
-        } catch (uploadErr) {
-          console.warn('Backend cover upload warning, using URI:', uploadErr);
-        }
-
-        setProfileData(prev => ({
-          ...prev,
-          cover_url: uploadedUrl
-        }));
-
-        try {
-          await updateProfile({ cover_url: uploadedUrl, coverImage: uploadedUrl });
-        } catch (e) {
-          console.warn('Backend update cover failed:', e);
-        }
-
-        try {
-          const cachedStr = await AsyncStorage.getItem('userInfo');
-          if (cachedStr) {
-            const cached = JSON.parse(cachedStr);
-            cached.cover_url = uploadedUrl;
-            cached.coverImage = uploadedUrl;
-            await AsyncStorage.setItem('userInfo', JSON.stringify(cached));
-          }
-        } catch (e) {}
-
-        alert('📸 Cover photo updated!');
-      }
-    } catch (error) {
-      console.error('Error updating cover photo:', error);
-      alert('Could not update cover photo: ' + (error.message || 'Cancelled'));
-    }
-  };
-
   // Settings States
   const [privateAccount, setPrivateAccount] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
@@ -1200,50 +1145,18 @@ const DEFAULT_TAGGED_POSTS = [];
       <ScrollView ref={profileScrollViewRef} showsVerticalScrollIndicator={false}>
         {/* Modern Vibrant Mesh Gradient Cover Banner */}
         <View style={styles.coverBanner}>
-          {profileData.cover_url ? (
-            <ImageBackground
-              source={{ uri: profileData.cover_url }}
-              style={styles.coverBannerImg}
-              resizeMode="cover"
-            >
-              <View style={styles.coverGradientOverlay} />
-              <TouchableOpacity 
-                style={styles.coverEditBtn}
-                onPress={handlePickCoverPhoto}
-                activeOpacity={0.8}
-              >
-                <Ionicons name="camera" size={13} color="#FFFFFF" />
-                <Text style={styles.coverEditBtnText}>Change Cover</Text>
-              </TouchableOpacity>
-            </ImageBackground>
-          ) : Platform.OS !== 'web' ? (
+          {Platform.OS !== 'web' ? (
             <ImageBackground
               source={DEFAULT_COVER_BANNER}
               style={styles.coverBannerImg}
               resizeMode="cover"
             >
               <View style={styles.coverGradientOverlay} />
-              <TouchableOpacity 
-                style={styles.coverEditBtn}
-                onPress={handlePickCoverPhoto}
-                activeOpacity={0.8}
-              >
-                <Ionicons name="camera" size={13} color="#FFFFFF" />
-                <Text style={styles.coverEditBtnText}>Change Cover</Text>
-              </TouchableOpacity>
             </ImageBackground>
           ) : (
             <View style={styles.coverBannerContentWeb}>
               <View style={styles.ambientOrb1} />
               <View style={styles.ambientOrb2} />
-              <TouchableOpacity 
-                style={styles.coverEditBtn}
-                onPress={handlePickCoverPhoto}
-                activeOpacity={0.8}
-              >
-                <Ionicons name="camera" size={13} color="#FFFFFF" />
-                <Text style={styles.coverEditBtnText}>Change Cover</Text>
-              </TouchableOpacity>
             </View>
           )}
         </View>
@@ -4638,28 +4551,6 @@ const getStyles = (theme) => StyleSheet.create({
     top: 0,
     bottom: 0,
     backgroundColor: 'rgba(15, 23, 42, 0.08)',
-  },
-  coverEditBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: 'rgba(15, 23, 42, 0.45)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.18,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  coverEditBtnText: {
-    color: '#FFFFFF',
-    fontSize: 11.5,
-    fontWeight: '700',
-    letterSpacing: 0.2,
   },
 
   // ── Profile Identity & Avatar Section ──
