@@ -129,6 +129,13 @@ const HARSHITHA_POST = {
   createdAt: '2026-08-26T07:48:00.131Z'
 };
 
+const formatHeadlineDomain = (domain, branch) => {
+  const isNumericOrShort = (val) => !val || /^\d+$/.test(String(val).trim()) || String(val).trim().length <= 2;
+  if (domain && !isNumericOrShort(domain)) return domain;
+  if (branch && !isNumericOrShort(branch)) return branch;
+  return 'Computer Science & Engineering';
+};
+
 const ProfileScreen = ({ navigation }) => {
   const { theme, isDarkMode } = useTheme();
   const styles = getStyles(theme);
@@ -1210,7 +1217,7 @@ const DEFAULT_TAGGED_POSTS = [];
 
             {/* Headline / Domain */}
             <Text style={styles.headlineText}>
-              {profileData.domain || profileData.branch || 'RVCE Alumni Community Member'}
+              {formatHeadlineDomain(profileData.domain, profileData.branch)}
               {profileData.batch ? ` • Class of ${profileData.batch}` : ''}
             </Text>
 
@@ -1228,7 +1235,7 @@ const DEFAULT_TAGGED_POSTS = [];
             ) : null}
           </View>
 
-          {/* Action Buttons Row - centered */}
+          {/* Action Buttons Row */}
           <View style={styles.actionButtonsRow}>
             <TouchableOpacity 
               style={styles.topEditProfileBtn} 
@@ -1238,13 +1245,16 @@ const DEFAULT_TAGGED_POSTS = [];
               <Ionicons name="pencil" size={14} color="#FFFFFF" style={{ marginRight: 6 }} />
               <Text style={styles.topEditProfileBtnText}>Edit Profile</Text>
             </TouchableOpacity>
+
             <TouchableOpacity 
-              style={styles.topShareProfileBtn} 
+              style={styles.topShareProfilePill} 
               onPress={() => setProfileShareModalVisible(true)} 
               activeOpacity={0.75}
             >
-              <Ionicons name="share-social-outline" size={17} color="#002B5C" />
+              <Ionicons name="share-social-outline" size={15} color="#002B5C" style={{ marginRight: 5 }} />
+              <Text style={styles.topShareProfilePillText}>Share</Text>
             </TouchableOpacity>
+
             {profileData.linkedin ? (
               <TouchableOpacity 
                 style={styles.linkedinBtn}
@@ -1254,9 +1264,10 @@ const DEFAULT_TAGGED_POSTS = [];
                 }}
                 activeOpacity={0.75}
               >
-                <Ionicons name="logo-linkedin" size={17} color="#0A66C2" />
+                <Ionicons name="logo-linkedin" size={18} color="#0A66C2" />
               </TouchableOpacity>
             ) : null}
+
             {profileData.resumeUrl ? (
               <TouchableOpacity 
                 style={styles.resumeBtn}
@@ -1266,7 +1277,7 @@ const DEFAULT_TAGGED_POSTS = [];
                 }}
                 activeOpacity={0.75}
               >
-                <Ionicons name="document-text" size={17} color="#002B5C" />
+                <Ionicons name="document-text" size={18} color="#002B5C" />
               </TouchableOpacity>
             ) : (
               <TouchableOpacity 
@@ -1274,57 +1285,54 @@ const DEFAULT_TAGGED_POSTS = [];
                 onPress={handleOpenEdit}
                 activeOpacity={0.75}
               >
-                <Ionicons name="cloud-upload-outline" size={17} color="#64748B" />
+                <Ionicons name="cloud-upload-outline" size={18} color="#64748B" />
               </TouchableOpacity>
             )}
-            <TouchableOpacity 
-              style={styles.topLogoutBtn} 
-              onPress={handleLogout} 
-              activeOpacity={0.75}
-            >
-              <Ionicons name="log-out-outline" size={17} color="#EF4444" />
-            </TouchableOpacity>
           </View>
 
-          {/* ── Colorful Stat Pods ────── */}
-          <View style={styles.statsPodsGrid}>
+          {/* ── Unified Sleek Stats Ribbon ────── */}
+          <View style={styles.statsRibbonContainer}>
             <TouchableOpacity 
-              style={[styles.statPod, styles.statPodConnections]} 
+              style={styles.statsRibbonItem} 
               onPress={() => setListModalType('connections')} 
               activeOpacity={0.7}
             >
-              <View style={styles.statPodIconWrap}>
-                <Ionicons name="people" size={18} color="#0284C7" />
+              <Text style={styles.statsRibbonNumber}>{connections.length || profileData.followers}</Text>
+              <View style={styles.statsRibbonLabelRow}>
+                <Ionicons name="people-outline" size={13} color="#0284C7" />
+                <Text style={styles.statsRibbonLabel}>Connections</Text>
               </View>
-              <Text style={[styles.statPodNumber, { color: '#0284C7' }]}>{connections.length || profileData.followers}</Text>
-              <Text style={styles.statPodLabel}>Connections</Text>
             </TouchableOpacity>
 
+            <View style={styles.statsRibbonDivider} />
+
             <TouchableOpacity 
-              style={[styles.statPod, styles.statPodFollowing]} 
+              style={styles.statsRibbonItem} 
               onPress={() => setListModalType('following')} 
               activeOpacity={0.7}
             >
-              <View style={styles.statPodIconWrap}>
-                <Ionicons name="heart" size={18} color="#7C3AED" />
+              <Text style={styles.statsRibbonNumber}>{following.length || profileData.following}</Text>
+              <View style={styles.statsRibbonLabelRow}>
+                <Ionicons name="heart-outline" size={13} color="#7C3AED" />
+                <Text style={styles.statsRibbonLabel}>Following</Text>
               </View>
-              <Text style={[styles.statPodNumber, { color: '#7C3AED' }]}>{following.length || profileData.following}</Text>
-              <Text style={styles.statPodLabel}>Following</Text>
             </TouchableOpacity>
 
+            <View style={styles.statsRibbonDivider} />
+
             <TouchableOpacity 
-              style={[styles.statPod, styles.statPodPosts]} 
+              style={styles.statsRibbonItem} 
               onPress={() => {
                 setActiveTab('post');
                 profileScrollViewRef.current?.scrollTo({ y: 380, animated: true });
               }} 
               activeOpacity={0.7}
             >
-              <View style={styles.statPodIconWrap}>
-                <Ionicons name="chatbubbles" size={18} color="#D97706" />
+              <Text style={styles.statsRibbonNumber}>{profileData.posts}</Text>
+              <View style={styles.statsRibbonLabelRow}>
+                <Ionicons name="chatbubbles-outline" size={13} color="#D97706" />
+                <Text style={styles.statsRibbonLabel}>Posts</Text>
               </View>
-              <Text style={[styles.statPodNumber, { color: '#D97706' }]}>{profileData.posts}</Text>
-              <Text style={styles.statPodLabel}>Posts</Text>
             </TouchableOpacity>
           </View>
 
@@ -4494,7 +4502,7 @@ const getStyles = (theme) => StyleSheet.create({
   // ── Cover Banner Styles ──
   coverBanner: {
     width: '100%',
-    height: 180,
+    height: 220,
     backgroundColor: '#0A192F',
     position: 'relative',
     overflow: 'hidden',
@@ -4516,7 +4524,7 @@ const getStyles = (theme) => StyleSheet.create({
   profileInfoContainer: {
     backgroundColor: theme.card,
     marginHorizontal: 0,
-    marginTop: -34,
+    marginTop: -42,
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     paddingHorizontal: 20,
@@ -4530,8 +4538,8 @@ const getStyles = (theme) => StyleSheet.create({
   },
   avatarCenterRow: {
     alignItems: 'center',
-    marginTop: -56,
-    marginBottom: 14,
+    marginTop: -52,
+    marginBottom: 12,
   },
   mainInfoRow: {
     flexDirection: 'row',
@@ -4548,12 +4556,12 @@ const getStyles = (theme) => StyleSheet.create({
     padding: 4,
     borderRadius: 58,
     backgroundColor: theme.card,
-    borderWidth: 3,
+    borderWidth: 3.5,
     borderColor: '#FFFFFF',
     shadowColor: '#002B5C',
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
+    shadowOpacity: 0.22,
+    shadowRadius: 14,
     elevation: 8,
   },
   avatarOpenToWorkRing: {
@@ -4629,8 +4637,8 @@ const getStyles = (theme) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    marginBottom: 20,
+    gap: 9,
+    marginBottom: 18,
   },
   topActionBtnsRow: {
     flexDirection: 'row',
@@ -4642,7 +4650,7 @@ const getStyles = (theme) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#002B5C',
-    paddingHorizontal: 18,
+    paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 24,
     shadowColor: '#002B5C',
@@ -4653,6 +4661,22 @@ const getStyles = (theme) => StyleSheet.create({
   },
   topEditProfileBtnText: {
     color: '#FFFFFF',
+    fontSize: 13.5,
+    fontWeight: '700',
+    letterSpacing: 0.2,
+  },
+  topShareProfilePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F1F5F9',
+    paddingHorizontal: 16,
+    paddingVertical: 9.5,
+    borderRadius: 24,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+  },
+  topShareProfilePillText: {
+    color: '#002B5C',
     fontSize: 13.5,
     fontWeight: '700',
     letterSpacing: 0.2,
@@ -4957,6 +4981,54 @@ const getStyles = (theme) => StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     color: '#057642',
+  },
+
+  // ── Unified Sleek Stats Ribbon ──
+  statsRibbonContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: theme.cardSecondary || '#F8FAFC',
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: theme.border || '#E2E8F0',
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    marginBottom: 16,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  statsRibbonItem: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 2,
+  },
+  statsRibbonDivider: {
+    width: 1,
+    height: 30,
+    backgroundColor: theme.border || '#E2E8F0',
+  },
+  statsRibbonNumber: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: theme.text,
+    letterSpacing: -0.4,
+  },
+  statsRibbonLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    marginTop: 3,
+  },
+  statsRibbonLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: theme.textSecondary,
+    letterSpacing: 0.2,
   },
 
   // ── Executive Stat Pods ──
