@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Image, ImageBackground, ScrollView, useWindowDimensions, Alert, StatusBar, Modal, TextInput, Platform, Share, Switch, Linking } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Image, ScrollView, useWindowDimensions, Alert, StatusBar, Modal, TextInput, Platform, Share, Switch, Linking } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,8 +13,6 @@ import * as DocumentPicker from 'expo-document-picker';
 import { institutionDepartments, defaultDepartments } from '../constants/institutionDepartments';
 import getInitials from '../lib/getInitials';
 import InstagramProfileShareModal from '../components/InstagramProfileShareModal';
-
-const DEFAULT_COVER_BANNER = require('../../assets/images/profile-banner-mesh.jpg');
 
 const validatePasswordStrength = (password) => {
   if (password.length < 8) {
@@ -1150,17 +1148,6 @@ const DEFAULT_TAGGED_POSTS = [];
       </View>
 
       <ScrollView ref={profileScrollViewRef} showsVerticalScrollIndicator={false}>
-        {/* Modern Prestigious University Campus Hero Banner */}
-        <View style={styles.coverBanner}>
-          <ImageBackground
-            source={DEFAULT_COVER_BANNER}
-            style={styles.coverBannerImg}
-            resizeMode="cover"
-          >
-            <View style={styles.coverGradientOverlay} />
-          </ImageBackground>
-        </View>
-
         {/* Profile Identity & Showcase Container */}
         <View style={styles.profileInfoContainer}>
           {/* Centered Avatar Row */}
@@ -4499,53 +4486,27 @@ const getStyles = (theme) => StyleSheet.create({
     alignItems: 'center',
     borderRadius: 19,
   },
-  // ── Cover Banner Styles ──
-  coverBanner: {
-    width: '100%',
-    height: 220,
-    backgroundColor: '#0A192F',
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  coverBannerImg: {
-    width: '100%',
-    height: '100%',
-  },
-  coverGradientOverlay: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(10, 25, 47, 0.15)',
-  },
-
-  // ── Profile Identity & Avatar Section ──
+  // ── Profile Identity & Avatar Section (Clean Minimal Layout) ──
   profileInfoContainer: {
     backgroundColor: theme.card,
     marginHorizontal: 0,
-    marginTop: -42,
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
+    marginTop: 0,
     paddingHorizontal: 20,
-    paddingTop: 0,
-    paddingBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
-    elevation: 8,
+    paddingTop: 18,
+    paddingBottom: 22,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
   },
   avatarCenterRow: {
     alignItems: 'center',
-    marginTop: -52,
-    marginBottom: 12,
+    marginTop: 6,
+    marginBottom: 16,
   },
   mainInfoRow: {
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'space-between',
-    marginTop: -46,
+    marginTop: 0,
     marginBottom: 14,
   },
   avatarWrapper: {
@@ -4554,24 +4515,24 @@ const getStyles = (theme) => StyleSheet.create({
   },
   avatarOuterRing: {
     padding: 4,
-    borderRadius: 58,
+    borderRadius: 62,
     backgroundColor: theme.card,
-    borderWidth: 3.5,
-    borderColor: '#FFFFFF',
+    borderWidth: 2.5,
+    borderColor: '#E2E8F0',
     shadowColor: '#002B5C',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.22,
-    shadowRadius: 14,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    elevation: 4,
   },
   avatarOpenToWorkRing: {
     borderColor: '#057642',
-    borderWidth: 3.5,
+    borderWidth: 3,
   },
   avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 104,
+    height: 104,
+    borderRadius: 52,
     backgroundColor: '#002B5C',
     justifyContent: 'center',
     alignItems: 'center',
@@ -4580,7 +4541,7 @@ const getStyles = (theme) => StyleSheet.create({
   avatarImg: {
     width: '100%',
     height: '100%',
-    borderRadius: 50,
+    borderRadius: 52,
   },
   avatarText: {
     fontSize: 32,
