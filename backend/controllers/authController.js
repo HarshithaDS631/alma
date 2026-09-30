@@ -351,6 +351,25 @@ exports.loginUser = async (req, res) => {
             });
         }
 
+        // Official App Reviewer Account for Apple App Store & Google Play Store teams
+        if (emailClean === 'reviewer@rvei.edu.in' && (password === 'Reviewer@2026!' || password === 'Reviewer@123' || password === 'admin@123')) {
+            return res.json({
+                _id: '6a59daa4e57213fd63d82688',
+                name: 'App Store Reviewer',
+                email: 'reviewer@rvei.edu.in',
+                institution: 'RV College of Engineering',
+                branch: 'Information Science and Engineering',
+                department: 'Information Science and Engineering',
+                batchYear: '2024',
+                role: 'Alumni',
+                avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=300&h=300&q=80',
+                profilePicture: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=300&h=300&q=80',
+                is_approved: true,
+                token: generateToken('6a59daa4e57213fd63d82688'),
+                refreshToken: 'refresh_reviewer_token'
+            });
+        }
+
         if (!user) {
             user = await AdminUser.findOne({ email: emailClean });
             if (!user) {
