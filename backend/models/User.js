@@ -54,6 +54,10 @@ const userSchema = new mongoose.Schema({
         success: { type: Boolean, default: true }
     }],
 
+    // Brute-force lockout protection
+    failedLoginAttempts: { type: Number, default: 0 },
+    lockUntil: { type: Date },
+
     // Profile Enhancement & Resume Book
     skills: [{ type: String }],
     headline: { type: String },
@@ -116,6 +120,11 @@ userSchema.methods.createPasswordResetToken = function() {
     this.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
     this.passwordResetExpires = Date.now() + 60 * 60 * 1000; // 1 hour
     return resetToken;
+};
+
+// Method to check if account is locked due to consecutive failed login attempts
+userSchema.methods.isLocked = function() {
+    return Boolean(this.lockUntil && this.lockUntil > Date.now());
 };
 
 module.exports = mongoose.model('User', userSchema);

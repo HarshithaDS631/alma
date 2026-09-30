@@ -6,6 +6,7 @@ const { Server } = require('socket.io');
 const jwt = require('jsonwebtoken');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
+const { sanitizeObject } = require('./utils/sanitizeInput');
 const connectDB = require('./config/db');
 
 const authRoutes = require('./routes/authRoutes');
@@ -26,7 +27,7 @@ const verificationRoutes = require('./routes/verificationRoutes');
 const passwordRoutes = require('./routes/passwordRoutes');
 const recommendationRoutes = require('./routes/recommendationRoutes');
 const { initScheduler } = require('./utils/cronScheduler');
-const { apiLimiter, authLimiter } = require('./middleware/rateLimiter');
+const { apiLimiter } = require('./middleware/rateLimiter');
 const activityLogger = require('./middleware/activityLogger');
 
 dotenv.config();
@@ -43,52 +44,77 @@ const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 
 // ─── Security Middleware ────────────────────────────────────────
-// Helmet: sets secure HTTP headers (XSS, CSP, clickjacking, MIME-sniffing protection)
+// Helmet: sets secure HTTP headers (XSS, CSP, clickjacking, MIME-sniffing, HSTS)
 app.use(helmet({
-    crossOriginResourcePolicy: { policy: 'cross-origin' } // Allow Cloudinary/S3 images
+    crossOriginResourcePolicy: { policy: 'cross-origin' }, // Allow Cloudinary/S3 images
+    contentSecurityPolicy: false, // Managed per-frontend client to allow external CDN fonts/assets
+    hsts: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true
+    },
+    frameguard: { action: 'sameorigin' },
+    noSniff: true,
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+    xssFilter: true
 }));
 
-// Mongo Sanitize: prevents NoSQL injection attacks by sanitizing req.body
+// Mongo Sanitize & XSS Defense: prevents NoSQL injection and strips XSS script injections
 app.use((req, res, next) => {
     try {
         if (req.body && typeof req.body === 'object') {
             mongoSanitize.sanitize(req.body);
+            sanitizeObject(req.body);
         }
-    } catch (e) {
+        if (req.query && typeof req.query === 'object') {
+            mongoSanitize.sanitize(req.query);
+            sanitizeObject(req.query);
+        }
+        if (req.params && typeof req.params === 'object') {
+            mongoSanitize.sanitize(req.params);
+            sanitizeObject(req.params);
+        }
+    } catch (_e) {
         // Ignore read-only getter errors on serverless platforms
     }
     next();
 });
 
-// CORS: whitelist allowed origins (production + local dev)
+// CORS: strict whitelist allowed origins (production + local dev + mobile apps)
 const allowedOrigins = [
     process.env.FRONTEND_URL,
     'http://localhost:3000',
     'http://localhost:5173',
     'http://localhost:19006', // Expo web
-    'https://alma-connect.vercel.app'
-].filter(Boolean); // Filter out undefined env vars
+    'http://localhost:8081',  // Metro bundler
+    'https://alma-connect.vercel.app',
+    'https://alma-orpin-delta.vercel.app'
+].filter(Boolean);
 
 app.use(cors({
     origin: function (origin, callback) {
-        // Allow requests with no origin (mobile apps, curl, Postman)
+        // Allow requests with no origin (mobile native apps, React Native, curl, Postman)
         if (!origin) return callback(null, true);
         if (allowedOrigins.includes(origin)) {
             return callback(null, true);
         }
-        // Allow any Vercel preview deployment
+        // Allow any Vercel preview or production deployment
         if (origin.endsWith('.vercel.app')) {
             return callback(null, true);
         }
-        return callback(null, true); // Allow all for now until frontend URLs are finalized
+        // Allow local network IP testing in development (e.g. 192.168.x.x, 10.x.x.x, 172.x.x.x)
+        if (process.env.NODE_ENV !== 'production' && /^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+)(:\d+)?$/.test(origin)) {
+            return callback(null, true);
+        }
+        return callback(new Error('Cross-Origin Request Blocked by Security Policy'));
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
 }));
 
-// Body parsing with size limits (prevent payload attacks)
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Body parsing with size limits (prevent memory exhaustion and payload DoS attacks)
+app.use(express.json({ limit: '2mb' }));
+app.use(express.urlencoded({ extended: true, limit: '2mb' }));
 
 // Global API rate limiter: 100 requests per 15 minutes per IP
 app.use('/api/', apiLimiter);

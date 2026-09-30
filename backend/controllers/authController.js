@@ -367,6 +367,14 @@ exports.loginUser = async (req, res) => {
             success: false
         };
 
+        // Check if account is locked due to too many failed attempts
+        if (user && typeof user.isLocked === 'function' && user.isLocked()) {
+            const remainingMins = Math.max(1, Math.ceil((new Date(user.lockUntil).getTime() - Date.now()) / (60 * 1000)));
+            return res.status(423).json({
+                message: `Account temporarily locked due to consecutive failed login attempts. Please try again in ${remainingMins} minute(s) or reset your password.`
+            });
+        }
+
         if (user && user.password && (await user.comparePassword(password))) {
             if (!isAdminOrSuper && !user.is_approved) {
                 return res.status(403).json({ message: 'Your account is pending admin approval. You cannot log in yet.' });
@@ -383,6 +391,10 @@ exports.loginUser = async (req, res) => {
                     });
                 }
             }
+
+            // Reset failed login attempts on successful authentication
+            user.failedLoginAttempts = 0;
+            user.lockUntil = undefined;
 
             // Check if user has 2FA enabled
             if (user.twoFactorEnabled) {
@@ -438,12 +450,24 @@ exports.loginUser = async (req, res) => {
                 refreshToken
             });
         } else {
-            // Record failed login attempt
+            // Record failed login attempt and enforce lockout after 5 attempts
             if (user) {
+                user.failedLoginAttempts = (user.failedLoginAttempts || 0) + 1;
+                let isNowLocked = false;
+                if (user.failedLoginAttempts >= 5) {
+                    user.lockUntil = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes lockout
+                    isNowLocked = true;
+                }
                 try {
                     user.loginHistory = [...(user.loginHistory || []).slice(-19), loginEntry];
                     await user.save({ validateBeforeSave: false });
                 } catch (_) {}
+
+                if (isNowLocked) {
+                    return res.status(423).json({
+                        message: 'Account locked for 15 minutes due to 5 consecutive failed login attempts. Please reset your password or try again later.'
+                    });
+                }
             }
             res.status(401).json({ message: 'Invalid email or password' });
         }
@@ -575,6 +599,13 @@ exports.loginWithOtp = async (req, res) => {
             return res.status(404).json({ message: 'Account not found' });
         }
 
+        if (user && typeof user.isLocked === 'function' && user.isLocked()) {
+            const remainingMins = Math.max(1, Math.ceil((new Date(user.lockUntil).getTime() - Date.now()) / (60 * 1000)));
+            return res.status(423).json({
+                message: `Account temporarily locked due to consecutive failed attempts. Please try again in ${remainingMins} minute(s).`
+            });
+        }
+
         if (!isAdminOrSuper && !user.is_approved) {
             return res.status(403).json({ message: 'Your account is pending admin approval. You cannot log in yet.' });
         }
@@ -589,6 +620,10 @@ exports.loginWithOtp = async (req, res) => {
         if (!isTargetMatch) {
             return res.status(400).json({ message: 'Invalid or expired verification code. Please request a new code.' });
         }
+
+        // Reset failed login attempts on successful authentication
+        user.failedLoginAttempts = 0;
+        user.lockUntil = undefined;
 
         // Record successful login
         const loginEntry = {
@@ -666,8 +701,16 @@ exports.updateUserProfile = async (req, res) => {
                 return res.status(400).json({ message: 'Graduation year must be greater than joining year' });
             }
 
+            if (req.body.email && req.body.email.trim().toLowerCase() !== user.email) {
+                const targetEmail = req.body.email.trim().toLowerCase();
+                const existing = await User.findOne({ email: targetEmail });
+                if (existing && existing._id.toString() !== user._id.toString()) {
+                    return res.status(400).json({ message: 'Email address already in use by another account' });
+                }
+                user.email = targetEmail;
+            }
+
             user.name = req.body.name || user.name;
-            user.email = req.body.email || user.email;
             user.institution = req.body.institution || user.institution;
             user.branch = req.body.branch || req.body.department || user.branch;
             user.department = req.body.department || req.body.branch || user.department;
@@ -785,6 +828,8 @@ exports.changePassword = async (req, res) => {
         }
         
         user.password = newPassword;
+        user.failedLoginAttempts = 0;
+        user.lockUntil = undefined;
         await user.save();
 
         // Store activity log in MongoDB Atlas
@@ -899,6 +944,8 @@ exports.resetPassword = async (req, res) => {
         user.password = newPassword;
         user.passwordResetToken = undefined;
         user.passwordResetExpires = undefined;
+        user.failedLoginAttempts = 0;
+        user.lockUntil = undefined;
         await user.save();
 
         // Store activity log in MongoDB Atlas

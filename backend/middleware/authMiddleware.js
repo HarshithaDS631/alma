@@ -50,6 +50,11 @@ const protect = async (req, res, next) => {
                 if (!req.user) {
                     return res.status(401).json({ message: 'User not found' });
                 }
+
+                if (req.user.role !== 'Admin' && req.user.role !== 'Super Admin' && req.user.is_approved === false) {
+                    return res.status(403).json({ message: 'Account is pending administrator approval' });
+                }
+
                 return next();
             }
         } catch (error) {

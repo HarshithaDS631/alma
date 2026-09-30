@@ -15,7 +15,9 @@ const superAdminUserSchema = new mongoose.Schema({
         userAgent: String,
         timestamp: { type: Date, default: Date.now },
         success: { type: Boolean, default: true }
-    }]
+    }],
+    failedLoginAttempts: { type: Number, default: 0 },
+    lockUntil: { type: Date }
 }, { timestamps: true });
 
 // Hash password before saving
@@ -46,6 +48,11 @@ superAdminUserSchema.methods.isPasswordInHistory = async function(enteredPasswor
         }
     }
     return false;
+};
+
+// Method to check if superadmin account is locked due to consecutive failed login attempts
+superAdminUserSchema.methods.isLocked = function() {
+    return Boolean(this.lockUntil && this.lockUntil > Date.now());
 };
 
 module.exports = mongoose.model('SuperAdminUser', superAdminUserSchema, 'superadmins');

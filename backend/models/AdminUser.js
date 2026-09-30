@@ -15,7 +15,9 @@ const adminUserSchema = new mongoose.Schema({
         userAgent: String,
         timestamp: { type: Date, default: Date.now },
         success: { type: Boolean, default: true }
-    }]
+    }],
+    failedLoginAttempts: { type: Number, default: 0 },
+    lockUntil: { type: Date }
 }, { timestamps: true });
 
 // Hash password before saving
@@ -46,6 +48,11 @@ adminUserSchema.methods.isPasswordInHistory = async function(enteredPassword) {
         }
     }
     return false;
+};
+
+// Method to check if admin account is locked due to consecutive failed login attempts
+adminUserSchema.methods.isLocked = function() {
+    return Boolean(this.lockUntil && this.lockUntil > Date.now());
 };
 
 module.exports = mongoose.model('AdminUser', adminUserSchema, 'admins');
