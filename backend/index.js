@@ -108,7 +108,7 @@ io.use((socket, next) => {
         return next(); // Allow guest/anonymous for public notifications, room joins enforce auth
     }
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'super_secret_jwt_key_rvce_alumni_2026_xyz');
         socket.user = decoded;
         next();
     } catch (err) {

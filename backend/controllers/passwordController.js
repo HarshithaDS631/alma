@@ -70,6 +70,14 @@ exports.resetPasswordWithOTP = async (req, res) => {
         // Delete used OTP
         await OTP.deleteOne({ _id: otpRecord._id });
 
+        // Invalidate all existing refresh tokens for the user to terminate compromised sessions
+        try {
+            const RefreshToken = require('../models/RefreshToken');
+            await RefreshToken.deleteMany({ user: user._id });
+        } catch (tokErr) {
+            console.warn('[RESET PASSWORD SESSION CLEANUP WARN]:', tokErr.message);
+        }
+
         res.json({
             success: true,
             message: 'Password reset successfully with security history check applied.'

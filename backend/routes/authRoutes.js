@@ -47,10 +47,10 @@ const router = express.Router();
 
 router.post('/check-email', checkEmailExists);
 router.post('/send-otp', otpLimiter, otpValidation, sendOtp);
-router.post('/verify-otp', verifyOtp);
+router.post('/verify-otp', otpLimiter, verifyOtp);
 router.post('/send-login-otp', otpLimiter, sendLoginOtp);
 router.post('/login-otp', authLimiter, loginWithOtp);
-router.post('/register', registerValidation, registerUser);
+router.post('/register', authLimiter, registerValidation, registerUser);
 router.post('/login', authLimiter, loginValidation, loginUser);
 router.post('/logout', protect, logoutUser);
 router.post('/google', googleAuth);
@@ -61,12 +61,12 @@ router.post('/refresh-token', refreshAccessToken);
 router.post('/oauth', oauthLogin);
 router.get('/linkedin/callback', linkedinAuthCallback);
 router.post('/forgot-password', passwordResetLimiter, forgotPasswordValidation, forgotPassword);
-router.post('/reset-password', resetPassword);
+router.post('/reset-password', passwordResetLimiter, resetPassword);
 
 // 2FA Endpoints
 router.post('/2fa/setup', protect, setup2FA);
 router.post('/2fa/verify', protect, verify2FA);
-router.post('/2fa/login-verify', loginVerify2FA);
+router.post('/2fa/login-verify', authLimiter, loginVerify2FA);
 router.post('/2fa/disable', protect, disable2FA);
 
 // Profile & Sessions

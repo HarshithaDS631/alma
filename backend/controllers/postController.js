@@ -218,8 +218,9 @@ exports.deletePost = async (req, res) => {
         }
 
         // Check if the current user owns the post OR is an admin
-        if (post.user._id.toString() !== req.user._id.toString() && req.user.role !== 'Admin' && req.user.role !== 'Super Admin') {
-            return res.status(401).json({ message: 'User not authorized to delete this post' });
+        const postUserId = post.user ? (post.user._id || post.user).toString() : null;
+        if (postUserId !== req.user._id.toString() && req.user.role !== 'Admin' && req.user.role !== 'Super Admin') {
+            return res.status(403).json({ message: 'User not authorized to delete this post' });
         }
 
         await Post.findByIdAndDelete(req.params.id);

@@ -67,26 +67,34 @@ router.get('/:filename', async (req, res) => {
             return res.status(500).json({ message: 'GridFS not initialized' });
         }
 
-        const file = await gfs.find({ filename: req.params.filename }).toArray();
+        const rawFilename = req.params.filename || '';
+        const sanitizedFilename = path.basename(rawFilename).replace(/[^a-zA-Z0-9._-]/g, '');
+        if (!sanitizedFilename) {
+            return res.status(400).json({ message: 'Invalid filename' });
+        }
+
+        const file = await gfs.find({ filename: sanitizedFilename }).toArray();
         if (!file || file.length === 0) {
             return res.status(404).json({ message: 'No file exists' });
         }
 
         // Set content type with robust fallback based on extension
-        const fn = (req.params.filename || '').toLowerCase();
+        const fn = sanitizedFilename.toLowerCase();
         let mimeType = file[0].contentType || (file[0].metadata && file[0].metadata.contentType);
         if (!mimeType || mimeType === 'false' || mimeType === 'undefined') {
             if (fn.endsWith('.png')) mimeType = 'image/png';
             else if (fn.endsWith('.webp')) mimeType = 'image/webp';
             else if (fn.endsWith('.gif')) mimeType = 'image/gif';
             else if (fn.endsWith('.svg')) mimeType = 'image/svg+xml';
+            else if (fn.endsWith('.pdf')) mimeType = 'application/pdf';
             else mimeType = 'image/jpeg';
         }
         res.set('Content-Type', mimeType);
         res.set('Cache-Control', 'public, max-age=86400');
+        res.set('X-Content-Type-Options', 'nosniff');
 
         // Read from GridFS
-        const readStream = gfs.openDownloadStreamByName(req.params.filename);
+        const readStream = gfs.openDownloadStreamByName(sanitizedFilename);
         readStream.pipe(res);
     } catch (error) {
         res.status(500).json({ message: error.message });

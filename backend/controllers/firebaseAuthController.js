@@ -58,7 +58,7 @@ exports.verifyFirebaseToken = async (req, res) => {
         }
 
         // Generate JWT Session Token
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'super_secret_jwt_key_rvce_alumni_2026_xyz', { expiresIn: '7d' });
 
         res.status(200).json({
             success: true,

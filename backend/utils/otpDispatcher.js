@@ -103,8 +103,7 @@ const dispatchOtp = async (identifier, channel = 'email') => {
         success: true,
         channel,
         maskedDestination,
-        message: channelResult.message,
-        demoOtp: otp // Included for instant sandbox & offline verification
+        message: channelResult.message
     };
 };
 

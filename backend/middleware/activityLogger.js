@@ -16,7 +16,7 @@ const activityLogger = (req, res, next) => {
     if (!userId && req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
         try {
             const token = req.headers.authorization.split(' ')[1];
-            const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+            const decoded = jwt.verify(token, process.env.JWT_SECRET || 'super_secret_jwt_key_rvce_alumni_2026_xyz');
             if (decoded && (decoded.id || decoded._id)) {
                 userId = decoded.id || decoded._id;
             }
@@ -61,11 +61,18 @@ const activityLogger = (req, res, next) => {
             else if (url.includes('/api/admin')) actionType = `ADMIN_${method}`;
             else if (url.includes('/api/activity')) actionType = 'VIEW_ACTIVITY_LOGS';
 
-            // Sanitize sensitive fields from metadata
+            // Sanitize all sensitive credentials and tokens from metadata before saving
             const metadata = { ...req.body, ...req.query };
-            if (metadata.password) metadata.password = '***';
-            if (metadata.currentPassword) metadata.currentPassword = '***';
-            if (metadata.newPassword) metadata.newPassword = '***';
+            const sensitiveKeys = [
+                'password', 'currentPassword', 'newPassword', 'confirmPassword',
+                'otp', 'demoOtp', 'twoFactorCode', 'twoFactorToken', 'secret',
+                'token', 'refreshToken', 'authorization', 'apiKey'
+            ];
+            for (const key of sensitiveKeys) {
+                if (metadata[key] !== undefined) {
+                    metadata[key] = '***';
+                }
+            }
 
             const role = (req.user?.role || '').toLowerCase();
             const isSuperAdmin = role === 'super admin' || role === 'superadmin' || role === 'super_admin';

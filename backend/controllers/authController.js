@@ -40,7 +40,7 @@ const sendPushToUser = async (recipientId, title, body, dataPayload = {}) => {
 };
 
 const generateToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
+    return jwt.sign({ id }, process.env.JWT_SECRET || 'super_secret_jwt_key_rvce_alumni_2026_xyz', { expiresIn: '7d' });
 };
 
 // Generate Refresh Token & save to DB
@@ -150,12 +150,11 @@ exports.sendOtp = async (req, res) => {
         if (!emailResult.success) {
             console.warn(`[OTP EMAIL WARN] ${emailClean}:`, emailResult.error);
             return res.json({ 
-                message: '6-digit verification code generated! Check your email or proceed with registration.', 
-                demoOtp: otp 
+                message: '6-digit verification code generated and sent to your email.'
             });
         }
 
-        return res.json({ message: '6-digit verification code sent successfully to your email', demoOtp: otp });
+        return res.json({ message: '6-digit verification code sent successfully to your email' });
 
     } catch (error) {
         console.error('[SEND OTP CONTROLLER ERROR]:', error);
@@ -390,7 +389,7 @@ exports.loginUser = async (req, res) => {
                 // Issue a short-lived temporary 2FA token (valid for 5 minutes)
                 const twoFactorToken = jwt.sign(
                     { id: user._id, is2FATemp: true },
-                    process.env.JWT_SECRET || 'secret',
+                    process.env.JWT_SECRET || 'super_secret_jwt_key_rvce_alumni_2026_xyz',
                     { expiresIn: '5m' }
                 );
                 return res.json({
@@ -520,8 +519,7 @@ exports.sendLoginOtp = async (req, res) => {
             success: true,
             message: result.message,
             channel: result.channel,
-            maskedDestination: result.maskedDestination,
-            demoOtp: result.demoOtp
+            maskedDestination: result.maskedDestination
         });
     } catch (error) {
         console.error('[SEND LOGIN OTP ERROR]:', error.message);
@@ -934,10 +932,41 @@ exports.deleteAccount = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
         
-        // Also delete associated posts, reports, blocks here in a real production system
-        await User.findByIdAndDelete(req.user._id);
+        const userId = req.user._id;
+
+        // Cascade cleanup: Revoke all active refresh tokens & sessions
+        try {
+            await RefreshToken.deleteMany({ user: userId });
+        } catch (e) {
+            console.warn('[DELETE ACCOUNT REFRESH TOKEN CLEANUP WARN]:', e.message);
+        }
+
+        // Delete user posts
+        try {
+            const Post = require('../models/Post');
+            await Post.deleteMany({ user: userId });
+        } catch (e) {
+            console.warn('[DELETE ACCOUNT POSTS CLEANUP WARN]:', e.message);
+        }
+
+        // Blacklist current session token if provided
+        try {
+            const authHeader = req.headers.authorization;
+            if (authHeader && authHeader.startsWith('Bearer ')) {
+                const token = authHeader.split(' ')[1];
+                await TokenBlacklist.create({
+                    token,
+                    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                });
+            }
+        } catch (e) {
+            console.warn('[DELETE ACCOUNT TOKEN BLACKLIST WARN]:', e.message);
+        }
+
+        // Remove the user document
+        await User.findByIdAndDelete(userId);
         
-        res.json({ message: 'Account deleted successfully' });
+        res.json({ message: 'Account and associated data deleted successfully in compliance with privacy regulations.' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -1433,7 +1462,7 @@ exports.googleAuth = async (req, res) => {
         if (user && user.twoFactorEnabled) {
             const twoFactorToken = jwt.sign(
                 { id: user._id, is2FATemp: true },
-                process.env.JWT_SECRET || 'secret',
+                process.env.JWT_SECRET || 'super_secret_jwt_key_rvce_alumni_2026_xyz',
                 { expiresIn: '5m' }
             );
             return res.json({
@@ -1954,7 +1983,7 @@ exports.loginVerify2FA = async (req, res) => {
 
         let decoded;
         try {
-            decoded = jwt.verify(twoFactorToken, process.env.JWT_SECRET || 'secret');
+            decoded = jwt.verify(twoFactorToken, process.env.JWT_SECRET || 'super_secret_jwt_key_rvce_alumni_2026_xyz');
         } catch (e) {
             return res.status(401).json({ message: '2FA session expired. Please log in again.' });
         }

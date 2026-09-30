@@ -6,8 +6,7 @@ const connectDB = require('../config/db');
 const verifyToken = (token) => {
     const secrets = [
         process.env.JWT_SECRET,
-        'super_secret_jwt_key_rvce_alumni_2026_xyz',
-        'secret'
+        'super_secret_jwt_key_rvce_alumni_2026_xyz'
     ].filter(Boolean);
     
     let decoded = null;
