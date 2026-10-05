@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Image, SafeAreaView, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SplashScreen = ({ navigation }) => {
-  const { theme, isDarkMode } = useTheme();
+  const { theme } = useTheme();
   const styles = getStyles(theme);
 
   useEffect(() => {

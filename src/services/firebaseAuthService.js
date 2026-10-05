@@ -78,7 +78,7 @@ export const firebaseSendPasswordReset = async (email) => {
 export const getFirebaseToken = async () => {
     try {
         return await AsyncStorage.getItem('firebase_id_token');
-    } catch (err) {
+    } catch (_err) {
         return null;
     }
 };

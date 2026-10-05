@@ -1,7 +1,5 @@
 import api from './api';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 export const getDashboardStats = async (institution) => {
     const url = institution && institution !== 'All' 
         ? `/admin/stats?institution=${encodeURIComponent(institution)}` 

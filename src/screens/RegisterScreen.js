@@ -71,8 +71,8 @@ const RegisterScreen = ({ navigation, route }) => {
     const loadStoredInstitution = async () => {
       try {
         const stored = await AsyncStorage.getItem('selectedInstitution');
-        if (stored && !formData.institution) {
-          setFormData(prev => ({ ...prev, institution: stored }));
+        if (stored) {
+          setFormData(prev => (prev.institution ? prev : { ...prev, institution: stored }));
         }
       } catch (e) {
         console.log('Error reading stored institution:', e);

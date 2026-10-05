@@ -4,7 +4,7 @@ import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 
 const RoleSelectionScreen = ({ navigation }) => {
-  const { theme, isDarkMode } = useTheme();
+  const { theme } = useTheme();
   const styles = getStyles(theme);
 
   const [selected, setSelected] = useState(null);

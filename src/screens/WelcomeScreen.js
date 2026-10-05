@@ -11,7 +11,7 @@ import { handleAppleLogin } from '../services/appleAuthService';
 WebBrowser.maybeCompleteAuthSession();
 
 const WelcomeScreen = ({ navigation }) => {
-  const { theme, isDarkMode, toggleTheme } = useTheme();
+  const { theme, isDarkMode } = useTheme();
   const styles = getStyles(theme, isDarkMode);
 
   const [portal, setPortal] = useState(null);
@@ -93,8 +93,6 @@ const WelcomeScreen = ({ navigation }) => {
     }
   };
 
-
-  const isWeb = Platform.OS === 'web';
 
   return (
     <SafeAreaView style={styles.container}>

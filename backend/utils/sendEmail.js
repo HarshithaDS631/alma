@@ -30,7 +30,7 @@ const sendWelcomeEmail = async (userEmail, userName, institution = 'Alumni Netwo
                 </p>
                 ${isApproved ? `
                 <div style="text-align: center; margin: 28px 0;">
-                    <a href="https://almafrontend-eight.vercel.app" style="background-color: #003366; color: #FFFFFF; padding: 12px 28px; border-radius: 8px; font-weight: 700; text-decoration: none; display: inline-block; font-size: 15px;">
+                    <a href="${process.env.FRONTEND_URL || 'https://alma-orpin-delta.vercel.app'}" style="background-color: #003366; color: #FFFFFF; padding: 12px 28px; border-radius: 8px; font-weight: 700; text-decoration: none; display: inline-block; font-size: 15px;">
                         Access Alumni Portal
                     </a>
                 </div>

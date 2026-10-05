@@ -8,6 +8,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { uploadFile } from '../services/uploadService';
 import getInitials from '../lib/getInitials';
 import InstagramProfileShareModal from '../components/InstagramProfileShareModal';
+import { validatePassword, PASSWORD_CRITERIA_LIST } from '../lib/passwordValidator';
 
 // Seed Data for Profile Campus Info Tab
 const INSTITUTIONS = [
@@ -65,8 +66,6 @@ const INITIAL_NETWORK_SETTINGS = {
   'RVS': { institutionName: 'RV School', shortTitle: 'RVS', website: 'https://rvschool.edu.in', established: '1940', location: 'Bengaluru, Karnataka', primaryColor: '#78350F', secondaryColor: '#D97706', alumniText: 'Alumni', studentsText: 'Students', facultyText: 'Teachers', batchmatesText: 'Schoolmates', manualApproval: true, emailVouching: false, allowUnverified: false, displayJobs: false, displayEvents: true, displayGroups: true, displayMemories: true, displayDonations: false, displayMentorship: false, displayAlumniCard: true, welcomeEmailEnabled: true, whatsappEnabled: false },
   'RVLH': { institutionName: 'RV Learning Hub', shortTitle: 'RVLH', website: 'https://rvlearninghub.com', established: '2020', location: 'Bengaluru, Karnataka', primaryColor: '#111827', secondaryColor: '#374151', alumniText: 'Alumni', studentsText: 'Students', facultyText: 'Teachers', batchmatesText: 'Batchmates', manualApproval: true, emailVouching: false, allowUnverified: false, displayJobs: false, displayEvents: true, displayGroups: true, displayMemories: true, displayDonations: false, displayMentorship: false, displayAlumniCard: false, welcomeEmailEnabled: true, whatsappEnabled: false },
 };
-
-import { validatePassword, PASSWORD_CRITERIA_LIST } from '../lib/passwordValidator';
 
 const AdminProfileScreen = ({ navigation }) => {
   const { theme, isDarkMode } = useTheme();

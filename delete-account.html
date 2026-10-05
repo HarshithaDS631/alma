@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Deletion Request - Alumni Network | RV Educational Institutions</title>
+  <meta name="description" content="Request permanent account and personal data deletion for the Alumni Network application operated by RV Educational Institutions.">
+  <style>
+    :root {
+      --primary: #002B5C;
+      --accent: #0284C7;
+      --danger: #DC2626;
+      --text: #0F172A;
+      --text-muted: #475569;
+      --bg: #F8FAFC;
+      --card: #FFFFFF;
+      --border: #E2E8F0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      padding: 0 16px 60px;
+    }
+    .header-banner {
+      background: var(--primary);
+      color: #FFFFFF;
+      padding: 36px 20px;
+      text-align: center;
+      margin: 0 -16px 32px;
+      border-bottom: 4px solid var(--accent);
+    }
+    .header-banner h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; }
+    .header-banner p { font-size: 15px; opacity: 0.9; }
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      background: var(--card);
+      padding: 36px 32px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .alert-danger {
+      background: #FEF2F2;
+      border-left: 4px solid var(--danger);
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      font-size: 14px;
+      color: #991B1B;
+    }
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 24px 0 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    p, ul { margin-bottom: 14px; color: var(--text-muted); font-size: 15px; }
+    ul { padding-left: 24px; }
+    li { margin-bottom: 6px; }
+    .form-group {
+      margin-bottom: 18px;
+    }
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    input[type="text"], input[type="email"], select, textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+    }
+    .submit-btn {
+      background: var(--danger);
+      color: #FFFFFF;
+      border: none;
+      padding: 14px 24px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+      transition: opacity 0.2s;
+    }
+    .submit-btn:hover { opacity: 0.9; }
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    a { color: var(--accent); text-decoration: none; font-weight: 600; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="header-banner">
+    <h1>Account & Data Deletion Request</h1>
+    <p>Alumni Network &bull; RV Educational Institutions</p>
+  </div>
+
+  <div class="container">
+    <div class="alert-danger">
+      <strong>Important Notice:</strong> Deleting your account will permanently and irreversibly erase your profile, credentials, messages, posts, resumes, and active connections. Academic degrees and university records held in official institutional registries will not be affected.
+    </div>
+
+    <h2>1. In-App Instant Deletion Option</h2>
+    <p>If you currently have the mobile application installed, you can delete your account instantly:</p>
+    <ul>
+      <li>Open the <strong>Alumni Network</strong> app.</li>
+      <li>Go to <strong>Profile &gt; Settings (⚙️) &gt; Login &amp; Security</strong>.</li>
+      <li>Scroll to the bottom and tap <strong>Delete Account</strong>.</li>
+      <li>Confirm your choice and authenticate with your password.</li>
+    </ul>
+
+    <h2>2. Web Deletion Request Form</h2>
+    <p>If you have uninstalled the application or cannot access your device, submit your details below to request permanent deletion by our data protection team:</p>
+
+    <form id="deletionForm" onsubmit="handleFormSubmit(event)">
+      <div class="form-group">
+        <label for="fullName">Full Legal Name *</label>
+        <input type="text" id="fullName" required placeholder="e.g., Harshitha D S">
+      </div>
+
+      <div class="form-group">
+        <label for="email">Registered Email Address *</label>
+        <input type="email" id="email" required placeholder="name@domain.com">
+      </div>
+
+      <div class="form-group">
+        <label for="institution">Affiliated RV Institution *</label>
+        <select id="institution" required>
+          <option value="">Select your institution...</option>
+          <option value="RV College of Engineering">RV College of Engineering (RVCE)</option>
+          <option value="RV Institute of Technology and Management">RV Institute of Technology &amp; Management (RVITM)</option>
+          <option value="RV College of Architecture">RV College of Architecture (RVCA)</option>
+          <option value="RV University">RV University (RVU)</option>
+          <option value="Other RV Institution">Other RV Institution</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="reason">Reason for Deletion (Optional)</label>
+        <textarea id="reason" rows="3" placeholder="Tell us why you are leaving (optional)"></textarea>
+      </div>
+
+      <button type="submit" class="submit-btn">Submit Permanent Deletion Request</button>
+    </form>
+
+    <div id="confirmationBox" style="display: none; background: #ECFDF5; border-left: 4px solid #059669; padding: 20px; border-radius: 8px; margin-top: 24px; color: #065F46;">
+      <h3 style="font-size: 18px; margin-bottom: 8px;">Deletion Request Received</h3>
+      <p style="font-size: 14px; margin-bottom: 0;">We have received your account deletion request. A confirmation email has been dispatched to verify your identity. Upon verification, your account and all associated personal data will be completely purged within 7 business days.</p>
+    </div>
+
+    <h2>3. Data Deletion Timeline & Retention Standards</h2>
+    <p>In accordance with GDPR, DPDPA 2023, and App Store guidelines:</p>
+    <ul>
+      <li><strong>Immediate Action:</strong> All active sessions, refresh tokens, and authentication cookies are invalidated immediately.</li>
+      <li><strong>Profile &amp; Content:</strong> Your profile, uploaded resumes, direct chats, and posts are permanently removed within 48 hours.</li>
+      <li><strong>Audit Logs:</strong> Pseudonymized server logs are retained in encrypted storage for 180 days strictly for statutory cybersecurity forensic requirements (CERT-In).</li>
+    </ul>
+
+    <h2>4. Contact Us Directly</h2>
+    <p>You can also request manual data erasure by emailing our Data Protection Officer directly:  
+    <a href="mailto:rvmediadevelopers@gmail.com?subject=Account%20Deletion%20Request">rvmediadevelopers@gmail.com</a></p>
+  </div>
+
+  <div class="footer">
+    &copy; 2026 RV Educational Institutions. All rights reserved. &bull; <a href="/privacy-policy.html">Privacy Policy</a> &bull; <a href="/terms-of-service.html">Terms of Service</a> &bull; <a href="/community-guidelines.html">Community Guidelines</a>
+  </div>
+
+  <script>
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      document.getElementById('deletionForm').style.display = 'none';
+      document.getElementById('confirmationBox').style.display = 'block';
+    }
+  </script>
+</body>
+</html>

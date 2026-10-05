@@ -13,7 +13,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as AuthSession from 'expo-auth-session';
-import * as Google from 'expo-auth-session/providers/google';
 import api from './api';
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
@@ -22,7 +21,7 @@ import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 WebBrowser.maybeCompleteAuthSession();
 
 // ─── Client IDs ────────────────────────────────────────────────────
-const GOOGLE_WEB_CLIENT_ID =
+export const GOOGLE_WEB_CLIENT_ID =
   process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ||
   '768299462386-msp42kcf0lsbk83ao6fnu5ns8h0mnajk.apps.googleusercontent.com';
 

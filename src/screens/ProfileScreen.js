@@ -1093,6 +1093,48 @@ const DEFAULT_TAGGED_POSTS = [];
     }
   };
 
+  const handleDeleteAccount = () => {
+    const performDelete = async () => {
+      try {
+        await deleteAccount();
+        await AsyncStorage.clear();
+        if (Platform.OS === 'web' && typeof window !== 'undefined' && window.localStorage) {
+          window.localStorage.clear();
+        }
+        setSettingsVisible(false);
+        if (Platform.OS === 'web') {
+          alert('Your account and all associated data have been permanently deleted.');
+        } else {
+          Alert.alert('Account Deleted', 'Your account and all associated data have been permanently deleted.');
+        }
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Login' }],
+        });
+      } catch (err) {
+        Alert.alert('Error', err.response?.data?.message || err.message || 'Failed to delete account. Please try again.');
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      const confirmed = window.confirm(
+        'Are you sure you want to permanently delete your account?\n\nThis action cannot be undone. All your posts, messages, and profile information will be erased permanently.'
+      );
+      if (confirmed) {
+        performDelete();
+      }
+    } else {
+      Alert.alert(
+        'Delete Account Permanently',
+        'Are you sure you want to permanently delete your account? All your posts, profile details, and session data will be permanently removed. This cannot be undone.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Delete Account', style: 'destructive', onPress: performDelete }
+        ]
+      );
+    }
+  };
+
   const webContainerStyle = isWeb ? { alignSelf: 'center', width: '100%', maxWidth: 860, flex: 1, backgroundColor: theme.card, borderRadius: 16, marginVertical: 14, borderWidth: 1, borderColor: theme.border, overflow: 'hidden' } : { flex: 1 };
 
   return (
@@ -2250,23 +2292,43 @@ const DEFAULT_TAGGED_POSTS = [];
                   </TouchableOpacity>
                 </View>
 
-                <Text style={[styles.settingsSectionTitle, { marginTop: 30, color: '#475569' }]}>Account Management</Text>
+                <Text style={[styles.settingsSectionTitle, { marginTop: 30, color: '#DC2626' }]}>Account Deletion</Text>
                 <View 
                   style={{
-                    backgroundColor: 'rgba(0, 33, 68, 0.04)',
+                    backgroundColor: 'rgba(220, 38, 38, 0.04)',
                     borderWidth: 1,
-                    borderColor: 'rgba(0, 33, 68, 0.1)',
+                    borderColor: 'rgba(220, 38, 38, 0.18)',
                     padding: 16,
                     borderRadius: 12,
                     marginTop: 8,
-                    flexDirection: 'row',
-                    alignItems: 'center'
                   }}
                 >
-                  <Ionicons name="information-circle-outline" size={22} color="#003366" style={{ marginRight: 12 }} />
-                  <Text style={{ color: '#334155', fontSize: 13, lineHeight: 18, flex: 1 }}>
-                    Alumni account deletions are governed by your Institution Administration. If you wish to request account deletion, please contact your Admin team.
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+                    <Ionicons name="warning-outline" size={20} color="#DC2626" style={{ marginRight: 10 }} />
+                    <Text style={{ color: '#DC2626', fontSize: 14, fontWeight: '700', flex: 1 }}>
+                      Permanent Account Deletion
+                    </Text>
+                  </View>
+                  <Text style={{ color: '#64748B', fontSize: 12, lineHeight: 18, marginBottom: 14 }}>
+                    Permanently delete your RV Alumni account and all associated profile details, posts, messages, and tokens. In compliance with data privacy standards, this process is irreversible.
                   </Text>
+                  <TouchableOpacity
+                    style={{
+                      backgroundColor: '#DC2626',
+                      paddingVertical: 11,
+                      paddingHorizontal: 16,
+                      borderRadius: 8,
+                      alignItems: 'center',
+                      flexDirection: 'row',
+                      justifyContent: 'center',
+                      gap: 8
+                    }}
+                    onPress={handleDeleteAccount}
+                    activeOpacity={0.8}
+                  >
+                    <Ionicons name="trash-outline" size={16} color="#FFFFFF" />
+                    <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 13 }}>Delete Account</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
             )}

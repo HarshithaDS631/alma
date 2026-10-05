@@ -25,7 +25,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { getPosts, getEvents } from '../services/authService';
 import { getEmailStats } from '../services/adminService';
 import { getImageUrl } from '../services/uploadService';
-import getInitials from '../lib/getInitials';
 
 // ==========================================
 // DUMMY DATABASE / SEED DATA

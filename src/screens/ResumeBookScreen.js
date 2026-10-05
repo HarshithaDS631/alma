@@ -11,12 +11,10 @@ import {
   ScrollView,
   StatusBar,
   Modal,
-  Image,
   Alert,
   Platform,
   useWindowDimensions,
-  Animated,
-  Linking
+  Animated
 } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -298,9 +296,24 @@ export default function ResumeBookScreen({ navigation, route }) {
       useNativeDriver: true
     }).start();
     AsyncStorage.getItem('userInfo').then(str => {
-      if (str) setCurrentUser(JSON.parse(str));
+      if (str) {
+        const u = JSON.parse(str);
+        setCurrentUser(u);
+        if (u.skills && Array.isArray(u.skills) && u.skills.length > 0) {
+          setListingSkills(u.skills.join(', '));
+        }
+        if (u.domain) {
+          setListingDomain(u.domain);
+        }
+        if (u.experienceYears) {
+          setListingExperience(u.experienceYears);
+        }
+        if (u.bio) {
+          setListingBio(u.bio);
+        }
+      }
     }).catch(() => {});
-  }, []);
+  }, [fadeAnim]);
 
   // Listen to route params when navigating with specific initialMode
   useEffect(() => {
