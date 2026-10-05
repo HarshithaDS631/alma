@@ -6,8 +6,9 @@ const {
 } = require('../controllers/passwordController');
 const { protect } = require('../middleware/authMiddleware');
 const { passwordResetLimiter } = require('../middleware/rateLimiter');
+const { changePasswordValidation, resetPasswordWithOTPValidation } = require('../middleware/requestValidator');
 
-router.post('/change', protect, changePassword);
-router.post('/reset', passwordResetLimiter, resetPasswordWithOTP);
+router.post('/change', protect, changePasswordValidation, changePassword);
+router.post('/reset', passwordResetLimiter, resetPasswordWithOTPValidation, resetPasswordWithOTP);
 
 module.exports = router;

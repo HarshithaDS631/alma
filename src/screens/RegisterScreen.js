@@ -26,28 +26,10 @@ import { handleFacebookLogin } from '../services/facebookAuthService';
 import { handleAppleLogin } from '../services/appleAuthService';
 
 import { institutionsList as institutions, institutionDepartments, defaultDepartments } from '../constants/institutionDepartments';
+import { validatePassword, PASSWORD_CRITERIA_LIST } from '../lib/passwordValidator';
 
 const currentYear = new Date().getFullYear();
 const batchYears = Array.from({ length: currentYear - 1963 + 1 }, (_, i) => (currentYear - i).toString());
-
-const validatePasswordStrength = (password) => {
-  if (password.length < 8) {
-    return { valid: false, reason: 'Password must be at least 8 characters long.' };
-  }
-  if (!/[A-Z]/.test(password)) {
-    return { valid: false, reason: 'Password must contain at least one uppercase letter.' };
-  }
-  if (!/[a-z]/.test(password)) {
-    return { valid: false, reason: 'Password must contain at least one lowercase letter.' };
-  }
-  if (!/[0-9]/.test(password)) {
-    return { valid: false, reason: 'Password must contain at least one number.' };
-  }
-  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-    return { valid: false, reason: 'Password must contain at least one special character.' };
-  }
-  return { valid: true };
-};
 
 const RegisterScreen = ({ navigation, route }) => {
   const { theme, isDarkMode } = useTheme();
@@ -177,9 +159,9 @@ const RegisterScreen = ({ navigation, route }) => {
       return;
     }
 
-    const pwdCheck = validatePasswordStrength(password);
+    const pwdCheck = validatePassword(password);
     if (!pwdCheck.valid) {
-      alert(pwdCheck.reason);
+      alert(pwdCheck.reason || pwdCheck.message);
       return;
     }
     if (!agreeEULA) {
@@ -623,6 +605,39 @@ const RegisterScreen = ({ navigation, route }) => {
                       />
                     </TouchableOpacity>
                   </View>
+
+                  {/* Real-time Password Strength Feedback */}
+                  {formData.password ? (() => {
+                    const status = validatePassword(formData.password);
+                    return (
+                      <View style={{ marginTop: 8, padding: 10, borderRadius: 10, backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                          <Text style={{ fontSize: 12, fontWeight: '700', color: status.color }}>
+                            Strength: {status.level}
+                          </Text>
+                          <Text style={{ fontSize: 11, color: theme.textMuted }}>
+                            {status.score}/100
+                          </Text>
+                        </View>
+                        <View style={{ height: 4, backgroundColor: theme.border, borderRadius: 2, overflow: 'hidden', marginBottom: 8 }}>
+                          <View style={{ width: `${Math.max(5, status.score)}%`, height: '100%', backgroundColor: status.color, borderRadius: 2 }} />
+                        </View>
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                          {PASSWORD_CRITERIA_LIST.map(crit => {
+                            const isMet = status.checks && status.checks[crit.id];
+                            return (
+                              <View key={crit.id} style={{ flexDirection: 'row', alignItems: 'center', marginRight: 10, marginBottom: 4 }}>
+                                <Ionicons name={isMet ? "checkmark-circle" : "ellipse-outline"} size={13} color={isMet ? "#10B981" : theme.textMuted} />
+                                <Text style={{ fontSize: 11, color: isMet ? '#10B981' : theme.textMuted, marginLeft: 4 }}>
+                                  {crit.label}
+                                </Text>
+                              </View>
+                            );
+                          })}
+                        </View>
+                      </View>
+                    );
+                  })() : null}
                 </View>
 
                 <TouchableOpacity 

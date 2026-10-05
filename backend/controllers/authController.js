@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const axios = require('axios');
 const { sendWelcomeEmail, sendOtpEmail, sendPasswordResetEmail } = require('../utils/sendEmail');
 const { validateEmailFull } = require('../utils/emailValidator');
+const { validatePassword } = require('../utils/passwordValidator');
 const { dispatchOtp, verifyDispatchedOtp } = require('../utils/otpDispatcher');
 const crypto = require('crypto');
 const OTP = require('../models/OTP');
@@ -212,8 +213,11 @@ exports.registerUser = async (req, res) => {
     
     const isSocialAuth = ['google', 'linkedin', 'facebook', 'apple'].includes(authProvider);
 
-    if (!password || password.length < 8) {
-        return res.status(400).json({ message: 'Password must be at least 8 characters long.' });
+    if (!isSocialAuth) {
+        const passwordValidation = validatePassword(password);
+        if (!passwordValidation.valid) {
+            return res.status(400).json({ message: passwordValidation.message });
+        }
     }
 
     if (joiningYear && batchYear && parseInt(joiningYear, 10) >= parseInt(batchYear, 10)) {
@@ -825,6 +829,19 @@ exports.updateUserProfile = async (req, res) => {
 exports.changePassword = async (req, res) => {
     try {
         const { currentPassword, newPassword } = req.body;
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ message: 'Current password and new password are required' });
+        }
+
+        if (currentPassword === newPassword) {
+            return res.status(400).json({ message: 'New password cannot be the same as your current password' });
+        }
+
+        const passwordValidation = validatePassword(newPassword);
+        if (!passwordValidation.valid) {
+            return res.status(400).json({ message: passwordValidation.message });
+        }
+
         const user = await User.findById(req.user._id);
 
         if (!user) {
@@ -938,6 +955,15 @@ exports.resetPassword = async (req, res) => {
         if (!token) {
             return res.status(400).json({ message: 'Token is required' });
         }
+        if (!newPassword) {
+            return res.status(400).json({ message: 'New password is required' });
+        }
+
+        const passwordValidation = validatePassword(newPassword);
+        if (!passwordValidation.valid) {
+            return res.status(400).json({ message: passwordValidation.message });
+        }
+
         const hashedToken = crypto.createHash('sha256').update(token.trim()).digest('hex');
 
         const user = await User.findOne({

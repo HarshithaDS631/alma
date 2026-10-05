@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const PasswordHistory = require('../models/PasswordHistory');
+const { validatePassword } = require('./passwordValidator');
 
 /**
  * Validates new password against last N passwords and generates new hash
@@ -9,8 +10,9 @@ const PasswordHistory = require('../models/PasswordHistory');
  * @returns {Promise<String>} - New password hash
  */
 async function validateAndSavePassword(userId, newPlainPassword, historyLimit = 5) {
-    if (!newPlainPassword || newPlainPassword.length < 6) {
-        throw new Error('Password must be at least 6 characters long.');
+    const validation = validatePassword(newPlainPassword);
+    if (!validation.valid) {
+        throw new Error(validation.message);
     }
 
     // 1. Fetch recent password histories

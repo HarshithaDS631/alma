@@ -4,6 +4,7 @@ import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { resetPassword } from '../services/authService';
+import { validatePassword, PASSWORD_CRITERIA_LIST } from '../lib/passwordValidator';
 
 const ResetPasswordScreen = ({ navigation, route }) => {
   const { theme, isDarkMode } = useTheme();
@@ -41,11 +42,12 @@ const ResetPasswordScreen = ({ navigation, route }) => {
       return;
     }
     if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match.');
+      Alert.alert('Error', 'New password and confirm password do not match.');
       return;
     }
-    if (password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters long.');
+    const pwdCheck = validatePassword(password);
+    if (!pwdCheck.valid) {
+      Alert.alert('Error', pwdCheck.reason || pwdCheck.message);
       return;
     }
 
@@ -131,6 +133,39 @@ const ResetPasswordScreen = ({ navigation, route }) => {
                     <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color={theme.textMuted} />
                   </TouchableOpacity>
                 </View>
+
+                {/* Real-time Password Strength Feedback */}
+                {password ? (() => {
+                  const status = validatePassword(password);
+                  return (
+                    <View style={{ marginTop: 8, padding: 10, borderRadius: 10, backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                        <Text style={{ fontSize: 12, fontWeight: '700', color: status.color }}>
+                          Strength: {status.level}
+                        </Text>
+                        <Text style={{ fontSize: 11, color: theme.textMuted }}>
+                          {status.score}/100
+                        </Text>
+                      </View>
+                      <View style={{ height: 4, backgroundColor: theme.border, borderRadius: 2, overflow: 'hidden', marginBottom: 8 }}>
+                        <View style={{ width: `${Math.max(5, status.score)}%`, height: '100%', backgroundColor: status.color, borderRadius: 2 }} />
+                      </View>
+                      <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                        {PASSWORD_CRITERIA_LIST.map(crit => {
+                          const isMet = status.checks && status.checks[crit.id];
+                          return (
+                            <View key={crit.id} style={{ flexDirection: 'row', alignItems: 'center', marginRight: 10, marginBottom: 4 }}>
+                              <Ionicons name={isMet ? "checkmark-circle" : "ellipse-outline"} size={13} color={isMet ? "#10B981" : theme.textMuted} />
+                              <Text style={{ fontSize: 11, color: isMet ? '#10B981' : theme.textMuted, marginLeft: 4 }}>
+                                {crit.label}
+                              </Text>
+                            </View>
+                          );
+                        })}
+                      </View>
+                    </View>
+                  );
+                })() : null}
               </View>
 
               <View style={{ marginBottom: 24 }}>

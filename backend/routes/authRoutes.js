@@ -42,7 +42,7 @@ const {
 } = require('../controllers/authController');
 const { protect, optionalProtect } = require('../middleware/authMiddleware');
 const { authLimiter, otpLimiter, passwordResetLimiter } = require('../middleware/rateLimiter');
-const { loginValidation, registerValidation, otpValidation, forgotPasswordValidation, profileUpdateValidation, changePasswordValidation } = require('../middleware/requestValidator');
+const { loginValidation, registerValidation, otpValidation, forgotPasswordValidation, profileUpdateValidation, changePasswordValidation, resetPasswordValidation } = require('../middleware/requestValidator');
 const router = express.Router();
 
 router.post('/check-email', checkEmailExists);
@@ -61,7 +61,7 @@ router.post('/refresh-token', refreshAccessToken);
 router.post('/oauth', oauthLogin);
 router.get('/linkedin/callback', linkedinAuthCallback);
 router.post('/forgot-password', passwordResetLimiter, forgotPasswordValidation, forgotPassword);
-router.post('/reset-password', passwordResetLimiter, resetPassword);
+router.post('/reset-password', passwordResetLimiter, resetPasswordValidation, resetPassword);
 
 // 2FA Endpoints
 router.post('/2fa/setup', protect, setup2FA);

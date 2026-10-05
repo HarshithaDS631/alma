@@ -13,24 +13,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import { institutionDepartments, defaultDepartments } from '../constants/institutionDepartments';
 import getInitials from '../lib/getInitials';
 import InstagramProfileShareModal from '../components/InstagramProfileShareModal';
-
-const validatePasswordStrength = (password) => {
-  if (password.length < 8) {
-    return { valid: false, reason: 'Password must be at least 8 characters long.' };
-  }
-  if (!/[A-Z]/.test(password)) {
-    return { valid: false, reason: 'Password must contain at least one uppercase letter.' };
-  }
-  if (!/[a-z]/.test(password)) {
-    return { valid: false, reason: 'Password must contain at least one lowercase letter.' };
-  }
-  if (!/[0-9]/.test(password)) {
-    return { valid: false, reason: 'Password must contain at least one number.' };
-  }
-  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-    return { valid: false, reason: 'Password must contain at least one special character.' };
-  }
-};
+import { validatePassword, PASSWORD_CRITERIA_LIST } from '../lib/passwordValidator';
 
 const BRANCHES_LIST = [
   'Computer Science & Engineering',
@@ -2174,6 +2157,40 @@ const DEFAULT_TAGGED_POSTS = [];
                   value={newPassword}
                   onChangeText={setNewPassword}
                 />
+
+                {/* Real-time Password Strength Feedback */}
+                {newPassword ? (() => {
+                  const status = validatePassword(newPassword);
+                  return (
+                    <View style={{ marginBottom: 12, padding: 10, borderRadius: 10, backgroundColor: '#F8FAFC', borderWidth: 1, borderColor: '#E2E8F0' }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                        <Text style={{ fontSize: 12, fontWeight: '700', color: status.color }}>
+                          Strength: {status.level}
+                        </Text>
+                        <Text style={{ fontSize: 11, color: '#64748B' }}>
+                          {status.score}/100
+                        </Text>
+                      </View>
+                      <View style={{ height: 4, backgroundColor: '#E2E8F0', borderRadius: 2, overflow: 'hidden', marginBottom: 8 }}>
+                        <View style={{ width: `${Math.max(5, status.score)}%`, height: '100%', backgroundColor: status.color, borderRadius: 2 }} />
+                      </View>
+                      <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                        {PASSWORD_CRITERIA_LIST.map(crit => {
+                          const isMet = status.checks && status.checks[crit.id];
+                          return (
+                            <View key={crit.id} style={{ flexDirection: 'row', alignItems: 'center', marginRight: 10, marginBottom: 4 }}>
+                              <Ionicons name={isMet ? "checkmark-circle" : "ellipse-outline"} size={13} color={isMet ? "#10B981" : "#94A3B8"} />
+                              <Text style={{ fontSize: 11, color: isMet ? '#10B981' : '#94A3B8', marginLeft: 4 }}>
+                                {crit.label}
+                              </Text>
+                            </View>
+                          );
+                        })}
+                      </View>
+                    </View>
+                  );
+                })() : null}
+
                 <TextInput 
                   style={styles.securityInput} 
                   placeholder="Confirm New Password" 
@@ -2194,9 +2211,13 @@ const DEFAULT_TAGGED_POSTS = [];
                       Alert.alert('Error', 'New password and confirm password do not match.');
                       return;
                     }
-                    const pwdCheck = validatePasswordStrength(newPassword);
+                    if (currentPassword === newPassword) {
+                      Alert.alert('Error', 'New password cannot be the same as your current password.');
+                      return;
+                    }
+                    const pwdCheck = validatePassword(newPassword);
                     if (!pwdCheck.valid) {
-                      Alert.alert('Error', pwdCheck.reason);
+                      Alert.alert('Error', pwdCheck.reason || pwdCheck.message);
                       return;
                     }
                     try {

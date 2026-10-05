@@ -1,11 +1,13 @@
 const { body, validationResult } = require('express-validator');
 
+const { validatePassword } = require('../utils/passwordValidator');
+
 // Middleware to check validation results and return errors
 const validate = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({
-            message: 'Validation failed',
+            message: errors.array()[0]?.msg || 'Validation failed',
             errors: errors.array().map(err => ({
                 field: err.path,
                 message: err.msg
@@ -28,12 +30,16 @@ const registerValidation = [
         .normalizeEmail(),
     body('password')
         .notEmpty().withMessage('Password is required')
-        .isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
-        .matches(/[a-zA-Z]/).withMessage('Password must contain at least one letter')
-        .matches(/[0-9]/).withMessage('Password must contain at least one number'),
+        .custom((value) => {
+            const result = validatePassword(value);
+            if (!result.valid) {
+                throw new Error(result.message);
+            }
+            return true;
+        }),
     body('otp')
-        .notEmpty().withMessage('OTP is required')
-        .isLength({ min: 4, max: 6 }).withMessage('OTP must be 4-6 digits'),
+        .optional()
+        .trim(),
     body('institution')
         .optional()
         .trim()
@@ -91,9 +97,56 @@ const changePasswordValidation = [
         .notEmpty().withMessage('Current password is required'),
     body('newPassword')
         .notEmpty().withMessage('New password is required')
-        .isLength({ min: 8 }).withMessage('New password must be at least 8 characters')
-        .matches(/[a-zA-Z]/).withMessage('Password must contain at least one letter')
-        .matches(/[0-9]/).withMessage('Password must contain at least one number'),
+        .custom((value, { req }) => {
+            if (value === req.body.currentPassword) {
+                throw new Error('New password cannot be the same as your current password.');
+            }
+            const result = validatePassword(value);
+            if (!result.valid) {
+                throw new Error(result.message);
+            }
+            return true;
+        }),
+    validate
+];
+
+// Validation rules for token-based password reset
+const resetPasswordValidation = [
+    body('token')
+        .trim()
+        .notEmpty().withMessage('Reset token is required'),
+    body('newPassword')
+        .notEmpty().withMessage('New password is required')
+        .custom((value) => {
+            const result = validatePassword(value);
+            if (!result.valid) {
+                throw new Error(result.message);
+            }
+            return true;
+        }),
+    validate
+];
+
+// Validation rules for OTP-based password reset
+const resetPasswordWithOTPValidation = [
+    body('email')
+        .trim()
+        .notEmpty().withMessage('Email is required')
+        .isEmail().withMessage('Please provide a valid email address')
+        .normalizeEmail(),
+    body('otp')
+        .trim()
+        .notEmpty().withMessage('Verification OTP is required')
+        .isLength({ min: 4, max: 6 }).withMessage('OTP must be 4 to 6 digits'),
+    body('newPassword')
+        .notEmpty().withMessage('New password is required')
+        .custom((value) => {
+            const result = validatePassword(value);
+            if (!result.valid) {
+                throw new Error(result.message);
+            }
+            return true;
+        }),
     validate
 ];
 
@@ -160,6 +213,8 @@ module.exports = {
     profileUpdateValidation,
     changePasswordValidation,
     forgotPasswordValidation,
+    resetPasswordValidation,
+    resetPasswordWithOTPValidation,
     createPostValidation,
     createJobValidation,
     createEventValidation,
