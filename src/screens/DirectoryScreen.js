@@ -34,6 +34,7 @@ import {
 import useUserRole from '../hooks/useUserRole';
 import getInitials from '../lib/getInitials';
 import InstagramProfileShareModal from '../components/InstagramProfileShareModal';
+import Mascot from '../components/Mascot';
 
 // ─── Exact RVCE AlmaConnect Filter Definitions & Counts ───────────────
 const ALMACONNECT_STATS = {
@@ -46,7 +47,7 @@ const ALMACONNECT_STATS = {
 };
 
 const MEMBER_TYPES = [
-  { id: 'all', label: 'All Member Type', count: '9,931' },
+  { id: 'all', label: 'All', count: '9,931' },
   { id: 'alumni', label: 'Alumni', count: '9,655' },
   { id: 'student', label: 'Students', count: '165' },
   { id: 'faculty', label: 'Faculty', count: '110' },
@@ -610,7 +611,7 @@ const DirectoryScreen = ({ navigation, route }) => {
   const [selectedGraduationYear, setSelectedGraduationYear] = useState('all'); // '2022', '2020', etc.
   const [selectedLocation, setSelectedLocation] = useState('all'); // 'Bangalore', etc.
   const [selectedSpecializedList, setSelectedSpecializedList] = useState(null);
-  const [viewMode, setViewMode] = useState('batch_wise'); // 'batch_wise' or 'all_cards'
+  const [viewMode, setViewMode] = useState('all_cards'); // 'all_cards' or 'batch_wise'
   const [showFiltersModal, setShowFiltersModal] = useState(false);
   const [collapsedBatches, setCollapsedBatches] = useState({});
 
@@ -1080,7 +1081,7 @@ const DirectoryScreen = ({ navigation, route }) => {
     }
   };
 
-  // ─── Single Exact AlmaConnect Member Card ─────────────────────────────
+  // ─── Single Clean & User-Friendly Member Card ─────────────────────────
   const renderAlmaConnectCard = (item) => {
     const isFollowing = !!(
       followingMap[String(item._id || item.id)] ||
@@ -1094,24 +1095,10 @@ const DirectoryScreen = ({ navigation, route }) => {
         key={item.id}
         style={[
           styles.almaCard,
-          isDesktop && { width: 'calc(33.333% - 14px)', minWidth: 310, maxWidth: 420 }
+          isDesktop && { width: 'calc(33.333% - 14px)', minWidth: 300, maxWidth: 420 }
         ]}
       >
-        {/* Top Header Row: Batch & Degree Tag + Member Status */}
-        <View style={styles.almaCardHeader}>
-          <View style={styles.almaBatchPill}>
-            <Ionicons name="school" size={12} color="#002B5C" />
-            <Text style={styles.almaBatchPillText}>
-              {item.batchFormatted || `Class of ${item.batchYear}`}
-            </Text>
-          </View>
-          <View style={styles.almaVerifiedRow}>
-            <Ionicons name="checkmark-circle" size={14} color="#0284C7" />
-            <Text style={styles.almaVerifiedText}>RVCE Verified</Text>
-          </View>
-        </View>
-
-        {/* Member Profile Main Section */}
+        {/* Profile Main: Avatar + Name + Batch */}
         <View style={styles.almaProfileSection}>
           <View style={styles.almaAvatarWrapper}>
             {item.avatar_url ? (
@@ -1123,15 +1110,26 @@ const DirectoryScreen = ({ navigation, route }) => {
             )}
           </View>
 
-          <View style={{ flex: 1 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-              <Text style={styles.almaMemberName} numberOfLines={1}>
-                {item.name}
-              </Text>
+          <View style={{ flex: 1, justifyContent: 'center' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, flex: 1 }}>
+                <Text style={styles.almaMemberName} numberOfLines={1}>
+                  {item.name}
+                </Text>
+                <Ionicons name="checkmark-circle" size={13} color="#0284C7" />
+              </View>
+
+              <View style={styles.almaBatchPill}>
+                <Text style={styles.almaBatchPillText}>
+                  {item.batchFormatted || `'${item.batchYear ? String(item.batchYear).slice(-2) : 'Alum'}`}
+                </Text>
+              </View>
             </View>
+
             <Text style={styles.almaMemberRole} numberOfLines={2}>
-              {item.role}
+              {item.role || `${item.designation || 'Alumni Member'} • ${item.company || 'RVCE'}`}
             </Text>
+
             {item.location ? (
               <View style={styles.almaLocationRow}>
                 <Ionicons name="location-outline" size={12} color="#64748B" />
@@ -1143,18 +1141,7 @@ const DirectoryScreen = ({ navigation, route }) => {
           </View>
         </View>
 
-        {/* Tags / Skills Row */}
-        {item.tags && item.tags.length > 0 && (
-          <View style={styles.almaTagsRow}>
-            {item.tags.map((tag, tIdx) => (
-              <View key={tIdx} style={styles.almaTagPill}>
-                <Text style={styles.almaTagText}>#{tag}</Text>
-              </View>
-            ))}
-          </View>
-        )}
-
-        {/* Bottom Actions Cluster */}
+        {/* Clean, Prominent Actions Row */}
         <View style={styles.almaCardActions}>
           <TouchableOpacity
             style={[
@@ -1185,88 +1172,73 @@ const DirectoryScreen = ({ navigation, route }) => {
                 initials: item.initials 
               } 
             })}
-            activeOpacity={0.7}
+            activeOpacity={0.8}
           >
-            <Ionicons name="chatbubble-ellipses-outline" size={16} color="#002B5C" />
+            <Ionicons name="chatbubble-ellipses-outline" size={14} color="#002B5C" />
+            <Text style={styles.almaChatBtnText}>Message</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.almaFollowBtn, isFollowing && { backgroundColor: '#DEF7EC', borderColor: '#31C48D' }]}
+            style={[styles.almaIconBtn, isFollowing && styles.almaIconBtnActive]}
             onPress={() => handleToggleFollow(item)}
             activeOpacity={0.7}
           >
             <Ionicons 
-              name={isFollowing ? "checkmark" : "bookmark-outline"} 
-              size={16} 
+              name={isFollowing ? "bookmark" : "bookmark-outline"} 
+              size={15} 
               color={isFollowing ? "#059669" : "#64748B"} 
             />
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.almaShareBtn}
+            style={styles.almaIconBtn}
             onPress={() => setSharedAlumni(item)}
             activeOpacity={0.7}
           >
-            <Ionicons name="share-social-outline" size={16} color="#16A34A" />
+            <Ionicons name="share-social-outline" size={15} color="#64748B" />
           </TouchableOpacity>
         </View>
       </View>
     );
   };
 
-  // ─── Main RVCE AlmaConnect Directory Screen ───────────────────────────
+  // ─── Main Clean, User-Friendly Directory Screen ───────────────────────
   const renderAlmaConnectDirectory = () => {
+    const hasActiveFilters = selectedCourse !== 'all' || selectedGraduationYear !== 'all' || selectedLocation !== 'all' || selectedSpecializedList || searchQuery.length > 0;
+    
+    // Count active filters for badge
+    let activeFilterCount = 0;
+    if (selectedCourse !== 'all') activeFilterCount++;
+    if (selectedGraduationYear !== 'all') activeFilterCount++;
+    if (selectedLocation !== 'all') activeFilterCount++;
+    if (selectedSpecializedList) activeFilterCount++;
+
     return (
       <ScrollView 
         style={styles.mainScrollView}
         contentContainerStyle={styles.mainScrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* ─── AlmaConnect Header Banner (RVCE Official Directory) ─── */}
-        <View style={styles.almaBanner}>
-          <View style={styles.almaBannerAccent} />
+        {/* ─── Clean, Modern Directory Header Banner ─── */}
+        <View style={styles.cleanHeaderBanner}>
           <View style={{ flex: 1 }}>
-            <View style={styles.almaBannerMetaRow}>
-              <View style={styles.almaBadgeInstitution}>
-                <Ionicons name="school" size={12} color="#FBBF24" />
-                <Text style={styles.almaBadgeInstitutionText}>RV College of Engineering</Text>
+            <View style={styles.cleanHeaderTagRow}>
+              <View style={styles.cleanHeaderTag}>
+                <Ionicons name="school" size={12} color="#002B5C" />
+                <Text style={styles.cleanHeaderTagText}>RVCE ALUMNI</Text>
               </View>
-              <Text style={styles.almaPortalBadge}>rvce.almaconnect.com</Text>
+              <Text style={styles.cleanHeaderStatsText}>{ALMACONNECT_STATS.totalRvians} Members</Text>
             </View>
-
-            <Text style={styles.almaBannerTitle}>Search & Find RVCE Alumni, Students & Faculty</Text>
-            <Text style={styles.almaBannerSubtitle}>
-              Connect across batches with verified engineers, leaders, and mentors worldwide
+            <Text style={styles.cleanHeaderTitle}>Alumni Directory</Text>
+            <Text style={styles.cleanHeaderSub}>
+              Search and connect with verified graduates, students, and mentors worldwide.
             </Text>
-
-            {/* AlmaConnect Exact Stats Pills */}
-            <View style={styles.almaStatsBar}>
-              <View style={styles.almaStatItem}>
-                <Text style={styles.almaStatNumber}>{ALMACONNECT_STATS.totalRvians}</Text>
-                <Text style={styles.almaStatLabel}>Total RVians</Text>
-              </View>
-              <View style={styles.almaStatDivider} />
-              <View style={styles.almaStatItem}>
-                <Text style={styles.almaStatNumber}>{ALMACONNECT_STATS.alumni}</Text>
-                <Text style={styles.almaStatLabel}>Alumni</Text>
-              </View>
-              <View style={styles.almaStatDivider} />
-              <View style={styles.almaStatItem}>
-                <Text style={styles.almaStatNumber}>{ALMACONNECT_STATS.students}</Text>
-                <Text style={styles.almaStatLabel}>Students</Text>
-              </View>
-              <View style={styles.almaStatDivider} />
-              <View style={styles.almaStatItem}>
-                <Text style={styles.almaStatNumber}>{ALMACONNECT_STATS.faculty}</Text>
-                <Text style={styles.almaStatLabel}>Faculty</Text>
-              </View>
-            </View>
           </View>
         </View>
 
-        {/* ─── Member Type Tabs (All Member Type / Alumni / Students / Faculty / My Batch) ─── */}
+        {/* ─── Member Type Filter Chips ─── */}
         <View style={styles.memberTypeRow}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingBottom: 4 }}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingBottom: 2 }}>
             {MEMBER_TYPES.map((type) => {
               const isSelected = selectedMemberType === type.id;
               return (
@@ -1277,60 +1249,85 @@ const DirectoryScreen = ({ navigation, route }) => {
                   activeOpacity={0.75}
                 >
                   <Text style={[styles.memberTypePillText, isSelected && styles.memberTypePillTextActive]}>
-                    {type.label} ({type.count})
+                    {type.label}
                   </Text>
+                  <View style={[styles.memberTypeCountBadge, isSelected && styles.memberTypeCountBadgeActive]}>
+                    <Text style={[styles.memberTypeCountText, isSelected && styles.memberTypeCountTextActive]}>
+                      {type.count}
+                    </Text>
+                  </View>
                 </TouchableOpacity>
               );
             })}
           </ScrollView>
         </View>
 
-        {/* ─── Top Filter Controls (Course, Graduation Year, Location) ─── */}
-        <View style={styles.topFilterControlsRow}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, alignItems: 'center' }}>
-            {/* Course Filter Dropdown Button */}
+        {/* ─── Compact Controls Bar: Filters Button + Active Chips + View Toggle ─── */}
+        <View style={styles.compactControlsRow}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1, flexWrap: 'wrap' }}>
             <TouchableOpacity
-              style={[styles.dropdownFilterBtn, selectedCourse !== 'all' && styles.dropdownFilterBtnActive]}
+              style={[styles.filterTriggerBtn, activeFilterCount > 0 && styles.filterTriggerBtnActive]}
               onPress={() => setShowFiltersModal(true)}
-              activeOpacity={0.7}
+              activeOpacity={0.75}
             >
-              <Ionicons name="school-outline" size={13} color={selectedCourse !== 'all' ? '#002B5C' : '#64748B'} />
-              <Text style={[styles.dropdownFilterText, selectedCourse !== 'all' && styles.dropdownFilterTextActive]}>
-                {selectedCourse === 'all' ? 'All Course' : selectedCourse}
+              <Ionicons 
+                name="options-outline" 
+                size={14} 
+                color={activeFilterCount > 0 ? '#002B5C' : '#475569'} 
+              />
+              <Text style={[styles.filterTriggerText, activeFilterCount > 0 && styles.filterTriggerTextActive]}>
+                {activeFilterCount > 0 ? `Filters (${activeFilterCount})` : 'Filters'}
               </Text>
-              <Ionicons name="chevron-down" size={12} color="#94A3B8" />
             </TouchableOpacity>
 
-            {/* Graduation Year Dropdown Button */}
-            <TouchableOpacity
-              style={[styles.dropdownFilterBtn, selectedGraduationYear !== 'all' && styles.dropdownFilterBtnActive]}
-              onPress={() => setShowFiltersModal(true)}
-              activeOpacity={0.7}
-            >
-              <Ionicons name="calendar-outline" size={13} color={selectedGraduationYear !== 'all' ? '#002B5C' : '#64748B'} />
-              <Text style={[styles.dropdownFilterText, selectedGraduationYear !== 'all' && styles.dropdownFilterTextActive]}>
-                {selectedGraduationYear === 'all' ? 'All Graduation Year' : `Batch ${selectedGraduationYear}`}
-              </Text>
-              <Ionicons name="chevron-down" size={12} color="#94A3B8" />
-            </TouchableOpacity>
+            {/* Active filter badges so user can see what's applied and dismiss quickly */}
+            {selectedCourse !== 'all' && (
+              <TouchableOpacity 
+                style={styles.activeFilterChip}
+                onPress={() => setSelectedCourse('all')}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.activeFilterChipText}>{selectedCourse}</Text>
+                <Ionicons name="close-circle" size={13} color="#002B5C" />
+              </TouchableOpacity>
+            )}
 
-            {/* Location Dropdown Button */}
-            <TouchableOpacity
-              style={[styles.dropdownFilterBtn, selectedLocation !== 'all' && styles.dropdownFilterBtnActive]}
-              onPress={() => setShowFiltersModal(true)}
-              activeOpacity={0.7}
-            >
-              <Ionicons name="location-outline" size={13} color={selectedLocation !== 'all' ? '#002B5C' : '#64748B'} />
-              <Text style={[styles.dropdownFilterText, selectedLocation !== 'all' && styles.dropdownFilterTextActive]}>
-                {selectedLocation === 'all' ? 'All Location' : selectedLocation}
-              </Text>
-              <Ionicons name="chevron-down" size={12} color="#94A3B8" />
-            </TouchableOpacity>
+            {selectedGraduationYear !== 'all' && (
+              <TouchableOpacity 
+                style={styles.activeFilterChip}
+                onPress={() => setSelectedGraduationYear('all')}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.activeFilterChipText}>Batch {selectedGraduationYear}</Text>
+                <Ionicons name="close-circle" size={13} color="#002B5C" />
+              </TouchableOpacity>
+            )}
 
-            {/* Reset Filter Button */}
-            {(selectedMemberType !== 'all' || selectedCourse !== 'all' || selectedGraduationYear !== 'all' || selectedLocation !== 'all' || selectedSpecializedList || searchQuery.length > 0) && (
+            {selectedLocation !== 'all' && (
+              <TouchableOpacity 
+                style={styles.activeFilterChip}
+                onPress={() => setSelectedLocation('all')}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.activeFilterChipText}>{selectedLocation}</Text>
+                <Ionicons name="close-circle" size={13} color="#002B5C" />
+              </TouchableOpacity>
+            )}
+
+            {selectedSpecializedList && (
+              <TouchableOpacity 
+                style={styles.activeFilterChip}
+                onPress={() => setSelectedSpecializedList(null)}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.activeFilterChipText}>Specialized</Text>
+                <Ionicons name="close-circle" size={13} color="#002B5C" />
+              </TouchableOpacity>
+            )}
+
+            {hasActiveFilters && (
               <TouchableOpacity
-                style={styles.resetFilterBtn}
+                style={styles.clearAllBtn}
                 onPress={() => {
                   setSelectedMemberType('all');
                   setSelectedCourse('all');
@@ -1341,89 +1338,53 @@ const DirectoryScreen = ({ navigation, route }) => {
                 }}
                 activeOpacity={0.7}
               >
-                <Ionicons name="close-circle" size={14} color="#EF4444" />
-                <Text style={styles.resetFilterText}>Clear</Text>
+                <Text style={styles.clearAllText}>Clear all</Text>
               </TouchableOpacity>
             )}
-          </ScrollView>
+          </View>
 
-          {/* View Toggle: Batch-Wise vs All Grid */}
+          {/* View Mode Toggle (Grid vs Batch) */}
           <View style={styles.viewModeToggleWrapper}>
-            <TouchableOpacity
-              style={[styles.viewModeBtn, viewMode === 'batch_wise' && styles.viewModeBtnActive]}
-              onPress={() => setViewMode('batch_wise')}
-              activeOpacity={0.7}
-            >
-              <Ionicons name="layers" size={13} color={viewMode === 'batch_wise' ? '#002B5C' : '#94A3B8'} />
-              <Text style={[styles.viewModeBtnText, viewMode === 'batch_wise' && styles.viewModeBtnTextActive]}>
-                Batch
-              </Text>
-            </TouchableOpacity>
             <TouchableOpacity
               style={[styles.viewModeBtn, viewMode === 'all_cards' && styles.viewModeBtnActive]}
               onPress={() => setViewMode('all_cards')}
               activeOpacity={0.7}
             >
-              <Ionicons name="grid" size={13} color={viewMode === 'all_cards' ? '#002B5C' : '#94A3B8'} />
+              <Ionicons name="grid-outline" size={13} color={viewMode === 'all_cards' ? '#002B5C' : '#94A3B8'} />
               <Text style={[styles.viewModeBtnText, viewMode === 'all_cards' && styles.viewModeBtnTextActive]}>
                 Grid
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.viewModeBtn, viewMode === 'batch_wise' && styles.viewModeBtnActive]}
+              onPress={() => setViewMode('batch_wise')}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="layers-outline" size={13} color={viewMode === 'batch_wise' ? '#002B5C' : '#94A3B8'} />
+              <Text style={[styles.viewModeBtnText, viewMode === 'batch_wise' && styles.viewModeBtnTextActive]}>
+                Batch
               </Text>
             </TouchableOpacity>
           </View>
         </View>
 
-        {/* ─── Specialized AlmaConnect Directory Lists Carousel ─── */}
-        <View style={styles.specializedListsWrapper}>
-          <Text style={styles.specializedHeaderTitle}>SPECIALIZED DIRECTORY LISTS</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingBottom: 4 }}>
-            {ALMACONNECT_SPECIALIZED_LISTS.map((list) => {
-              const isSelected = selectedSpecializedList === list.id;
-              return (
-                <TouchableOpacity
-                  key={list.id}
-                  style={[styles.specializedCard, isSelected && styles.specializedCardActive]}
-                  onPress={() => {
-                    setSelectedSpecializedList(isSelected ? null : list.id);
-                  }}
-                  activeOpacity={0.75}
-                >
-                  <Ionicons 
-                    name={list.icon} 
-                    size={14} 
-                    color={isSelected ? '#002B5C' : '#475569'} 
-                  />
-                  <Text style={[styles.specializedCardTitle, isSelected && styles.specializedCardTitleActive]}>
-                    {list.title}
-                  </Text>
-                  <View style={styles.specializedCountPill}>
-                    <Text style={styles.specializedCountText}>{list.count}</Text>
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-        </View>
-
-        {/* ─── Results Counter Bar ─── */}
+        {/* ─── Results Counter ─── */}
         <View style={styles.resultsCounterRow}>
           <Text style={styles.resultsCounterText}>
-            Showing <Text style={{ fontWeight: '800', color: theme.text }}>{filteredDirectory.length} Members</Text>
-            {selectedGraduationYear !== 'all' ? ` in Batch ${selectedGraduationYear}` : ''}
-            {selectedCourse !== 'all' ? ` (${selectedCourse})` : ''}
-            {selectedLocation !== 'all' ? ` in ${selectedLocation}` : ''}
+            Showing <Text style={{ fontWeight: '700', color: theme.text }}>{filteredDirectory.length} members</Text>
           </Text>
           {loadingDirectory && (
             <Text style={{ fontSize: 12, color: '#0284C7', fontWeight: '600' }}>Syncing with RVCE servers...</Text>
           )}
         </View>
 
-        {/* ─── Empty State ─── */}
+        {/* ─── Empty State or Cards ─── */}
         {filteredDirectory.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <Ionicons name="search-outline" size={54} color="#CBD5E1" />
-            <Text style={styles.emptyTitle}>No Members Found</Text>
+            <Mascot size={90} style={{ marginBottom: 12 }} />
+            <Text style={styles.emptyTitle}>No RVians Found</Text>
             <Text style={styles.emptySubtitle}>
-              No alumni or students match your selected filters. Try changing or clearing filters.
+              No alumni or students match your selected search or filters. Try adjusting keywords or clearing filters.
             </Text>
             <TouchableOpacity
               style={styles.emptyClearBtn}
@@ -1437,57 +1398,33 @@ const DirectoryScreen = ({ navigation, route }) => {
               }}
               activeOpacity={0.8}
             >
-              <Text style={styles.emptyClearBtnText}>View All Members</Text>
+              <Text style={styles.emptyClearBtnText}>Reset All Filters</Text>
             </TouchableOpacity>
           </View>
         ) : viewMode === 'batch_wise' ? (
-          // ─── Batch-Wise Grouped Display ───
-          <View style={{ gap: 18 }}>
+          <View style={{ gap: 14 }}>
             {batchWiseGroups.map((batchGroup) => {
               const isCollapsed = !!collapsedBatches[batchGroup.year];
-
               return (
                 <View key={batchGroup.year} style={styles.batchSectionWrapper}>
-                  {/* Batch Section Header */}
                   <TouchableOpacity
                     style={styles.batchHeaderBtn}
                     onPress={() => toggleBatchCollapse(batchGroup.year)}
                     activeOpacity={0.8}
                   >
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                      <View style={styles.batchIconPod}>
-                        <Ionicons name="school" size={16} color="#002B5C" />
-                      </View>
-                      <View>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                          <Text style={styles.batchTitleText}>
-                            Batch of {batchGroup.year}
-                          </Text>
-                          <View style={styles.batchCountBadge}>
-                            <Text style={styles.batchCountBadgeText}>
-                              {batchGroup.count} {batchGroup.count === 1 ? 'RVian' : 'RVians'}
-                            </Text>
-                          </View>
-                        </View>
-                        <Text style={styles.batchSubtitleText}>
-                          Class of {batchGroup.year} • BE / M.Tech / MCA / B.Tech
-                        </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                      <Text style={styles.batchTitleText}>Class of {batchGroup.year}</Text>
+                      <View style={styles.batchCountBadge}>
+                        <Text style={styles.batchCountBadgeText}>{batchGroup.count}</Text>
                       </View>
                     </View>
-
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                      <Text style={styles.batchToggleText}>
-                        {isCollapsed ? 'Show' : 'Hide'}
-                      </Text>
-                      <Ionicons
-                        name={isCollapsed ? "chevron-down" : "chevron-up"}
-                        size={18}
-                        color="#64748B"
-                      />
-                    </View>
+                    <Ionicons
+                      name={isCollapsed ? "chevron-down" : "chevron-up"}
+                      size={16}
+                      color="#64748B"
+                    />
                   </TouchableOpacity>
 
-                  {/* Cards inside Batch Section */}
                   {!isCollapsed && (
                     <View style={styles.batchCardsGrid}>
                       {batchGroup.members.map(renderAlmaConnectCard)}
@@ -1498,7 +1435,6 @@ const DirectoryScreen = ({ navigation, route }) => {
             })}
           </View>
         ) : (
-          // ─── All Cards Grid ───
           <View style={styles.batchCardsGrid}>
             {filteredDirectory.map(renderAlmaConnectCard)}
           </View>
@@ -1826,15 +1762,32 @@ const DirectoryScreen = ({ navigation, route }) => {
           renderCommunityTab()
         )}
 
-        {/* ───── Filter Modal (Course, Graduation Year, Location) ───── */}
+        {/* ───── Filter Modal (Course, Graduation Year, Location, Industry) ───── */}
         <Modal visible={showFiltersModal} transparent animationType="fade">
           <View style={styles.modalOverlay}>
             <View style={styles.filterModalBox}>
               <View style={styles.filterModalHeader}>
-                <Text style={styles.filterModalTitle}>RVCE AlmaConnect Filters</Text>
-                <TouchableOpacity onPress={() => setShowFiltersModal(false)}>
-                  <Ionicons name="close" size={24} color="#002B5C" />
-                </TouchableOpacity>
+                <View>
+                  <Text style={styles.filterModalTitle}>Filter Directory</Text>
+                  <Text style={{ fontSize: 12, color: '#64748B', marginTop: 2 }}>Narrow down by course, batch, location or industry</Text>
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                  {(selectedCourse !== 'all' || selectedGraduationYear !== 'all' || selectedLocation !== 'all' || selectedSpecializedList) && (
+                    <TouchableOpacity 
+                      onPress={() => {
+                        setSelectedCourse('all');
+                        setSelectedGraduationYear('all');
+                        setSelectedLocation('all');
+                        setSelectedSpecializedList(null);
+                      }}
+                    >
+                      <Text style={{ fontSize: 13, color: '#DC2626', fontWeight: '700' }}>Reset</Text>
+                    </TouchableOpacity>
+                  )}
+                  <TouchableOpacity onPress={() => setShowFiltersModal(false)}>
+                    <Ionicons name="close" size={24} color="#002B5C" />
+                  </TouchableOpacity>
+                </View>
               </View>
 
               <ScrollView style={{ maxHeight: 420 }} showsVerticalScrollIndicator={false}>
@@ -1901,6 +1854,29 @@ const DirectoryScreen = ({ navigation, route }) => {
                         {loc.label} ({loc.count})
                       </Text>
                       {selectedLocation === loc.id && (
+                        <Ionicons name="checkmark-circle" size={18} color="#002B5C" />
+                      )}
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                {/* Industry / Specialized Lists */}
+                <Text style={styles.filterSectionTitle}>INDUSTRY & DOMAIN</Text>
+                <View style={{ gap: 6, marginBottom: 18 }}>
+                  {ALMACONNECT_SPECIALIZED_LISTS.map((list) => (
+                    <TouchableOpacity
+                      key={list.id}
+                      style={[
+                        styles.filterOptionRow,
+                        selectedSpecializedList === list.id && styles.filterOptionRowActive
+                      ]}
+                      onPress={() => setSelectedSpecializedList(selectedSpecializedList === list.id ? null : list.id)}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={[styles.filterOptionText, selectedSpecializedList === list.id && styles.filterOptionTextActive]}>
+                        {list.title} ({list.count})
+                      </Text>
+                      {selectedSpecializedList === list.id && (
                         <Ionicons name="checkmark-circle" size={18} color="#002B5C" />
                       )}
                     </TouchableOpacity>
@@ -2175,101 +2151,68 @@ const getStyles = (theme) => StyleSheet.create({
     paddingBottom: 40,
   },
 
-  /* AlmaConnect Banner */
-  almaBanner: {
-    backgroundColor: '#002B5C',
-    borderRadius: 18,
-    padding: 20,
-    marginBottom: 16,
-    position: 'relative',
-    overflow: 'hidden',
+  /* Clean Header Banner */
+  cleanHeaderBanner: {
+    backgroundColor: '#EFF6FF',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: '#DBEAFE',
   },
-  almaBannerAccent: {
-    position: 'absolute',
-    top: -50,
-    right: -50,
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    backgroundColor: 'rgba(251, 191, 36, 0.16)',
-  },
-  almaBannerMetaRow: {
+  cleanHeaderTagRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginBottom: 6,
+    marginBottom: 4,
   },
-  almaBadgeInstitution: {
+  cleanHeaderTag: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    paddingHorizontal: 9,
-    paddingVertical: 3.5,
+    backgroundColor: '#DBEAFE',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
     borderRadius: 6,
   },
-  almaBadgeInstitutionText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#FBBF24',
-  },
-  almaPortalBadge: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#93C5FD',
-  },
-  almaBannerTitle: {
-    fontSize: 21,
+  cleanHeaderTagText: {
+    fontSize: 10.5,
     fontWeight: '800',
-    color: '#FFFFFF',
-    letterSpacing: -0.3,
-    marginTop: 4,
+    color: '#002B5C',
+    letterSpacing: 0.5,
   },
-  almaBannerSubtitle: {
+  cleanHeaderStatsText: {
+    fontSize: 11.5,
+    fontWeight: '700',
+    color: '#1D4ED8',
+  },
+  cleanHeaderTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#002B5C',
+    letterSpacing: -0.2,
+    marginTop: 2,
+  },
+  cleanHeaderSub: {
     fontSize: 12.5,
-    color: '#E2E8F0',
-    marginTop: 4,
+    color: '#475569',
+    marginTop: 3,
     lineHeight: 18,
-  },
-  almaStatsBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    borderRadius: 12,
-    marginTop: 16,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-  },
-  almaStatItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  almaStatNumber: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#FBBF24',
-  },
-  almaStatLabel: {
-    fontSize: 11,
-    color: '#CBD5E1',
-    marginTop: 1,
-  },
-  almaStatDivider: {
-    width: 1,
-    height: 24,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
   },
 
   /* Member Type Row */
   memberTypeRow: {
-    marginBottom: 12,
+    marginBottom: 10,
   },
   memberTypePill: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
     backgroundColor: '#FFFFFF',
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: '#E2E8F0',
   },
   memberTypePillActive: {
@@ -2277,23 +2220,40 @@ const getStyles = (theme) => StyleSheet.create({
     borderColor: '#002B5C',
   },
   memberTypePillText: {
-    fontSize: 12.5,
+    fontSize: 12,
     fontWeight: '700',
     color: '#475569',
   },
   memberTypePillTextActive: {
     color: '#FFFFFF',
   },
+  memberTypeCountBadge: {
+    backgroundColor: '#F1F5F9',
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+    borderRadius: 8,
+  },
+  memberTypeCountBadgeActive: {
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+  },
+  memberTypeCountText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#64748B',
+  },
+  memberTypeCountTextActive: {
+    color: '#FFFFFF',
+  },
 
-  /* Top Filter Controls */
-  topFilterControlsRow: {
+  /* Compact Controls Row */
+  compactControlsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 14,
+    marginBottom: 12,
     gap: 8,
   },
-  dropdownFilterBtn: {
+  filterTriggerBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
@@ -2301,34 +2261,42 @@ const getStyles = (theme) => StyleSheet.create({
     borderWidth: 1,
     borderColor: '#CBD5E1',
     paddingHorizontal: 11,
-    paddingVertical: 7,
-    borderRadius: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
   },
-  dropdownFilterBtnActive: {
+  filterTriggerBtnActive: {
     backgroundColor: '#EFF6FF',
     borderColor: '#002B5C',
-    borderWidth: 1.5,
   },
-  dropdownFilterText: {
+  filterTriggerText: {
     fontSize: 12,
     fontWeight: '700',
     color: '#475569',
   },
-  dropdownFilterTextActive: {
+  filterTriggerTextActive: {
     color: '#002B5C',
   },
-  resetFilterBtn: {
+  activeFilterChip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#FEF2F2',
+    backgroundColor: '#EFF6FF',
     borderWidth: 1,
-    borderColor: '#FECACA',
-    paddingHorizontal: 9,
-    paddingVertical: 7,
-    borderRadius: 10,
+    borderColor: '#BFDBFE',
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    borderRadius: 8,
   },
-  resetFilterText: {
+  activeFilterChipText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#002B5C',
+  },
+  clearAllBtn: {
+    paddingHorizontal: 6,
+    paddingVertical: 5,
+  },
+  clearAllText: {
     fontSize: 11.5,
     fontWeight: '700',
     color: '#DC2626',
@@ -2336,7 +2304,7 @@ const getStyles = (theme) => StyleSheet.create({
   viewModeToggleWrapper: {
     flexDirection: 'row',
     backgroundColor: '#F1F5F9',
-    borderRadius: 10,
+    borderRadius: 8,
     padding: 2,
     borderWidth: 1,
     borderColor: '#E2E8F0',
@@ -2346,8 +2314,8 @@ const getStyles = (theme) => StyleSheet.create({
     alignItems: 'center',
     gap: 4,
     paddingHorizontal: 8,
-    paddingVertical: 5,
-    borderRadius: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
   },
   viewModeBtnActive: {
     backgroundColor: '#FFFFFF',
@@ -2358,7 +2326,7 @@ const getStyles = (theme) => StyleSheet.create({
     elevation: 1,
   },
   viewModeBtnText: {
-    fontSize: 11.5,
+    fontSize: 11,
     fontWeight: '700',
     color: '#94A3B8',
   },
@@ -2366,110 +2334,47 @@ const getStyles = (theme) => StyleSheet.create({
     color: '#002B5C',
   },
 
-  /* Specialized Lists */
-  specializedListsWrapper: {
-    marginBottom: 16,
-  },
-  specializedHeaderTitle: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#64748B',
-    letterSpacing: 0.6,
-    marginBottom: 8,
-    marginLeft: 2,
-  },
-  specializedCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 10,
-  },
-  specializedCardActive: {
-    backgroundColor: '#EFF6FF',
-    borderColor: '#93C5FD',
-    borderWidth: 1.5,
-  },
-  specializedCardTitle: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#334155',
-  },
-  specializedCardTitleActive: {
-    color: '#002B5C',
-  },
-  specializedCountPill: {
-    backgroundColor: '#F1F5F9',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 6,
-  },
-  specializedCountText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#64748B',
-  },
-
   /* Results Counter */
   resultsCounterRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 14,
+    marginBottom: 12,
     paddingHorizontal: 2,
   },
   resultsCounterText: {
-    fontSize: 13,
+    fontSize: 12.5,
     color: '#64748B',
   },
 
   /* Batch Section Group */
   batchSectionWrapper: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: '#E2E8F0',
     overflow: 'hidden',
-    shadowColor: '#002B5C',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
   },
   batchHeaderBtn: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
     backgroundColor: '#F8FAFC',
     borderBottomWidth: 1,
     borderBottomColor: '#E2E8F0',
   },
-  batchIconPod: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#EFF6FF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#BFDBFE',
-  },
   batchTitleText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '800',
     color: '#002B5C',
   },
   batchCountBadge: {
     backgroundColor: '#EFF6FF',
-    paddingHorizontal: 8,
+    paddingHorizontal: 7,
     paddingVertical: 2,
-    borderRadius: 10,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: '#BFDBFE',
   },
@@ -2478,84 +2383,39 @@ const getStyles = (theme) => StyleSheet.create({
     fontWeight: '800',
     color: '#1D4ED8',
   },
-  batchSubtitleText: {
-    fontSize: 11.5,
-    color: '#64748B',
-    marginTop: 2,
-  },
-  batchToggleText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#64748B',
-  },
   batchCardsGrid: {
-    padding: 14,
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 14,
+    gap: 12,
   },
 
-  /* Alma Card */
+  /* Clean Alma Card */
   almaCard: {
     width: '100%',
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-    padding: 16,
-    position: 'relative',
-    overflow: 'hidden',
-    shadowColor: '#002B5C',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    elevation: 2,
-  },
-  almaCardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  almaBatchPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    backgroundColor: '#EFF6FF',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#BFDBFE',
-  },
-  almaBatchPillText: {
-    fontSize: 11.5,
-    fontWeight: '800',
-    color: '#002B5C',
-  },
-  almaVerifiedRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-  },
-  almaVerifiedText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#0284C7',
+    borderColor: '#E2E8F0',
+    padding: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
   },
   almaProfileSection: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 12,
+    alignItems: 'center',
+    marginBottom: 10,
   },
   almaAvatarWrapper: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    marginRight: 12,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    marginRight: 10,
     overflow: 'hidden',
-    borderWidth: 1.5,
-    borderColor: '#BFDBFE',
+    borderWidth: 1,
+    borderColor: '#DBEAFE',
   },
   almaAvatarImage: {
     width: '100%',
@@ -2569,64 +2429,60 @@ const getStyles = (theme) => StyleSheet.create({
   },
   almaAvatarInitials: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '800',
   },
   almaMemberName: {
-    fontSize: 15.5,
+    fontSize: 14.5,
     fontWeight: '800',
     color: '#0F172A',
   },
+  almaBatchPill: {
+    backgroundColor: '#EFF6FF',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+  },
+  almaBatchPillText: {
+    fontSize: 10.5,
+    fontWeight: '800',
+    color: '#002B5C',
+  },
   almaMemberRole: {
-    fontSize: 12.5,
+    fontSize: 12,
     color: '#334155',
-    lineHeight: 17,
+    lineHeight: 16,
     marginTop: 2,
     fontWeight: '500',
   },
   almaLocationRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    marginTop: 4,
+    gap: 3,
+    marginTop: 3,
   },
   almaLocationText: {
-    fontSize: 11.5,
-    color: '#64748B',
-  },
-  almaTagsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 5,
-    marginBottom: 12,
-  },
-  almaTagPill: {
-    backgroundColor: '#F1F5F9',
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-    borderRadius: 5,
-  },
-  almaTagText: {
-    fontSize: 10.5,
-    fontWeight: '600',
+    fontSize: 11,
     color: '#64748B',
   },
   almaCardActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
     borderTopWidth: 1,
     borderTopColor: '#F1F5F9',
-    paddingTop: 12,
+    paddingTop: 10,
   },
   almaConnectBtn: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 5,
+    gap: 4,
     backgroundColor: '#002B5C',
-    paddingVertical: 8,
+    paddingVertical: 7,
     borderRadius: 8,
   },
   almaConnectBtnRequested: {
@@ -2635,23 +2491,29 @@ const getStyles = (theme) => StyleSheet.create({
     borderColor: '#31C48D',
   },
   almaConnectBtnText: {
-    fontSize: 12,
+    fontSize: 11.5,
     fontWeight: '800',
     color: '#FFFFFF',
   },
   almaChatBtn: {
-    width: 36,
-    height: 36,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
     borderRadius: 8,
     backgroundColor: '#EFF6FF',
-    justifyContent: 'center',
-    alignItems: 'center',
     borderWidth: 1,
     borderColor: '#BFDBFE',
   },
-  almaFollowBtn: {
-    width: 36,
-    height: 36,
+  almaChatBtnText: {
+    fontSize: 11.5,
+    fontWeight: '700',
+    color: '#002B5C',
+  },
+  almaIconBtn: {
+    width: 32,
+    height: 32,
     borderRadius: 8,
     backgroundColor: '#F8FAFC',
     justifyContent: 'center',
@@ -2659,15 +2521,9 @@ const getStyles = (theme) => StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E2E8F0',
   },
-  almaShareBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 8,
-    backgroundColor: '#E8FDF0',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#A7F3D0',
+  almaIconBtnActive: {
+    backgroundColor: '#DEF7EC',
+    borderColor: '#31C48D',
   },
 
   /* Empty Container */
