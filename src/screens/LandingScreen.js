@@ -1,15 +1,19 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
+import Mascot from '../components/Mascot';
 
 const LandingScreen = ({ navigation }) => {
-  const { theme, isDarkMode } = useTheme();
+  const { theme } = useTheme();
   const styles = getStyles(theme);
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.header}>
+          <View style={{ alignItems: 'center', marginBottom: 12 }}>
+            <Mascot size={110} />
+          </View>
           <Text style={styles.badge}>Welcome back</Text>
           <Text style={styles.title}>
             Alumni <Text style={styles.highlight}>Portal</Text>

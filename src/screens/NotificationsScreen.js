@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { getNotifications, markNotificationsRead } from '../services/authService';
 import { useFocusEffect } from '@react-navigation/native';
 import getInitials from '../lib/getInitials';
+import Mascot from '../components/Mascot';
 
 const NotificationsScreen = ({ navigation }) => {
   const { theme, isDarkMode } = useTheme();
@@ -233,9 +234,9 @@ const NotificationsScreen = ({ navigation }) => {
 
         {notificationsList.length === 0 && (
           <View style={styles.emptyState}>
-            <Ionicons name="notifications-off-outline" size={64} color="#CBD5E1" />
-            <Text style={styles.emptyTitle}>All caught up!</Text>
-            <Text style={styles.emptySubtitle}>You don&apos;t have any notifications at the moment.</Text>
+            <Mascot size={100} style={{ marginBottom: 6 }} />
+            <Text style={styles.emptyTitle}>All caught up, RVian!</Text>
+            <Text style={styles.emptySubtitle}>Our eagle eyes found no unread notifications for you right now.</Text>
           </View>
         )}
       </ScrollView>

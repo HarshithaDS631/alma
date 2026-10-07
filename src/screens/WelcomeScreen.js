@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, StatusBar, Platform, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, StatusBar, ScrollView } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { handleGoogleLogin } from '../services/googleAuthService';
 import { handleAppleLogin } from '../services/appleAuthService';
+import Mascot from '../components/Mascot';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -106,10 +107,8 @@ const WelcomeScreen = ({ navigation }) => {
 
           {/* Hero Branding Section */}
           <View style={styles.heroSection}>
-            <View style={styles.logoContainer}>
-              <View style={styles.logoInnerGlow}>
-                <Ionicons name="school" size={54} color={isDarkMode ? '#3B82F6' : '#003366'} />
-              </View>
+            <View style={styles.mascotContainer}>
+              <Mascot size={110} />
             </View>
 
             <Text style={styles.title}>RV Educational Institutions</Text>
@@ -206,29 +205,10 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     alignItems: 'center',
     paddingBottom: 12,
   },
-  logoContainer: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    backgroundColor: isDarkMode ? '#1E2025' : '#EFF6FF',
-    justifyContent: 'center',
+  mascotContainer: {
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: isDarkMode ? '#2D3139' : '#BFDBFE',
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: isDarkMode ? 0.3 : 0.08,
-    shadowRadius: 10,
-    elevation: 4,
-  },
-  logoInnerGlow: {
-    width: 74,
-    height: 74,
-    borderRadius: 37,
-    backgroundColor: isDarkMode ? '#282A30' : '#DBEAFE',
     justifyContent: 'center',
-    alignItems: 'center',
+    marginBottom: 10,
   },
   title: {
     fontSize: 23,

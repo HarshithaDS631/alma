@@ -29,6 +29,7 @@ import { fetchJobs } from '../services/jobService';
 import useUserRole from '../hooks/useUserRole';
 import { initSocket, getSocket } from '../services/socketService';
 import getInitials from '../lib/getInitials';
+import Mascot from '../components/Mascot';
 
 
 // Pool of all known posts across all users — used as offline fallback
@@ -155,6 +156,7 @@ const DashboardScreen = ({ navigation }) => {
   const [feedFilter, setFeedFilter] = useState('all');
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const [dismissMascotBanner, setDismissMascotBanner] = useState(false);
 
   // Modal States
   const [activeModal, setActiveModal] = useState(null);
@@ -1213,6 +1215,19 @@ const DashboardScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
+      {/* Mascot Welcome Pride Banner (Dismissible) */}
+      {!dismissMascotBanner && (
+        <Mascot
+          variant="banner"
+          title="Welcome home, RVian!"
+          subtitle="Stay connected with batchmates, discover campus milestones, and explore job referrals."
+          actionText="Find Alumni"
+          onActionPress={() => navigation.navigate('Engage', { tab: 'directory' })}
+          onDismiss={() => setDismissMascotBanner(true)}
+          style={{ marginHorizontal: 0, marginBottom: 12 }}
+        />
+      )}
+
       {/* 2. Sleek, Single-Line Quick Composer */}
       <View style={styles.compactComposerCard}>
         <TouchableOpacity 
@@ -1404,7 +1419,7 @@ const DashboardScreen = ({ navigation }) => {
                   filteredPosts.map(post => renderPostCard(post))
                 ) : (
                   <View style={styles.emptyFeedBox}>
-                    <Ionicons name="newspaper-outline" size={44} color="#94A3B8" style={{ marginBottom: 10 }} />
+                    <Mascot size={80} style={{ marginBottom: 10 }} />
                     <Text style={styles.emptyFeedTitle}>No posts in this category yet</Text>
                     <Text style={styles.emptyFeedDesc}>
                       {feedFilter === 'jobs' 
@@ -1757,7 +1772,7 @@ const DashboardScreen = ({ navigation }) => {
               filteredPosts.map(post => renderPostCard(post))
             ) : (
               <View style={styles.emptyFeedBox}>
-                <Ionicons name="newspaper-outline" size={44} color="#94A3B8" style={{ marginBottom: 10 }} />
+                <Mascot size={80} style={{ marginBottom: 10 }} />
                 <Text style={styles.emptyFeedTitle}>No posts in this category yet</Text>
                 <Text style={styles.emptyFeedDesc}>
                   {feedFilter === 'jobs' 
