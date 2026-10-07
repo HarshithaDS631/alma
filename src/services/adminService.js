@@ -70,3 +70,8 @@ export const getActivityLogs = async (limit = 100, search = '') => {
     const { data } = await api.get(`/activity?limit=${limit}&search=${encodeURIComponent(search)}`);
     return data;
 };
+
+export const syncStudentsFromSheet = async (sheetUrl = undefined) => {
+    const { data } = await api.post('/admin/sync-students', { sheetUrl });
+    return data;
+};

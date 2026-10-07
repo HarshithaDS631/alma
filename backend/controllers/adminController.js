@@ -107,6 +107,68 @@ exports.getEmailStats = async (req, res) => {
 };
 
 // @desc    Get all users pending approval
+// Helper: Match a user against RVCE student roster sheet records (StudentData)
+const findStudentMatches = async (user) => {
+    let matches = [];
+    if (!user) return matches;
+
+    const userName = (user.name || '').trim().toLowerCase();
+
+    // 1. Direct regex match
+    if (userName) {
+        const escapedName = userName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        matches = await StudentData.find({
+            name: { $regex: escapedName, $options: 'i' }
+        }).limit(5).lean();
+
+        // 2. Tokenized reverse match (e.g. "Harshitha D S" matches "harshitha")
+        if (matches.length === 0) {
+            const tokens = userName.split(/\s+/).filter(t => t.length >= 3);
+            if (tokens.length > 0) {
+                const regexList = tokens.map(t => new RegExp(t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'));
+                matches = await StudentData.find({
+                    name: { $in: regexList }
+                }).limit(5).lean();
+            }
+        }
+    }
+
+    // 3. Fallback: Search by matching both joiningYear and leavingYear
+    if (matches.length === 0) {
+        const yearQueries = [];
+        if (user.joiningYear) yearQueries.push({ joiningYear: user.joiningYear.trim() });
+        const batch = user.batchYear || user.leavingYear;
+        if (batch) yearQueries.push({ leavingYear: batch.trim() });
+
+        if (yearQueries.length > 0) {
+            matches = await StudentData.find({ $and: yearQueries }).limit(5).lean();
+        }
+    }
+
+    // Calculate match confidence
+    return matches.map(m => {
+        const mName = (m.name || '').toLowerCase();
+        const nameMatches = userName && (userName.includes(mName) || mName.includes(userName));
+        const joinMatches = user.joiningYear && String(user.joiningYear).trim() === String(m.joiningYear).trim();
+        const leaveMatches = (user.batchYear || user.leavingYear) && String(user.batchYear || user.leavingYear).trim() === String(m.leavingYear).trim();
+
+        let confidence = 'MEDIUM';
+        if (nameMatches && (joinMatches || leaveMatches)) {
+            confidence = 'HIGH';
+        } else if (!nameMatches && (joinMatches && leaveMatches)) {
+            confidence = 'YEAR_MATCH';
+        }
+
+        return {
+            ...m,
+            confidence,
+            matchedName: Boolean(nameMatches),
+            matchedYears: Boolean(joinMatches || leaveMatches)
+        };
+    });
+};
+
+// @desc    Get all users pending approval
 // @route   GET /api/admin/pending-users
 exports.getPendingUsers = async (req, res) => {
     try {
@@ -122,8 +184,19 @@ exports.getPendingUsers = async (req, res) => {
 
         const pendingUsers = await User.find(filter)
             .select('-password -passwordResetToken -passwordResetExpires')
-            .sort({ created_at: -1 });
-        res.json(pendingUsers);
+            .sort({ created_at: -1 })
+            .lean();
+
+        // Proactively enrich each pending user with roster sheet match
+        const enrichedUsers = await Promise.all(pendingUsers.map(async (u) => {
+            const matches = await findStudentMatches(u);
+            return {
+                ...u,
+                suggestedMatches: matches
+            };
+        }));
+
+        res.json(enrichedUsers);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -234,32 +307,12 @@ exports.checkMatch = async (req, res) => {
             return res.status(200).json({ success: false, message: 'Invalid or missing user ID', matches: [] });
         }
 
-        const user = await User.findById(userId);
+        const user = await User.findById(userId).lean();
         if (!user) {
             return res.status(200).json({ success: false, message: 'User not found in system', matches: [] });
         }
 
-        let matches = [];
-
-        // 1. Search by name regex (partial match, case-insensitive)
-        if (user.name && user.name.trim()) {
-            const escapedName = user.name.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            matches = await StudentData.find({
-                name: { $regex: escapedName, $options: 'i' }
-            }).limit(10);
-        }
-
-        // 2. Fallback: Search by joining/leaving year if no name match
-        if (matches.length === 0) {
-            let yearQuery = { $or: [] };
-            if (user.joiningYear) yearQuery.$or.push({ joiningYear: user.joiningYear.trim() });
-            if (user.batchYear) yearQuery.$or.push({ leavingYear: user.batchYear.trim() });
-            
-            if (yearQuery.$or.length > 0) {
-                 matches = await StudentData.find(yearQuery).limit(5);
-            }
-        }
-
+        const matches = await findStudentMatches(user);
         res.json({ success: true, matches: matches || [] });
     } catch (error) {
         console.error('[CHECK MATCH CONTROLLER ERROR]:', error.message);

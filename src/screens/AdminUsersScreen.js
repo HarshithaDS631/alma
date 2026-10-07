@@ -18,7 +18,7 @@ import {
 } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
-import { getPendingUsers, approveUser, rejectUser } from '../services/adminService';
+import { getPendingUsers, approveUser, rejectUser, syncStudentsFromSheet } from '../services/adminService';
 import { getImageUrl } from '../services/uploadService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sendWelcomeEmail } from '../lib/sendgrid';
@@ -168,6 +168,22 @@ const AdminUsersScreen = ({ navigation, route }) => {
       alert('Error checking sheet match: ' + (err.message || 'Server error'));
     } finally {
       setCheckingMatch(prev => ({ ...prev, [userId]: false }));
+    }
+  };
+
+  const [syncingSheet, setSyncingSheet] = useState(false);
+
+  const handleSyncSheet = async () => {
+    try {
+      setSyncingSheet(true);
+      const res = await syncStudentsFromSheet();
+      alert(`Sync Complete: ${res.message || 'Updated records from RVCE Google Sheet.'}`);
+      const pending = await getPendingUsers(adminInstitution);
+      setPendingUsers(pending);
+    } catch (err) {
+      alert('Error syncing sheet: ' + (err.message || 'Server error'));
+    } finally {
+      setSyncingSheet(false);
     }
   };
 
@@ -419,7 +435,7 @@ const AdminUsersScreen = ({ navigation, route }) => {
     const userId = item._id || item.id;
     const batchYear = item.batch_year || item.batchYear || item.leavingYear;
     const joiningYear = item.joining_year || item.joiningYear;
-    const matches = sheetMatches[userId] || [];
+    const matches = sheetMatches[userId] || item.suggestedMatches || [];
     const isChecking = checkingMatch[userId];
     
     return (
@@ -448,11 +464,14 @@ const AdminUsersScreen = ({ navigation, route }) => {
                 </Text>
               </TouchableOpacity>
             ) : (
-              <View style={{ backgroundColor: '#DEF7EC', padding: 8, borderRadius: 8, marginTop: 4 }}>
-                <Text style={{ fontSize: 11, color: '#03543F', fontWeight: '700', marginBottom: 2 }}>Suggested Matches:</Text>
+              <View style={{ backgroundColor: '#DEF7EC', padding: 8, borderRadius: 8, marginTop: 4, borderWidth: 1, borderColor: '#31C48D' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2, gap: 4 }}>
+                  <Ionicons name="checkmark-circle" size={13} color="#03543F" />
+                  <Text style={{ fontSize: 11, color: '#03543F', fontWeight: '800' }}>Verified in RVCE Records:</Text>
+                </View>
                 {matches.map((m, idx) => (
                   <Text key={idx} style={{ fontSize: 11, color: '#03543F' }}>
-                    • {m.name} ({m.joiningYear} - {m.leavingYear})
+                    • {m.name} ({m.joiningYear} – {m.leavingYear}) {m.confidence === 'HIGH' ? '★ Exact Match' : ''}
                   </Text>
                 ))}
               </View>
@@ -620,6 +639,29 @@ const AdminUsersScreen = ({ navigation, route }) => {
           renderItem={renderPendingItem}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
+          ListHeaderComponent={() => (
+            <View style={{ backgroundColor: '#F0F9FF', borderColor: '#BAE6FD', borderWidth: 1, borderRadius: 12, padding: 12, marginBottom: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <View style={{ flex: 1, marginRight: 8 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Ionicons name="document-text" size={16} color="#0284C7" />
+                  <Text style={{ fontSize: 13, fontWeight: '700', color: '#0369A1' }}>RVCE Roster Verification</Text>
+                </View>
+                <Text style={{ fontSize: 11, color: '#0284C7', marginTop: 2 }}>
+                  Alumni applications verified against official Google Sheet roster.
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={{ backgroundColor: '#0284C7', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, flexDirection: 'row', alignItems: 'center', gap: 4 }}
+                onPress={handleSyncSheet}
+                disabled={syncingSheet}
+              >
+                <Ionicons name="refresh-outline" size={14} color="#FFF" />
+                <Text style={{ fontSize: 11, fontWeight: '700', color: '#FFF' }}>
+                  {syncingSheet ? 'Syncing...' : 'Sync Sheet'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
           ListEmptyComponent={() => (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 80 }}>
               <Ionicons name="people-outline" size={48} color="#94A3B8" />

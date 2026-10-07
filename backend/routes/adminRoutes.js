@@ -39,7 +39,7 @@ router.post('/sap/sync', superAdminOnly, triggerSapSync);
 // Role updating is only for Super Admins in our controller logic, but we can protect it here as well
 router.put('/users/:id/role', superAdminOnly, updateUserRole);
 
-// Sync students from Mediacell Google Sheet
-router.post('/sync-students', superAdminOnly, syncStudents);
+// Sync students from RVCE Google Sheet
+router.post('/sync-students', adminOnly, syncStudents);
 
 module.exports = router;
