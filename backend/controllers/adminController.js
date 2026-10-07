@@ -387,3 +387,41 @@ exports.getAllSessions = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// @desc    Check SAP SLcM configuration & master cache status
+// @route   GET /api/admin/sap/status
+exports.checkSapStatus = async (req, res) => {
+    try {
+        const sapService = require('../services/sapService');
+        const configured = sapService.isConfigured();
+        const totalCachedStudents = await StudentData.countDocuments({ usn: { $exists: true, $ne: null } });
+        const lastSyncRecord = await StudentData.findOne().sort({ lastSyncedAt: -1 }).select('lastSyncedAt');
+
+        res.json({
+            configured,
+            totalCachedStudents,
+            lastSyncedAt: lastSyncRecord?.lastSyncedAt || null,
+            endpoint: process.env.SAP_SLCM_URL ? `${process.env.SAP_SLCM_URL.slice(0, 35)}...` : 'Not Configured',
+            status: configured ? 'ACTIVE' : 'AWAITING_CREDENTIALS'
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Trigger manual batch sync from SAP SLcM
+// @route   POST /api/admin/sap/sync
+exports.triggerSapSync = async (req, res) => {
+    try {
+        const sapService = require('../services/sapService');
+        const { gradYear } = req.body || {};
+        const result = await sapService.syncGraduatedBatchFromSAP(gradYear);
+        res.json({
+            success: true,
+            message: `Successfully synchronized ${result.count} alumni records from SAP SLcM.`,
+            count: result.count
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};

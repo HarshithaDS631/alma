@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const StudentData = require('../models/StudentData');
 const AlumniVerification = require('../models/AlumniVerification');
+const sapService = require('../services/sapService');
 const connectDB = require('../config/db');
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
@@ -252,18 +253,30 @@ exports.registerUser = async (req, res) => {
             }
         }
 
-        // 3. Complete Registration (Auto-approve if matched in institution master registry, else require Admin Approval)
+        // 3. Complete Registration (Auto-approve if matched in SAP SLcM or institution master registry, else require Admin Approval)
         let isAutoApproved = false;
+        const usnClean = (req.body.usn || req.body.usnOrRollNo || '').toString().trim().toUpperCase();
         try {
-            const masterRecord = await StudentData.findOne({ email: emailClean }) || await AlumniVerification.findOne({ email: emailClean });
-            if (masterRecord) {
-                isAutoApproved = true;
+            if (usnClean) {
+                const sapRecord = await sapService.lookupAlumnusByUSN(usnClean);
+                if (sapRecord) {
+                    isAutoApproved = true;
+                }
+            }
+            if (!isAutoApproved) {
+                const searchFilters = [{ email: emailClean }];
+                if (usnClean) searchFilters.push({ usn: usnClean });
+                const masterRecord = await StudentData.findOne({ $or: searchFilters }) || await AlumniVerification.findOne({ email: emailClean });
+                if (masterRecord) {
+                    isAutoApproved = true;
+                }
             }
         } catch (_) {}
 
         const user = await User.create({
             name,
             email: emailClean,
+            usn: usnClean || undefined,
             password,
             institution: institution || 'RV Educational Institutions',
             branch: branch || department,
