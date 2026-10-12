@@ -126,9 +126,9 @@ function Render3DTabIcon({ name, focused, isDarkMode, theme, isPost, label, isMa
         paddingHorizontal: focused ? 14 : 10,
         paddingVertical: 5,
         borderRadius: 14,
-        backgroundColor: focused ? (theme.iconPodActiveBg || 'rgba(255, 90, 54, 0.12)') : 'transparent',
+        backgroundColor: focused ? (theme.iconPodActiveBg || 'rgba(250, 130, 87, 0.12)') : 'transparent',
         borderWidth: focused ? 1.5 : 0,
-        borderColor: focused ? (theme.iconPodBorder || 'rgba(255, 90, 54, 0.35)') : 'transparent',
+        borderColor: focused ? (theme.iconPodBorder || 'rgba(250, 130, 87, 0.35)') : 'transparent',
         shadowColor: focused ? (isDarkMode ? theme.primaryLight : theme.primary) : 'transparent',
         shadowOffset: { width: 0, height: 3 },
         shadowOpacity: focused ? 0.35 : 0,
@@ -176,21 +176,21 @@ function CustomDrawerContent(props) {
             width: 40,
             height: 40,
             borderRadius: 12,
-            backgroundColor: '#FF432A',
+            backgroundColor: '#FA8257',
             justifyContent: 'center',
             alignItems: 'center',
-            shadowColor: '#FF432A',
+            shadowColor: '#FA8257',
             shadowOffset: { width: 0, height: 3 },
             shadowOpacity: 0.25,
             shadowRadius: 5,
             elevation: 3
           }}>
-            <Ionicons name="school" size={20} color="#FF6B35" />
+            <Ionicons name="school" size={20} color="#FFB592" />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={{ fontSize: 15, fontWeight: '800', color: theme.text, letterSpacing: -0.2 }}>RV ALUMNI</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 2 }}>
-              <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#FF432A', marginRight: 5 }} />
+              <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#FA8257', marginRight: 5 }} />
               <Text style={{ fontSize: 11, fontWeight: '600', color: theme.textMuted }}>Official Portal</Text>
             </View>
           </View>
@@ -210,7 +210,7 @@ function CustomDrawerContent(props) {
           style={{
             flexDirection: 'row',
             alignItems: 'center',
-            backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+            backgroundColor: isDarkMode ? '#1E293B' : '#FBF9F7',
             borderRadius: 12,
             padding: 10,
             borderWidth: 1,
@@ -221,7 +221,7 @@ function CustomDrawerContent(props) {
             width: 36,
             height: 36,
             borderRadius: 18,
-            backgroundColor: '#FF432A',
+            backgroundColor: '#FA8257',
             justifyContent: 'center',
             alignItems: 'center',
             overflow: 'hidden',
@@ -274,7 +274,7 @@ function MainTabs() {
             paddingHorizontal: 10,
             marginVertical: 3,
           },
-          drawerActiveBackgroundColor: isDarkMode ? 'rgba(255, 90, 54, 0.14)' : 'rgba(255, 90, 54, 0.08)',
+          drawerActiveBackgroundColor: isDarkMode ? 'rgba(250, 130, 87, 0.14)' : 'rgba(250, 130, 87, 0.08)',
           drawerActiveTintColor: isDarkMode ? theme.primaryLight : theme.primary,
           drawerInactiveTintColor: isDarkMode ? '#94A3B8' : '#64748B',
           drawerLabelStyle: { fontSize: 14, fontWeight: '700', marginLeft: -4 },
@@ -290,7 +290,7 @@ function MainTabs() {
                 width: 32,
                 height: 32,
                 borderRadius: 9,
-                backgroundColor: focused ? (isDarkMode ? 'rgba(255, 90, 54, 0.2)' : 'rgba(255, 90, 54, 0.12)') : 'transparent',
+                backgroundColor: focused ? (isDarkMode ? 'rgba(250, 130, 87, 0.2)' : 'rgba(250, 130, 87, 0.12)') : 'transparent',
                 justifyContent: 'center',
                 alignItems: 'center'
               }}>

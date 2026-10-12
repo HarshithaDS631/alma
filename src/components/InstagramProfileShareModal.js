@@ -27,9 +27,9 @@ const CARD_THEMES = [
     bg: '#002147',
     gradient: ['#001428', '#002B5B', '#0F4C81'],
     accent: '#F59E0B',
-    accentLight: '#FFEAE4',
+    accentLight: '#FFF1EB',
     badgeText: '🏛️ RVCE ALUMNI',
-    cardBorder: 'rgba(255, 90, 54, 0.4)'
+    cardBorder: 'rgba(250, 130, 87, 0.4)'
   },
   {
     id: 'instagram',
@@ -44,19 +44,19 @@ const CARD_THEMES = [
   {
     id: 'emerald',
     name: 'Emerald Green',
-    bg: '#C23112',
-    gradient: ['#C23112', '#E03D1A', '#FF432A'],
-    accent: '#FF6B35',
-    accentLight: '#FFEAE4',
+    bg: '#9A421C',
+    gradient: ['#9A421C', '#D96738', '#FA8257'],
+    accent: '#FFB592',
+    accentLight: '#FFF1EB',
     badgeText: '🌿 ALUMNI NETWORK',
-    cardBorder: 'rgba(255, 107, 53, 0.4)'
+    cardBorder: 'rgba(255, 181, 146, 0.4)'
   },
   {
     id: 'obsidian',
     name: 'Midnight Dark',
     bg: '#090D16',
     gradient: ['#090D16', '#1E293B', '#334155'],
-    accent: '#FF6B35',
+    accent: '#FFB592',
     accentLight: '#FED7AA',
     badgeText: '🎓 OFFICIAL MEMBER',
     cardBorder: 'rgba(96, 165, 250, 0.3)'
@@ -65,7 +65,7 @@ const CARD_THEMES = [
     id: 'cyber',
     name: 'Cyber Violet',
     bg: '#4C1D95',
-    gradient: ['#4C1D95', '#FF432A', '#A855F7'],
+    gradient: ['#4C1D95', '#FA8257', '#A855F7'],
     accent: '#E879F9',
     accentLight: '#F3E8FF',
     badgeText: '🚀 RV TECH ALUM',
@@ -298,7 +298,7 @@ export default function InstagramProfileShareModal({
               <View style={styles.cardIdentity}>
                 <View style={styles.nameRow}>
                   <Text style={styles.cardName} numberOfLines={1}>{name}</Text>
-                  <Ionicons name="checkmark-circle" size={18} color="#FF6B35" style={{ marginLeft: 6 }} />
+                  <Ionicons name="checkmark-circle" size={18} color="#FFB592" style={{ marginLeft: 6 }} />
                 </View>
 
                 <Text style={[styles.cardHandle, { color: currentTheme.accent }]}>
@@ -359,10 +359,10 @@ export default function InstagramProfileShareModal({
                   <Ionicons
                     name={copied ? 'checkmark-circle' : 'copy-outline'}
                     size={19}
-                    color={copied ? '#FF432A' : '#FFFFFF'}
+                    color={copied ? '#FA8257' : '#FFFFFF'}
                     style={{ marginRight: 7 }}
                   />
-                  <Text style={[styles.copyLinkBtnText, copied && { color: '#FF432A' }]}>
+                  <Text style={[styles.copyLinkBtnText, copied && { color: '#FA8257' }]}>
                     {copied ? 'Copied!' : 'Copy Link'}
                   </Text>
                 </TouchableOpacity>
@@ -389,7 +389,7 @@ export default function InstagramProfileShareModal({
                   activeOpacity={0.7}
                 >
                   <View style={[styles.quickActionIconCircle, { backgroundColor: 'rgba(100, 116, 139, 0.22)', borderColor: 'rgba(148, 163, 184, 0.3)' }]}>
-                    <Ionicons name="share-social-outline" size={20} color="#F8FAFC" />
+                    <Ionicons name="share-social-outline" size={20} color="#FBF9F7" />
                   </View>
                   <Text style={styles.quickActionLabel}>Other Apps</Text>
                 </TouchableOpacity>
@@ -400,7 +400,7 @@ export default function InstagramProfileShareModal({
                   onPress={cycleTheme}
                   activeOpacity={0.7}
                 >
-                  <View style={[styles.quickActionIconCircle, { backgroundColor: 'rgba(255, 90, 54, 0.2)', borderColor: 'rgba(255, 90, 54, 0.4)' }]}>
+                  <View style={[styles.quickActionIconCircle, { backgroundColor: 'rgba(250, 130, 87, 0.2)', borderColor: 'rgba(250, 130, 87, 0.4)' }]}>
                     <Ionicons name="color-palette-outline" size={20} color="#F59E0B" />
                   </View>
                   <Text style={styles.quickActionLabel}>Change Color</Text>
@@ -624,7 +624,7 @@ const styles = StyleSheet.create({
   roleText: {
     fontSize: 11.5,
     fontWeight: '600',
-    color: '#F8FAFC'
+    color: '#FBF9F7'
   },
   cardFooter: {
     marginTop: 14,
@@ -682,8 +682,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   copyLinkBtnActive: {
-    borderColor: '#FF432A',
-    backgroundColor: 'rgba(255, 90, 54, 0.15)',
+    borderColor: '#FA8257',
+    backgroundColor: 'rgba(250, 130, 87, 0.15)',
   },
   copyLinkBtnText: {
     fontSize: 14.5,

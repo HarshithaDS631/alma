@@ -152,7 +152,7 @@ const MessagesScreen = ({ navigation }) => {
           <Text style={styles.headerTitle}>Direct Messages</Text>
         </View>
         <TouchableOpacity style={styles.createBtn} activeOpacity={0.6} onPress={() => setComposeModalVisible(true)}>
-          <Ionicons name="create-outline" size={24} color="#FF432A" />
+          <Ionicons name="create-outline" size={24} color="#FA8257" />
         </TouchableOpacity>
       </View>
 

@@ -98,10 +98,10 @@ export default function CareerInsightsScreen({ navigation }) {
             return (
               <TouchableOpacity
                 key={idx}
-                style={[styles.skillChip, isEndorsed && { backgroundColor: '#FFEAE4', borderColor: '#FF432A' }]}
+                style={[styles.skillChip, isEndorsed && { backgroundColor: '#FFF1EB', borderColor: '#FA8257' }]}
                 onPress={() => handleEndorse(item._id, skill, item.name)}
               >
-                <Text style={[styles.skillChipText, isEndorsed && { color: '#E03D1A' }]}>
+                <Text style={[styles.skillChipText, isEndorsed && { color: '#D96738' }]}>
                   {skill} {isEndorsed ? '👍 (1)' : '+ Endorse'}
                 </Text>
               </TouchableOpacity>
@@ -214,11 +214,11 @@ export default function CareerInsightsScreen({ navigation }) {
                   <View style={styles.benchmarkRow}>
                     <View>
                       <Text style={styles.statLabel}>Average Package</Text>
-                      <Text style={[styles.statValue, { color: '#FF432A' }]}>{b.avgPackage}</Text>
+                      <Text style={[styles.statValue, { color: '#FA8257' }]}>{b.avgPackage}</Text>
                     </View>
                     <View>
                       <Text style={styles.statLabel}>Highest Package</Text>
-                      <Text style={[styles.statValue, { color: '#FF432A' }]}>{b.maxPackage}</Text>
+                      <Text style={[styles.statValue, { color: '#FA8257' }]}>{b.maxPackage}</Text>
                     </View>
                   </View>
                   <Text style={[styles.topRoleText, { color: theme.subtext }]}>Top Hiring Role: <Text style={{ color: theme.text, fontWeight: '700' }}>{b.topRole}</Text></Text>
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#FF432A',
+    backgroundColor: '#FA8257',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 20
@@ -366,13 +366,13 @@ const styles = StyleSheet.create({
   topRoleText: { fontSize: 12, marginTop: 10, borderTopWidth: 1, borderTopColor: '#F1F5F9', paddingTop: 8 },
   skillRow: { flexDirection: 'row', alignItems: 'center', padding: 14, borderRadius: 12, borderWidth: 1, marginBottom: 8 },
   skillName: { fontSize: 14, fontWeight: '700' },
-  skillGrowth: { fontSize: 12, color: '#FF432A', fontWeight: '700', marginTop: 2 },
-  demandScoreBadge: { backgroundColor: '#FFEAE4', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12 },
-  demandScoreText: { color: '#E03D1A', fontWeight: '800', fontSize: 12 },
+  skillGrowth: { fontSize: 12, color: '#FA8257', fontWeight: '700', marginTop: 2 },
+  demandScoreBadge: { backgroundColor: '#FFF1EB', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12 },
+  demandScoreText: { color: '#D96738', fontWeight: '800', fontSize: 12 },
   companyGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   companyCard: { flex: 1, minWidth: '45%', padding: 16, borderRadius: 12, borderWidth: 1, alignItems: 'center', gap: 6 },
   companyName: { fontSize: 14, fontWeight: '700' },
-  alumniCount: { fontSize: 12, color: '#FF432A', fontWeight: '700' },
+  alumniCount: { fontSize: 12, color: '#FA8257', fontWeight: '700' },
   hubRow: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 12, borderWidth: 1, marginBottom: 8 },
   hubCity: { fontSize: 14, fontWeight: '700' },
   hubCount: { fontSize: 12, color: '#64748B' },

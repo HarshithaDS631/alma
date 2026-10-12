@@ -389,7 +389,7 @@ export default function ResumeBookScreen({ navigation, route }) {
 
   // ─── AVATAR COMPONENT ────────────────────────────────────────────────
   const AvatarCircle = ({ name, size = 80 }) => {
-    const colors = ['#FF432A', '#1E3A5F', '#0D47A1', '#004D40', '#1B5E20', '#4A148C', '#BF360C', '#E03D1A'];
+    const colors = ['#FA8257', '#1E3A5F', '#0D47A1', '#004D40', '#1B5E20', '#4A148C', '#BF360C', '#D96738'];
     const idx = name.split('').reduce((a, c) => a + c.charCodeAt(0), 0) % colors.length;
     return (
       <View style={{
@@ -410,7 +410,7 @@ export default function ResumeBookScreen({ navigation, route }) {
     <View style={{
       paddingHorizontal: 10, paddingVertical: 4, borderRadius: 14,
       borderWidth: 1.2, borderColor: isDarkMode ? '#475569' : '#CBD5E1',
-      backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+      backgroundColor: isDarkMode ? '#1E293B' : '#FBF9F7',
       marginRight: 6, marginBottom: 6
     }}>
       <Text style={{ fontSize: 12, fontWeight: '600', color: isDarkMode ? '#CBD5E1' : '#475569' }}>
@@ -967,7 +967,7 @@ export default function ResumeBookScreen({ navigation, route }) {
             {/* Education */}
             <View style={styles.resumeSection}>
               <Text style={[styles.resumeSectionTitle, { color: theme.text }]}>Education</Text>
-              <View style={[styles.experienceItem, { borderLeftColor: '#FF432A' }]}>
+              <View style={[styles.experienceItem, { borderLeftColor: '#FA8257' }]}>
                 <Text style={[styles.experienceTitle, { color: theme.text }]}>RV College of Engineering</Text>
                 <Text style={[styles.experienceCompany, { color: '#00BFA5' }]}>{selectedTalent?.course}</Text>
                 <Text style={[{ fontSize: 12, color: isDarkMode ? '#94A3B8' : '#64748B' }]}>
@@ -1030,7 +1030,7 @@ export default function ResumeBookScreen({ navigation, route }) {
             </Text>
             <TextInput
               style={[styles.forwardInput, {
-                backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+                backgroundColor: isDarkMode ? '#1E293B' : '#FBF9F7',
                 borderColor: isDarkMode ? '#334155' : '#E2E8F0',
                 color: theme.text
               }]}
@@ -1043,7 +1043,7 @@ export default function ResumeBookScreen({ navigation, route }) {
             />
             <TextInput
               style={[styles.forwardInput, styles.forwardTextarea, {
-                backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+                backgroundColor: isDarkMode ? '#1E293B' : '#FBF9F7',
                 borderColor: isDarkMode ? '#334155' : '#E2E8F0',
                 color: theme.text
               }]}
@@ -1096,7 +1096,7 @@ export default function ResumeBookScreen({ navigation, route }) {
             <Text style={[styles.formLabel, { color: theme.text }]}>Skills *</Text>
             <TextInput
               style={[styles.formInput, {
-                backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+                backgroundColor: isDarkMode ? '#1E293B' : '#FBF9F7',
                 borderColor: isDarkMode ? '#334155' : '#E2E8F0',
                 color: theme.text
               }]}
@@ -1109,7 +1109,7 @@ export default function ResumeBookScreen({ navigation, route }) {
             <Text style={[styles.formLabel, { color: theme.text }]}>Domain *</Text>
             <TextInput
               style={[styles.formInput, {
-                backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+                backgroundColor: isDarkMode ? '#1E293B' : '#FBF9F7',
                 borderColor: isDarkMode ? '#334155' : '#E2E8F0',
                 color: theme.text
               }]}
@@ -1122,7 +1122,7 @@ export default function ResumeBookScreen({ navigation, route }) {
             <Text style={[styles.formLabel, { color: theme.text }]}>Experience</Text>
             <TextInput
               style={[styles.formInput, {
-                backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+                backgroundColor: isDarkMode ? '#1E293B' : '#FBF9F7',
                 borderColor: isDarkMode ? '#334155' : '#E2E8F0',
                 color: theme.text
               }]}
@@ -1135,7 +1135,7 @@ export default function ResumeBookScreen({ navigation, route }) {
             <Text style={[styles.formLabel, { color: theme.text }]}>Professional Summary</Text>
             <TextInput
               style={[styles.formInput, styles.formTextarea, {
-                backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+                backgroundColor: isDarkMode ? '#1E293B' : '#FBF9F7',
                 borderColor: isDarkMode ? '#334155' : '#E2E8F0',
                 color: theme.text
               }]}
@@ -1162,7 +1162,7 @@ export default function ResumeBookScreen({ navigation, route }) {
 
   // ─── MAIN RENDER ──────────────────────────────────────────────────────
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: isDarkMode ? '#0F172A' : '#FFF5F2' }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: isDarkMode ? '#0F172A' : '#FFF8F5' }]}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={isDarkMode ? '#0F172A' : '#FFFFFF'} />
 
       {/* Header */}

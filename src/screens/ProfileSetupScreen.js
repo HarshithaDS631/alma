@@ -314,7 +314,7 @@ const ProfileSetupScreen = ({ navigation }) => {
               <Text style={styles.label}>Date of Birth 🎂</Text>
               {Platform.OS === 'web' ? (
                 <View style={styles.inputWrapper}>
-                  <Ionicons name="calendar-sharp" size={20} color="#FF432A" style={styles.inputIcon} />
+                  <Ionicons name="calendar-sharp" size={20} color="#FA8257" style={styles.inputIcon} />
                   <input
                     type="date"
                     value={formData.dateOfBirth}
@@ -339,7 +339,7 @@ const ProfileSetupScreen = ({ navigation }) => {
                   onPress={() => setDobModalVisible(true)}
                   activeOpacity={0.8}
                 >
-                  <Ionicons name="calendar-sharp" size={20} color="#FF432A" style={styles.inputIcon} />
+                  <Ionicons name="calendar-sharp" size={20} color="#FA8257" style={styles.inputIcon} />
                   <Text style={[styles.input, !formData.dateOfBirth && { color: theme.textMuted }]}>
                     {formData.dateOfBirth ? formData.dateOfBirth : 'YYYY-MM-DD'}
                   </Text>
@@ -420,7 +420,7 @@ const ProfileSetupScreen = ({ navigation }) => {
                               setShowLocSuggestions(false);
                             }}
                           >
-                            <Ionicons name="location-sharp" size={16} color="#FF432A" style={{ marginRight: 10 }} />
+                            <Ionicons name="location-sharp" size={16} color="#FA8257" style={{ marginRight: 10 }} />
                             <Text style={{ fontSize: 14, color: theme.text, flex: 1 }}>{locItem}</Text>
                           </TouchableOpacity>
                         ))}
@@ -431,12 +431,12 @@ const ProfileSetupScreen = ({ navigation }) => {
                             alignItems: 'center',
                             paddingVertical: 12,
                             paddingHorizontal: 16,
-                            backgroundColor: 'rgba(255, 90, 54, 0.04)'
+                            backgroundColor: 'rgba(250, 130, 87, 0.04)'
                           }}
                           onPress={() => setShowLocSuggestions(false)}
                         >
-                          <Ionicons name="add-circle" size={16} color="#FF432A" style={{ marginRight: 10 }} />
-                          <Text style={{ fontSize: 14, color: '#FF432A', fontWeight: '600' }}>
+                          <Ionicons name="add-circle" size={16} color="#FA8257" style={{ marginRight: 10 }} />
+                          <Text style={{ fontSize: 14, color: '#FA8257', fontWeight: '600' }}>
                             Use &quot;{formData.location}&quot;
                           </Text>
                         </TouchableOpacity>
@@ -751,7 +751,7 @@ const getStyles = (theme) => StyleSheet.create({
     borderBottomColor: '#F1F5F9',
   },
   selectedModalListItem: {
-    backgroundColor: '#FFF5F2',
+    backgroundColor: '#FFF8F5',
     marginHorizontal: -20,
     paddingHorizontal: 20,
   },

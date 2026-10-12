@@ -92,7 +92,7 @@ const AdminOTPScreen = ({ navigation, route }) => {
 
         <View style={styles.header}>
           <View style={styles.iconCircle}>
-            <Ionicons name="mail-open-outline" size={32} color="#FF432A" />
+            <Ionicons name="mail-open-outline" size={32} color="#FA8257" />
           </View>
           <Text style={styles.title}>Verify OTP</Text>
           <Text style={styles.subtitle}>We&apos;ve sent a 4-digit verification code to{'\n'}<Text style={styles.emailHighlight}>{adminEmail}</Text></Text>
@@ -174,12 +174,12 @@ const getStyles = (theme) => StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: '#FFF5F2',
+    backgroundColor: '#FFF8F5',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
     borderWidth: 2,
-    borderColor: '#FFEAE4',
+    borderColor: '#FFF1EB',
   },
   title: {
     fontSize: 28,
@@ -218,7 +218,7 @@ const getStyles = (theme) => StyleSheet.create({
   },
   filledInput: {
     borderColor: theme.primary,
-    backgroundColor: '#FFF5F2',
+    backgroundColor: '#FFF8F5',
   },
   timerContainer: {
     alignItems: 'center',

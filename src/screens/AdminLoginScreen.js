@@ -288,7 +288,7 @@ const getStyles = (theme) => StyleSheet.create({
   },
   credentialsBox: {
     marginTop: 16,
-    backgroundColor: '#FFF5F2',
+    backgroundColor: '#FFF8F5',
     borderRadius: 12,
     padding: 14,
     borderWidth: 1,
@@ -297,7 +297,7 @@ const getStyles = (theme) => StyleSheet.create({
   credentialsTitle: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#D93817',
+    color: '#B84E23',
     marginBottom: 10,
   },
   credentialRow: {
