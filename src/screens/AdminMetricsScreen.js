@@ -310,13 +310,13 @@ export default function AdminMetricsScreen({ navigation, isEmbedded = false }) {
             />
             <MetricCard 
               icon="checkmark-circle" 
-              color="#D97706" // Emerald
+              color="#FF432A" // Emerald
               value={(metrics.totalAlumni || 9931).toLocaleString()} 
               label="Verified RVians" 
             />
             <MetricCard 
               icon="business" 
-              color="#D97706" // Sky Blue
+              color="#FF432A" // Sky Blue
               value={(metrics.companiesCount || 4038).toLocaleString()} 
               label="Employing Companies" 
             />
@@ -328,7 +328,7 @@ export default function AdminMetricsScreen({ navigation, isEmbedded = false }) {
             />
             <MetricCard 
               icon="briefcase" 
-              color="#FBBF24" // Violet
+              color="#FF6B35" // Violet
               value={(metrics.activeJobs || 45).toString()} 
               label="Active Jobs" 
             />

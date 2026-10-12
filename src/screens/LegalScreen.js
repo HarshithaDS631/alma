@@ -53,7 +53,7 @@ export default function LegalScreen({ navigation, route }) {
 
   const renderSection = (title, content) => (
     <View style={styles.section} key={title}>
-      <Text style={[styles.subHeading, { color: isDarkMode ? '#FBBF24' : '#D97706' }]}>{title}</Text>
+      <Text style={[styles.subHeading, { color: isDarkMode ? '#FF6B35' : '#FF432A' }]}>{title}</Text>
       {content ? <Text style={[styles.paragraph, { color: theme.textSecondary || '#475569' }]}>{content}</Text> : null}
     </View>
   );
@@ -78,11 +78,11 @@ export default function LegalScreen({ navigation, route }) {
         {TABS.map(tab => (
           <TouchableOpacity
             key={tab.id}
-            style={[styles.tabItem, activeTab === tab.id && { borderBottomColor: isDarkMode ? '#FBBF24' : '#D97706', borderBottomWidth: 2.5 }]}
+            style={[styles.tabItem, activeTab === tab.id && { borderBottomColor: isDarkMode ? '#FF6B35' : '#FF432A', borderBottomWidth: 2.5 }]}
             onPress={() => setActiveTab(tab.id)}
           >
-            <Ionicons name={tab.icon} size={16} color={activeTab === tab.id ? (isDarkMode ? '#FBBF24' : '#D97706') : (theme.textMuted || '#94A3B8')} />
-            <Text style={[styles.tabText, { color: activeTab === tab.id ? (isDarkMode ? '#FBBF24' : '#D97706') : (theme.textMuted || '#94A3B8'), fontWeight: activeTab === tab.id ? '700' : '500' }]}>{tab.label}</Text>
+            <Ionicons name={tab.icon} size={16} color={activeTab === tab.id ? (isDarkMode ? '#FF6B35' : '#FF432A') : (theme.textMuted || '#94A3B8')} />
+            <Text style={[styles.tabText, { color: activeTab === tab.id ? (isDarkMode ? '#FF6B35' : '#FF432A') : (theme.textMuted || '#94A3B8'), fontWeight: activeTab === tab.id ? '700' : '500' }]}>{tab.label}</Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -94,7 +94,7 @@ export default function LegalScreen({ navigation, route }) {
         {activeTab === 'terms' && (
           <View>
             <View style={styles.docHeader}>
-              <Ionicons name="document-text" size={34} color={isDarkMode ? '#FBBF24' : '#D97706'} />
+              <Ionicons name="document-text" size={34} color={isDarkMode ? '#FF6B35' : '#FF432A'} />
               <View style={styles.docHeaderText}>
                 <Text style={[styles.sectionTitle, { color: theme.text }]}>Terms of Service</Text>
                 <Text style={[styles.effectiveDate, { color: theme.textMuted }]}>
@@ -142,11 +142,11 @@ export default function LegalScreen({ navigation, route }) {
             {renderSection('11. Privacy and Personal Data', 'Your privacy is paramount. Data collection, usage, encryption, retention, and deletion practices are governed by our Privacy Policy (/privacy-policy) in full compliance with the Digital Personal Data Protection Act (DPDPA), 2023.')}
             
             <TouchableOpacity 
-              style={[styles.linkButton, { borderColor: isDarkMode ? '#FBBF24' : '#D97706', marginVertical: 12 }]} 
+              style={[styles.linkButton, { borderColor: isDarkMode ? '#FF6B35' : '#FF432A', marginVertical: 12 }]} 
               onPress={() => setActiveTab('privacy')}
             >
-              <Ionicons name="shield-checkmark-outline" size={16} color={isDarkMode ? '#FBBF24' : '#D97706'} />
-              <Text style={[styles.linkButtonText, { color: isDarkMode ? '#FBBF24' : '#D97706' }]}>Read Full Privacy Policy (/privacy-policy)</Text>
+              <Ionicons name="shield-checkmark-outline" size={16} color={isDarkMode ? '#FF6B35' : '#FF432A'} />
+              <Text style={[styles.linkButtonText, { color: isDarkMode ? '#FF6B35' : '#FF432A' }]}>Read Full Privacy Policy (/privacy-policy)</Text>
             </TouchableOpacity>
 
             {renderSection('12. Third-Party Services and External Links', 'The Platform may integrate third-party services such as Google Sign-In, Apple Sign-In, Firebase, SendGrid, and external job sites. These third-party services operate under their own independent terms and privacy policies.')}
@@ -167,13 +167,13 @@ export default function LegalScreen({ navigation, route }) {
             <View style={{ backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, borderRadius: 10, padding: 14, marginBottom: 20 }}>
               <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>RV Educational Institutions</Text>
               <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 4 }}>Alumni Network Administration & Legal Cell</Text>
-              <Text style={{ fontSize: 13, color: isDarkMode ? '#FBBF24' : '#D97706', fontWeight: '600', marginTop: 4 }}>Email: rvmediadevelopers@gmail.com</Text>
+              <Text style={{ fontSize: 13, color: isDarkMode ? '#FF6B35' : '#FF432A', fontWeight: '600', marginTop: 4 }}>Email: rvmediadevelopers@gmail.com</Text>
               <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 2 }}>Location: Bengaluru, Karnataka, India</Text>
             </View>
 
-            <TouchableOpacity style={[styles.linkButton, { borderColor: isDarkMode ? '#FBBF24' : '#D97706' }]} onPress={() => openURL(TERMS_URL)}>
-              <Ionicons name="open-outline" size={16} color={isDarkMode ? '#FBBF24' : '#D97706'} />
-              <Text style={[styles.linkButtonText, { color: isDarkMode ? '#FBBF24' : '#D97706' }]}>View Terms Repository on GitHub</Text>
+            <TouchableOpacity style={[styles.linkButton, { borderColor: isDarkMode ? '#FF6B35' : '#FF432A' }]} onPress={() => openURL(TERMS_URL)}>
+              <Ionicons name="open-outline" size={16} color={isDarkMode ? '#FF6B35' : '#FF432A'} />
+              <Text style={[styles.linkButtonText, { color: isDarkMode ? '#FF6B35' : '#FF432A' }]}>View Terms Repository on GitHub</Text>
             </TouchableOpacity>
           </View>
         )}

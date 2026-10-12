@@ -90,9 +90,9 @@ const ForgotPasswordScreen = ({ navigation, route }) => {
                 borderRadius: 16,
                 alignItems: 'center',
                 borderWidth: 1,
-                borderColor: '#D97706',
+                borderColor: '#FF432A',
               }}>
-                <Ionicons name="mail-unread-outline" size={48} color="#D97706" style={{ marginBottom: 16 }} />
+                <Ionicons name="mail-unread-outline" size={48} color="#FF432A" style={{ marginBottom: 16 }} />
                 <Text style={{ fontSize: 18, fontWeight: '600', color: theme.text, marginBottom: 8, textAlign: 'center' }}>Check your email</Text>
                 <Text style={{ fontSize: 15, color: theme.textMuted, textAlign: 'center', lineHeight: 22, marginBottom: 20 }}>
                   We&apos;ve sent a password reset link to {email}. Click the link to set a new password.
