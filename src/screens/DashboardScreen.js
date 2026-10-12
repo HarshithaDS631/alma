@@ -30,6 +30,7 @@ import useUserRole from '../hooks/useUserRole';
 import { initSocket, getSocket } from '../services/socketService';
 import getInitials from '../lib/getInitials';
 import Mascot from '../components/Mascot';
+import BentoGrid, { BentoCard } from '../components/BentoGrid';
 
 
 // Pool of all known posts across all users — used as offline fallback
@@ -1227,6 +1228,82 @@ const DashboardScreen = ({ navigation }) => {
           style={{ marginHorizontal: 0, marginBottom: 12 }}
         />
       )}
+
+      {/* Bento Box Alumni Hub (Orange Health-inspired modular compartments) */}
+      <View style={styles.bentoSectionContainer}>
+        <View style={styles.bentoSectionHeader}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <View style={{ width: 4, height: 14, borderRadius: 2, backgroundColor: '#10B981' }} />
+            <Text style={styles.bentoSectionTitle}>Alumni Hub</Text>
+          </View>
+          <View style={styles.bentoSectionBadgePod}>
+            <Text style={styles.bentoSectionBadge}>QUICK ACCESS</Text>
+          </View>
+        </View>
+
+        <BentoGrid style={{ marginTop: 2, marginBottom: 12 }}>
+          {/* 1. Mentorship Hero (Wide) */}
+          <BentoCard
+            variant="hero"
+            title="1-on-1 Alumni Mentorship"
+            subtitle="Direct career guidance sessions with senior alumni from Google, Cisco & Boeing."
+            badge="ACTIVE SESSIONS"
+            badgeBg={isDarkMode ? '#064E3B' : '#ECFDF5'}
+            badgeTextColor={isDarkMode ? '#34D399' : '#047857'}
+            icon="sparkles"
+            iconColor="#059669"
+            iconBg={isDarkMode ? '#1E3A2B' : '#DCFCE7'}
+            onPress={() => navigation.navigate('Engage', { tab: 'directory' })}
+          />
+
+          {/* 2. Job Referrals (Left 50%) */}
+          <View style={{ flex: 1, minWidth: 140 }}>
+            <BentoCard
+              variant="compact"
+              metric="45+ Roles"
+              title="Job Referrals"
+              subtitle="RV alumni priority hiring"
+              badge="HIRING"
+              badgeBg={isDarkMode ? '#064E3B' : '#DCFCE7'}
+              badgeTextColor="#166534"
+              icon="briefcase-outline"
+              iconColor="#059669"
+              onPress={() => navigation.navigate('Main', { screen: 'Jobs' })}
+            />
+          </View>
+
+          {/* 3. Global Chapters (Right 50%) */}
+          <View style={{ flex: 1, minWidth: 140 }}>
+            <BentoCard
+              variant="compact"
+              metric="12 Cities"
+              title="Global Chapters"
+              subtitle="Bengaluru, US, UK & EU"
+              badge="COMMUNITY"
+              badgeBg={isDarkMode ? '#082F49' : '#E0F2FE'}
+              badgeTextColor="#0369A1"
+              icon="globe-outline"
+              iconColor="#0284C7"
+              iconBg={isDarkMode ? '#082F49' : '#E0F2FE'}
+              onPress={() => navigation.navigate('Engage', { tab: 'communities' })}
+            />
+          </View>
+
+          {/* 4. Campus Fast Services (Wide Accent) */}
+          <BentoCard
+            variant="accent"
+            title="Degree Verification & Transcripts"
+            subtitle="Official exam section requests, RSST innovation grants & alumni reunions."
+            badge="RVCE SERVICES"
+            badgeBg={isDarkMode ? '#134E4A' : '#CCFBF1'}
+            badgeTextColor="#0F766E"
+            icon="school-outline"
+            iconColor="#0F766E"
+            iconBg={isDarkMode ? '#134E4A' : '#CCFBF1'}
+            onPress={() => handleOpenExternalUrl('https://rvce.edu.in/exam-section')}
+          />
+        </BentoGrid>
+      </View>
 
       {/* 2. Sleek, Single-Line Quick Composer */}
       <View style={styles.compactComposerCard}>
@@ -2443,6 +2520,38 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     fontSize: 11.5,
     fontWeight: '700',
     color: '#10B981',
+  },
+
+  /* ── Bento Box Alumni Hub ────────────────────────────── */
+  bentoSectionContainer: {
+    marginBottom: 10,
+  },
+  bentoSectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+    paddingHorizontal: 2,
+  },
+  bentoSectionTitle: {
+    fontSize: 13.5,
+    fontWeight: '800',
+    color: theme.text,
+    letterSpacing: -0.2,
+  },
+  bentoSectionBadgePod: {
+    backgroundColor: isDarkMode ? '#1E293B' : '#F0FDF4',
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: isDarkMode ? '#334155' : '#A7F3D0',
+  },
+  bentoSectionBadge: {
+    fontSize: 9.5,
+    fontWeight: '800',
+    color: '#10B981',
+    letterSpacing: 0.5,
   },
 
   /* ── Compact Single-Line Composer ────────────────────── */

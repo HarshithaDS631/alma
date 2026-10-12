@@ -35,6 +35,7 @@ import useUserRole from '../hooks/useUserRole';
 import getInitials from '../lib/getInitials';
 import InstagramProfileShareModal from '../components/InstagramProfileShareModal';
 import Mascot from '../components/Mascot';
+import BentoGrid, { BentoCard } from '../components/BentoGrid';
 
 // ─── Exact RVCE AlmaConnect Filter Definitions & Counts ───────────────
 const ALMACONNECT_STATS = {
@@ -1236,6 +1237,80 @@ const DirectoryScreen = ({ navigation, route }) => {
           </View>
         </View>
 
+        {/* ─── Bento Box Directory Discovery Grid (Orange Health modular compartments) ─── */}
+        <BentoGrid style={{ marginBottom: 14 }}>
+          {/* 1. Global Network (Wide Hero) */}
+          <BentoCard
+            variant="hero"
+            metric="9,931+ Verified RVians"
+            title="Global Alumni Directory"
+            subtitle="Explore graduates, researchers and founders across 1970–2026 batches worldwide."
+            badge="DIRECTORY"
+            badgeBg="#ECFDF5"
+            badgeTextColor="#047857"
+            icon="people-outline"
+            iconColor="#059669"
+            iconBg="#DCFCE7"
+            onPress={() => {
+              setSelectedMemberType('all');
+              setSelectedCourse('all');
+              setSelectedGraduationYear('all');
+              setSelectedLocation('all');
+              setSelectedSpecializedList(null);
+              setSearchQuery('');
+            }}
+          />
+
+          {/* 2. Tech Leaders (50%) */}
+          <View style={{ flex: 1, minWidth: 140 }}>
+            <BentoCard
+              variant="compact"
+              metric="347+ Leads"
+              title="Tech & Software"
+              subtitle="SDEs & Architects"
+              badge="TECH"
+              badgeBg="#EEF2FF"
+              badgeTextColor="#4338CA"
+              icon="hardware-chip-outline"
+              iconColor="#4F46E5"
+              iconBg="#EEF2FF"
+              onPress={() => setSelectedSpecializedList('tech_mgrs')}
+            />
+          </View>
+
+          {/* 3. Core Engineers (50%) */}
+          <View style={{ flex: 1, minWidth: 140 }}>
+            <BentoCard
+              variant="compact"
+              metric="549+ Core"
+              title="Core & Non-IT"
+              subtitle="Mechanical & Civil"
+              badge="CORE"
+              badgeBg="#FEF3C7"
+              badgeTextColor="#B45309"
+              icon="construct-outline"
+              iconColor="#D97706"
+              iconBg="#FEF3C7"
+              onPress={() => setSelectedSpecializedList('eng_non_it')}
+            />
+          </View>
+
+          {/* 4. My Batch Circle (Wide Accent) */}
+          <BentoCard
+            variant="accent"
+            metric="Batch Circle"
+            title="My Graduating Batch"
+            subtitle="Fast filter to instantly connect with your graduating class colleagues."
+            badge="REUNIONS"
+            badgeBg="#F0FDF4"
+            badgeTextColor="#047857"
+            icon="school-outline"
+            iconColor="#059669"
+            iconBg="#DCFCE7"
+            onPress={() => setSelectedMemberType('my_batch')}
+          />
+        </BentoGrid>
+
         {/* ─── Member Type Filter Chips ─── */}
         <View style={styles.memberTypeRow}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingBottom: 2 }}>
@@ -2391,32 +2466,33 @@ const getStyles = (theme) => StyleSheet.create({
     gap: 12,
   },
 
-  /* Clean Alma Card */
+  /* Clean Bento Alma Card */
   almaCard: {
     width: '100%',
     backgroundColor: '#FFFFFF',
-    borderRadius: 14,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: '#E2E8F0',
-    padding: 14,
+    padding: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.03,
-    shadowRadius: 4,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+    marginBottom: 8,
   },
   almaProfileSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 12,
   },
   almaAvatarWrapper: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    marginRight: 10,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    marginRight: 12,
     overflow: 'hidden',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: '#A7F3D0',
   },
   almaAvatarImage: {
@@ -2431,19 +2507,20 @@ const getStyles = (theme) => StyleSheet.create({
   },
   almaAvatarInitials: {
     color: '#FFFFFF',
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '800',
   },
   almaMemberName: {
-    fontSize: 14.5,
+    fontSize: 15,
     fontWeight: '800',
     color: '#0F172A',
+    letterSpacing: -0.2,
   },
   almaBatchPill: {
     backgroundColor: '#F0FDF4',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 6,
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: '#A7F3D0',
   },
@@ -2453,17 +2530,17 @@ const getStyles = (theme) => StyleSheet.create({
     color: '#047857',
   },
   almaMemberRole: {
-    fontSize: 12,
+    fontSize: 12.5,
     color: '#334155',
-    lineHeight: 16,
+    lineHeight: 17,
     marginTop: 2,
     fontWeight: '500',
   },
   almaLocationRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 3,
-    marginTop: 3,
+    gap: 4,
+    marginTop: 4,
   },
   almaLocationText: {
     fontSize: 11,
@@ -2472,21 +2549,21 @@ const getStyles = (theme) => StyleSheet.create({
   almaCardActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
     borderTopWidth: 1,
     borderTopColor: '#F1F5F9',
-    paddingTop: 10,
+    paddingTop: 12,
   },
   almaConnectBtn: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: 5,
     backgroundColor: '#10B981',
     backgroundImage: Platform.OS === 'web' ? 'linear-gradient(135deg, #34D399 0%, #059669 100%)' : undefined,
-    paddingVertical: 7,
-    borderRadius: 8,
+    paddingVertical: 8,
+    borderRadius: 10,
   },
   almaConnectBtnRequested: {
     backgroundColor: '#DEF7EC',
@@ -2494,20 +2571,21 @@ const getStyles = (theme) => StyleSheet.create({
     borderColor: '#31C48D',
   },
   almaConnectBtnText: {
-    fontSize: 11.5,
+    fontSize: 12,
     fontWeight: '800',
     color: '#FFFFFF',
   },
   almaChatBtn: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 7,
-    borderRadius: 8,
-    backgroundColor: '#E6F4F1',
+    backgroundColor: '#F0FDF4',
     borderWidth: 1,
     borderColor: '#A7F3D0',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 10,
   },
   almaChatBtnText: {
     fontSize: 11.5,

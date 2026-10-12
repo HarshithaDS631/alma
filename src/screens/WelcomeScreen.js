@@ -116,6 +116,24 @@ const WelcomeScreen = ({ navigation }) => {
             <Text style={styles.subtitle}>
               {portal?.name || 'Official Alumni & Career Network'}
             </Text>
+
+            {/* Bento Feature Highlights */}
+            <View style={styles.bentoFeatureRow}>
+              <View style={styles.bentoFeatureItem}>
+                <Ionicons name="people" size={13} color="#059669" />
+                <Text style={styles.bentoFeatureText}>9.9K+ Alumni</Text>
+              </View>
+              <View style={styles.bentoFeatureDivider} />
+              <View style={styles.bentoFeatureItem}>
+                <Ionicons name="briefcase" size={13} color="#059669" />
+                <Text style={styles.bentoFeatureText}>Job Referrals</Text>
+              </View>
+              <View style={styles.bentoFeatureDivider} />
+              <View style={styles.bentoFeatureItem}>
+                <Ionicons name="globe" size={13} color="#059669" />
+                <Text style={styles.bentoFeatureText}>12 Chapters</Text>
+              </View>
+            </View>
           </View>
 
           {/* Action & Auth Section */}
@@ -128,7 +146,7 @@ const WelcomeScreen = ({ navigation }) => {
               style={{ borderRadius: 14, overflow: 'hidden', marginBottom: 12 }}
             >
               <GradientView
-                colors={theme.gradientPrimary || ['#FFA573', '#FF7F66']}
+                colors={theme.gradientPrimary || ['#34D399', '#059669']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.primaryButton}
@@ -232,6 +250,39 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     color: theme.textSecondary,
     lineHeight: 21,
     paddingHorizontal: 12,
+  },
+  bentoFeatureRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: isDarkMode ? '#131F19' : '#FFFFFF',
+    borderWidth: 1,
+    borderColor: isDarkMode ? '#1E2E25' : '#E6F4EA',
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    marginTop: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 6,
+    elevation: 1,
+  },
+  bentoFeatureItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 6,
+  },
+  bentoFeatureDivider: {
+    width: 1,
+    height: 12,
+    backgroundColor: isDarkMode ? '#1E2E25' : '#E2E8F0',
+  },
+  bentoFeatureText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: isDarkMode ? '#ECFDF5' : '#065F46',
   },
   actionSection: {
     width: '100%',
