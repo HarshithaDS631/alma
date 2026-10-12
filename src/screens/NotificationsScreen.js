@@ -102,10 +102,10 @@ const NotificationsScreen = ({ navigation }) => {
   const getColorForType = (type) => {
     switch (type) {
       case 'follow': return '#F3E8FF';
-      case 'connection': return '#FFF1EB';
-      case 'job': return '#FFF1EB';
+      case 'connection': return '#DCFCE7';
+      case 'job': return '#DCFCE7';
       case 'event': return '#F3E8FF';
-      case 'referral': return '#FFF1EB';
+      case 'referral': return '#DCFCE7';
       case 'announcement': return '#FFEDD5';
       case 'mention': return '#FCE7F3';
       case 'birthday': return '#FEE2E2';
@@ -116,11 +116,11 @@ const NotificationsScreen = ({ navigation }) => {
   const getIconColorForType = (type) => {
     switch (type) {
       case 'follow': return '#9333EA';
-      case 'connection': return '#FA8257';
-      case 'job': return '#FA8257';
+      case 'connection': return '#059669';
+      case 'job': return '#059669';
       case 'event': return '#9333EA';
       case 'referral': return '#16A34A';
-      case 'announcement': return '#FA8257';
+      case 'announcement': return '#059669';
       case 'mention': return '#DB2777';
       case 'birthday': return '#EF4444';
       default: return '#64748B';
@@ -306,7 +306,7 @@ const getStyles = (theme) => StyleSheet.create({
     alignItems: 'center',
   },
   unreadCard: {
-    backgroundColor: '#FFF8F5',
+    backgroundColor: '#F0FDF4',
   },
   unreadDot: {
     position: 'absolute',
@@ -314,7 +314,7 @@ const getStyles = (theme) => StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#FA8257',
+    backgroundColor: '#059669',
   },
   iconBox: {
     width: 44,

@@ -155,8 +155,8 @@ const ResetPasswordScreen = ({ navigation, route }) => {
                           const isMet = status.checks && status.checks[crit.id];
                           return (
                             <View key={crit.id} style={{ flexDirection: 'row', alignItems: 'center', marginRight: 10, marginBottom: 4 }}>
-                              <Ionicons name={isMet ? "checkmark-circle" : "ellipse-outline"} size={13} color={isMet ? "#FA8257" : theme.textMuted} />
-                              <Text style={{ fontSize: 11, color: isMet ? '#FA8257' : theme.textMuted, marginLeft: 4 }}>
+                              <Ionicons name={isMet ? "checkmark-circle" : "ellipse-outline"} size={13} color={isMet ? "#059669" : theme.textMuted} />
+                              <Text style={{ fontSize: 11, color: isMet ? '#059669' : theme.textMuted, marginLeft: 4 }}>
                                 {crit.label}
                               </Text>
                             </View>

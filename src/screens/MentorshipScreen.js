@@ -531,7 +531,7 @@ const MentorshipScreen = ({ navigation }) => {
     <View style={styles.heroGradient}>
       <View style={styles.heroContent}>
         <View style={styles.heroBadge}>
-          <MaterialCommunityIcons name="handshake" size={14} color="#FFB592" />
+          <MaterialCommunityIcons name="handshake" size={14} color="#34D399" />
           <Text style={styles.heroBadgeText}>RVCE ALUMNI MENTORSHIP PROGRAM</Text>
         </View>
         <Text style={styles.heroTitle}>Connect. Guide.{'\n'}Accelerate Careers.</Text>
@@ -543,14 +543,14 @@ const MentorshipScreen = ({ navigation }) => {
             style={styles.heroPrimaryBtn}
             onPress={() => { setApplyType('mentee'); setShowApplyModal(true); }}
           >
-            <Ionicons name="school-outline" size={18} color="#FA8257" />
+            <Ionicons name="school-outline" size={18} color="#059669" />
             <Text style={styles.heroPrimaryBtnText}>Apply as Mentee</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.heroSecondaryBtn}
             onPress={() => { setApplyType('mentor'); setShowApplyModal(true); }}
           >
-            <MaterialCommunityIcons name="hand-heart-outline" size={18} color="#FFB592" />
+            <MaterialCommunityIcons name="hand-heart-outline" size={18} color="#34D399" />
             <Text style={styles.heroSecondaryBtnText}>Register as Mentor</Text>
           </TouchableOpacity>
         </View>
@@ -629,14 +629,14 @@ const MentorshipScreen = ({ navigation }) => {
           {m.avatar_url ? (
             <Image source={{ uri: m.avatar_url }} style={styles.avatarImg} />
           ) : (
-            <View style={[styles.avatarPlaceholder, { backgroundColor: '#FA8257' }]}>
+            <View style={[styles.avatarPlaceholder, { backgroundColor: '#059669' }]}>
               <Text style={styles.avatarInitials}>{getInitials(m.name)}</Text>
             </View>
           )}
           <View style={{ flex: 1, marginLeft: 12 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={[styles.cardTitle, { color: theme.text }]} numberOfLines={1}>{m.name}</Text>
-              {m.isVerified && <Ionicons name="checkmark-circle" size={16} color="#FA8257" style={{ marginLeft: 4 }} />}
+              {m.isVerified && <Ionicons name="checkmark-circle" size={16} color="#059669" style={{ marginLeft: 4 }} />}
             </View>
             <Text style={[styles.cardSubTitle, { color: theme.textSecondary || '#64748B' }]} numberOfLines={1}>
               {m.designation} at {m.company}
@@ -655,8 +655,8 @@ const MentorshipScreen = ({ navigation }) => {
 
         <View style={styles.tagWrap}>
           {(m.areas || []).slice(0, 3).map((tag, i) => (
-            <View key={i} style={[styles.pillBadge, { backgroundColor: isDarkMode ? '#1E3A5F' : '#FFF8F5' }]}>
-              <Text style={[styles.pillText, { color: isDarkMode ? '#FED7AA' : '#FA8257' }]}>{tag}</Text>
+            <View key={i} style={[styles.pillBadge, { backgroundColor: isDarkMode ? '#1E3A5F' : '#F0FDF4' }]}>
+              <Text style={[styles.pillText, { color: isDarkMode ? '#A7F3D0' : '#059669' }]}>{tag}</Text>
             </View>
           ))}
         </View>
@@ -687,8 +687,8 @@ const MentorshipScreen = ({ navigation }) => {
             style={[styles.secondaryActionBtn, { borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
             onPress={() => openChatWithUser(m)}
           >
-            <Ionicons name="chatbubble-outline" size={15} color={isDarkMode ? '#FFB592' : '#FA8257'} />
-            <Text style={[styles.secondaryActionText, { color: isDarkMode ? '#FFB592' : '#FA8257' }]}>Message</Text>
+            <Ionicons name="chatbubble-outline" size={15} color={isDarkMode ? '#34D399' : '#059669'} />
+            <Text style={[styles.secondaryActionText, { color: isDarkMode ? '#34D399' : '#059669' }]}>Message</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.iconActionBtn, { backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9' }]}
@@ -712,7 +712,7 @@ const MentorshipScreen = ({ navigation }) => {
           {mentee.avatar_url ? (
             <Image source={{ uri: mentee.avatar_url }} style={styles.avatarImg} />
           ) : (
-            <View style={[styles.avatarPlaceholder, { backgroundColor: '#FA8257' }]}>
+            <View style={[styles.avatarPlaceholder, { backgroundColor: '#059669' }]}>
               <Text style={styles.avatarInitials}>{getInitials(mentee.name)}</Text>
             </View>
           )}
@@ -733,14 +733,14 @@ const MentorshipScreen = ({ navigation }) => {
         {/* Target Focus Areas */}
         <View style={styles.tagWrap}>
           {(mentee.areas || []).map((area, i) => (
-            <View key={i} style={[styles.pillBadge, { backgroundColor: isDarkMode ? '#1E3A5F' : '#FFF8F5' }]}>
-              <Text style={[styles.pillText, { color: isDarkMode ? '#FED7AA' : '#FA8257' }]}>🎯 {area}</Text>
+            <View key={i} style={[styles.pillBadge, { backgroundColor: isDarkMode ? '#1E3A5F' : '#F0FDF4' }]}>
+              <Text style={[styles.pillText, { color: isDarkMode ? '#A7F3D0' : '#059669' }]}>🎯 {area}</Text>
             </View>
           ))}
         </View>
 
         {/* AlmaConnect Structured Questionnaire Responses */}
-        <View style={[styles.menteeQuestionnaireBox, { backgroundColor: isDarkMode ? '#0F172A' : '#FBF9F7', borderColor: isDarkMode ? '#1E293B' : '#E2E8F0' }]}>
+        <View style={[styles.menteeQuestionnaireBox, { backgroundColor: isDarkMode ? '#0F172A' : '#F8FAFC', borderColor: isDarkMode ? '#1E293B' : '#E2E8F0' }]}>
           <View style={styles.qnaBlock}>
             <Text style={styles.qnaHeading}>🎯 Why do you want an alumni mentor?</Text>
             <Text style={[styles.qnaAnswer, { color: isDarkMode ? '#CBD5E1' : '#334155' }]} numberOfLines={isExpanded ? undefined : 2}>
@@ -786,7 +786,7 @@ const MentorshipScreen = ({ navigation }) => {
         {/* Action Row */}
         <View style={styles.cardActionsRow}>
           <TouchableOpacity
-            style={[styles.primaryActionBtn, { backgroundColor: '#FA8257' }]}
+            style={[styles.primaryActionBtn, { backgroundColor: '#059669' }]}
             onPress={() => {
               setRequestTarget(mentee);
               setShowRequestModal(true);
@@ -801,8 +801,8 @@ const MentorshipScreen = ({ navigation }) => {
             style={[styles.secondaryActionBtn, { borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
             onPress={() => openChatWithUser(mentee)}
           >
-            <Ionicons name="chatbubble-outline" size={15} color={isDarkMode ? '#FFB592' : '#FA8257'} />
-            <Text style={[styles.secondaryActionText, { color: isDarkMode ? '#FFB592' : '#FA8257' }]}>Message</Text>
+            <Ionicons name="chatbubble-outline" size={15} color={isDarkMode ? '#34D399' : '#059669'} />
+            <Text style={[styles.secondaryActionText, { color: isDarkMode ? '#34D399' : '#059669' }]}>Message</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.iconActionBtn, { backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9' }]}
@@ -825,8 +825,8 @@ const MentorshipScreen = ({ navigation }) => {
 
       {myConnections.length === 0 ? (
         <View style={styles.emptyState}>
-          <View style={[styles.emptyIcon, { backgroundColor: isDarkMode ? '#1E293B' : '#FFF8F5' }]}>
-            <MaterialCommunityIcons name="handshake-outline" size={48} color={isDarkMode ? '#FFB592' : '#FA8257'} />
+          <View style={[styles.emptyIcon, { backgroundColor: isDarkMode ? '#1E293B' : '#F0FDF4' }]}>
+            <MaterialCommunityIcons name="handshake-outline" size={48} color={isDarkMode ? '#34D399' : '#059669'} />
           </View>
           <Text style={[styles.emptyTitle, { color: theme.text }]}>No Connections Yet</Text>
           <Text style={[styles.emptySubtitle, { color: isDarkMode ? '#94A3B8' : '#64748B' }]}>
@@ -843,7 +843,7 @@ const MentorshipScreen = ({ navigation }) => {
               {conn.avatar ? (
                 <Image source={{ uri: conn.avatar }} style={styles.myMentorAvatar} />
               ) : (
-                <View style={[styles.avatarPlaceholder, { width: 44, height: 44, backgroundColor: '#FA8257' }]}>
+                <View style={[styles.avatarPlaceholder, { width: 44, height: 44, backgroundColor: '#059669' }]}>
                   <Text style={styles.avatarInitials}>{getInitials(conn.name)}</Text>
                 </View>
               )}
@@ -854,19 +854,19 @@ const MentorshipScreen = ({ navigation }) => {
                 </Text>
               </View>
               <View style={[styles.statusBadge, {
-                backgroundColor: conn.status === 'Active' ? '#FFF1EB' : conn.status === 'Pending' ? '#FFF1EB' : '#FEE2E2'
+                backgroundColor: conn.status === 'Active' ? '#DCFCE7' : conn.status === 'Pending' ? '#DCFCE7' : '#FEE2E2'
               }]}>
                 <View style={[styles.statusDot, {
-                  backgroundColor: conn.status === 'Active' ? '#16A34A' : conn.status === 'Pending' ? '#FA8257' : '#DC2626'
+                  backgroundColor: conn.status === 'Active' ? '#16A34A' : conn.status === 'Pending' ? '#059669' : '#DC2626'
                 }]} />
                 <Text style={[styles.statusText, {
-                  color: conn.status === 'Active' ? '#16A34A' : conn.status === 'Pending' ? '#FA8257' : '#DC2626'
+                  color: conn.status === 'Active' ? '#16A34A' : conn.status === 'Pending' ? '#059669' : '#DC2626'
                 }]}>{conn.status}</Text>
               </View>
             </View>
 
             {conn.goals ? (
-              <View style={[styles.connGoalBox, { backgroundColor: isDarkMode ? '#0F172A' : '#FBF9F7' }]}>
+              <View style={[styles.connGoalBox, { backgroundColor: isDarkMode ? '#0F172A' : '#F8FAFC' }]}>
                 <Text style={styles.connGoalLabel}>Goal / Note:</Text>
                 <Text style={[styles.connGoalText, { color: isDarkMode ? '#CBD5E1' : '#475569' }]}>{conn.goals}</Text>
               </View>
@@ -874,14 +874,14 @@ const MentorshipScreen = ({ navigation }) => {
 
             <View style={{ flexDirection: 'row', marginTop: 12, gap: 8 }}>
               <TouchableOpacity
-                style={[styles.actionBtnSmall, { backgroundColor: isDarkMode ? '#0F172A' : '#FFF8F5', flex: 1 }]}
+                style={[styles.actionBtnSmall, { backgroundColor: isDarkMode ? '#0F172A' : '#F0FDF4', flex: 1 }]}
                 onPress={() => openChatWithUser({ id: conn.targetId, name: conn.name, avatar_url: conn.avatar })}
               >
-                <Ionicons name="chatbubble-outline" size={14} color="#FA8257" />
-                <Text style={{ color: '#FA8257', fontSize: 12, fontWeight: '700', marginLeft: 4 }}>Open Chat</Text>
+                <Ionicons name="chatbubble-outline" size={14} color="#059669" />
+                <Text style={{ color: '#059669', fontSize: 12, fontWeight: '700', marginLeft: 4 }}>Open Chat</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.actionBtnSmall, { backgroundColor: isDarkMode ? '#0F172A' : '#FFF8F5', flex: 1 }]}
+                style={[styles.actionBtnSmall, { backgroundColor: isDarkMode ? '#0F172A' : '#F0FDF4', flex: 1 }]}
                 onPress={() => Alert.alert('Session Booking', `You can coordinate 1-on-1 meeting times directly in the in-app chat thread with ${conn.name}.`)}
               >
                 <Ionicons name="calendar-outline" size={14} color="#16A34A" />
@@ -897,13 +897,13 @@ const MentorshipScreen = ({ navigation }) => {
   // ─── RENDER FAQ TAB (ALMACONNECT RULES) ───────────────────
   const renderFaqTab = () => (
     <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
-      <View style={[styles.faqBanner, { backgroundColor: isDarkMode ? '#1E293B' : '#FFF8F5', borderColor: isDarkMode ? '#334155' : '#FED7AA' }]}>
-        <Ionicons name="information-circle" size={24} color="#FA8257" />
+      <View style={[styles.faqBanner, { backgroundColor: isDarkMode ? '#1E293B' : '#F0FDF4', borderColor: isDarkMode ? '#334155' : '#A7F3D0' }]}>
+        <Ionicons name="information-circle" size={24} color="#059669" />
         <View style={{ flex: 1, marginLeft: 12 }}>
-          <Text style={[styles.faqBannerTitle, { color: isDarkMode ? '#FED7AA' : '#1E40AF' }]}>
+          <Text style={[styles.faqBannerTitle, { color: isDarkMode ? '#A7F3D0' : '#1E40AF' }]}>
             AlmaConnect Mentorship Guidelines
           </Text>
-          <Text style={[styles.faqBannerText, { color: isDarkMode ? '#CBD5E1' : '#9A421C' }]}>
+          <Text style={[styles.faqBannerText, { color: isDarkMode ? '#CBD5E1' : '#064E3B' }]}>
             Official policies governing RVCE alumni mentors and student mentees.
           </Text>
         </View>
@@ -945,7 +945,7 @@ const MentorshipScreen = ({ navigation }) => {
         style={styles.sampleAppButton}
         onPress={() => setShowSampleModal(true)}
       >
-        <Ionicons name="document-text-outline" size={18} color="#FA8257" />
+        <Ionicons name="document-text-outline" size={18} color="#059669" />
         <Text style={styles.sampleAppButtonText}>View Sample Exemplary Applications</Text>
       </TouchableOpacity>
     </View>
@@ -992,8 +992,8 @@ const MentorshipScreen = ({ navigation }) => {
               style={{ marginTop: 12, alignSelf: 'flex-end', flexDirection: 'row', alignItems: 'center' }}
               onPress={() => setShowSampleModal(true)}
             >
-              <Ionicons name="help-circle-outline" size={14} color="#FA8257" />
-              <Text style={{ color: '#FA8257', fontSize: 12, fontWeight: '700', marginLeft: 4 }}>
+              <Ionicons name="help-circle-outline" size={14} color="#059669" />
+              <Text style={{ color: '#059669', fontSize: 12, fontWeight: '700', marginLeft: 4 }}>
                 View Sample Applications
               </Text>
             </TouchableOpacity>
@@ -1024,7 +1024,7 @@ const MentorshipScreen = ({ navigation }) => {
                 })}
               </View>
               <TextInput
-                style={[styles.formInput, { marginTop: 8, color: theme.text, backgroundColor: isDarkMode ? '#1E293B' : '#FBF9F7', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
+                style={[styles.formInput, { marginTop: 8, color: theme.text, backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
                 placeholder="Or type a custom area/domain..."
                 placeholderTextColor={isDarkMode ? '#64748B' : '#94A3B8'}
                 value={formData.customArea}
@@ -1038,7 +1038,7 @@ const MentorshipScreen = ({ navigation }) => {
                 <View>
                   <Text style={[styles.fieldLabel, { color: theme.text }]}>Why do you want an alumni mentor? *</Text>
                   <TextInput
-                    style={[styles.formInput, styles.formTextArea, { color: theme.text, backgroundColor: isDarkMode ? '#1E293B' : '#FBF9F7', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
+                    style={[styles.formInput, styles.formTextArea, { color: theme.text, backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
                     placeholder="Describe your current stage and why mentorship is important to you..."
                     placeholderTextColor={isDarkMode ? '#64748B' : '#94A3B8'}
                     value={formData.whyMentor}
@@ -1050,7 +1050,7 @@ const MentorshipScreen = ({ navigation }) => {
                 <View>
                   <Text style={[styles.fieldLabel, { color: theme.text }]}>Describe in detail the field(s) requiring guidance</Text>
                   <TextInput
-                    style={[styles.formInput, styles.formTextArea, { color: theme.text, backgroundColor: isDarkMode ? '#1E293B' : '#FBF9F7', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
+                    style={[styles.formInput, styles.formTextArea, { color: theme.text, backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
                     placeholder="Specific technologies, higher education tracks, interview prep, etc."
                     placeholderTextColor={isDarkMode ? '#64748B' : '#94A3B8'}
                     value={formData.guidance}
@@ -1062,7 +1062,7 @@ const MentorshipScreen = ({ navigation }) => {
                 <View>
                   <Text style={[styles.fieldLabel, { color: theme.text }]}>Progress / Past Work</Text>
                   <TextInput
-                    style={[styles.formInput, { color: theme.text, backgroundColor: isDarkMode ? '#1E293B' : '#FBF9F7', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
+                    style={[styles.formInput, { color: theme.text, backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
                     placeholder="Relevant projects, coursework, certifications completed"
                     placeholderTextColor={isDarkMode ? '#64748B' : '#94A3B8'}
                     value={formData.progress}
@@ -1073,7 +1073,7 @@ const MentorshipScreen = ({ navigation }) => {
                 <View>
                   <Text style={[styles.fieldLabel, { color: theme.text }]}>Activities during your time at the institute</Text>
                   <TextInput
-                    style={[styles.formInput, { color: theme.text, backgroundColor: isDarkMode ? '#1E293B' : '#FBF9F7', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
+                    style={[styles.formInput, { color: theme.text, backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
                     placeholder="Clubs, committees, sports, hackathons, student branches"
                     placeholderTextColor={isDarkMode ? '#64748B' : '#94A3B8'}
                     value={formData.activities}
@@ -1087,7 +1087,7 @@ const MentorshipScreen = ({ navigation }) => {
                 <View>
                   <Text style={[styles.fieldLabel, { color: theme.text }]}>Info about you & guidance offered *</Text>
                   <TextInput
-                    style={[styles.formInput, styles.formTextArea, { color: theme.text, backgroundColor: isDarkMode ? '#1E293B' : '#FBF9F7', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
+                    style={[styles.formInput, styles.formTextArea, { color: theme.text, backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
                     placeholder="Share your career journey and how you can guide students (e.g. mock interviews, resume critiques, graduate school advice)..."
                     placeholderTextColor={isDarkMode ? '#64748B' : '#94A3B8'}
                     value={formData.about}
@@ -1099,7 +1099,7 @@ const MentorshipScreen = ({ navigation }) => {
                 <View>
                   <Text style={[styles.fieldLabel, { color: theme.text }]}>Availability Preference</Text>
                   <TextInput
-                    style={[styles.formInput, { color: theme.text, backgroundColor: isDarkMode ? '#1E293B' : '#FBF9F7', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
+                    style={[styles.formInput, { color: theme.text, backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
                     placeholder="e.g. Weekends, 2 slots/month or Asynchronous chat"
                     placeholderTextColor={isDarkMode ? '#64748B' : '#94A3B8'}
                     value={formData.availability}
@@ -1148,7 +1148,7 @@ const MentorshipScreen = ({ navigation }) => {
               <View>
                 <Text style={[styles.fieldLabel, { color: theme.text }]}>Primary Goal / Focus Area</Text>
                 <TextInput
-                  style={[styles.formInput, { color: theme.text, backgroundColor: isDarkMode ? '#1E293B' : '#FBF9F7', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
+                  style={[styles.formInput, { color: theme.text, backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
                   placeholder={isMentor ? 'e.g. System Design Mock Interview or MS in US Advice' : 'e.g. Guidance in Backend Systems & Career Prep'}
                   placeholderTextColor={isDarkMode ? '#64748B' : '#94A3B8'}
                   value={requestGoal}
@@ -1159,7 +1159,7 @@ const MentorshipScreen = ({ navigation }) => {
               <View>
                 <Text style={[styles.fieldLabel, { color: theme.text }]}>Personalized Introduction Note</Text>
                 <TextInput
-                  style={[styles.formInput, styles.formTextArea, { color: theme.text, backgroundColor: isDarkMode ? '#1E293B' : '#FBF9F7', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
+                  style={[styles.formInput, styles.formTextArea, { color: theme.text, backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
                   placeholder="Introduce yourself, share your expectations, and let them know why you reached out..."
                   placeholderTextColor={isDarkMode ? '#64748B' : '#94A3B8'}
                   value={requestNote}
@@ -1196,7 +1196,7 @@ const MentorshipScreen = ({ navigation }) => {
               Adopted from AlmaConnect’s best-practice mentor and mentee profiles.
             </Text>
 
-            <View style={[styles.sampleBox, { backgroundColor: isDarkMode ? '#1E293B' : '#FFF8F5', borderColor: '#86EFAC' }]}>
+            <View style={[styles.sampleBox, { backgroundColor: isDarkMode ? '#1E293B' : '#F0FDF4', borderColor: '#86EFAC' }]}>
               <Text style={[styles.sampleTitle, { color: '#16A34A' }]}>Exemplary Mentee Application</Text>
               <Text style={styles.sampleSubHeading}>🎯 Why an alumni mentor?</Text>
               <Text style={styles.sampleText}>
@@ -1208,8 +1208,8 @@ const MentorshipScreen = ({ navigation }) => {
               </Text>
             </View>
 
-            <View style={[styles.sampleBox, { backgroundColor: isDarkMode ? '#1E293B' : '#FFF8F5', borderColor: '#FED7AA', marginTop: 14 }]}>
-              <Text style={[styles.sampleTitle, { color: '#FA8257' }]}>Exemplary Mentor Profile</Text>
+            <View style={[styles.sampleBox, { backgroundColor: isDarkMode ? '#1E293B' : '#F0FDF4', borderColor: '#A7F3D0', marginTop: 14 }]}>
+              <Text style={[styles.sampleTitle, { color: '#059669' }]}>Exemplary Mentor Profile</Text>
               <Text style={styles.sampleSubHeading}>💼 Guidance Offered:</Text>
               <Text style={styles.sampleText}>
                 {"\"10+ years in software architecture at Microsoft. Happy to review system design portfolios, conduct 1 mock interview per month, and advise on navigating corporate tech careers.\""}
@@ -1221,7 +1221,7 @@ const MentorshipScreen = ({ navigation }) => {
             </View>
 
             <TouchableOpacity
-              style={[styles.submitBtn, { backgroundColor: '#FA8257', marginTop: 20 }]}
+              style={[styles.submitBtn, { backgroundColor: '#059669', marginTop: 20 }]}
               onPress={() => setShowSampleModal(false)}
             >
               <Text style={styles.submitBtnText}>Got it!</Text>
@@ -1250,16 +1250,16 @@ const MentorshipScreen = ({ navigation }) => {
 
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <TouchableOpacity
-              style={[styles.headerActionBtn, { backgroundColor: isDarkMode ? '#1E293B' : '#FFF1EB' }]}
+              style={[styles.headerActionBtn, { backgroundColor: isDarkMode ? '#1E293B' : '#DCFCE7' }]}
               onPress={() => { setApplyType('mentor'); setShowApplyModal(true); }}
             >
-              <MaterialCommunityIcons name="hand-heart" size={18} color="#FA8257" />
+              <MaterialCommunityIcons name="hand-heart" size={18} color="#059669" />
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.headerActionBtn, { backgroundColor: isDarkMode ? '#1E293B' : '#FFF8F5' }]}
+              style={[styles.headerActionBtn, { backgroundColor: isDarkMode ? '#1E293B' : '#F0FDF4' }]}
               onPress={() => { setApplyType('mentee'); setShowApplyModal(true); }}
             >
-              <Ionicons name="school" size={18} color="#FA8257" />
+              <Ionicons name="school" size={18} color="#059669" />
             </TouchableOpacity>
           </View>
         </View>
@@ -1280,12 +1280,12 @@ const MentorshipScreen = ({ navigation }) => {
               <Ionicons
                 name={tab.icon}
                 size={16}
-                color={activeTab === tab.key ? (isDarkMode ? '#FFB592' : '#FA8257') : (isDarkMode ? '#64748B' : '#94A3B8')}
+                color={activeTab === tab.key ? (isDarkMode ? '#34D399' : '#059669') : (isDarkMode ? '#64748B' : '#94A3B8')}
               />
               <Text style={[
                 styles.tabText,
                 activeTab === tab.key && styles.activeTabText,
-                { color: activeTab === tab.key ? (isDarkMode ? '#FFB592' : '#FA8257') : (isDarkMode ? '#64748B' : '#94A3B8') }
+                { color: activeTab === tab.key ? (isDarkMode ? '#34D399' : '#059669') : (isDarkMode ? '#64748B' : '#94A3B8') }
               ]}>{tab.label}</Text>
             </TouchableOpacity>
           ))}
@@ -1303,7 +1303,7 @@ const MentorshipScreen = ({ navigation }) => {
                     Verified Alumni Mentors ({filteredMentors.length})
                   </Text>
                   <TouchableOpacity onPress={() => setShowSampleModal(true)}>
-                    <Text style={{ fontSize: 12, color: '#FA8257', fontWeight: '700' }}>View Best Practices</Text>
+                    <Text style={{ fontSize: 12, color: '#059669', fontWeight: '700' }}>View Best Practices</Text>
                   </TouchableOpacity>
                 </View>
 
@@ -1326,7 +1326,7 @@ const MentorshipScreen = ({ navigation }) => {
 
           {activeTab === 'mentees' && (
             <>
-              <View style={[styles.menteePoolBanner, { backgroundColor: isDarkMode ? '#0F172A' : '#FA8257' }]}>
+              <View style={[styles.menteePoolBanner, { backgroundColor: isDarkMode ? '#0F172A' : '#059669' }]}>
                 <Text style={styles.menteePoolBannerTitle}>RVCE Mentee Profiles Pool</Text>
                 <Text style={styles.menteePoolBannerSubtitle}>
                   Students and young alumni seeking guidance across industries. Alumni mentors can review applications and directly reach out.
@@ -1394,22 +1394,22 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     paddingVertical: 12, gap: 4,
   },
   activeTab: {
-    borderBottomWidth: 2.5, borderBottomColor: '#FA8257',
+    borderBottomWidth: 2.5, borderBottomColor: '#059669',
   },
   tabText: { fontSize: 11, fontWeight: '600' },
   activeTabText: { fontWeight: '800' },
 
   // Hero
   heroGradient: {
-    backgroundColor: isDarkMode ? '#0F172A' : '#FA8257',
+    backgroundColor: isDarkMode ? '#0F172A' : '#059669',
     paddingHorizontal: 20, paddingVertical: 28,
   },
   heroContent: { alignItems: 'center' },
   heroBadge: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255, 181, 146, 0.15)',
+    flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(52, 211, 153, 0.15)',
     paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, gap: 6, marginBottom: 12,
   },
-  heroBadgeText: { color: '#FFB592', fontSize: 10, fontWeight: '800', letterSpacing: 0.5 },
+  heroBadgeText: { color: '#34D399', fontSize: 10, fontWeight: '800', letterSpacing: 0.5 },
   heroTitle: {
     fontSize: 26, fontWeight: '900', color: '#FFFFFF', textAlign: 'center', lineHeight: 34, letterSpacing: -0.5,
   },
@@ -1420,15 +1420,15 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     flexDirection: 'row', gap: 10, marginTop: 20, flexWrap: 'wrap', justifyContent: 'center',
   },
   heroPrimaryBtn: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFB592',
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#34D399',
     paddingHorizontal: 18, paddingVertical: 10, borderRadius: 12, gap: 8,
   },
-  heroPrimaryBtnText: { color: '#FA8257', fontSize: 13, fontWeight: '800' },
+  heroPrimaryBtnText: { color: '#059669', fontSize: 13, fontWeight: '800' },
   heroSecondaryBtn: {
-    flexDirection: 'row', alignItems: 'center', borderWidth: 1.5, borderColor: 'rgba(255, 181, 146, 0.5)',
+    flexDirection: 'row', alignItems: 'center', borderWidth: 1.5, borderColor: 'rgba(52, 211, 153, 0.5)',
     paddingHorizontal: 18, paddingVertical: 10, borderRadius: 12, gap: 8,
   },
-  heroSecondaryBtnText: { color: '#FFB592', fontSize: 13, fontWeight: '700' },
+  heroSecondaryBtnText: { color: '#34D399', fontSize: 13, fontWeight: '700' },
 
   // Mentee Pool Banner
   menteePoolBanner: {
@@ -1439,9 +1439,9 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     fontSize: 12, color: 'rgba(255,255,255,0.8)', textAlign: 'center', marginTop: 6, lineHeight: 18, maxWidth: 480,
   },
   menteePoolCta: {
-    backgroundColor: '#FFB592', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 10, marginTop: 14,
+    backgroundColor: '#34D399', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 10, marginTop: 14,
   },
-  menteePoolCtaText: { color: '#FA8257', fontSize: 12, fontWeight: '800' },
+  menteePoolCtaText: { color: '#059669', fontSize: 12, fontWeight: '800' },
 
   // Search & Filter
   searchSection: { paddingHorizontal: 16, paddingTop: 14 },
@@ -1453,14 +1453,14 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   filterChip: {
     paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1, marginRight: 6,
   },
-  filterChipActive: { backgroundColor: '#FA8257', borderColor: '#FA8257' },
+  filterChipActive: { backgroundColor: '#059669', borderColor: '#059669' },
   filterChipText: { fontSize: 11, fontWeight: '600' },
   filterChipTextActive: { color: '#FFF' },
   deptChip: {
     paddingHorizontal: 10, paddingVertical: 5, borderRadius: 14, marginRight: 6,
     backgroundColor: 'transparent', borderWidth: 1, borderColor: '#CBD5E1',
   },
-  deptChipActive: { backgroundColor: '#FA8257', borderColor: '#FA8257' },
+  deptChipActive: { backgroundColor: '#059669', borderColor: '#059669' },
   deptChipText: { fontSize: 10, fontWeight: '600', color: '#64748B' },
   deptChipTextActive: { color: '#FFF' },
 
@@ -1484,9 +1484,9 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   cardActionsRow: { flexDirection: 'row', gap: 8, marginTop: 14, alignItems: 'center' },
   primaryActionBtn: {
     flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    backgroundColor: '#FA8257', paddingVertical: 9, borderRadius: 10, gap: 6,
+    backgroundColor: '#059669', paddingVertical: 9, borderRadius: 10, gap: 6,
   },
-  requestedActionBtn: { backgroundColor: '#FFF1EB', borderWidth: 1, borderColor: '#86EFAC' },
+  requestedActionBtn: { backgroundColor: '#DCFCE7', borderWidth: 1, borderColor: '#86EFAC' },
   primaryActionText: { color: '#FFF', fontSize: 12, fontWeight: '700' },
   secondaryActionBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
@@ -1504,10 +1504,10 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   // Mentee Card
   menteeCard: {
     backgroundColor: theme.card, borderRadius: 16, padding: 16, marginBottom: 14,
-    borderWidth: 1.5, borderColor: isDarkMode ? '#1E3A5F' : '#FED7AA',
+    borderWidth: 1.5, borderColor: isDarkMode ? '#1E3A5F' : '#A7F3D0',
   },
   menteeSeekerBadge: {
-    backgroundColor: '#FFF1EB', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8,
+    backgroundColor: '#DCFCE7', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8,
   },
   menteeSeekerBadgeText: { color: '#16A34A', fontSize: 10, fontWeight: '800' },
 
@@ -1515,10 +1515,10 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     borderRadius: 12, padding: 12, marginTop: 12, borderWidth: 1,
   },
   qnaBlock: {},
-  qnaHeading: { fontSize: 11, fontWeight: '800', color: '#FA8257', marginBottom: 3 },
+  qnaHeading: { fontSize: 11, fontWeight: '800', color: '#059669', marginBottom: 3 },
   qnaAnswer: { fontSize: 12, lineHeight: 18 },
   expandToggleBtn: { alignSelf: 'center', marginTop: 10, paddingVertical: 4 },
-  expandToggleText: { fontSize: 11, fontWeight: '800', color: '#FA8257' },
+  expandToggleText: { fontSize: 11, fontWeight: '800', color: '#059669' },
 
   // Connections
   connectionCard: { borderRadius: 14, padding: 14, marginBottom: 10, borderWidth: 1 },
@@ -1546,9 +1546,9 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   faqAnswer: { fontSize: 12, lineHeight: 18, marginTop: 8 },
   sampleAppButton: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    backgroundColor: '#FFB592', paddingVertical: 12, borderRadius: 12, gap: 8, marginTop: 16,
+    backgroundColor: '#34D399', paddingVertical: 12, borderRadius: 12, gap: 8, marginTop: 16,
   },
-  sampleAppButtonText: { color: '#FA8257', fontSize: 13, fontWeight: '800' },
+  sampleAppButtonText: { color: '#059669', fontSize: 13, fontWeight: '800' },
 
   // Sample Modal
   sampleBox: { borderRadius: 12, padding: 12, borderWidth: 1 },
@@ -1562,7 +1562,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   emptyTitle: { fontSize: 16, fontWeight: '800', marginTop: 6 },
   emptySubtitle: { fontSize: 12, textAlign: 'center', marginTop: 4, lineHeight: 18, maxWidth: 280 },
   emptyAction: {
-    backgroundColor: '#FA8257', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 10, marginTop: 16,
+    backgroundColor: '#059669', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 10, marginTop: 16,
   },
   emptyActionText: { color: '#FFF', fontSize: 13, fontWeight: '700' },
 
@@ -1580,19 +1580,19 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   modalTitle: { fontSize: 18, fontWeight: '900' },
   typeToggle: { flexDirection: 'row', borderRadius: 10, padding: 3 },
   typeToggleBtn: { flex: 1, paddingVertical: 8, borderRadius: 8, alignItems: 'center' },
-  typeToggleBtnActive: { backgroundColor: '#FA8257' },
+  typeToggleBtnActive: { backgroundColor: '#059669' },
   typeToggleText: { fontSize: 12, fontWeight: '600', color: '#64748B' },
   typeToggleTextActive: { color: '#FFF', fontWeight: '800' },
   fieldLabel: { fontSize: 12, fontWeight: '700', marginBottom: 6 },
   selectChip: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 14, borderWidth: 1 },
-  selectChipActive: { backgroundColor: '#FA8257', borderColor: '#FA8257' },
+  selectChipActive: { backgroundColor: '#059669', borderColor: '#059669' },
   selectChipText: { fontSize: 11, fontWeight: '600', color: '#64748B' },
   selectChipTextActive: { color: '#FFF', fontWeight: '800' },
   formInput: { borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, fontSize: 13, borderWidth: 1 },
   formTextArea: { minHeight: 80, textAlignVertical: 'top' },
   submitBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    backgroundColor: '#FA8257', paddingVertical: 13, borderRadius: 12, gap: 8, marginTop: 20, marginBottom: 24,
+    backgroundColor: '#059669', paddingVertical: 13, borderRadius: 12, gap: 8, marginTop: 20, marginBottom: 24,
   },
   submitBtnText: { color: '#FFF', fontSize: 14, fontWeight: '800' },
   sectionTitle: { fontSize: 16, fontWeight: '800' }

@@ -198,7 +198,7 @@ const PostCreationScreen = ({ navigation }) => {
   }, []);
 
   const isWeb = Platform.OS === 'web';
-  const webWrapper = isWeb ? { flex: 1, backgroundColor: '#FBF9F7', paddingVertical: 20 } : { flex: 1 };
+  const webWrapper = isWeb ? { flex: 1, backgroundColor: '#F8FAFC', paddingVertical: 20 } : { flex: 1 };
   const webContainerStyle = isWeb ? { 
     alignSelf: 'center', width: '100%', maxWidth: 680, flex: 1, backgroundColor: theme.card, 
     borderRadius: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, 
@@ -206,7 +206,7 @@ const PostCreationScreen = ({ navigation }) => {
   } : { flex: 1 };
 
   return (
-    <SafeAreaView style={[styles.container, isWeb && { backgroundColor: '#FBF9F7' }]}>
+    <SafeAreaView style={[styles.container, isWeb && { backgroundColor: '#F8FAFC' }]}>
       <View style={webWrapper}>
         <View style={webContainerStyle}>
           <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
@@ -270,7 +270,7 @@ const PostCreationScreen = ({ navigation }) => {
                     <Image source={{ uri: localImageUri }} style={styles.previewImage} />
                   ) : (
                     <View style={styles.documentPreview}>
-                      <Ionicons name="document-text" size={48} color="#FA8257" />
+                      <Ionicons name="document-text" size={48} color="#059669" />
                       <Text style={styles.documentName} numberOfLines={2}>{fileName || 'Document'}</Text>
                     </View>
                   )}
@@ -281,14 +281,14 @@ const PostCreationScreen = ({ navigation }) => {
               ) : (
                 <View style={styles.mediaSection}>
                   <TouchableOpacity style={styles.mediaPlaceholder} onPress={handleSelectMedia} activeOpacity={0.7}>
-                    <View style={styles.iconCircle}><Ionicons name="image-outline" size={24} color="#FA8257" /></View>
+                    <View style={styles.iconCircle}><Ionicons name="image-outline" size={24} color="#059669" /></View>
                     <View>
                       <Text style={styles.mediaLabel}>Add Photo or Video</Text>
                       <Text style={styles.mediaSubLabel}>Showcase your achievements</Text>
                     </View>
                   </TouchableOpacity>
                   <TouchableOpacity style={[styles.mediaPlaceholder, {marginTop: 12}]} onPress={handleSelectDocument} activeOpacity={0.7}>
-                    <View style={styles.iconCircle}><Ionicons name="document-attach-outline" size={24} color="#FA8257" /></View>
+                    <View style={styles.iconCircle}><Ionicons name="document-attach-outline" size={24} color="#059669" /></View>
                     <View>
                       <Text style={styles.mediaLabel}>Attach Document</Text>
                       <Text style={styles.mediaSubLabel}>PDFs, Docs, and more</Text>
@@ -408,7 +408,7 @@ const getStyles = (theme) => StyleSheet.create({
   cancelBtn: {
     padding: 6,
     borderRadius: 20,
-    backgroundColor: '#FBF9F7',
+    backgroundColor: '#F8FAFC',
   },
   headerTitle: {
     fontSize: 18,
@@ -491,7 +491,7 @@ const getStyles = (theme) => StyleSheet.create({
   mediaPlaceholder: {
     flexDirection: 'row',
     width: '100%',
-    backgroundColor: '#FBF9F7',
+    backgroundColor: '#F8FAFC',
     borderRadius: 16,
     borderWidth: 1,
     borderColor: '#E2E8F0',
@@ -566,7 +566,7 @@ const getStyles = (theme) => StyleSheet.create({
     height: 180,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FBF9F7',
+    backgroundColor: '#F8FAFC',
   },
   documentName: {
     marginTop: 12,
@@ -621,7 +621,7 @@ const getStyles = (theme) => StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#FBF9F7',
+    backgroundColor: '#F8FAFC',
     justifyContent: 'center',
     alignItems: 'center',
   },

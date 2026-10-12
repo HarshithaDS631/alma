@@ -373,7 +373,7 @@ const EngageScreen = ({ navigation, route }) => {
             {/* Event Date */}
             <Text style={styles.fieldLabel}>Event Date</Text>
             <View style={styles.inputWithIconRow}>
-              <Ionicons name="calendar-outline" size={19} color="#FA8257" style={{ marginRight: 10 }} />
+              <Ionicons name="calendar-outline" size={19} color="#059669" style={{ marginRight: 10 }} />
               <TextInput 
                 style={styles.fieldInputEmbedded} 
                 placeholder="e.g. 28 Oct 2026 or Next Saturday" 
@@ -387,7 +387,7 @@ const EngageScreen = ({ navigation, route }) => {
             <Text style={styles.fieldLabel}>Event Timing</Text>
             <View style={styles.timeRow}>
               <View style={styles.timeField}>
-                <Ionicons name="time-outline" size={18} color="#FA8257" />
+                <Ionicons name="time-outline" size={18} color="#059669" />
                 <TextInput 
                   style={styles.fieldInputEmbedded} 
                   placeholder="Start (10:00 AM)" 
@@ -398,7 +398,7 @@ const EngageScreen = ({ navigation, route }) => {
               </View>
               <Ionicons name="arrow-forward" size={16} color="#94A3B8" />
               <View style={styles.timeField}>
-                <Ionicons name="time-outline" size={18} color="#FA8257" />
+                <Ionicons name="time-outline" size={18} color="#059669" />
                 <TextInput 
                   style={styles.fieldInputEmbedded} 
                   placeholder="End (01:00 PM)" 
@@ -412,7 +412,7 @@ const EngageScreen = ({ navigation, route }) => {
             {/* Venue / Location */}
             <Text style={styles.fieldLabel}>Venue / Platform</Text>
             <View style={styles.inputWithIconRow}>
-              <Ionicons name="location-outline" size={19} color="#FA8257" style={{ marginRight: 10 }} />
+              <Ionicons name="location-outline" size={19} color="#059669" style={{ marginRight: 10 }} />
               <TextInput 
                 style={styles.fieldInputEmbedded} 
                 placeholder="e.g. RVCE Campus Main Auditorium or Zoom / Meet" 
@@ -456,9 +456,9 @@ const EngageScreen = ({ navigation, route }) => {
                 <Text style={styles.hostName}>{currentUser?.name || 'Verified Alumni Member'}</Text>
                 <Text style={{ fontSize: 11.5, color: '#64748B' }}>Event Organizer & Host</Text>
               </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFF8F5', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 }}>
-                <Ionicons name="shield-checkmark" size={13} color="#FA8257" style={{ marginRight: 4 }} />
-                <Text style={{ fontSize: 11, fontWeight: '700', color: '#FA8257' }}>Verified</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#F0FDF4', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 }}>
+                <Ionicons name="shield-checkmark" size={13} color="#059669" style={{ marginRight: 4 }} />
+                <Text style={{ fontSize: 11, fontWeight: '700', color: '#059669' }}>Verified</Text>
               </View>
             </View>
 
@@ -488,7 +488,7 @@ const EngageScreen = ({ navigation, route }) => {
                       paddingHorizontal: 12,
                       paddingVertical: 7,
                       borderRadius: 10,
-                      backgroundColor: isSelected ? (isDarkMode ? '#9A421C' : '#FFF8F5') : (isDarkMode ? '#0F172A' : '#FBF9F7'),
+                      backgroundColor: isSelected ? (isDarkMode ? '#064E3B' : '#F0FDF4') : (isDarkMode ? '#0F172A' : '#F8FAFC'),
                       borderWidth: 1,
                       borderColor: isSelected ? theme.primary : theme.border
                     }}
@@ -624,8 +624,8 @@ const EngageScreen = ({ navigation, route }) => {
                       <Text style={styles.joinEventLocation} numberOfLines={1}>{item.location}</Text>
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 4 }}>
-                      <Ionicons name="people-outline" size={12} color="#FA8257" />
-                      <Text style={{ fontSize: 11.5, fontWeight: '700', color: '#FA8257' }}>
+                      <Ionicons name="people-outline" size={12} color="#059669" />
+                      <Text style={{ fontSize: 11.5, fontWeight: '700', color: '#059669' }}>
                         {item.attendeesCount || 24} Alumni Registered
                       </Text>
                     </View>
@@ -653,7 +653,7 @@ const EngageScreen = ({ navigation, route }) => {
             activeOpacity={0.88}
           >
             <View style={styles.fabIconPod}>
-              <Ionicons name="sparkles" size={14} color="#FFB592" style={{ marginRight: 3 }} />
+              <Ionicons name="sparkles" size={14} color="#34D399" style={{ marginRight: 3 }} />
               <Ionicons name="add" size={19} color="#FFFFFF" />
             </View>
             <Text style={styles.fabLabel}>Host Event</Text>
@@ -678,16 +678,16 @@ const EngageScreen = ({ navigation, route }) => {
         {/* Post Creator UI for Feed */}
         <View style={{ backgroundColor: '#FFFFFF', padding: 16, marginBottom: 12, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#FA8257', justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
+            <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#059669', justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
               <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>{getInitials(currentUser?.name, 'AL')}</Text>
             </View>
-            <TouchableOpacity style={{ flex: 1, height: 44, borderRadius: 22, backgroundColor: '#FBF9F7', borderWidth: 1, borderColor: '#E2E8F0', paddingHorizontal: 16, justifyContent: 'center' }} onPress={() => navigation.navigate('PostCreation')}>
+            <TouchableOpacity style={{ flex: 1, height: 44, borderRadius: 22, backgroundColor: '#F8FAFC', borderWidth: 1, borderColor: '#E2E8F0', paddingHorizontal: 16, justifyContent: 'center' }} onPress={() => navigation.navigate('PostCreation')}>
               <Text style={{ color: '#94A3B8', fontSize: 14.5 }}>Share an update, milestone, or question...</Text>
             </TouchableOpacity>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 16, paddingHorizontal: 8 }}>
             <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} onPress={() => navigation.navigate('PostCreation')}>
-              <Ionicons name="image" size={20} color="#FA8257" />
+              <Ionicons name="image" size={20} color="#059669" />
               <Text style={{ color: '#475569', fontSize: 13, fontWeight: '600' }}>Media</Text>
             </TouchableOpacity>
             <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} onPress={() => setCurrentView('joinEvent')}>
@@ -695,7 +695,7 @@ const EngageScreen = ({ navigation, route }) => {
               <Text style={{ color: '#475569', fontSize: 13, fontWeight: '600' }}>Event</Text>
             </TouchableOpacity>
             <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} onPress={() => navigation.navigate('PostCreation')}>
-              <Ionicons name="newspaper" size={20} color="#FA8257" />
+              <Ionicons name="newspaper" size={20} color="#059669" />
               <Text style={{ color: '#475569', fontSize: 13, fontWeight: '600' }}>Article</Text>
             </TouchableOpacity>
           </View>
@@ -832,7 +832,7 @@ const EngageScreen = ({ navigation, route }) => {
                 <Text style={[styles.joinEventDate, { fontSize: 11, color: '#64748B' }]}>{e.date} • {e.location}</Text>
               </View>
               <TouchableOpacity 
-                style={[styles.joinBtn, { paddingHorizontal: 10, paddingVertical: 5 }, isJoined && { backgroundColor: '#DEF7EC', borderWidth: 1, borderColor: '#FA8257' }]}
+                style={[styles.joinBtn, { paddingHorizontal: 10, paddingVertical: 5 }, isJoined && { backgroundColor: '#DEF7EC', borderWidth: 1, borderColor: '#059669' }]}
                 onPress={() => handleJoinEvent(e)}
                 activeOpacity={0.8}
               >
@@ -855,7 +855,7 @@ const EngageScreen = ({ navigation, route }) => {
         <View style={styles.header}>
           {/* Left – User avatar */}
           <TouchableOpacity
-            style={[styles.headerAvatar, { overflow: 'hidden', backgroundColor: '#FA8257', justifyContent: 'center', alignItems: 'center' }]}
+            style={[styles.headerAvatar, { overflow: 'hidden', backgroundColor: '#059669', justifyContent: 'center', alignItems: 'center' }]}
             activeOpacity={0.8}
             onPress={() => navigation.navigate('Profile')}
           >
@@ -887,13 +887,13 @@ const EngageScreen = ({ navigation, route }) => {
               style={styles.headerIconBtn}
               onPress={() => navigation.navigate('Messages')}
             >
-              <Ionicons name="chatbubble-ellipses-outline" size={22} color="#FA8257" />
+              <Ionicons name="chatbubble-ellipses-outline" size={22} color="#059669" />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.headerIconBtn}
               onPress={() => navigation.navigate('Notifications')}
             >
-              <Ionicons name="notifications-outline" size={22} color="#FA8257" />
+              <Ionicons name="notifications-outline" size={22} color="#059669" />
             </TouchableOpacity>
           </View>
         </View>
@@ -921,11 +921,11 @@ const EngageScreen = ({ navigation, route }) => {
               <Text style={styles.actionSheetTitle}>Create New</Text>
             </View>
             <TouchableOpacity style={styles.actionItem} onPress={() => { setActionSheetVisible(false); navigation.navigate('PostCreation'); }}>
-              <Ionicons name="create-outline" size={22} color="#FA8257" style={{ marginRight: 4 }} />
+              <Ionicons name="create-outline" size={22} color="#059669" style={{ marginRight: 4 }} />
               <Text style={styles.actionItemText}>Post</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionItem} onPress={() => { setActionSheetVisible(false); setCurrentView('joinEvent'); }}>
-              <Ionicons name="calendar-outline" size={22} color="#FA8257" style={{ marginRight: 4 }} />
+              <Ionicons name="calendar-outline" size={22} color="#059669" style={{ marginRight: 4 }} />
               <Text style={styles.actionItemText}>Join Event</Text>
             </TouchableOpacity>
           </View>
@@ -1106,24 +1106,24 @@ const getStyles = (theme) => StyleSheet.create({
   hostEventPillBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FA8257',
+    backgroundColor: '#059669',
     paddingVertical: 8,
     paddingHorizontal: 14,
     borderRadius: 22,
-    shadowColor: '#FA8257',
+    shadowColor: '#059669',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.28,
     shadowRadius: 8,
     elevation: 4,
     borderWidth: 1,
-    borderColor: '#FA8257',
+    borderColor: '#059669',
     gap: 6,
   },
   hostEventIconPod: {
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: '#FA8257',
+    backgroundColor: '#059669',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -1141,17 +1141,17 @@ const getStyles = (theme) => StyleSheet.create({
     right: 20,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FA8257',
+    backgroundColor: '#059669',
     paddingVertical: 12,
     paddingHorizontal: 18,
     borderRadius: 30,
-    shadowColor: '#FA8257',
+    shadowColor: '#059669',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.38,
     shadowRadius: 12,
     elevation: 8,
     borderWidth: 1.5,
-    borderColor: '#FFB592',
+    borderColor: '#34D399',
     gap: 8,
   },
   fabIconPod: {
@@ -1192,7 +1192,7 @@ const getStyles = (theme) => StyleSheet.create({
     position: 'absolute',
     top: 6,
     left: 6,
-    backgroundColor: 'rgba(250, 130, 87, 0.85)',
+    backgroundColor: 'rgba(5, 150, 105, 0.85)',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 6,
@@ -1206,10 +1206,10 @@ const getStyles = (theme) => StyleSheet.create({
   eventDatePod: {
     width: 44,
     height: 48,
-    backgroundColor: '#FFF8F5',
+    backgroundColor: '#F0FDF4',
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#FED7AA',
+    borderColor: '#A7F3D0',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -1223,7 +1223,7 @@ const getStyles = (theme) => StyleSheet.create({
   eventDateMonth: {
     fontSize: 9.5,
     fontWeight: '800',
-    color: '#FA8257',
+    color: '#059669',
     letterSpacing: 0.5,
   },
   joinEventInfo: { flex: 1 },
@@ -1231,7 +1231,7 @@ const getStyles = (theme) => StyleSheet.create({
   joinEventDate: { fontSize: 12, color: theme.textSecondary },
   joinEventLocation: { fontSize: 12, color: theme.textMuted },
   joinBtn: {
-    backgroundColor: '#FA8257',
+    backgroundColor: '#059669',
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 12,
@@ -1243,7 +1243,7 @@ const getStyles = (theme) => StyleSheet.create({
   joinedBtnActive: {
     backgroundColor: '#DEF7EC',
     borderWidth: 1,
-    borderColor: '#FA8257',
+    borderColor: '#059669',
   },
   joinedBtnTextActive: {
     color: '#03543F',

@@ -288,16 +288,16 @@ const getStyles = (theme) => StyleSheet.create({
   },
   credentialsBox: {
     marginTop: 16,
-    backgroundColor: '#FFF8F5',
+    backgroundColor: '#F0FDF4',
     borderRadius: 12,
     padding: 14,
     borderWidth: 1,
-    borderColor: '#FED7AA',
+    borderColor: '#A7F3D0',
   },
   credentialsTitle: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#B84E23',
+    color: '#047857',
     marginBottom: 10,
   },
   credentialRow: {

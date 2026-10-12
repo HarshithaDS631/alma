@@ -65,7 +65,7 @@ const getStyles = (theme) => StyleSheet.create({
     justifyContent: 'center',
   },
   badge: {
-    backgroundColor: 'rgba(250, 130, 87, 0.12)',
+    backgroundColor: 'rgba(5, 150, 105, 0.12)',
     color: theme.primary,
     alignSelf: 'flex-start',
     paddingHorizontal: 12,
