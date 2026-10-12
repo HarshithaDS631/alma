@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   rvTag: {
-    backgroundColor: '#DC2626',
+    backgroundColor: '#C89565',
     paddingHorizontal: 7,
     paddingVertical: 2,
     borderRadius: 6,

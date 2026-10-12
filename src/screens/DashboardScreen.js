@@ -1569,7 +1569,7 @@ const DashboardScreen = ({ navigation }) => {
                       style={styles.sidebarStatPod}
                       onPress={() => navigation.navigate('Main', { screen: 'Post', params: { view: 'events' } })}
                     >
-                      <Text style={{ color: '#059669', fontWeight: '800', fontSize: 16 }}>{myEventsCount}</Text>
+                      <Text style={{ color: isDarkMode ? (theme.sand || '#D4A373') : (theme.sandDark || '#B88758'), fontWeight: '800', fontSize: 16 }}>{myEventsCount}</Text>
                       <Text style={{ color: theme.textSecondary, fontWeight: '600', fontSize: 11, marginTop: 2 }}>Events</Text>
                     </TouchableOpacity>
                   </View>
@@ -1593,7 +1593,7 @@ const DashboardScreen = ({ navigation }) => {
                     </Text>
                   </View>
                   <View style={styles.sidebarPillTag}>
-                    <Text style={{ fontSize: 10, fontWeight: '800', color: '#059669' }}>COMMUNITY</Text>
+                    <Text style={{ fontSize: 10, fontWeight: '800', color: isDarkMode ? (theme.sand || '#D4A373') : (theme.sandDark || '#B88758') }}>COMMUNITY</Text>
                   </View>
                 </View>
 
@@ -1624,14 +1624,14 @@ const DashboardScreen = ({ navigation }) => {
                   onPress={() => navigation.navigate('Main', { screen: 'Engage', params: { tab: 'communities' } })}
                   activeOpacity={0.7}
                 >
-                  <View style={[styles.sidebarHubIcon, { backgroundColor: isDarkMode ? '#082F49' : '#DCFCE7' }]}>
-                    <Ionicons name="globe" size={17} color="#059669" />
+                  <View style={[styles.sidebarHubIcon, { backgroundColor: isDarkMode ? '#241B15' : '#FAF4ED', borderWidth: 1, borderColor: isDarkMode ? 'rgba(212, 163, 115, 0.35)' : '#E8D4C1' }]}>
+                    <Ionicons name="globe" size={17} color={isDarkMode ? '#D4A373' : '#C89565'} />
                   </View>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                       <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }}>Global Chapters</Text>
-                      <View style={{ backgroundColor: '#DCFCE7', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 6 }}>
-                        <Text style={{ fontSize: 9.5, fontWeight: '800', color: '#047857' }}>12 CITIES</Text>
+                      <View style={{ backgroundColor: isDarkMode ? '#241B15' : '#FAF4ED', borderWidth: 1, borderColor: isDarkMode ? 'rgba(212, 163, 115, 0.35)' : '#E8D4C1', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 6 }}>
+                        <Text style={{ fontSize: 9.5, fontWeight: '800', color: isDarkMode ? '#D4A373' : '#B88758' }}>12 CITIES</Text>
                       </View>
                     </View>
                     <Text style={{ fontSize: 11, color: theme.textMuted, marginTop: 1 }}>Bengaluru, Silicon Valley, Europe</Text>
@@ -1645,14 +1645,14 @@ const DashboardScreen = ({ navigation }) => {
                   onPress={() => navigation.navigate('Main', { screen: 'Engage', params: { tab: 'directory' } })}
                   activeOpacity={0.7}
                 >
-                  <View style={[styles.sidebarHubIcon, { backgroundColor: isDarkMode ? '#451A03' : '#DCFCE7' }]}>
-                    <Ionicons name="people" size={17} color="#059669" />
+                  <View style={[styles.sidebarHubIcon, { backgroundColor: isDarkMode ? '#241B15' : '#FAF4ED', borderWidth: 1, borderColor: isDarkMode ? 'rgba(212, 163, 115, 0.35)' : '#E8D4C1' }]}>
+                    <Ionicons name="people" size={17} color={isDarkMode ? '#D4A373' : '#C89565'} />
                   </View>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                       <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }}>Batchmate Circles</Text>
-                      <View style={{ backgroundColor: '#DCFCE7', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 6 }}>
-                        <Text style={{ fontSize: 9.5, fontWeight: '800', color: '#047857' }}>REUNIONS</Text>
+                      <View style={{ backgroundColor: isDarkMode ? '#241B15' : '#FAF4ED', borderWidth: 1, borderColor: isDarkMode ? 'rgba(212, 163, 115, 0.35)' : '#E8D4C1', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 6 }}>
+                        <Text style={{ fontSize: 9.5, fontWeight: '800', color: isDarkMode ? '#D4A373' : '#B88758' }}>REUNIONS</Text>
                       </View>
                     </View>
                     <Text style={{ fontSize: 11, color: theme.textMuted, marginTop: 1 }}>Connect with your graduating class</Text>
@@ -3114,12 +3114,12 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     borderColor: isDarkMode ? '#334155' : '#A7F3D0',
   },
   sidebarPillTag: {
-    backgroundColor: isDarkMode ? '#1E293B' : '#F0FDF4',
+    backgroundColor: isDarkMode ? '#241B15' : '#FAF4ED',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: isDarkMode ? '#334155' : '#A7F3D0',
+    borderColor: isDarkMode ? 'rgba(212, 163, 115, 0.35)' : '#E8D4C1',
   },
   sidebarHubItem: {
     flexDirection: 'row',

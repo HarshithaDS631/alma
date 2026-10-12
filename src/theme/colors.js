@@ -1,56 +1,66 @@
 export const lightTheme = {
-  // Base Surfaces (Pure crisp neutral white & slate canvas - Minimalist, NOT tinted!)
-  background: '#F8FAFC',        // Modern clean neutral canvas
+  // Base Surfaces (Crisp neutral porcelain canvas & pure elevated white cards)
+  background: '#F9F8F6',        // Subtle warm porcelain light canvas
   card: '#FFFFFF',              // Pure crisp elevated white card
-  cardSecondary: '#F8FAFC',     // Clean neutral container
+  cardSecondary: '#F8F6F2',     // Subtle sand container
   surfaceElevated: '#FFFFFF',   // 3D elevated floating tile
-  surfaceDepressed: '#F1F5F9',  // Soft recessed container
+  surfaceDepressed: '#F1EFEA',  // Soft recessed container
   
-  // Typography (Ultra-sharp high-contrast slate & charcoal)
-  text: '#0F172A',              // Deep slate black
-  textSecondary: '#475569',     // Neutral charcoal gray
-  textMuted: '#94A3B8',         // Soft guide gray
+  // Typography (Ultra-sharp high-contrast slate & warm charcoal)
+  text: '#111827',              // Deep slate black
+  textSecondary: '#4B5563',     // Neutral charcoal gray
+  textMuted: '#9CA3AF',         // Soft guide gray
   
-  // Brand & Accents (Option 4: Eucalyptus Sage - Used Minimally)
+  // Primary: Eucalyptus Sage Green
   primary: '#059669',           // Muted Eucalyptus Forest
   primaryDark: '#047857',       // Deep Jade
   primaryLight: '#34D399',      // Soft luminous sage mint
   primaryLighter: '#A7F3D0',    // Delicate pastel sage
-  primaryMuted: '#F0FDF4',      // Soft airy sage cream pod
+  primaryMuted: '#F0FDF4',      // Soft airy sage pod
   primarySoft: '#F0FDF4',       // Clean soft pod tint
   primaryBorder: '#A7F3D0',     // Delicate light sage border
   
-  accent: '#10B981',            // Fresh Sage
-  secondary: '#14B8A6',         // Eucalyptus Teal
+  // Secondary: Warm Sand & Latte (The complementary accent!)
+  secondary: '#C89565',         // Warm Sand Latte
+  sand: '#D4A373',              // Earthy Warm Sand
+  sandDark: '#B88758',          // Deep Latte
+  sandLight: '#E8CAAE',         // Soft Sand
+  sandLighter: '#F5E6D8',       // Delicate Latte wash
+  sandPod: '#FAF4ED',           // Creamy warm sand pod
+  sandBorder: '#E8D4C1',        // Soft sand border
+  
+  accent: '#C89565',            // Warm Sand accent
   emeraldSoft: '#F0FDF4',       // Clean mint tint
   emeraldBorder: '#A7F3D0',     // Light mint border
   
-  gold: '#F59E0B',              // Amber Gold
-  goldLight: '#FEF3C7',
+  gold: '#D4A373',              // Warm Sand Gold
+  goldLight: '#FAF4ED',
   
-  // Eucalyptus Sage Gradients (Minimal on buttons & headers)
-  gradientPrimary: ['#34D399', '#059669'],       // Soft eucalyptus gradient
+  // Gradients (Sage Green + Warm Sand Latte Pairings)
+  gradientPrimary: ['#34D399', '#059669'],       // Eucalyptus Sage gradient
   gradientPrimaryLight: ['#6EE7B7', '#10B981'],  // Gentle sage glow
-  gradientLight: ['#F0FDF4', '#DCFCE7'],         // Subtle pod wash
-  gradientBanner: ['#34D399', '#059669'],        // Clean banner gradient
-  gradientBadge: ['#F0FDF4', '#DCFCE7'],         // Subtle pill badge gradient
+  gradientSecondary: ['#E2B890', '#C89565'],     // Warm Sand Latte gradient
+  gradientSand: ['#E2B890', '#C89565'],          // Warm Sand gradient
+  gradientLight: ['#F0FDF4', '#DCFCE7'],         // Subtle sage pod wash
+  gradientBanner: ['#34D399', '#059669'],        // Clean sage banner
+  gradientBadge: ['#FAF4ED', '#F5E6D8'],         // Warm latte pill badge gradient
   gradientEmerald: ['#34D399', '#059669'],
   gradientEmeraldLight: ['#F0FDF4', '#DCFCE7'],
   
   // 3D & Glassmorphic Tokens
-  border: '#E2E8F0',            // Clean neutral border
-  cardBorder: 'rgba(226, 232, 240, 0.9)',
-  cardShadow: 'rgba(15, 23, 42, 0.05)',          // Very subtle neutral shadow
+  border: '#E8E5DF',            // Clean neutral border
+  cardBorder: 'rgba(232, 229, 223, 0.9)',
+  cardShadow: 'rgba(17, 24, 39, 0.05)',          // Very subtle neutral shadow
   glassBackground: 'rgba(255, 255, 255, 0.96)',
-  glassBorder: 'rgba(226, 232, 240, 0.8)',
+  glassBorder: 'rgba(232, 229, 223, 0.8)',
   glowPrimary: 'rgba(5, 150, 105, 0.18)',
-  glowAccent: 'rgba(16, 185, 129, 0.16)',
-  glowGold: 'rgba(245, 158, 11, 0.22)',
+  glowAccent: 'rgba(200, 149, 101, 0.18)',
+  glowGold: 'rgba(212, 163, 115, 0.2)',
   
-  // 3D Icon Pods (Subtle, clean pods)
-  icon: '#475569',
+  // 3D Icon Pods
+  icon: '#4B5563',
   iconActive: '#059669',
-  iconPodBg: '#F8FAFC',
+  iconPodBg: '#F9F8F6',
   iconPodActiveBg: '#F0FDF4',
   iconPodBorder: '#A7F3D0',
   icon3DGlow: 'rgba(5, 150, 105, 0.14)',
@@ -61,7 +71,7 @@ export const lightTheme = {
   buttonGradient: ['#34D399', '#059669'],
   buttonText: '#FFFFFF',
   tabBarBg: 'rgba(255, 255, 255, 0.98)',
-  tabBarBorder: 'rgba(226, 232, 240, 0.8)',
+  tabBarBorder: 'rgba(232, 229, 223, 0.8)',
 
   // Feedback Colors
   success: '#10B981',
@@ -71,11 +81,11 @@ export const lightTheme = {
 
 export const darkTheme = {
   // Base Surfaces (Deep obsidian dark slate)
-  background: '#0B0F14',        // Deep obsidian night
-  card: '#121A16',              // Elevated dark slate
-  cardSecondary: '#18241F',     // Tactile dark container
-  surfaceElevated: '#1E2F28',   // 3D raised glowing card
-  surfaceDepressed: '#0F1612',  // 3D inset recessed field
+  background: '#0F1210',        // Deep obsidian night
+  card: '#161D18',              // Elevated dark slate
+  cardSecondary: '#1C251F',     // Tactile dark container
+  surfaceElevated: '#223028',   // 3D raised glowing card
+  surfaceDepressed: '#111713',  // 3D inset recessed field
   
   // Typography
   text: '#F8FAFC',              // Brilliant white
@@ -91,48 +101,58 @@ export const darkTheme = {
   primarySoft: '#102219',
   primaryBorder: 'rgba(52, 211, 153, 0.3)',
   
-  accent: '#10B981',            // Fresh Sage
-  secondary: '#14B8A6',
+  // Secondary: Warm Sand in Dark Mode
+  secondary: '#D4A373',         // Warm Sand
+  sand: '#D4A373',
+  sandDark: '#C89565',
+  sandLight: '#E8CAAE',
+  sandLighter: '#3D2A1C',
+  sandPod: '#261C14',           // Dark warm sand pod
+  sandBorder: 'rgba(212, 163, 115, 0.35)',
+  
+  accent: '#D4A373',            // Warm Sand accent
   emeraldSoft: '#064E3B',
   emeraldBorder: 'rgba(16, 185, 129, 0.3)',
   
-  gold: '#FBBF24',
-  goldLight: 'rgba(251, 191, 36, 0.15)',
+  gold: '#D4A373',
+  goldLight: 'rgba(212, 163, 115, 0.15)',
   
   // Gradients
   gradientPrimary: ['#34D399', '#059669'],
   gradientPrimaryLight: ['#6EE7B7', '#10B981'],
-  gradientLight: ['#18241F', '#101714'],
+  gradientSecondary: ['#E2B890', '#C89565'],
+  gradientSand: ['#E2B890', '#C89565'],
+  gradientLight: ['#1C251F', '#121814'],
   gradientBanner: ['#34D399', '#059669'],
-  gradientBadge: ['#1A2B23', '#111C17'],
+  gradientBadge: ['#261C14', '#1A130E'],
   gradientEmerald: ['#34D399', '#059669'],
   gradientEmeraldLight: ['#064E3B', '#022C22'],
   
   // 3D & Glassmorphic Tokens
-  border: 'rgba(226, 232, 240, 0.1)',
+  border: 'rgba(232, 229, 223, 0.1)',
   cardBorder: 'rgba(52, 211, 153, 0.15)',
   cardShadow: 'rgba(0, 0, 0, 0.7)',
-  glassBackground: 'rgba(18, 26, 22, 0.92)',
+  glassBackground: 'rgba(22, 29, 24, 0.92)',
   glassBorder: 'rgba(52, 211, 153, 0.2)',
   glowPrimary: 'rgba(52, 211, 153, 0.3)',
-  glowAccent: 'rgba(16, 185, 129, 0.25)',
-  glowGold: 'rgba(251, 191, 36, 0.3)',
+  glowAccent: 'rgba(212, 163, 115, 0.25)',
+  glowGold: 'rgba(212, 163, 115, 0.3)',
   
   // 3D Icon Pods
   icon: '#94A3B8',
   iconActive: '#34D399',
-  iconPodBg: '#18241F',
+  iconPodBg: '#1C251F',
   iconPodActiveBg: 'rgba(52, 211, 153, 0.18)',
   iconPodBorder: 'rgba(52, 211, 153, 0.35)',
   icon3DGlow: 'rgba(52, 211, 153, 0.3)',
   
   // Inputs & Interactive Buttons
-  inputBackground: '#121A16',
+  inputBackground: '#161D18',
   buttonBackground: '#059669',
   buttonGradient: ['#34D399', '#059669'],
   buttonText: '#FFFFFF',
-  tabBarBg: 'rgba(11, 15, 20, 0.95)',
-  tabBarBorder: 'rgba(226, 232, 240, 0.1)',
+  tabBarBg: 'rgba(15, 18, 16, 0.95)',
+  tabBarBorder: 'rgba(232, 229, 223, 0.1)',
 
   // Feedback Colors
   success: '#10B981',

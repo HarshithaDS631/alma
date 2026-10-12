@@ -1325,7 +1325,7 @@ const DEFAULT_TAGGED_POSTS = [];
             >
               <Text style={styles.statsRibbonNumber}>{following.length || profileData.following}</Text>
               <View style={styles.statsRibbonLabelRow}>
-                <Ionicons name="heart-outline" size={13} color="#059669" />
+                <Ionicons name="heart-outline" size={13} color="#C89565" />
                 <Text style={styles.statsRibbonLabel}>Following</Text>
               </View>
             </TouchableOpacity>
@@ -5101,9 +5101,9 @@ const getStyles = (theme) => StyleSheet.create({
     borderColor: '#A7F3D0',
   },
   statPodFollowing: {
-    backgroundColor: '#F0FDF4',
+    backgroundColor: '#FAF4ED',
     borderWidth: 1,
-    borderColor: '#F0FDF4',
+    borderColor: '#E8D4C1',
   },
   statPodPosts: {
     backgroundColor: '#F0FDF4',

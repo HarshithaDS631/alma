@@ -288,8 +288,14 @@ const JobsScreen = ({ navigation, route }) => {
                 <Text style={[styles.tagText, { color: theme.textSecondary }]}>{job.jobType || 'Full-time'}</Text>
               </View>
               {job.salaryRange ? (
-                <View style={[styles.tagPill, { backgroundColor: isDarkMode ? 'rgba(5, 150, 105, 0.15)' : '#DCFCE7' }]}>
-                  <Text style={[styles.tagText, { color: '#059669' }]}>{job.salaryRange}</Text>
+                <View style={[styles.tagPill, { 
+                  backgroundColor: isDarkMode ? (theme.sandPod || '#261C14') : (theme.sandPod || '#FAF4ED'),
+                  borderWidth: 1,
+                  borderColor: isDarkMode ? (theme.sandBorder || 'rgba(212, 163, 115, 0.35)') : (theme.sandBorder || '#E8D4C1'),
+                }]}>
+                  <Text style={[styles.tagText, { color: isDarkMode ? (theme.sand || '#D4A373') : (theme.sandDark || '#B88758'), fontWeight: '700' }]}>
+                    {job.salaryRange}
+                  </Text>
                 </View>
               ) : null}
             </View>
@@ -378,9 +384,18 @@ const JobsScreen = ({ navigation, route }) => {
       <View style={styles.headerContainer}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <Text style={styles.headerTitle}>Career & Job Hub</Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: isDarkMode ? '#132A1E' : '#F0FDF4', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, borderWidth: 1, borderColor: isDarkMode ? '#1B4D36' : '#A7F3D0' }}>
-            <Ionicons name="briefcase-outline" size={14} color={isDarkMode ? '#34D399' : '#059669'} style={{ marginRight: 4 }} />
-            <Text style={{ fontSize: 12, fontWeight: '700', color: isDarkMode ? '#A7F3D0' : '#047857' }}>
+          <View style={{ 
+            flexDirection: 'row', 
+            alignItems: 'center', 
+            backgroundColor: isDarkMode ? (theme.sandPod || '#261C14') : (theme.sandPod || '#FAF4ED'), 
+            paddingHorizontal: 10, 
+            paddingVertical: 4, 
+            borderRadius: 12, 
+            borderWidth: 1, 
+            borderColor: isDarkMode ? (theme.sandBorder || 'rgba(212, 163, 115, 0.35)') : (theme.sandBorder || '#E8D4C1') 
+          }}>
+            <Ionicons name="briefcase-outline" size={14} color={isDarkMode ? (theme.sand || '#D4A373') : (theme.sandDark || '#B88758')} style={{ marginRight: 4 }} />
+            <Text style={{ fontSize: 12, fontWeight: '700', color: isDarkMode ? (theme.sand || '#D4A373') : (theme.sandDark || '#B88758') }}>
               {jobs.length} Active Jobs
             </Text>
           </View>
