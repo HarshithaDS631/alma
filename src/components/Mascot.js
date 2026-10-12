@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   bannerActionBtn: {
-    backgroundColor: '#FF6B00',
+    backgroundColor: '#10B981',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,

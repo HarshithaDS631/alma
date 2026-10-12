@@ -417,7 +417,7 @@ const ChatScreen = ({ route, navigation }) => {
           }
         }}
       >
-        <Ionicons name="document-text" size={24} color={isMe ? '#FFFFFF' : '#003366'} style={{ marginRight: 8 }} />
+        <Ionicons name="document-text" size={24} color={isMe ? '#FFFFFF' : '#059669'} style={{ marginRight: 8 }} />
         <View style={{ flex: 1 }}>
           <Text style={{ fontSize: 13, fontWeight: '700', color: isMe ? '#FFFFFF' : '#1E293B' }} numberOfLines={1}>
             {attachment.name || 'Attachment File'}
@@ -426,7 +426,7 @@ const ChatScreen = ({ route, navigation }) => {
             Tap to open
           </Text>
         </View>
-        <Ionicons name="download-outline" size={18} color={isMe ? '#FFFFFF' : '#003366'} />
+        <Ionicons name="download-outline" size={18} color={isMe ? '#FFFFFF' : '#059669'} />
       </TouchableOpacity>
     );
   };
@@ -498,25 +498,25 @@ const ChatScreen = ({ route, navigation }) => {
             >
               {/* Card Header */}
               <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10, borderBottomWidth: 1, borderBottomColor: isMe ? 'rgba(255,255,255,0.1)' : '#E2E8F0' }}>
-                <View style={{ width: 26, height: 26, borderRadius: 13, backgroundColor: '#003366', alignItems: 'center', justifyContent: 'center', marginRight: 8 }}>
+                <View style={{ width: 26, height: 26, borderRadius: 13, backgroundColor: '#059669', alignItems: 'center', justifyContent: 'center', marginRight: 8 }}>
                   <Text style={{ color: '#FFF', fontSize: 11, fontWeight: '700' }}>{sharedPostData.avatar}</Text>
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: 12, fontWeight: '700', color: isMe ? '#FFFFFF' : '#0F172A' }} numberOfLines={1}>
                     {sharedPostData.user}
                   </Text>
-                  <Text style={{ fontSize: 10, color: isMe ? '#93C5FD' : '#64748B' }}>Shared Alumni Post</Text>
+                  <Text style={{ fontSize: 10, color: isMe ? '#A7F3D0' : '#64748B' }}>Shared Alumni Post</Text>
                 </View>
-                <Ionicons name="logo-instagram" size={16} color={isMe ? '#E0E7FF' : '#003366'} />
+                <Ionicons name="logo-instagram" size={16} color={isMe ? '#E0E7FF' : '#059669'} />
               </View>
 
               {/* Image preview or standard sleek banner */}
               {sharedPostData.image ? (
                 <Image source={{ uri: sharedPostData.image }} style={{ width: '100%', height: 140 }} resizeMode="cover" />
               ) : (
-                <View style={{ height: 80, backgroundColor: isMe ? '#1E3A8A' : '#E2E8F0', justifyContent: 'center', alignItems: 'center', padding: 10 }}>
-                  <Ionicons name="newspaper-outline" size={24} color={isMe ? '#93C5FD' : '#475569'} style={{ marginBottom: 4 }} />
-                  <Text style={{ fontSize: 11, fontStyle: 'italic', color: isMe ? '#DBEAFE' : '#334155', textAlign: 'center' }} numberOfLines={2}>
+                <View style={{ height: 80, backgroundColor: isMe ? '#064E3B' : '#E2E8F0', justifyContent: 'center', alignItems: 'center', padding: 10 }}>
+                  <Ionicons name="newspaper-outline" size={24} color={isMe ? '#A7F3D0' : '#475569'} style={{ marginBottom: 4 }} />
+                  <Text style={{ fontSize: 11, fontStyle: 'italic', color: isMe ? '#A7F3D0' : '#334155', textAlign: 'center' }} numberOfLines={2}>
                     &quot;{sharedPostData.content}&quot;
                   </Text>
                 </View>
@@ -528,12 +528,12 @@ const ChatScreen = ({ route, navigation }) => {
                   {sharedPostData.content}
                 </Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 }}>
-                  <Text style={{ fontSize: 10, fontWeight: '700', color: isMe ? '#60A5FA' : '#003366' }}>
+                  <Text style={{ fontSize: 10, fontWeight: '700', color: isMe ? '#34D399' : '#059669' }}>
                     Tap to open post ➔
                   </Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                    <Ionicons name="heart-outline" size={13} color={isMe ? '#93C5FD' : '#64748B'} />
-                    <Ionicons name="chatbubble-outline" size={13} color={isMe ? '#93C5FD' : '#64748B'} />
+                    <Ionicons name="heart-outline" size={13} color={isMe ? '#A7F3D0' : '#64748B'} />
+                    <Ionicons name="chatbubble-outline" size={13} color={isMe ? '#A7F3D0' : '#64748B'} />
                   </View>
                 </View>
               </View>
@@ -550,7 +550,7 @@ const ChatScreen = ({ route, navigation }) => {
               <Ionicons 
                 name={item.read ? "checkmark-done" : "checkmark-done-outline"} 
                 size={14} 
-                color={item.read ? "#60A5FA" : "rgba(255,255,255,0.7)"} 
+                color={item.read ? "#34D399" : "rgba(255,255,255,0.7)"} 
                 style={{ marginLeft: 4 }} 
               />
             )}
@@ -689,8 +689,8 @@ const ChatScreen = ({ route, navigation }) => {
                     {/* Forwarded Tag */}
                     {item.isForwarded && (
                       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
-                        <Ionicons name="arrow-redo" size={12} color={isMe ? '#93C5FD' : '#64748B'} style={{ marginRight: 4 }} />
-                        <Text style={{ fontSize: 11, fontStyle: 'italic', color: isMe ? '#93C5FD' : '#64748B' }}>Forwarded</Text>
+                        <Ionicons name="arrow-redo" size={12} color={isMe ? '#A7F3D0' : '#64748B'} style={{ marginRight: 4 }} />
+                        <Text style={{ fontSize: 11, fontStyle: 'italic', color: isMe ? '#A7F3D0' : '#64748B' }}>Forwarded</Text>
                       </View>
                     )}
 
@@ -698,14 +698,14 @@ const ChatScreen = ({ route, navigation }) => {
                     {item.replyTo && item.replyTo.text ? (
                       <View style={{ 
                         borderLeftWidth: 3, 
-                        borderLeftColor: isMe ? '#60A5FA' : '#003366', 
+                        borderLeftColor: isMe ? '#34D399' : '#059669', 
                         backgroundColor: isMe ? 'rgba(255,255,255,0.15)' : '#F1F5F9',
                         paddingHorizontal: 8,
                         paddingVertical: 4,
                         borderRadius: 6,
                         marginBottom: 6
                       }}>
-                        <Text style={{ fontSize: 11, fontWeight: '700', color: isMe ? '#FFFFFF' : '#003366' }}>
+                        <Text style={{ fontSize: 11, fontWeight: '700', color: isMe ? '#FFFFFF' : '#059669' }}>
                           {item.replyTo.senderName || 'Replied Message'}
                         </Text>
                         <Text style={{ fontSize: 12, color: isMe ? 'rgba(255,255,255,0.85)' : '#475569' }} numberOfLines={1}>
@@ -728,7 +728,7 @@ const ChatScreen = ({ route, navigation }) => {
                         <Ionicons 
                           name={item.read ? "checkmark-done" : "checkmark-done-outline"} 
                           size={14} 
-                          color={item.read ? "#60A5FA" : "rgba(255,255,255,0.7)"} 
+                          color={item.read ? "#34D399" : "rgba(255,255,255,0.7)"} 
                           style={{ marginLeft: 4 }} 
                         />
                       )}
@@ -779,9 +779,9 @@ const ChatScreen = ({ route, navigation }) => {
 
         {/* Replying-To Preview Banner */}
         {replyToMsg && (
-          <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#F1F5F9', paddingHorizontal: 16, paddingVertical: 8, borderTopWidth: 1, borderTopColor: '#CBD5E1', borderLeftWidth: 4, borderLeftColor: '#003366' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#F1F5F9', paddingHorizontal: 16, paddingVertical: 8, borderTopWidth: 1, borderTopColor: '#CBD5E1', borderLeftWidth: 4, borderLeftColor: '#059669' }}>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 12, fontWeight: '700', color: '#003366' }}>
+              <Text style={{ fontSize: 12, fontWeight: '700', color: '#059669' }}>
                 Replying to {replyToMsg.senderName}
               </Text>
               <Text style={{ fontSize: 12, color: '#475569' }} numberOfLines={1}>
@@ -796,16 +796,16 @@ const ChatScreen = ({ route, navigation }) => {
 
         {/* Pending Attachment Preview Bar */}
         {pendingAttachment && (
-          <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#EFF6FF', paddingHorizontal: 16, paddingVertical: 10, borderTopWidth: 1, borderTopColor: '#DBEAFE' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#F0FDF4', paddingHorizontal: 16, paddingVertical: 10, borderTopWidth: 1, borderTopColor: '#A7F3D0' }}>
             {pendingAttachment.type === 'image' ? (
               <Image source={{ uri: pendingAttachment.url }} style={{ width: 44, height: 44, borderRadius: 8, marginRight: 10 }} />
             ) : (
-              <View style={{ width: 44, height: 44, borderRadius: 8, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
+              <View style={{ width: 44, height: 44, borderRadius: 8, backgroundColor: '#059669', justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
                 <Ionicons name="document-text" size={22} color="#FFFFFF" />
               </View>
             )}
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 13, fontWeight: '700', color: '#003366' }} numberOfLines={1}>
+              <Text style={{ fontSize: 13, fontWeight: '700', color: '#059669' }} numberOfLines={1}>
                 {pendingAttachment.name || 'Attachment attached'}
               </Text>
               <Text style={{ fontSize: 11, color: '#64748B' }}>Ready to send</Text>
@@ -870,7 +870,7 @@ const ChatScreen = ({ route, navigation }) => {
         {/* Responsive Input Area — WhatsApp Style: 📎 | "Write a message..." | 🎤 */}
         <View style={styles.inputArea}>
           <TouchableOpacity style={styles.attachBtn} onPress={() => { setShowAttachMenu(!showAttachMenu); setIsEmojiPickerVisible(false); }} activeOpacity={0.6}>
-            <Ionicons name={showAttachMenu ? 'close' : 'attach-outline'} size={isDesktop ? 22 : 24} color={showAttachMenu ? '#3B82F6' : '#64748B'} style={showAttachMenu ? {} : { transform: [{ rotate: '-45deg' }] }} />
+            <Ionicons name={showAttachMenu ? 'close' : 'attach-outline'} size={isDesktop ? 22 : 24} color={showAttachMenu ? '#10B981' : '#64748B'} style={showAttachMenu ? {} : { transform: [{ rotate: '-45deg' }] }} />
           </TouchableOpacity>
 
           <TextInput
@@ -944,7 +944,7 @@ const ChatScreen = ({ route, navigation }) => {
               <ScrollView showsVerticalScrollIndicator={false}>
                 {/* Author Info Bar */}
                 <View style={{ flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: theme.border }}>
-                  <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
+                  <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#059669', justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
                     <Text style={{ color: '#FFF', fontWeight: '700', fontSize: 16 }}>
                       {selectedPostModal?.avatar || getInitials(selectedPostModal?.user)}
                     </Text>
@@ -1000,7 +1000,7 @@ const ChatScreen = ({ route, navigation }) => {
 
                   {modalComments.map((c, i) => (
                     <View key={i} style={{ flexDirection: 'row', marginBottom: 10, alignItems: 'flex-start' }}>
-                      <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', marginRight: 8, marginTop: 2 }}>
+                      <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: '#059669', justifyContent: 'center', alignItems: 'center', marginRight: 8, marginTop: 2 }}>
                         <Text style={{ color: '#FFF', fontSize: 10, fontWeight: '700' }}>{(c.user || 'A').charAt(0).toUpperCase()}</Text>
                       </View>
                       <View style={{ flex: 1, backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9', padding: 10, borderRadius: 12 }}>
@@ -1066,7 +1066,7 @@ const ChatScreen = ({ route, navigation }) => {
                     style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' }}
                     onPress={() => handleForwardMessage(item)}
                   >
-                    <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
+                    <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#059669', justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
                       <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 16 }}>
                         {(item.name || 'U').charAt(0).toUpperCase()}
                       </Text>
@@ -1075,7 +1075,7 @@ const ChatScreen = ({ route, navigation }) => {
                       <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text }}>{item.name}</Text>
                       <Text style={{ fontSize: 12, color: '#64748B' }}>{item.institution || item.department || item.degree || 'Alumni'}</Text>
                     </View>
-                    <Ionicons name="send" size={18} color="#003366" />
+                    <Ionicons name="send" size={18} color="#059669" />
                   </TouchableOpacity>
                 )}
                 ListEmptyComponent={<Text style={{ padding: 20, textAlign: 'center', color: '#94A3B8' }}>No contacts found.</Text>}
@@ -1137,7 +1137,7 @@ const getStyles = (theme, isDesktop = false, isLargeDesktop = false, isDarkMode 
       width: isDesktop ? 42 : 38,
       height: isDesktop ? 42 : 38,
       borderRadius: isDesktop ? 21 : 19,
-      backgroundColor: '#003366',
+      backgroundColor: '#059669',
       justifyContent: 'center',
       alignItems: 'center',
       marginRight: 12,
@@ -1186,7 +1186,7 @@ const getStyles = (theme, isDesktop = false, isLargeDesktop = false, isDarkMode 
       borderRadius: isDesktop ? 19 : 17,
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: isDarkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,51,102,0.05)',
+      backgroundColor: isDarkMode ? 'rgba(255,255,255,0.06)' : 'rgba(5, 150, 105, 0.05)',
     },
 
     /* ── Keyboard & Message List ── */
@@ -1234,10 +1234,10 @@ const getStyles = (theme, isDesktop = false, isLargeDesktop = false, isDarkMode 
       borderRadius: bubbleRadius,
     },
     messageBubbleMe: {
-      backgroundColor: '#003366',
+      backgroundColor: '#059669',
       borderBottomRightRadius: 4,
       ...(isDesktop ? {
-        shadowColor: '#003366',
+        shadowColor: '#059669',
         shadowOpacity: 0.15,
         shadowRadius: 6,
         shadowOffset: { width: 0, height: 2 },
@@ -1410,9 +1410,9 @@ const getStyles = (theme, isDesktop = false, isLargeDesktop = false, isDarkMode 
       marginBottom: 1,
     },
     sendBtnActive: {
-      backgroundColor: '#003366',
+      backgroundColor: '#059669',
       ...(isDesktop ? {
-        shadowColor: '#003366',
+        shadowColor: '#059669',
         shadowOpacity: 0.3,
         shadowRadius: 8,
         shadowOffset: { width: 0, height: 2 },

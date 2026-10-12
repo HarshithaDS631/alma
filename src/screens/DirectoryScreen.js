@@ -2458,7 +2458,7 @@ const getStyles = (theme) => StyleSheet.create({
   batchCountBadgeText: {
     fontSize: 11,
     fontWeight: '800',
-    color: '#1D4ED8',
+    color: '#047857',
   },
   batchCardsGrid: {
     flexDirection: 'row',

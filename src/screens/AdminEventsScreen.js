@@ -318,7 +318,7 @@ const AdminEventsScreen = ({ navigation, route }) => {
         {/* Detail Header */}
         <View style={styles.detailHeader}>
           <TouchableOpacity onPress={() => setSelectedEvent(null)} style={styles.backBtn}>
-            <Ionicons name="arrow-back" size={24} color="#003366" />
+            <Ionicons name="arrow-back" size={24} color="#059669" />
           </TouchableOpacity>
           <Text style={styles.detailTitleText}>Event Details</Text>
           <View style={{ width: 40 }} />
@@ -328,7 +328,7 @@ const AdminEventsScreen = ({ navigation, route }) => {
           {/* Top Card */}
           <View style={styles.detailTopCard}>
             <View style={styles.detailIconCircle}>
-              <Ionicons name="calendar" size={32} color="#003366" />
+              <Ionicons name="calendar" size={32} color="#059669" />
             </View>
             <Text style={styles.detailTitle}>{selectedEvent.title}</Text>
             
@@ -355,13 +355,13 @@ const AdminEventsScreen = ({ navigation, route }) => {
             <View style={styles.detailSection}>
               <Text style={styles.detailSectionTitle}>Attachment</Text>
               <View style={styles.attachmentDownloadCard}>
-                <Ionicons name="document-attach" size={24} color="#003366" style={{ marginRight: 10 }} />
+                <Ionicons name="document-attach" size={24} color="#059669" style={{ marginRight: 10 }} />
                 <View style={{ flex: 1 }}>
                   <Text style={styles.attachmentDownloadName}>{selectedEvent.attachment}</Text>
                   <Text style={{ fontSize: 11, color: theme.textMuted, marginTop: 2 }}>PDF Document • 1.2 MB</Text>
                 </View>
                 <TouchableOpacity style={styles.downloadIconBtn} onPress={() => Alert.alert('Download', `Downloading ${selectedEvent.attachment}...`)}>
-                  <Ionicons name="download-outline" size={20} color="#003366" />
+                  <Ionicons name="download-outline" size={20} color="#059669" />
                 </TouchableOpacity>
               </View>
             </View>
@@ -412,9 +412,9 @@ const AdminEventsScreen = ({ navigation, route }) => {
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={{
-                      backgroundColor: isDarkMode ? '#1E293B' : '#EFF6FF',
+                      backgroundColor: isDarkMode ? '#1E293B' : '#F0FDF4',
                       borderWidth: 1,
-                      borderColor: isDarkMode ? '#334155' : '#BFDBFE',
+                      borderColor: isDarkMode ? '#334155' : '#A7F3D0',
                       paddingHorizontal: 14,
                       paddingVertical: 12,
                       borderRadius: 10,
@@ -530,7 +530,7 @@ const AdminEventsScreen = ({ navigation, route }) => {
             <Text style={styles.inputLabel}>Attachment (Optional)</Text>
             {eventAttachment ? (
               <View style={styles.attachmentPreview}>
-                <Ionicons name="document" size={20} color="#003366" />
+                <Ionicons name="document" size={20} color="#059669" />
                 <Text style={styles.attachmentName}>{eventAttachment}</Text>
                 <TouchableOpacity onPress={() => setEventAttachment(null)}>
                   <Ionicons name="close-circle" size={20} color="#EF4444" />
@@ -538,7 +538,7 @@ const AdminEventsScreen = ({ navigation, route }) => {
               </View>
             ) : (
               <TouchableOpacity style={styles.attachBtn} onPress={() => setEventAttachment('event_brochure.pdf')}>
-                <Ionicons name="add" size={20} color="#003366" style={{ marginRight: 6 }} />
+                <Ionicons name="add" size={20} color="#059669" style={{ marginRight: 6 }} />
                 <Text style={styles.attachBtnText}>Attach Brochure / Agenda</Text>
               </TouchableOpacity>
             )}
@@ -606,10 +606,10 @@ const AdminEventsScreen = ({ navigation, route }) => {
         </View>
         <View style={styles.headerIcons}>
           <TouchableOpacity style={styles.headerIconBtn} onPress={() => navigation && navigation.navigate('Messages')}>
-            <Ionicons name="chatbubble-ellipses-outline" size={22} color="#003366" />
+            <Ionicons name="chatbubble-ellipses-outline" size={22} color="#059669" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.headerIconBtn} onPress={() => navigation && navigation.navigate('Notifications')}>
-            <Ionicons name="notifications-outline" size={22} color="#003366" />
+            <Ionicons name="notifications-outline" size={22} color="#059669" />
           </TouchableOpacity>
         </View>
       </View>
@@ -646,7 +646,7 @@ const AdminEventsScreen = ({ navigation, route }) => {
             <TouchableOpacity activeOpacity={0.8} onPress={() => setSelectedEvent(item)}>
               <View style={styles.eventCardHeader}>
                 <View style={styles.eventIconCircle}>
-                  <Ionicons name="calendar" size={20} color="#003366" />
+                  <Ionicons name="calendar" size={20} color="#059669" />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.eventTitle}>{item.title}</Text>
@@ -868,7 +868,7 @@ const getStyles = (theme) => StyleSheet.create({
   listContent: { padding: 16, paddingBottom: 100 },
   eventCard: { backgroundColor: theme.card, borderRadius: 16, padding: 16, marginBottom: 14, borderWidth: 1, borderColor: theme.border, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.03, shadowRadius: 8, elevation: 1 },
   eventCardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
-  eventIconCircle: { width: 40, height: 40, borderRadius: 12, backgroundColor: '#F0F9FF', justifyContent: 'center', alignItems: 'center', marginRight: 12 },
+  eventIconCircle: { width: 40, height: 40, borderRadius: 12, backgroundColor: '#F0FDF4', justifyContent: 'center', alignItems: 'center', marginRight: 12 },
   eventTitle: { fontSize: 15, fontWeight: '700', color: theme.text },
   eventMeta: { fontSize: 12, color: theme.textSecondary, marginTop: 2 },
   eventDesc: { fontSize: 13, color: '#475569', lineHeight: 19, marginBottom: 14 },
@@ -895,7 +895,7 @@ const getStyles = (theme) => StyleSheet.create({
   textInput: { backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 12, paddingHorizontal: 16, height: 48, fontSize: 15, color: theme.text },
   // Detail View
   detailTopCard: { alignItems: 'center', backgroundColor: theme.card, borderRadius: 16, padding: 24, marginBottom: 16, borderWidth: 1, borderColor: theme.border },
-  detailIconCircle: { width: 64, height: 64, borderRadius: 32, backgroundColor: '#F0F9FF', justifyContent: 'center', alignItems: 'center', marginBottom: 16, borderWidth: 2, borderColor: '#E0F2FE' },
+  detailIconCircle: { width: 64, height: 64, borderRadius: 32, backgroundColor: '#F0FDF4', justifyContent: 'center', alignItems: 'center', marginBottom: 16, borderWidth: 2, borderColor: '#ECFDF5' },
   detailTitle: { fontSize: 20, fontWeight: '800', color: theme.text, textAlign: 'center', marginBottom: 12 },
   detailBadgeRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' },
   detailBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: theme.background, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6, marginRight: 8, marginBottom: 6, borderWidth: 1, borderColor: theme.border },
@@ -927,12 +927,12 @@ const getStyles = (theme) => StyleSheet.create({
   attachmentPreview: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#EFF6FF',
+    backgroundColor: '#F0FDF4',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderWidth: 1,
-    borderColor: '#DBEAFE',
+    borderColor: '#A7F3D0',
   },
   attachmentName: {
     flex: 1,
@@ -959,7 +959,7 @@ const getStyles = (theme) => StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#EFF6FF',
+    backgroundColor: '#F0FDF4',
     justifyContent: 'center',
     alignItems: 'center',
   },

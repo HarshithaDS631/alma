@@ -315,7 +315,7 @@ const DashboardScreen = ({ navigation }) => {
       return { label: 'REUNION', color: '#D97706', bg: isDarkMode ? '#451A03' : '#FEF3C7', icon: 'people' };
     }
     if (/rvce|campus|convocation|exam|faculty|department|research|rsst|placement/i.test(content)) {
-      return { label: 'CAMPUS NOTICE', color: '#0284C7', bg: isDarkMode ? '#082F49' : '#E0F2FE', icon: 'school' };
+      return { label: 'CAMPUS NOTICE', color: '#059669', bg: isDarkMode ? '#082F49' : '#ECFDF5', icon: 'school' };
     }
     return { label: 'ALUMNI UPDATE', color: '#64748B', bg: isDarkMode ? '#1E293B' : '#F1F5F9', icon: 'newspaper-outline' };
   }, [isDarkMode]);
@@ -983,7 +983,7 @@ const DashboardScreen = ({ navigation }) => {
           <View style={styles.postUserInfo}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, flexWrap: 'wrap' }}>
               <Text style={styles.postUserName}>{post.user}</Text>
-              <Ionicons name="checkmark-circle" size={15} color="#0284C7" />
+              <Ionicons name="checkmark-circle" size={15} color="#059669" />
             </View>
             <Text style={styles.postUserRole} numberOfLines={1}>
               {post.role || 'RVCE Alumni Member'}
@@ -1280,11 +1280,11 @@ const DashboardScreen = ({ navigation }) => {
               title="Global Chapters"
               subtitle="Bengaluru, US, UK & EU"
               badge="COMMUNITY"
-              badgeBg={isDarkMode ? '#082F49' : '#E0F2FE'}
-              badgeTextColor="#0369A1"
+              badgeBg={isDarkMode ? '#082F49' : '#ECFDF5'}
+              badgeTextColor="#047857"
               icon="globe-outline"
-              iconColor="#0284C7"
-              iconBg={isDarkMode ? '#082F49' : '#E0F2FE'}
+              iconColor="#059669"
+              iconBg={isDarkMode ? '#082F49' : '#ECFDF5'}
               onPress={() => navigation.navigate('Engage', { tab: 'communities' })}
             />
           </View>
@@ -1546,7 +1546,7 @@ const DashboardScreen = ({ navigation }) => {
 
                   <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10, gap: 5 }}>
                     <Text style={{ fontSize: 17, fontWeight: '800', color: theme.text }}>{userName || 'Alumni Member'}</Text>
-                    <Ionicons name="checkmark-circle" size={17} color="#0284C7" />
+                    <Ionicons name="checkmark-circle" size={17} color="#059669" />
                   </View>
 
                   <Text style={{ fontSize: 12.5, color: theme.textSecondary, textAlign: 'center', marginTop: 4, lineHeight: 18 }}>
@@ -1587,13 +1587,13 @@ const DashboardScreen = ({ navigation }) => {
               <View style={styles.sidebarCardPadded}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7 }}>
-                    <View style={{ width: 6, height: 16, borderRadius: 3, backgroundColor: '#0284C7' }} />
+                    <View style={{ width: 6, height: 16, borderRadius: 3, backgroundColor: '#059669' }} />
                     <Text style={{ fontSize: 13, fontWeight: '800', color: theme.text, letterSpacing: 0.3 }}>
                       Alumni Hub
                     </Text>
                   </View>
                   <View style={styles.sidebarPillTag}>
-                    <Text style={{ fontSize: 10, fontWeight: '800', color: '#0284C7' }}>COMMUNITY</Text>
+                    <Text style={{ fontSize: 10, fontWeight: '800', color: '#059669' }}>COMMUNITY</Text>
                   </View>
                 </View>
 
@@ -1624,14 +1624,14 @@ const DashboardScreen = ({ navigation }) => {
                   onPress={() => navigation.navigate('Main', { screen: 'Engage', params: { tab: 'communities' } })}
                   activeOpacity={0.7}
                 >
-                  <View style={[styles.sidebarHubIcon, { backgroundColor: isDarkMode ? '#082F49' : '#E0F2FE' }]}>
-                    <Ionicons name="globe" size={17} color="#0284C7" />
+                  <View style={[styles.sidebarHubIcon, { backgroundColor: isDarkMode ? '#082F49' : '#ECFDF5' }]}>
+                    <Ionicons name="globe" size={17} color="#059669" />
                   </View>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                       <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }}>Global Chapters</Text>
-                      <View style={{ backgroundColor: '#E0F2FE', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 6 }}>
-                        <Text style={{ fontSize: 9.5, fontWeight: '800', color: '#0369A1' }}>12 CITIES</Text>
+                      <View style={{ backgroundColor: '#ECFDF5', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 6 }}>
+                        <Text style={{ fontSize: 9.5, fontWeight: '800', color: '#047857' }}>12 CITIES</Text>
                       </View>
                     </View>
                     <Text style={{ fontSize: 11, color: theme.textMuted, marginTop: 1 }}>Bengaluru, Silicon Valley, Europe</Text>
@@ -1796,13 +1796,13 @@ const DashboardScreen = ({ navigation }) => {
                   activeOpacity={0.7}
                 >
                   <View style={[styles.sidebarCampusIcon, { backgroundColor: isDarkMode ? '#7C2D12' : '#FFEDD5' }]}>
-                    <Ionicons name="rocket" size={17} color="#EA580C" />
+                    <Ionicons name="rocket" size={17} color="#059669" />
                   </View>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                       <Text style={{ fontSize: 12.5, fontWeight: '700', color: theme.text }}>Incubation & Research Lab</Text>
                       <View style={{ backgroundColor: '#FFEDD5', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 6 }}>
-                        <Text style={{ fontSize: 9, fontWeight: '800', color: '#C2410C' }}>GRANTS</Text>
+                        <Text style={{ fontSize: 9, fontWeight: '800', color: '#047857' }}>GRANTS</Text>
                       </View>
                     </View>
                     <Text style={{ fontSize: 11, color: theme.textMuted }}>RSST seed funds & patent filing</Text>
@@ -2905,7 +2905,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     backgroundColor: isDarkMode ? 'rgba(244, 63, 94, 0.16)' : '#FFE4E6',
   },
   alumniActionBtnSaved: {
-    backgroundColor: isDarkMode ? 'rgba(2, 132, 199, 0.16)' : '#E0F2FE',
+    backgroundColor: isDarkMode ? 'rgba(2, 132, 199, 0.16)' : '#ECFDF5',
   },
   alumniActionLabel: {
     fontSize: 11.5,
@@ -3114,12 +3114,12 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     borderColor: isDarkMode ? '#334155' : '#A7F3D0',
   },
   sidebarPillTag: {
-    backgroundColor: isDarkMode ? '#1E293B' : '#F0F9FF',
+    backgroundColor: isDarkMode ? '#1E293B' : '#F0FDF4',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: isDarkMode ? '#334155' : '#BAE6FD',
+    borderColor: isDarkMode ? '#334155' : '#A7F3D0',
   },
   sidebarHubItem: {
     flexDirection: 'row',

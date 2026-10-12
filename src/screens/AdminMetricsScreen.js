@@ -316,7 +316,7 @@ export default function AdminMetricsScreen({ navigation, isEmbedded = false }) {
             />
             <MetricCard 
               icon="business" 
-              color="#0284C7" // Sky Blue
+              color="#059669" // Sky Blue
               value={(metrics.companiesCount || 4038).toLocaleString()} 
               label="Employing Companies" 
             />
@@ -328,7 +328,7 @@ export default function AdminMetricsScreen({ navigation, isEmbedded = false }) {
             />
             <MetricCard 
               icon="briefcase" 
-              color="#8B5CF6" // Violet
+              color="#34D399" // Violet
               value={(metrics.activeJobs || 45).toString()} 
               label="Active Jobs" 
             />

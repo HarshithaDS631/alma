@@ -98,10 +98,10 @@ export default function CareerInsightsScreen({ navigation }) {
             return (
               <TouchableOpacity
                 key={idx}
-                style={[styles.skillChip, isEndorsed && { backgroundColor: '#E0F2FE', borderColor: '#0284C7' }]}
+                style={[styles.skillChip, isEndorsed && { backgroundColor: '#ECFDF5', borderColor: '#059669' }]}
                 onPress={() => handleEndorse(item._id, skill, item.name)}
               >
-                <Text style={[styles.skillChipText, isEndorsed && { color: '#0369A1' }]}>
+                <Text style={[styles.skillChipText, isEndorsed && { color: '#047857' }]}>
                   {skill} {isEndorsed ? '👍 (1)' : '+ Endorse'}
                 </Text>
               </TouchableOpacity>
@@ -218,7 +218,7 @@ export default function CareerInsightsScreen({ navigation }) {
                     </View>
                     <View>
                       <Text style={styles.statLabel}>Highest Package</Text>
-                      <Text style={[styles.statValue, { color: '#2563EB' }]}>{b.maxPackage}</Text>
+                      <Text style={[styles.statValue, { color: '#10B981' }]}>{b.maxPackage}</Text>
                     </View>
                   </View>
                   <Text style={[styles.topRoleText, { color: theme.subtext }]}>Top Hiring Role: <Text style={{ color: theme.text, fontWeight: '700' }}>{b.topRole}</Text></Text>
@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
     marginBottom: 20
   },
   heroTitle: { color: '#FFFFFF', fontSize: 17, fontWeight: '800' },
-  heroSubText: { color: '#93C5FD', fontSize: 12, marginTop: 2 },
+  heroSubText: { color: '#A7F3D0', fontSize: 12, marginTop: 2 },
   sectionHeading: { fontSize: 16, fontWeight: '800', marginBottom: 12 },
   card: {
     borderRadius: 14,
@@ -354,7 +354,7 @@ const styles = StyleSheet.create({
   jobCard: { borderRadius: 12, borderWidth: 1, padding: 14, marginBottom: 10 },
   jobTitle: { fontSize: 15, fontWeight: '700' },
   jobCompany: { fontSize: 12, marginTop: 2 },
-  jobMatchBadge: { backgroundColor: '#DBEAFE', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 },
+  jobMatchBadge: { backgroundColor: '#A7F3D0', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 },
   jobMatchText: { color: '#1E40AF', fontSize: 11, fontWeight: '700' },
   applyBtn: { flex: 1, backgroundColor: '#002144', paddingVertical: 10, borderRadius: 8, alignItems: 'center' },
   applyBtnText: { color: '#FFFFFF', fontSize: 13, fontWeight: '700' },

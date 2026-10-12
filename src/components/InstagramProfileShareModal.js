@@ -56,8 +56,8 @@ const CARD_THEMES = [
     name: 'Midnight Dark',
     bg: '#090D16',
     gradient: ['#090D16', '#1E293B', '#334155'],
-    accent: '#60A5FA',
-    accentLight: '#DBEAFE',
+    accent: '#34D399',
+    accentLight: '#A7F3D0',
     badgeText: '🎓 OFFICIAL MEMBER',
     cardBorder: 'rgba(96, 165, 250, 0.3)'
   },
@@ -65,7 +65,7 @@ const CARD_THEMES = [
     id: 'cyber',
     name: 'Cyber Violet',
     bg: '#4C1D95',
-    gradient: ['#4C1D95', '#7C3AED', '#A855F7'],
+    gradient: ['#4C1D95', '#10B981', '#A855F7'],
     accent: '#E879F9',
     accentLight: '#F3E8FF',
     badgeText: '🚀 RV TECH ALUM',
@@ -298,7 +298,7 @@ export default function InstagramProfileShareModal({
               <View style={styles.cardIdentity}>
                 <View style={styles.nameRow}>
                   <Text style={styles.cardName} numberOfLines={1}>{name}</Text>
-                  <Ionicons name="checkmark-circle" size={18} color="#38BDF8" style={{ marginLeft: 6 }} />
+                  <Ionicons name="checkmark-circle" size={18} color="#34D399" style={{ marginLeft: 6 }} />
                 </View>
 
                 <Text style={[styles.cardHandle, { color: currentTheme.accent }]}>

@@ -330,7 +330,7 @@ const AdminHomeScreen = ({ navigation }) => {
         <View style={styles.header}>
           {/* Left – User avatar */}
           <TouchableOpacity
-            style={[styles.headerAvatar, { overflow: 'hidden', backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center' }]}
+            style={[styles.headerAvatar, { overflow: 'hidden', backgroundColor: '#059669', justifyContent: 'center', alignItems: 'center' }]}
             activeOpacity={0.8}
             onPress={() => navigation.navigate('AdminProfile')}
           >

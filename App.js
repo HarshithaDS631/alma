@@ -103,7 +103,7 @@ function Render3DTabIcon({ name, focused, isDarkMode, theme, isPost, label, isMa
           shadowRadius: 10,
           elevation: 9,
           borderWidth: 2,
-          borderColor: isDarkMode ? theme.primaryLight : '#FED7AA'
+          borderColor: isDarkMode ? theme.primaryLight : '#A7F3D0'
         }}>
           <Ionicons name="add" size={26} color="#FFFFFF" />
         </View>
@@ -126,9 +126,9 @@ function Render3DTabIcon({ name, focused, isDarkMode, theme, isPost, label, isMa
         paddingHorizontal: focused ? 14 : 10,
         paddingVertical: 5,
         borderRadius: 14,
-        backgroundColor: focused ? (theme.iconPodActiveBg || 'rgba(255, 107, 0, 0.12)') : 'transparent',
+        backgroundColor: focused ? (theme.iconPodActiveBg || 'rgba(16, 185, 129, 0.12)') : 'transparent',
         borderWidth: focused ? 1.5 : 0,
-        borderColor: focused ? (theme.iconPodBorder || 'rgba(255, 107, 0, 0.35)') : 'transparent',
+        borderColor: focused ? (theme.iconPodBorder || 'rgba(16, 185, 129, 0.35)') : 'transparent',
         shadowColor: focused ? (isDarkMode ? theme.primaryLight : theme.primary) : 'transparent',
         shadowOffset: { width: 0, height: 3 },
         shadowOpacity: focused ? 0.35 : 0,
@@ -176,10 +176,10 @@ function CustomDrawerContent(props) {
             width: 40,
             height: 40,
             borderRadius: 12,
-            backgroundColor: '#002B5C',
+            backgroundColor: '#059669',
             justifyContent: 'center',
             alignItems: 'center',
-            shadowColor: '#002B5C',
+            shadowColor: '#059669',
             shadowOffset: { width: 0, height: 3 },
             shadowOpacity: 0.25,
             shadowRadius: 5,
@@ -221,7 +221,7 @@ function CustomDrawerContent(props) {
             width: 36,
             height: 36,
             borderRadius: 18,
-            backgroundColor: '#003366',
+            backgroundColor: '#059669',
             justifyContent: 'center',
             alignItems: 'center',
             overflow: 'hidden',
@@ -274,7 +274,7 @@ function MainTabs() {
             paddingHorizontal: 10,
             marginVertical: 3,
           },
-          drawerActiveBackgroundColor: isDarkMode ? 'rgba(255, 107, 0, 0.14)' : 'rgba(255, 107, 0, 0.08)',
+          drawerActiveBackgroundColor: isDarkMode ? 'rgba(16, 185, 129, 0.14)' : 'rgba(16, 185, 129, 0.08)',
           drawerActiveTintColor: isDarkMode ? theme.primaryLight : theme.primary,
           drawerInactiveTintColor: isDarkMode ? '#94A3B8' : '#64748B',
           drawerLabelStyle: { fontSize: 14, fontWeight: '700', marginLeft: -4 },
@@ -290,7 +290,7 @@ function MainTabs() {
                 width: 32,
                 height: 32,
                 borderRadius: 9,
-                backgroundColor: focused ? (isDarkMode ? 'rgba(255, 107, 0, 0.2)' : 'rgba(255, 107, 0, 0.12)') : 'transparent',
+                backgroundColor: focused ? (isDarkMode ? 'rgba(16, 185, 129, 0.2)' : 'rgba(16, 185, 129, 0.12)') : 'transparent',
                 justifyContent: 'center',
                 alignItems: 'center'
               }}>

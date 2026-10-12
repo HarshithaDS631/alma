@@ -120,16 +120,16 @@ const panelItems = [
   { id: '2', title: 'Membership Requests', icon: 'checkbox-outline', color: '#FEF3C7', iconColor: '#D97706', moduleName: 'membership_request', desc: 'Verify & approve pending alumni, student & faculty signups' },
   { id: '3', title: 'Database Manager', icon: 'people-outline', color: '#F0FDF4', iconColor: '#16A34A', moduleName: 'master_list', desc: 'Filter 33,368 master directory records by dept, batch & company' },
   { id: '4', title: 'Talent / Resume Book', icon: 'book-outline', color: '#FAF5FF', iconColor: '#9333EA', moduleName: 'resume_book', desc: 'Browse verified alumni resumes, domain skills & recruiter dispatch' },
-  { id: '5', title: 'Placement Tool', icon: 'briefcase-outline', color: '#E0F2FE', iconColor: '#0284C7', moduleName: 'placement_tool', desc: 'Track 4,038 companies employing RVCE alumni with live counts' },
+  { id: '5', title: 'Placement Tool', icon: 'briefcase-outline', color: '#ECFDF5', iconColor: '#059669', moduleName: 'placement_tool', desc: 'Track 4,038 companies employing RVCE alumni with live counts' },
   { id: '6', title: 'Bulk Data Import', icon: 'cloud-upload-outline', color: '#ECFDF5', iconColor: '#059669', moduleName: 'bulk_import', desc: 'Import student and alumni datasets via CSV with column mapping' },
-  { id: '7', title: 'Mass Mail Broadcast', icon: 'paper-plane-outline', color: '#EFF6FF', iconColor: '#2563EB', moduleName: 'mass_mail', desc: 'Targeted broadcast campaigns by batch, department or region' },
-  { id: '8', title: 'Welcome Mail Automator', icon: 'mail-open-outline', color: '#FFF7ED', iconColor: '#EA580C', moduleName: 'welcome_mail', desc: 'Automated welcome email triggers with customizable template tokens' },
+  { id: '7', title: 'Mass Mail Broadcast', icon: 'paper-plane-outline', color: '#F0FDF4', iconColor: '#10B981', moduleName: 'mass_mail', desc: 'Targeted broadcast campaigns by batch, department or region' },
+  { id: '8', title: 'Welcome Mail Automator', icon: 'mail-open-outline', color: '#F0FDF4', iconColor: '#059669', moduleName: 'welcome_mail', desc: 'Automated welcome email triggers with customizable template tokens' },
   { id: '9', title: 'Dynamic Email Stats', icon: 'analytics-outline', color: '#ECFDF5', iconColor: '#059669', moduleName: 'email_stats', desc: 'Real-time open & click metrics for invitation and broadcast emails' },
   { id: '10', title: 'Mentorship Moderation', icon: 'git-pull-request-outline', color: '#FEF3C7', iconColor: '#D97706', moduleName: 'mentor_application', desc: 'Approve mentor applications and monitor 1-on-1 mentorship pairings' },
   { id: '11', title: 'Spam & Moderation', icon: 'flag-outline', color: '#FFF5F5', iconColor: '#E53E3E', moduleName: 'spam_report', desc: 'Review reported content, flagged accounts, and suspension tools' },
-  { id: '12', title: 'Custom Page Builder', icon: 'document-text-outline', color: '#F5F3FF', iconColor: '#7C3AED', moduleName: 'page_builder', desc: 'Create custom institutional pages, forms, and event registrations' },
+  { id: '12', title: 'Custom Page Builder', icon: 'document-text-outline', color: '#F5F3FF', iconColor: '#10B981', moduleName: 'page_builder', desc: 'Create custom institutional pages, forms, and event registrations' },
   { id: '13', title: 'Activities & Audit Log', icon: 'time-outline', color: '#F1F5F9', iconColor: '#475569', moduleName: 'admin_activities', desc: 'Track administrative outreach logs across email, phone & WhatsApp' },
-  { id: '14', title: 'Data Exports', icon: 'download-outline', color: '#EFF6FF', iconColor: '#3B82F6', moduleName: 'data_exports', desc: 'Export verified directory & placement analytics to CSV' },
+  { id: '14', title: 'Data Exports', icon: 'download-outline', color: '#F0FDF4', iconColor: '#10B981', moduleName: 'data_exports', desc: 'Export verified directory & placement analytics to CSV' },
 ];
 
 export default function AdminPanelScreen({ navigation }) {
@@ -699,7 +699,7 @@ export default function AdminPanelScreen({ navigation }) {
           <TouchableOpacity style={styles.placementRowCard} activeOpacity={0.7} onPress={() => handleCompanyClick(item)}>
             <Text style={styles.placementRank}>{index + 1}</Text>
             <View style={styles.companyIconBox}>
-              <Ionicons name="business" size={18} color="#003366" />
+              <Ionicons name="business" size={18} color="#059669" />
             </View>
             <View style={{ flex: 1, marginLeft: 12 }}>
               <Text style={styles.placementCompName}>{item.company}</Text>
@@ -847,7 +847,7 @@ export default function AdminPanelScreen({ navigation }) {
           <View style={styles.chartBarRow}>
             <Text style={styles.chartLabel}>Click Rate ({clickRatePercent}%)</Text>
             <View style={styles.chartTrack}>
-              <View style={[styles.chartFill, { width: `${clickRatePercent}%`, backgroundColor: '#3B82F6' }]} />
+              <View style={[styles.chartFill, { width: `${clickRatePercent}%`, backgroundColor: '#10B981' }]} />
             </View>
           </View>
         </View>
@@ -957,7 +957,7 @@ export default function AdminPanelScreen({ navigation }) {
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <View style={{
-                    backgroundColor: item.method === 'POST' ? '#3B82F6' : item.method === 'PUT' ? '#F59E0B' : item.method === 'DELETE' ? '#EF4444' : '#10B981',
+                    backgroundColor: item.method === 'POST' ? '#10B981' : item.method === 'PUT' ? '#F59E0B' : item.method === 'DELETE' ? '#EF4444' : '#10B981',
                     paddingHorizontal: 8,
                     paddingVertical: 2,
                     borderRadius: 4,
@@ -1143,7 +1143,7 @@ export default function AdminPanelScreen({ navigation }) {
                   style={styles.resumeOutlineBtn}
                   onPress={() => Alert.alert('Resume Preview', `Opening official PDF portfolio for ${item.name}`)}
                 >
-                  <Ionicons name="document-text-outline" size={15} color="#003366" style={{ marginRight: 5 }} />
+                  <Ionicons name="document-text-outline" size={15} color="#059669" style={{ marginRight: 5 }} />
                   <Text style={styles.resumeOutlineBtnText}>View Resume</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -1239,7 +1239,7 @@ export default function AdminPanelScreen({ navigation }) {
 
       {/* Upload Box */}
       <View style={styles.uploadDropBox}>
-        <Ionicons name="cloud-upload-outline" size={48} color="#003366" />
+        <Ionicons name="cloud-upload-outline" size={48} color="#059669" />
         <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text, marginTop: 10 }}>Select CSV File to Import</Text>
         <Text style={{ fontSize: 12, color: theme.textSecondary, marginTop: 4, textAlign: 'center' }}>
           Selected: <Text style={{ fontWeight: '700', color: theme.primary }}>{selectedCsvName}</Text>
@@ -1465,7 +1465,7 @@ export default function AdminPanelScreen({ navigation }) {
             {/* Welcome Card */}
             <View style={styles.welcomeCard}>
               <View style={styles.welcomeIconCircle}>
-                <Ionicons name="school" size={28} color="#003366" />
+                <Ionicons name="school" size={28} color="#059669" />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.welcomeTitle}>Welcome, {userName || 'RVCE Alumni Affairs'}</Text>
@@ -1525,11 +1525,11 @@ export default function AdminPanelScreen({ navigation }) {
       <View style={styles.header}>
         {activeModule ? (
           <TouchableOpacity style={styles.backBtnHeader} onPress={() => { setActiveModule(null); setSearchText(''); }}>
-            <Ionicons name="arrow-back" size={24} color="#003366" />
+            <Ionicons name="arrow-back" size={24} color="#059669" />
           </TouchableOpacity>
         ) : (
           <TouchableOpacity 
-            style={[styles.headerAvatar, { overflow: 'hidden', backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center' }]} 
+            style={[styles.headerAvatar, { overflow: 'hidden', backgroundColor: '#059669', justifyContent: 'center', alignItems: 'center' }]} 
             activeOpacity={0.8} 
             onPress={() => navigation.navigate('AdminProfile')}
           >
@@ -1549,10 +1549,10 @@ export default function AdminPanelScreen({ navigation }) {
         </View>
         <View style={styles.headerIcons}>
           <TouchableOpacity style={styles.headerIconBtn} onPress={() => navigation.navigate('Messages')}>
-            <Ionicons name="chatbubble-ellipses-outline" size={22} color="#003366" />
+            <Ionicons name="chatbubble-ellipses-outline" size={22} color="#059669" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.headerIconBtn} onPress={() => navigation.navigate('Notifications')}>
-            <Ionicons name="notifications-outline" size={22} color="#003366" />
+            <Ionicons name="notifications-outline" size={22} color="#059669" />
           </TouchableOpacity>
         </View>
       </View>
@@ -1641,7 +1641,7 @@ const getStyles = (theme) => StyleSheet.create({
   scrollContent: { padding: 20 },
   
   welcomeCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: theme.card, borderRadius: 16, padding: 18, marginBottom: 16, borderWidth: 1, borderColor: theme.border },
-  welcomeIconCircle: { width: 52, height: 52, borderRadius: 16, backgroundColor: '#F0F9FF', justifyContent: 'center', alignItems: 'center', marginRight: 14, borderWidth: 1, borderColor: '#E0F2FE' },
+  welcomeIconCircle: { width: 52, height: 52, borderRadius: 16, backgroundColor: '#F0FDF4', justifyContent: 'center', alignItems: 'center', marginRight: 14, borderWidth: 1, borderColor: '#ECFDF5' },
   welcomeTitle: { fontSize: 17, fontWeight: '800', color: theme.text },
   welcomeSub: { fontSize: 13, color: theme.textSecondary, marginTop: 2 },
   
@@ -1726,7 +1726,7 @@ const getStyles = (theme) => StyleSheet.create({
   matchCount: { fontSize: 14, fontWeight: '700', color: theme.primary, paddingHorizontal: 16, marginBottom: 12 },
   
   alumniRowCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: theme.card, padding: 14, borderRadius: 12, marginBottom: 10, borderWidth: 1, borderColor: theme.border },
-  rowAvatar: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#EFF6FF', alignItems: 'center', justifyContent: 'center' },
+  rowAvatar: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#F0FDF4', alignItems: 'center', justifyContent: 'center' },
   alumniRowName: { fontSize: 14.5, fontWeight: '700', color: theme.text },
   alumniRowDegree: { fontSize: 11, color: theme.textMuted, fontWeight: '500' },
   alumniRowTitle: { fontSize: 12.5, color: '#475569', marginTop: 2, fontWeight: '500' },
@@ -1751,7 +1751,7 @@ const getStyles = (theme) => StyleSheet.create({
   
   placementRowCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: theme.card, padding: 14, borderRadius: 12, marginBottom: 10, borderWidth: 1, borderColor: theme.border },
   placementRank: { fontSize: 14, fontWeight: '700', color: theme.textSecondary, width: 20 },
-  companyIconBox: { width: 36, height: 36, borderRadius: 8, backgroundColor: '#EFF6FF', alignItems: 'center', justifyContent: 'center' },
+  companyIconBox: { width: 36, height: 36, borderRadius: 8, backgroundColor: '#F0FDF4', alignItems: 'center', justifyContent: 'center' },
   placementCompName: { fontSize: 14.5, fontWeight: '700', color: theme.text },
   placementCompInd: { fontSize: 12, color: theme.textSecondary, marginTop: 2, fontWeight: '500' },
   
@@ -1798,10 +1798,10 @@ const getStyles = (theme) => StyleSheet.create({
   // Mentor Badges
   badgeRole: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
   badgeMentor: { backgroundColor: '#ECFDF5' },
-  badgeMentee: { backgroundColor: '#EFF6FF' },
+  badgeMentee: { backgroundColor: '#F0FDF4' },
   badgeRoleText: { fontSize: 11, fontWeight: '700' },
   badgeMentorText: { color: theme.success },
-  badgeMenteeText: { color: '#3B82F6' },
+  badgeMenteeText: { color: '#10B981' },
 
   // Admin Activities Log Layout
   activityLayout: { flex: 1, flexDirection: 'row' },
@@ -1809,7 +1809,7 @@ const getStyles = (theme) => StyleSheet.create({
   activityLeftSidebar: { borderRightWidth: 1, borderRightColor: theme.border, backgroundColor: theme.card, paddingVertical: 8 },
   sidebarSectionTitle: { fontSize: 11, fontWeight: '800', color: theme.textMuted, textTransform: 'uppercase', paddingHorizontal: 8, marginBottom: 8, marginTop: 4 },
   sidebarTab: { paddingVertical: 10, paddingHorizontal: 8, borderRadius: 6, marginHorizontal: 4, marginBottom: 4 },
-  sidebarTabActive: { backgroundColor: '#EFF6FF' },
+  sidebarTabActive: { backgroundColor: '#F0FDF4' },
   sidebarTabText: { fontSize: 12, fontWeight: '600', color: theme.textSecondary },
   sidebarTabTextActive: { color: theme.primary, fontWeight: '700' },
   
@@ -1839,10 +1839,10 @@ const getStyles = (theme) => StyleSheet.create({
   exportItemDesc: { fontSize: 11.5, color: theme.textSecondary, marginTop: 4, lineHeight: 16, fontWeight: '500' },
   exportDownloadBtn: { width: 44, height: 44, borderRadius: 10, backgroundColor: theme.primary, alignItems: 'center', justifyContent: 'center', marginLeft: 16 },
   
-  progressBarWrapper: { marginTop: 16, padding: 12, backgroundColor: '#F0F9FF', borderRadius: 10, borderWidth: 1, borderColor: '#B9E6FE' },
-  progressLabel: { fontSize: 12.5, fontWeight: '700', color: '#0284C7', marginBottom: 6 },
-  progressBarTrack: { height: 8, backgroundColor: '#E0F2FE', borderRadius: 4, overflow: 'hidden' },
-  progressBarFill: { height: 8, backgroundColor: '#0284C7' },
+  progressBarWrapper: { marginTop: 16, padding: 12, backgroundColor: '#F0FDF4', borderRadius: 10, borderWidth: 1, borderColor: '#B9E6FE' },
+  progressLabel: { fontSize: 12.5, fontWeight: '700', color: '#059669', marginBottom: 6 },
+  progressBarTrack: { height: 8, backgroundColor: '#ECFDF5', borderRadius: 4, overflow: 'hidden' },
+  progressBarFill: { height: 8, backgroundColor: '#059669' },
 
   // Dropdown Modals Layout
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.4)', justifyContent: 'center', alignItems: 'center' },
@@ -1861,7 +1861,7 @@ const getStyles = (theme) => StyleSheet.create({
   resumeAvatarCircle: { width: 44, height: 44, borderRadius: 22, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center' },
   resumeCandidateName: { fontSize: 15.5, fontWeight: '700', color: theme.text },
   resumeCandidateDept: { fontSize: 12, color: theme.textSecondary, marginTop: 2 },
-  domainTag: { backgroundColor: '#EFF6FF', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, marginRight: 8 },
+  domainTag: { backgroundColor: '#F0FDF4', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, marginRight: 8 },
   domainTagText: { fontSize: 11, fontWeight: '700', color: '#1E40AF' },
   cgpaText: { fontSize: 11.5, color: '#64748B', fontWeight: '600' },
   skillChip: { backgroundColor: '#F1F5F9', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
@@ -1874,7 +1874,7 @@ const getStyles = (theme) => StyleSheet.create({
   // Bulk Import Styling
   uploadDropBox: { backgroundColor: theme.card, borderRadius: 16, padding: 24, alignItems: 'center', borderWidth: 1.5, borderColor: '#CBD5E1', borderStyle: 'dashed', marginHorizontal: 16 },
   columnMappingBox: { width: '100%', backgroundColor: '#F8FAFC', padding: 12, borderRadius: 10, marginTop: 14, borderWidth: 1, borderColor: '#E2E8F0' },
-  mappingChip: { backgroundColor: '#EFF6FF', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
+  mappingChip: { backgroundColor: '#F0FDF4', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
   mappingChipText: { fontSize: 10.5, fontWeight: '600', color: '#1E40AF' },
   importActionBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#059669', paddingHorizontal: 20, paddingVertical: 12, borderRadius: 10, marginTop: 18 },
   importActionBtnText: { fontSize: 14, fontWeight: '700', color: '#FFFFFF' },

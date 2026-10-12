@@ -93,7 +93,7 @@ const AdminDashboardScreen = ({ navigation }) => {
         {isDesktop && (
           <View style={{ flex: 3 }}>
              <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 20, elevation: 2, borderWidth: 1, borderColor: theme.border, alignItems: 'center' }}>
-               <View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: '#003366', justifyContent: 'center', alignItems: 'center', marginBottom: 12 }}>
+               <View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: '#059669', justifyContent: 'center', alignItems: 'center', marginBottom: 12 }}>
                  <Ionicons name="shield-checkmark" size={32} color="#FFF" />
                </View>
                <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>Admin Console</Text>
@@ -121,7 +121,7 @@ const AdminDashboardScreen = ({ navigation }) => {
               <View style={styles.statsGrid}>
                 <View style={[styles.statCard, { width: width > 768 ? '31%' : '48%' }]}>
                   <View style={styles.statTopRow}>
-                    <View style={[styles.iconBox, { backgroundColor: '#E0F2FE' }]}><Ionicons name="newspaper-outline" size={20} color="#0284C7" /></View>
+                    <View style={[styles.iconBox, { backgroundColor: '#ECFDF5' }]}><Ionicons name="newspaper-outline" size={20} color="#059669" /></View>
                   </View>
                   <Text style={styles.statValue}>{actualStats.posts}</Text>
                   <Text style={styles.statLabel}>Total Posts</Text>
@@ -135,7 +135,7 @@ const AdminDashboardScreen = ({ navigation }) => {
                 </View>
                 <View style={[styles.statCard, { width: width > 768 ? '31%' : '48%' }]}>
                   <View style={styles.statTopRow}>
-                    <View style={[styles.iconBox, { backgroundColor: '#F0F9FF' }]}><Ionicons name="people-outline" size={20} color="#003366" /></View>
+                    <View style={[styles.iconBox, { backgroundColor: '#F0FDF4' }]}><Ionicons name="people-outline" size={20} color="#059669" /></View>
                   </View>
                   <Text style={styles.statValue}>{pendingApprovals}</Text>
                   <Text style={styles.statLabel}>Pending Approvals</Text>
@@ -162,7 +162,7 @@ const AdminDashboardScreen = ({ navigation }) => {
             <TouchableOpacity style={styles.actionCard} onPress={() => handleQuickAction('Block/Unblock Users')}>
               <View style={styles.actionInfo}>
                 <View style={[styles.actionIcon, { backgroundColor: '#F1F5F9' }]}>
-                  <Ionicons name="shield-half-outline" size={22} color="#003366" />
+                  <Ionicons name="shield-half-outline" size={22} color="#059669" />
                 </View>
                 <View>
                   <Text style={styles.actionTitle}>Block/Unblock Users</Text>
@@ -177,8 +177,8 @@ const AdminDashboardScreen = ({ navigation }) => {
 
             <TouchableOpacity style={styles.actionCard} onPress={() => handleQuickAction('User Approvals')}>
               <View style={styles.actionInfo}>
-                <View style={[styles.actionIcon, { backgroundColor: '#F0F9FF' }]}>
-                  <Ionicons name="people" size={22} color="#003366" />
+                <View style={[styles.actionIcon, { backgroundColor: '#F0FDF4' }]}>
+                  <Ionicons name="people" size={22} color="#059669" />
                 </View>
                 <View>
                   <Text style={styles.actionTitle}>User Approvals</Text>
@@ -231,8 +231,8 @@ const AdminDashboardScreen = ({ navigation }) => {
               <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text, marginBottom: 16 }}>Platform Stats</Text>
               
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
-                <View style={[styles.iconBox, { backgroundColor: '#E0F2FE', marginRight: 12 }]}>
-                  <Ionicons name="newspaper-outline" size={20} color="#0284C7" />
+                <View style={[styles.iconBox, { backgroundColor: '#ECFDF5', marginRight: 12 }]}>
+                  <Ionicons name="newspaper-outline" size={20} color="#059669" />
                 </View>
                 <View>
                   <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>{actualStats.posts}</Text>
@@ -251,8 +251,8 @@ const AdminDashboardScreen = ({ navigation }) => {
               </View>
 
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
-                <View style={[styles.iconBox, { backgroundColor: '#F0F9FF', marginRight: 12 }]}>
-                  <Ionicons name="people-outline" size={20} color="#003366" />
+                <View style={[styles.iconBox, { backgroundColor: '#F0FDF4', marginRight: 12 }]}>
+                  <Ionicons name="people-outline" size={20} color="#059669" />
                 </View>
                 <View>
                   <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>{pendingApprovals}</Text>
@@ -462,7 +462,7 @@ const getStyles = (theme) => StyleSheet.create({
     gap: 6,
   },
   countBadge: {
-    backgroundColor: '#0284C7',
+    backgroundColor: '#059669',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 10,

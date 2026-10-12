@@ -56,7 +56,7 @@ const RoleSelectionScreen = ({ navigation }) => {
                 <Text style={styles.roleDescription}>{role.description}</Text>
               </View>
               {selected === role.id && (
-                <Ionicons name="checkmark-circle" size={24} color="#003366" />
+                <Ionicons name="checkmark-circle" size={24} color="#059669" />
               )}
             </TouchableOpacity>
           ))}
