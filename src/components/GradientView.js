@@ -6,7 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
  * Supports light sunset sunrise gradients, cards, and buttons.
  */
 export default function GradientView({
-  colors = ['#34D399', '#059669'],
+  colors = ['#818CF8', '#6366F1'],
   start = { x: 0, y: 0 },
   end = { x: 1, y: 0 },
   style,

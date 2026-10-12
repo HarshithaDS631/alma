@@ -389,7 +389,7 @@ export default function ResumeBookScreen({ navigation, route }) {
 
   // ─── AVATAR COMPONENT ────────────────────────────────────────────────
   const AvatarCircle = ({ name, size = 80 }) => {
-    const colors = ['#059669', '#1E3A5F', '#0D47A1', '#004D40', '#1B5E20', '#4A148C', '#BF360C', '#047857'];
+    const colors = ['#6366F1', '#1E3A5F', '#0D47A1', '#004D40', '#1B5E20', '#4A148C', '#BF360C', '#4F46E5'];
     const idx = name.split('').reduce((a, c) => a + c.charCodeAt(0), 0) % colors.length;
     return (
       <View style={{
@@ -967,7 +967,7 @@ export default function ResumeBookScreen({ navigation, route }) {
             {/* Education */}
             <View style={styles.resumeSection}>
               <Text style={[styles.resumeSectionTitle, { color: theme.text }]}>Education</Text>
-              <View style={[styles.experienceItem, { borderLeftColor: '#059669' }]}>
+              <View style={[styles.experienceItem, { borderLeftColor: '#6366F1' }]}>
                 <Text style={[styles.experienceTitle, { color: theme.text }]}>RV College of Engineering</Text>
                 <Text style={[styles.experienceCompany, { color: '#00BFA5' }]}>{selectedTalent?.course}</Text>
                 <Text style={[{ fontSize: 12, color: isDarkMode ? '#94A3B8' : '#64748B' }]}>
@@ -1162,7 +1162,7 @@ export default function ResumeBookScreen({ navigation, route }) {
 
   // ─── MAIN RENDER ──────────────────────────────────────────────────────
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: isDarkMode ? '#0F172A' : '#F0FDF4' }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: isDarkMode ? '#0F172A' : '#F5F3FF' }]}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={isDarkMode ? '#0F172A' : '#FFFFFF'} />
 
       {/* Header */}

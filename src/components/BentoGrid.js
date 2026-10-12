@@ -46,8 +46,8 @@ export function BentoCard({
         styles.cardContainer,
         isHero && styles.heroContainer,
         {
-          backgroundColor: gradientColors ? 'transparent' : (isAccent ? (isDarkMode ? '#0E291D' : '#F0FDF4') : defaultBg),
-          borderColor: isAccent ? (isDarkMode ? '#059669' : '#A7F3D0') : defaultBorder,
+          backgroundColor: gradientColors ? 'transparent' : (isAccent ? (isDarkMode ? '#0E291D' : '#F5F3FF') : defaultBg),
+          borderColor: isAccent ? (isDarkMode ? '#6366F1' : '#DDD6FE') : defaultBorder,
         },
         style,
       ]}
@@ -63,14 +63,14 @@ export function BentoCard({
               style={[
                 styles.iconPod,
                 {
-                  backgroundColor: iconBg || (isDarkMode ? '#1E3A2B' : '#ECFDF5'),
+                  backgroundColor: iconBg || (isDarkMode ? '#1E3A2B' : '#EEF2FF'),
                 },
               ]}
             >
               <Ionicons
                 name={icon}
                 size={isHero ? 20 : 17}
-                color={iconColor || '#059669'}
+                color={iconColor || '#6366F1'}
               />
             </View>
           )}
@@ -80,15 +80,15 @@ export function BentoCard({
               style={[
                 styles.badgePill,
                 {
-                  backgroundColor: badgeBg || (isDarkMode ? '#064E3B' : '#ECFDF5'),
-                  borderColor: isDarkMode ? '#047857' : '#A7F3D0',
+                  backgroundColor: badgeBg || (isDarkMode ? '#312E81' : '#EEF2FF'),
+                  borderColor: isDarkMode ? '#4F46E5' : '#DDD6FE',
                 },
               ]}
             >
               <Text
                 style={[
                   styles.badgeText,
-                  { color: badgeTextColor || (isDarkMode ? '#34D399' : '#047857') },
+                  { color: badgeTextColor || (isDarkMode ? '#818CF8' : '#4F46E5') },
                 ]}
               >
                 {badge}
@@ -102,7 +102,7 @@ export function BentoCard({
               <Ionicons
                 name="arrow-forward-outline"
                 size={14}
-                color={isDarkMode ? '#34D399' : '#10B981'}
+                color={isDarkMode ? '#818CF8' : '#6366F1'}
               />
             </View>
           )}
@@ -113,7 +113,7 @@ export function BentoCard({
           <Text
             style={[
               styles.metricText,
-              { color: isDarkMode ? '#ECFDF5' : '#065F46' },
+              { color: isDarkMode ? '#EEF2FF' : '#3730A3' },
             ]}
           >
             {metric}

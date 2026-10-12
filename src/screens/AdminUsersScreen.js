@@ -59,7 +59,7 @@ const checkDatabaseVerification = (name, batchYear, joiningYear, institution) =>
 const FRIENDS_DATA = [];
 const COMMUNITIES_DATA = [];
 
-const AVATAR_COLORS = ['#059669', '#0F172A', '#1E3A5F', '#2C5282', '#1A365D', '#2D3748'];
+const AVATAR_COLORS = ['#6366F1', '#0F172A', '#1E3A5F', '#2C5282', '#1A365D', '#2D3748'];
 
 const BATCH_OPTIONS = ['All', '2015', '2017', '2018', '2019', '2020', '2021', '2022', '2023'];
 const BRANCH_OPTIONS = ['All', 'CSE', 'ECE', 'ISE', 'MBA', 'ME', 'EEE'];
@@ -386,14 +386,14 @@ const AdminUsersScreen = ({ navigation, route }) => {
           activeOpacity={0.7}
           onPress={() => navigation && navigation.navigate('Messages')}
         >
-          <Ionicons name="chatbubble-ellipses-outline" size={22} color="#059669" />
+          <Ionicons name="chatbubble-ellipses-outline" size={22} color="#6366F1" />
         </TouchableOpacity>
         <TouchableOpacity 
           style={styles.headerIconBtn} 
           activeOpacity={0.7}
           onPress={() => navigation && navigation.navigate('Notifications')}
         >
-          <Ionicons name="notifications-outline" size={22} color="#059669" />
+          <Ionicons name="notifications-outline" size={22} color="#6366F1" />
         </TouchableOpacity>
       </View>
     </View>
@@ -521,7 +521,7 @@ const AdminUsersScreen = ({ navigation, route }) => {
             } 
           })}
         >
-          <Ionicons name="chatbubble-outline" size={16} color="#059669" />
+          <Ionicons name="chatbubble-outline" size={16} color="#6366F1" />
           <Text style={styles.messageBtnText}>Message</Text>
         </TouchableOpacity>
 
@@ -554,7 +554,7 @@ const AdminUsersScreen = ({ navigation, route }) => {
   const renderCommunityItem = ({ item }) => (
     <View style={styles.communityCard}>
       <View style={styles.communityIcon}>
-        <Ionicons name={item.icon} size={24} color="#059669" />
+        <Ionicons name={item.icon} size={24} color="#6366F1" />
       </View>
       <View style={styles.communityInfo}>
         <Text style={styles.communityName}>{item.name}</Text>
@@ -640,18 +640,18 @@ const AdminUsersScreen = ({ navigation, route }) => {
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           ListHeaderComponent={() => (
-            <View style={{ backgroundColor: '#F0FDF4', borderColor: '#A7F3D0', borderWidth: 1, borderRadius: 12, padding: 12, marginBottom: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <View style={{ backgroundColor: '#F5F3FF', borderColor: '#DDD6FE', borderWidth: 1, borderRadius: 12, padding: 12, marginBottom: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
               <View style={{ flex: 1, marginRight: 8 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                  <Ionicons name="document-text" size={16} color="#059669" />
-                  <Text style={{ fontSize: 13, fontWeight: '700', color: '#047857' }}>RVCE Roster Verification</Text>
+                  <Ionicons name="document-text" size={16} color="#6366F1" />
+                  <Text style={{ fontSize: 13, fontWeight: '700', color: '#4F46E5' }}>RVCE Roster Verification</Text>
                 </View>
-                <Text style={{ fontSize: 11, color: '#059669', marginTop: 2 }}>
+                <Text style={{ fontSize: 11, color: '#6366F1', marginTop: 2 }}>
                   Alumni applications verified against official Google Sheet roster.
                 </Text>
               </View>
               <TouchableOpacity
-                style={{ backgroundColor: '#059669', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, flexDirection: 'row', alignItems: 'center', gap: 4 }}
+                style={{ backgroundColor: '#6366F1', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, flexDirection: 'row', alignItems: 'center', gap: 4 }}
                 onPress={handleSyncSheet}
                 disabled={syncingSheet}
               >
