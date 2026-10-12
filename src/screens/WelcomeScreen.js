@@ -8,6 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { handleGoogleLogin } from '../services/googleAuthService';
 import { handleAppleLogin } from '../services/appleAuthService';
 import Mascot from '../components/Mascot';
+import GradientView from '../components/GradientView';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -122,11 +123,18 @@ const WelcomeScreen = ({ navigation }) => {
 
 
             <TouchableOpacity 
-              style={styles.primaryButton}
               onPress={() => navigation.navigate('Login')}
               activeOpacity={0.85}
+              style={{ borderRadius: 14, overflow: 'hidden', marginBottom: 12 }}
             >
-              <Text style={styles.primaryButtonText}>Sign In</Text>
+              <GradientView
+                colors={theme.gradientPrimary || ['#FFA573', '#FF7F66']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.primaryButton}
+              >
+                <Text style={styles.primaryButtonText}>Sign In</Text>
+              </GradientView>
             </TouchableOpacity>
             
             <TouchableOpacity 
@@ -233,10 +241,9 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     flexDirection: 'row',
     height: 52,
     borderRadius: 14,
-    backgroundColor: theme.primary,
+    backgroundColor: 'transparent',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
     shadowColor: theme.primary,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.25,

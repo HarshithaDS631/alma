@@ -1200,7 +1200,7 @@ const DashboardScreen = ({ navigation }) => {
       <View style={styles.feedTitleRow}>
         <View style={{ flex: 1 }}>
           <View style={styles.feedInstitutionTag}>
-            <Ionicons name="shield-checkmark" size={12} color="#FF6B00" />
+            <Ionicons name="shield-checkmark" size={12} color="#FF8A65" />
             <Text style={styles.feedInstitutionText}>RVCE ALUMNI NETWORK</Text>
           </View>
           <Text style={styles.feedMainTitle}>Alumni Updates & Feed</Text>
@@ -1210,7 +1210,7 @@ const DashboardScreen = ({ navigation }) => {
           onPress={() => navigation.navigate('Engage', { tab: 'directory' })}
           activeOpacity={0.75}
         >
-          <Ionicons name="people-outline" size={13} color="#FF6B00" />
+          <Ionicons name="people-outline" size={13} color="#FF8A65" />
           <Text style={styles.feedDirectoryShortcutText}>Find Alumni</Text>
         </TouchableOpacity>
       </View>
@@ -1314,7 +1314,7 @@ const DashboardScreen = ({ navigation }) => {
             feedFilter === 'network' ? 'people' : 'information-circle'
           } 
           size={14} 
-          color={isDarkMode ? '#FF9248' : '#FF6B00'} 
+          color={isDarkMode ? '#FFA985' : '#FF8A65'} 
         />
         <Text style={styles.infoContextText}>
           {feedFilter === 'jobs' 
@@ -1338,7 +1338,7 @@ const DashboardScreen = ({ navigation }) => {
         <View style={styles.header}>
           {/* Left – User avatar */}
           <TouchableOpacity
-            style={[styles.headerAvatar, { width: 34, height: 34, borderRadius: 17, overflow: 'hidden', backgroundColor: '#FF6B00', justifyContent: 'center', alignItems: 'center' }]}
+            style={[styles.headerAvatar, { width: 34, height: 34, borderRadius: 17, overflow: 'hidden', backgroundColor: '#FF8A65', justifyContent: 'center', alignItems: 'center' }]}
             activeOpacity={0.8}
             onPress={() => navigation.navigate('Profile')}
           >
@@ -1391,16 +1391,16 @@ const DashboardScreen = ({ navigation }) => {
 
         {/* Admin Quick Actions Banner */}
         {isAdminOrSuper && (
-          <View style={{ backgroundColor: '#FFF4EB', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#FED7AA', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <View style={{ backgroundColor: '#FFF7F2', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#FFD5C2', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-              <Ionicons name="shield-checkmark" size={18} color="#FF6B00" style={{ marginRight: 10 }} />
+              <Ionicons name="shield-checkmark" size={18} color="#FF8A65" style={{ marginRight: 10 }} />
               <View>
-                <Text style={{ fontSize: 14, fontWeight: '700', color: '#FF6B00' }}>{userRole} Dashboard</Text>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#FF8A65' }}>{userRole} Dashboard</Text>
                 <Text style={{ fontSize: 12, color: '#64748B' }}>Quick actions for administration</Text>
               </View>
             </View>
             <TouchableOpacity 
-              style={{ backgroundColor: '#FF6B00', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8 }}
+              style={{ backgroundColor: '#FF8A65', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8 }}
               onPress={() => navigation.navigate(isSuperAdmin ? 'SuperAdminMain' : 'AdminMain')}
             >
               <Text style={{ fontSize: 12, fontWeight: '700', color: '#FFFFFF' }}>Admin Panel</Text>
@@ -1618,7 +1618,7 @@ const DashboardScreen = ({ navigation }) => {
                   suggestions.slice(0, 4).map(s => (
                     <View key={s.id} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
                       <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 8 }}>
-                        <View style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: '#FF6B00', justifyContent: 'center', alignItems: 'center', marginRight: 10, overflow: 'hidden' }}>
+                        <View style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: '#FF8A65', justifyContent: 'center', alignItems: 'center', marginRight: 10, overflow: 'hidden' }}>
                           {s.isAvatarUrl ? (
                             <Image source={{ uri: s.avatar }} style={{ width: 38, height: 38, borderRadius: 19 }} />
                           ) : (
@@ -1641,7 +1641,7 @@ const DashboardScreen = ({ navigation }) => {
                   ))
                 ) : (
                   <View style={{ alignItems: 'center', paddingVertical: 12 }}>
-                    <Ionicons name="people-outline" size={32} color="#FF6B00" style={{ marginBottom: 8 }} />
+                    <Ionicons name="people-outline" size={32} color="#FF8A65" style={{ marginBottom: 8 }} />
                     <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text, textAlign: 'center', marginBottom: 4 }}>Expand Your Network</Text>
                     <Text style={{ fontSize: 11.5, color: theme.textSecondary, textAlign: 'center', lineHeight: 17, marginBottom: 14 }}>
                       Find and connect with alumni from your department and batch.
@@ -1662,13 +1662,13 @@ const DashboardScreen = ({ navigation }) => {
               <View style={styles.sidebarCardPadded}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7 }}>
-                    <View style={{ width: 6, height: 16, borderRadius: 3, backgroundColor: '#FF6B00' }} />
+                    <View style={{ width: 6, height: 16, borderRadius: 3, backgroundColor: '#FF8A65' }} />
                     <Text style={{ fontSize: 13, fontWeight: '800', color: theme.text, letterSpacing: 0.3 }}>
                       Campus Quick Links
                     </Text>
                   </View>
                   <View style={[styles.sidebarPillTag, { backgroundColor: isDarkMode ? '#1E293B' : '#EEF2FF', borderColor: isDarkMode ? '#334155' : '#C7D2FE' }]}>
-                    <Text style={{ fontSize: 10, fontWeight: '800', color: '#FF6B00' }}>RVCE SERVICES</Text>
+                    <Text style={{ fontSize: 10, fontWeight: '800', color: '#FF8A65' }}>RVCE SERVICES</Text>
                   </View>
                 </View>
 
@@ -1678,8 +1678,8 @@ const DashboardScreen = ({ navigation }) => {
                   onPress={() => handleOpenExternalUrl('https://rvce.edu.in')}
                   activeOpacity={0.7}
                 >
-                  <View style={[styles.sidebarCampusIcon, { backgroundColor: isDarkMode ? '#1E293B' : '#FFF4EB' }]}>
-                    <Ionicons name="school" size={17} color="#FF6B00" />
+                  <View style={[styles.sidebarCampusIcon, { backgroundColor: isDarkMode ? '#1E293B' : '#FFF7F2' }]}>
+                    <Ionicons name="school" size={17} color="#FF8A65" />
                   </View>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
@@ -1983,7 +1983,7 @@ const DashboardScreen = ({ navigation }) => {
                             {avatarUrl ? (
                               <Image source={{ uri: avatarUrl }} style={{ width: 66, height: 66, borderRadius: 33, borderWidth: isSent ? 2.5 : 0, borderColor: '#22C55E' }} />
                             ) : (
-                              <View style={{ width: 66, height: 66, borderRadius: 33, backgroundColor: isSent ? '#22C55E' : '#FF6B00', justifyContent: 'center', alignItems: 'center' }}>
+                              <View style={{ width: 66, height: 66, borderRadius: 33, backgroundColor: isSent ? '#22C55E' : '#FF8A65', justifyContent: 'center', alignItems: 'center' }}>
                                 <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 18 }}>{initials}</Text>
                               </View>
                             )}
@@ -2073,7 +2073,7 @@ const DashboardScreen = ({ navigation }) => {
 
                 {/* ── Your caption input (top, like Instagram) ── */}
                 <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 14 }}>
-                  <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FF6B00', justifyContent: 'center', alignItems: 'center', marginRight: 10, marginTop: 2 }}>
+                  <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FF8A65', justifyContent: 'center', alignItems: 'center', marginRight: 10, marginTop: 2 }}>
                     <Text style={{ fontSize: 12, fontWeight: '700', color: '#FFF' }}>{getInitials(userName)}</Text>
                   </View>
                   <TextInput
@@ -2103,7 +2103,7 @@ const DashboardScreen = ({ navigation }) => {
                 }}>
                   {/* Original author row */}
                   <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10 }}>
-                    <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: '#FF6B00', justifyContent: 'center', alignItems: 'center', marginRight: 8 }}>
+                    <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: '#FF8A65', justifyContent: 'center', alignItems: 'center', marginRight: 8 }}>
                       <Text style={{ fontSize: 11, fontWeight: '700', color: '#FFF' }}>
                         {getInitials(selectedPost.user?.name || selectedPost.user)}
                       </Text>
@@ -2257,7 +2257,7 @@ const DashboardScreen = ({ navigation }) => {
         >
           <TouchableOpacity activeOpacity={1} style={{ backgroundColor: theme.card || '#FFFFFF', width: '100%', maxWidth: 330, borderRadius: 20, overflow: 'hidden', alignItems: 'center', padding: 24, borderWidth: 1, borderColor: theme.border || '#E2E8F0' }}>
             {/* Target User Avatar */}
-            <View style={{ width: 68, height: 68, borderRadius: 34, backgroundColor: '#FF6B00', justifyContent: 'center', alignItems: 'center', marginBottom: 16 }}>
+            <View style={{ width: 68, height: 68, borderRadius: 34, backgroundColor: '#FF8A65', justifyContent: 'center', alignItems: 'center', marginBottom: 16 }}>
               <Text style={{ fontSize: 24, fontWeight: '700', color: '#FFFFFF' }}>
                 {unfollowTarget?.avatar || (getInitials(unfollowTarget?.name))}
               </Text>
@@ -2408,7 +2408,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   feedInstitutionTag: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: isDarkMode ? '#1E293B' : '#FFF4EB',
+    backgroundColor: isDarkMode ? '#1E293B' : '#FFF7F2',
     alignSelf: 'flex-start',
     paddingHorizontal: 7,
     paddingVertical: 2.5,
@@ -2419,7 +2419,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   feedInstitutionText: {
     fontSize: 10,
     fontWeight: '800',
-    color: '#FF6B00',
+    color: '#FF8A65',
     letterSpacing: 0.5,
   },
   feedMainTitle: {
@@ -2432,17 +2432,17 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: isDarkMode ? '#1E293B' : '#FFF4EB',
+    backgroundColor: isDarkMode ? '#1E293B' : '#FFF7F2',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: isDarkMode ? '#334155' : '#FED7AA',
+    borderColor: isDarkMode ? '#334155' : '#FFD5C2',
   },
   feedDirectoryShortcutText: {
     fontSize: 11.5,
     fontWeight: '700',
-    color: '#FF6B00',
+    color: '#FF8A65',
   },
 
   /* ── Compact Single-Line Composer ────────────────────── */
@@ -2467,7 +2467,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: '#FF6B00',
+    backgroundColor: '#FF8A65',
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
@@ -2489,7 +2489,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
-    backgroundColor: '#FF6B00',
+    backgroundColor: '#FF8A65',
     paddingHorizontal: 11,
     paddingVertical: 6,
     borderRadius: 10,
@@ -2518,8 +2518,8 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     borderColor: isDarkMode ? '#334155' : '#E2E8F0',
   },
   filterPillActive: {
-    backgroundColor: '#FF6B00',
-    borderColor: '#FF6B00',
+    backgroundColor: '#FF8A65',
+    borderColor: '#FF8A65',
   },
   filterPillText: {
     fontSize: 12,
@@ -2564,7 +2564,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   infoContextText: {
     fontSize: 11.5,
     fontWeight: '600',
-    color: isDarkMode ? '#FF9248' : '#FF6B00',
+    color: isDarkMode ? '#FFA985' : '#FF8A65',
     flex: 1,
   },
 
@@ -2599,7 +2599,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     maxWidth: 320,
   },
   emptyFeedCta: {
-    backgroundColor: '#FF6B00',
+    backgroundColor: '#FF8A65',
     paddingHorizontal: 16,
     paddingVertical: 9,
     borderRadius: 10,
@@ -2654,7 +2654,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: '#FF6B00',
+    backgroundColor: '#FF8A65',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 10,
@@ -2695,7 +2695,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
-    backgroundColor: isDarkMode ? '#1E293B' : '#FFF4EB',
+    backgroundColor: isDarkMode ? '#1E293B' : '#FFF7F2',
   },
   followBtnText: {
     fontSize: 11,
@@ -2739,7 +2739,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#FF6B00',
+    backgroundColor: '#FF8A65',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 8,
@@ -2940,7 +2940,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   },
   sidebarCoverBanner: {
     height: 70,
-    backgroundColor: '#FF6B00',
+    backgroundColor: '#FF8A65',
     position: 'relative',
   },
   sidebarCoverDecor1: {
@@ -2971,7 +2971,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     width: 70,
     height: 70,
     borderRadius: 35,
-    backgroundColor: '#FF6B00',
+    backgroundColor: '#FF8A65',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
@@ -2997,12 +2997,12 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   sidebarViewProfileBtn: {
     width: '100%',
     marginTop: 12,
-    backgroundColor: isDarkMode ? '#1E293B' : '#FFF4EB',
+    backgroundColor: isDarkMode ? '#1E293B' : '#FFF7F2',
     borderRadius: 10,
     paddingVertical: 8,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: isDarkMode ? '#334155' : '#FED7AA',
+    borderColor: isDarkMode ? '#334155' : '#FFD5C2',
   },
   sidebarPillTag: {
     backgroundColor: isDarkMode ? '#1E293B' : '#F0F9FF',
@@ -3029,7 +3029,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     alignItems: 'center',
   },
   sidebarDirectoryBtn: {
-    backgroundColor: '#FF6B00',
+    backgroundColor: '#FF8A65',
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,

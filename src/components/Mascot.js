@@ -84,7 +84,7 @@ const Mascot = ({
 
   if (variant === 'banner') {
     return (
-      <View style={[styles.bannerContainer, { backgroundColor: isDarkMode ? '#241B15' : '#FFF5EB', borderColor: isDarkMode ? 'rgba(255, 107, 0, 0.3)' : '#FED7AA' }, style]}>
+      <View style={[styles.bannerContainer, { backgroundColor: isDarkMode ? '#241B15' : '#FFF7F2', borderColor: isDarkMode ? 'rgba(255, 148, 114, 0.3)' : '#FFD5C2' }, style]}>
         <View style={styles.bannerContent}>
           <View style={styles.bannerTextCol}>
             <View style={styles.bannerTagRow}>
@@ -100,7 +100,7 @@ const Mascot = ({
             </Text>
 
             {onActionPress && (
-              <TouchableOpacity style={styles.bannerActionBtn} onPress={onActionPress} activeOpacity={0.8}>
+              <TouchableOpacity style={[styles.bannerActionBtn, { backgroundColor: theme.primary || '#FF8A65' }]} onPress={onActionPress} activeOpacity={0.8}>
                 <Text style={styles.bannerActionBtnText}>{actionText || 'Explore Network'}</Text>
                 <Ionicons name="arrow-forward" size={14} color="#FFFFFF" style={{ marginLeft: 4 }} />
               </TouchableOpacity>
