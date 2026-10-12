@@ -98,10 +98,10 @@ export default function CareerInsightsScreen({ navigation }) {
             return (
               <TouchableOpacity
                 key={idx}
-                style={[styles.skillChip, isEndorsed && { backgroundColor: '#EEF2FF', borderColor: '#6366F1' }]}
+                style={[styles.skillChip, isEndorsed && { backgroundColor: '#FEF3C7', borderColor: '#D97706' }]}
                 onPress={() => handleEndorse(item._id, skill, item.name)}
               >
-                <Text style={[styles.skillChipText, isEndorsed && { color: '#4F46E5' }]}>
+                <Text style={[styles.skillChipText, isEndorsed && { color: '#B45309' }]}>
                   {skill} {isEndorsed ? '👍 (1)' : '+ Endorse'}
                 </Text>
               </TouchableOpacity>
@@ -214,11 +214,11 @@ export default function CareerInsightsScreen({ navigation }) {
                   <View style={styles.benchmarkRow}>
                     <View>
                       <Text style={styles.statLabel}>Average Package</Text>
-                      <Text style={[styles.statValue, { color: '#6366F1' }]}>{b.avgPackage}</Text>
+                      <Text style={[styles.statValue, { color: '#D97706' }]}>{b.avgPackage}</Text>
                     </View>
                     <View>
                       <Text style={styles.statLabel}>Highest Package</Text>
-                      <Text style={[styles.statValue, { color: '#6366F1' }]}>{b.maxPackage}</Text>
+                      <Text style={[styles.statValue, { color: '#D97706' }]}>{b.maxPackage}</Text>
                     </View>
                   </View>
                   <Text style={[styles.topRoleText, { color: theme.subtext }]}>Top Hiring Role: <Text style={{ color: theme.text, fontWeight: '700' }}>{b.topRole}</Text></Text>
@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
     marginBottom: 20
   },
   heroTitle: { color: '#FFFFFF', fontSize: 17, fontWeight: '800' },
-  heroSubText: { color: '#DDD6FE', fontSize: 12, marginTop: 2 },
+  heroSubText: { color: '#FDE68A', fontSize: 12, marginTop: 2 },
   sectionHeading: { fontSize: 16, fontWeight: '800', marginBottom: 12 },
   card: {
     borderRadius: 14,
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#6366F1',
+    backgroundColor: '#D97706',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 20
@@ -354,7 +354,7 @@ const styles = StyleSheet.create({
   jobCard: { borderRadius: 12, borderWidth: 1, padding: 14, marginBottom: 10 },
   jobTitle: { fontSize: 15, fontWeight: '700' },
   jobCompany: { fontSize: 12, marginTop: 2 },
-  jobMatchBadge: { backgroundColor: '#DDD6FE', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 },
+  jobMatchBadge: { backgroundColor: '#FDE68A', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 },
   jobMatchText: { color: '#1E40AF', fontSize: 11, fontWeight: '700' },
   applyBtn: { flex: 1, backgroundColor: '#002144', paddingVertical: 10, borderRadius: 8, alignItems: 'center' },
   applyBtnText: { color: '#FFFFFF', fontSize: 13, fontWeight: '700' },
@@ -366,13 +366,13 @@ const styles = StyleSheet.create({
   topRoleText: { fontSize: 12, marginTop: 10, borderTopWidth: 1, borderTopColor: '#F1F5F9', paddingTop: 8 },
   skillRow: { flexDirection: 'row', alignItems: 'center', padding: 14, borderRadius: 12, borderWidth: 1, marginBottom: 8 },
   skillName: { fontSize: 14, fontWeight: '700' },
-  skillGrowth: { fontSize: 12, color: '#6366F1', fontWeight: '700', marginTop: 2 },
+  skillGrowth: { fontSize: 12, color: '#D97706', fontWeight: '700', marginTop: 2 },
   demandScoreBadge: { backgroundColor: '#FEF3C7', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12 },
   demandScoreText: { color: '#B45309', fontWeight: '800', fontSize: 12 },
   companyGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   companyCard: { flex: 1, minWidth: '45%', padding: 16, borderRadius: 12, borderWidth: 1, alignItems: 'center', gap: 6 },
   companyName: { fontSize: 14, fontWeight: '700' },
-  alumniCount: { fontSize: 12, color: '#6366F1', fontWeight: '700' },
+  alumniCount: { fontSize: 12, color: '#D97706', fontWeight: '700' },
   hubRow: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 12, borderWidth: 1, marginBottom: 8 },
   hubCity: { fontSize: 14, fontWeight: '700' },
   hubCount: { fontSize: 12, color: '#64748B' },

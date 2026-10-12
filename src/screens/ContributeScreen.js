@@ -279,7 +279,7 @@ const ContributeScreen = ({ navigation }) => {
       <View style={styles.mentorshipContainer}>
         <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 18, borderWidth: 1, borderColor: theme.border, marginBottom: 16 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 14 }}>
-            <Ionicons name="shield-checkmark" size={24} color="#6366F1" style={{ marginRight: 12 }} />
+            <Ionicons name="shield-checkmark" size={24} color="#D97706" style={{ marginRight: 12 }} />
             <View>
               <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>Mentorship Applications</Text>
               <Text style={{ fontSize: 13, color: '#64748B', marginTop: 2 }}>Review and manage mentorship requests</Text>
@@ -289,16 +289,16 @@ const ContributeScreen = ({ navigation }) => {
           <View style={{ flexDirection: 'row', gap: 10 }}>
             <TouchableOpacity 
               onPress={() => setAdminFilter('pending')}
-              style={{ flex: 1, backgroundColor: adminFilter === 'pending' ? '#DDD6FE' : '#F5F3FF', borderRadius: 8, padding: 10, alignItems: 'center', borderWidth: adminFilter === 'pending' ? 1.5 : 0, borderColor: '#6366F1' }}
+              style={{ flex: 1, backgroundColor: adminFilter === 'pending' ? '#FDE68A' : '#FFFBEB', borderRadius: 8, padding: 10, alignItems: 'center', borderWidth: adminFilter === 'pending' ? 1.5 : 0, borderColor: '#D97706' }}
             >
-              <Text style={{ fontSize: 20, fontWeight: '800', color: '#6366F1' }}>{pendingCount}</Text>
+              <Text style={{ fontSize: 20, fontWeight: '800', color: '#D97706' }}>{pendingCount}</Text>
               <Text style={{ fontSize: 11, color: '#64748B', fontWeight: '600', marginTop: 2 }}>Pending</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               onPress={() => setAdminFilter('approved')}
-              style={{ flex: 1, backgroundColor: adminFilter === 'approved' ? '#EDE9FE' : '#EEF2FF', borderRadius: 8, padding: 10, alignItems: 'center', borderWidth: adminFilter === 'approved' ? 1.5 : 0, borderColor: '#6366F1' }}
+              style={{ flex: 1, backgroundColor: adminFilter === 'approved' ? '#FEF3C7' : '#FEF3C7', borderRadius: 8, padding: 10, alignItems: 'center', borderWidth: adminFilter === 'approved' ? 1.5 : 0, borderColor: '#D97706' }}
             >
-              <Text style={{ fontSize: 20, fontWeight: '800', color: '#6366F1' }}>{approvedCount}</Text>
+              <Text style={{ fontSize: 20, fontWeight: '800', color: '#D97706' }}>{approvedCount}</Text>
               <Text style={{ fontSize: 11, color: '#64748B', fontWeight: '600', marginTop: 2 }}>Approved</Text>
             </TouchableOpacity>
             <TouchableOpacity 
@@ -337,7 +337,7 @@ const ContributeScreen = ({ navigation }) => {
                   paddingHorizontal: 12,
                   paddingVertical: 5,
                   borderRadius: 16,
-                  backgroundColor: adminFilter === f ? '#6366F1' : '#F1F5F9',
+                  backgroundColor: adminFilter === f ? '#D97706' : '#F1F5F9',
                 }}
               >
                 <Text style={{ fontSize: 12, fontWeight: '600', color: adminFilter === f ? '#FFFFFF' : '#475569', textTransform: 'capitalize' }}>
@@ -383,8 +383,8 @@ const ContributeScreen = ({ navigation }) => {
                 {/* Header row */}
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                    <View style={{ backgroundColor: isMentee ? '#F3E8FF' : '#EEF2FF', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 }}>
-                      <Text style={{ fontSize: 11, fontWeight: '800', color: isMentee ? '#7E22CE' : '#4F46E5' }}>
+                    <View style={{ backgroundColor: isMentee ? '#F3E8FF' : '#FEF3C7', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 }}>
+                      <Text style={{ fontSize: 11, fontWeight: '800', color: isMentee ? '#7E22CE' : '#B45309' }}>
                         {app.type?.toUpperCase()}
                       </Text>
                     </View>
@@ -394,12 +394,12 @@ const ContributeScreen = ({ navigation }) => {
                     paddingHorizontal: 8,
                     paddingVertical: 3,
                     borderRadius: 12,
-                    backgroundColor: isApproved ? '#EEF2FF' : isRejected ? '#FEF2F2' : '#FFFBEB'
+                    backgroundColor: isApproved ? '#FEF3C7' : isRejected ? '#FEF2F2' : '#FFFBEB'
                   }}>
                     <Text style={{
                       fontSize: 11,
                       fontWeight: '700',
-                      color: isApproved ? '#6366F1' : isRejected ? '#DC2626' : '#D97706'
+                      color: isApproved ? '#D97706' : isRejected ? '#DC2626' : '#D97706'
                     }}>
                       {app.status}
                     </Text>
@@ -444,15 +444,15 @@ const ContributeScreen = ({ navigation }) => {
                     onPress={() => handleUpdateAppStatus(app.id, 'Approved')}
                     style={{
                       flex: 1,
-                      backgroundColor: isApproved ? '#6366F1' : '#EEF2FF',
+                      backgroundColor: isApproved ? '#D97706' : '#FEF3C7',
                       paddingVertical: 8,
                       borderRadius: 6,
                       alignItems: 'center',
                       borderWidth: 1,
-                      borderColor: '#6366F1'
+                      borderColor: '#D97706'
                     }}
                   >
-                    <Text style={{ fontSize: 12, fontWeight: '700', color: isApproved ? '#FFFFFF' : '#6366F1' }}>
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: isApproved ? '#FFFFFF' : '#D97706' }}>
                       {isApproved ? 'Approved ✓' : 'Approve'}
                     </Text>
                   </TouchableOpacity>
@@ -576,14 +576,14 @@ const ContributeScreen = ({ navigation }) => {
       <View>
         {/* Active Application Status Banner if already registered */}
         {currentUserMenteeApp && (
-          <View style={{ backgroundColor: '#F5F3FF', borderRadius: 12, padding: 16, borderWidth: 1, borderColor: '#DDD6FE', marginBottom: 16 }}>
+          <View style={{ backgroundColor: '#FFFBEB', borderRadius: 12, padding: 16, borderWidth: 1, borderColor: '#FDE68A', marginBottom: 16 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Ionicons name="checkmark-circle" size={20} color="#6366F1" style={{ marginRight: 6 }} />
-                <Text style={{ fontSize: 15, fontWeight: '700', color: '#6366F1' }}>Mentee Registration Active</Text>
+                <Ionicons name="checkmark-circle" size={20} color="#D97706" style={{ marginRight: 6 }} />
+                <Text style={{ fontSize: 15, fontWeight: '700', color: '#D97706' }}>Mentee Registration Active</Text>
               </View>
-              <View style={{ backgroundColor: currentUserMenteeApp.status === 'Approved' ? '#EEF2FF' : currentUserMenteeApp.status === 'Rejected' ? '#FEF2F2' : '#FFFBEB', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10 }}>
-                <Text style={{ fontSize: 11, fontWeight: '700', color: currentUserMenteeApp.status === 'Approved' ? '#6366F1' : currentUserMenteeApp.status === 'Rejected' ? '#DC2626' : '#D97706' }}>
+              <View style={{ backgroundColor: currentUserMenteeApp.status === 'Approved' ? '#FEF3C7' : currentUserMenteeApp.status === 'Rejected' ? '#FEF2F2' : '#FFFBEB', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10 }}>
+                <Text style={{ fontSize: 11, fontWeight: '700', color: currentUserMenteeApp.status === 'Approved' ? '#D97706' : currentUserMenteeApp.status === 'Rejected' ? '#DC2626' : '#D97706' }}>
                   {currentUserMenteeApp.status}
                 </Text>
               </View>
@@ -665,14 +665,14 @@ const ContributeScreen = ({ navigation }) => {
       <View>
         {/* Active Application Status Banner if already registered */}
         {currentUserMentorApp && (
-          <View style={{ backgroundColor: '#EEF2FF', borderRadius: 12, padding: 16, borderWidth: 1, borderColor: '#DDD6FE', marginBottom: 16 }}>
+          <View style={{ backgroundColor: '#FEF3C7', borderRadius: 12, padding: 16, borderWidth: 1, borderColor: '#FDE68A', marginBottom: 16 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Ionicons name="ribbon" size={20} color="#6366F1" style={{ marginRight: 6 }} />
-                <Text style={{ fontSize: 15, fontWeight: '700', color: '#3730A3' }}>Mentor Registration Active</Text>
+                <Ionicons name="ribbon" size={20} color="#D97706" style={{ marginRight: 6 }} />
+                <Text style={{ fontSize: 15, fontWeight: '700', color: '#92400E' }}>Mentor Registration Active</Text>
               </View>
-              <View style={{ backgroundColor: currentUserMentorApp.status === 'Approved' ? '#EDE9FE' : currentUserMentorApp.status === 'Rejected' ? '#FEE2E2' : '#FEF3C7', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10 }}>
-                <Text style={{ fontSize: 11, fontWeight: '700', color: currentUserMentorApp.status === 'Approved' ? '#6366F1' : currentUserMentorApp.status === 'Rejected' ? '#DC2626' : '#D97706' }}>
+              <View style={{ backgroundColor: currentUserMentorApp.status === 'Approved' ? '#FEF3C7' : currentUserMentorApp.status === 'Rejected' ? '#FEE2E2' : '#FEF3C7', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10 }}>
+                <Text style={{ fontSize: 11, fontWeight: '700', color: currentUserMentorApp.status === 'Approved' ? '#D97706' : currentUserMentorApp.status === 'Rejected' ? '#DC2626' : '#D97706' }}>
                   {currentUserMentorApp.status}
                 </Text>
               </View>
@@ -710,7 +710,7 @@ const ContributeScreen = ({ navigation }) => {
       {/* Header exactly like Dashboard/Jobs flow */}
       <View style={styles.header}>
         <TouchableOpacity 
-          style={[styles.headerAvatar, { overflow: 'hidden', backgroundColor: '#6366F1', justifyContent: 'center', alignItems: 'center' }]} 
+          style={[styles.headerAvatar, { overflow: 'hidden', backgroundColor: '#D97706', justifyContent: 'center', alignItems: 'center' }]} 
           activeOpacity={0.8} 
           onPress={() => navigation.navigate('Profile')}
         >
@@ -737,19 +737,19 @@ const ContributeScreen = ({ navigation }) => {
 
         <View style={styles.headerIcons}>
           <TouchableOpacity style={styles.headerIconBtn} onPress={() => navigation.navigate('Messages')}>
-            <Ionicons name="chatbubble-ellipses-outline" size={22} color="#6366F1" />
+            <Ionicons name="chatbubble-ellipses-outline" size={22} color="#D97706" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.headerIconBtn} onPress={() => navigation.navigate('Notifications')}>
-            <Ionicons name="notifications-outline" size={22} color="#6366F1" />
+            <Ionicons name="notifications-outline" size={22} color="#D97706" />
           </TouchableOpacity>
         </View>
       </View>
 
       {/* Role Badge for Admin/Super Admin */}
       {isAdminOrSuper && (
-        <View style={{ backgroundColor: '#F5F3FF', paddingHorizontal: 16, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#E2E8F0', flexDirection: 'row', alignItems: 'center' }}>
-          <Ionicons name="shield-checkmark" size={16} color="#6366F1" style={{ marginRight: 8 }} />
-          <Text style={{ fontSize: 13, fontWeight: '700', color: '#6366F1' }}>{userRole} Mode</Text>
+        <View style={{ backgroundColor: '#FFFBEB', paddingHorizontal: 16, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#E2E8F0', flexDirection: 'row', alignItems: 'center' }}>
+          <Ionicons name="shield-checkmark" size={16} color="#D97706" style={{ marginRight: 8 }} />
+          <Text style={{ fontSize: 13, fontWeight: '700', color: '#D97706' }}>{userRole} Mode</Text>
           <Text style={{ fontSize: 12, color: '#64748B', marginLeft: 8 }}>Review mentorship applications</Text>
         </View>
       )}
@@ -857,7 +857,7 @@ const ContributeScreen = ({ navigation }) => {
                   style={{
                     flex: 1,
                     minWidth: 140,
-                    backgroundColor: '#6366F1',
+                    backgroundColor: '#D97706',
                     paddingVertical: 10,
                     paddingHorizontal: 12,
                     borderRadius: 8,
@@ -876,7 +876,7 @@ const ContributeScreen = ({ navigation }) => {
                   style={{
                     flex: 1,
                     minWidth: 140,
-                    backgroundColor: '#EEF2FF',
+                    backgroundColor: '#FEF3C7',
                     paddingVertical: 10,
                     paddingHorizontal: 12,
                     borderRadius: 8,
@@ -884,11 +884,11 @@ const ContributeScreen = ({ navigation }) => {
                     flexDirection: 'row',
                     justifyContent: 'center',
                     borderWidth: 1,
-                    borderColor: '#6366F1'
+                    borderColor: '#D97706'
                   }}
                 >
-                  <Ionicons name="receipt-outline" size={16} color="#6366F1" style={{ marginRight: 6 }} />
-                  <Text style={{ color: '#6366F1', fontSize: 13, fontWeight: '700' }}>Notify Remittance</Text>
+                  <Ionicons name="receipt-outline" size={16} color="#D97706" style={{ marginRight: 6 }} />
+                  <Text style={{ color: '#D97706', fontSize: 13, fontWeight: '700' }}>Notify Remittance</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -908,8 +908,8 @@ const ContributeScreen = ({ navigation }) => {
                     borderColor: '#CBD5E1'
                   }}
                 >
-                  <Ionicons name="open-outline" size={16} color="#6366F1" style={{ marginRight: 6 }} />
-                  <Text style={{ color: '#6366F1', fontSize: 13, fontWeight: '700' }}>Official Donate Page</Text>
+                  <Ionicons name="open-outline" size={16} color="#D97706" style={{ marginRight: 6 }} />
+                  <Text style={{ color: '#D97706', fontSize: 13, fontWeight: '700' }}>Official Donate Page</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -918,7 +918,7 @@ const ContributeScreen = ({ navigation }) => {
                   style={{
                     flex: 1,
                     minWidth: 140,
-                    backgroundColor: '#F5F3FF',
+                    backgroundColor: '#FFFBEB',
                     paddingVertical: 10,
                     paddingHorizontal: 12,
                     borderRadius: 8,
@@ -926,11 +926,11 @@ const ContributeScreen = ({ navigation }) => {
                     flexDirection: 'row',
                     justifyContent: 'center',
                     borderWidth: 1,
-                    borderColor: '#DDD6FE'
+                    borderColor: '#FDE68A'
                   }}
                 >
-                  <Ionicons name="document-attach-outline" size={16} color="#4F46E5" style={{ marginRight: 6 }} />
-                  <Text style={{ color: '#4F46E5', fontSize: 13, fontWeight: '700' }}>Cancelled Cheque PDF</Text>
+                  <Ionicons name="document-attach-outline" size={16} color="#B45309" style={{ marginRight: 6 }} />
+                  <Text style={{ color: '#B45309', fontSize: 13, fontWeight: '700' }}>Cancelled Cheque PDF</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -962,8 +962,8 @@ const ContributeScreen = ({ navigation }) => {
               </TouchableOpacity>
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
-              <View style={{ backgroundColor: '#F5F3FF', borderRadius: 10, padding: 14, marginBottom: 14 }}>
-                <Text style={{ fontSize: 14, fontWeight: '700', color: '#6366F1', marginBottom: 6 }}>Mentee Sample: Cloud & AI Career Guidance</Text>
+              <View style={{ backgroundColor: '#FFFBEB', borderRadius: 10, padding: 14, marginBottom: 14 }}>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#D97706', marginBottom: 6 }}>Mentee Sample: Cloud & AI Career Guidance</Text>
                 <Text style={{ fontSize: 12.5, color: '#334155', lineHeight: 18 }}>
                   <Text style={{ fontWeight: '600' }}>Why an alumni mentor: </Text>
                   Transitioning from individual contributor to engineering manager in distributed cloud systems.
@@ -974,8 +974,8 @@ const ContributeScreen = ({ navigation }) => {
                 </Text>
               </View>
 
-              <View style={{ backgroundColor: '#EEF2FF', borderRadius: 10, padding: 14 }}>
-                <Text style={{ fontSize: 14, fontWeight: '700', color: '#3730A3', marginBottom: 6 }}>Mentor Sample: Product Strategy & Startups</Text>
+              <View style={{ backgroundColor: '#FEF3C7', borderRadius: 10, padding: 14 }}>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#92400E', marginBottom: 6 }}>Mentor Sample: Product Strategy & Startups</Text>
                 <Text style={{ fontSize: 12.5, color: '#334155', lineHeight: 18 }}>
                   <Text style={{ fontWeight: '600' }}>Areas offered: </Text>
                   FinTech product management, 0-to-1 customer discovery, seed venture pitching.
@@ -1054,7 +1054,7 @@ const ContributeScreen = ({ navigation }) => {
                 onPress={handleSubmitRemittance}
                 disabled={submittingRemittance}
                 style={{
-                  backgroundColor: '#6366F1',
+                  backgroundColor: '#D97706',
                   paddingVertical: 12,
                   borderRadius: 8,
                   alignItems: 'center'

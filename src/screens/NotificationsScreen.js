@@ -102,10 +102,10 @@ const NotificationsScreen = ({ navigation }) => {
   const getColorForType = (type) => {
     switch (type) {
       case 'follow': return '#F3E8FF';
-      case 'connection': return '#EEF2FF';
+      case 'connection': return '#FEF3C7';
       case 'job': return '#FEF3C7';
       case 'event': return '#F3E8FF';
-      case 'referral': return '#EDE9FE';
+      case 'referral': return '#FEF3C7';
       case 'announcement': return '#FFEDD5';
       case 'mention': return '#FCE7F3';
       case 'birthday': return '#FEE2E2';
@@ -116,11 +116,11 @@ const NotificationsScreen = ({ navigation }) => {
   const getIconColorForType = (type) => {
     switch (type) {
       case 'follow': return '#9333EA';
-      case 'connection': return '#6366F1';
+      case 'connection': return '#D97706';
       case 'job': return '#D97706';
       case 'event': return '#9333EA';
       case 'referral': return '#16A34A';
-      case 'announcement': return '#6366F1';
+      case 'announcement': return '#D97706';
       case 'mention': return '#DB2777';
       case 'birthday': return '#EF4444';
       default: return '#64748B';
@@ -306,7 +306,7 @@ const getStyles = (theme) => StyleSheet.create({
     alignItems: 'center',
   },
   unreadCard: {
-    backgroundColor: '#F5F3FF',
+    backgroundColor: '#FFFBEB',
   },
   unreadDot: {
     position: 'absolute',
@@ -314,7 +314,7 @@ const getStyles = (theme) => StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#6366F1',
+    backgroundColor: '#D97706',
   },
   iconBox: {
     width: 44,

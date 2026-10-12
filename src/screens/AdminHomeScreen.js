@@ -330,7 +330,7 @@ const AdminHomeScreen = ({ navigation }) => {
         <View style={styles.header}>
           {/* Left – User avatar */}
           <TouchableOpacity
-            style={[styles.headerAvatar, { overflow: 'hidden', backgroundColor: '#6366F1', justifyContent: 'center', alignItems: 'center' }]}
+            style={[styles.headerAvatar, { overflow: 'hidden', backgroundColor: '#D97706', justifyContent: 'center', alignItems: 'center' }]}
             activeOpacity={0.8}
             onPress={() => navigation.navigate('AdminProfile')}
           >
@@ -616,7 +616,7 @@ const AdminHomeScreen = ({ navigation }) => {
             </View>
             <View style={styles.shareGrid}>
               <TouchableOpacity style={styles.shareItem} onPress={() => handleShare(selectedPost)}>
-                <View style={[styles.shareIconWrap, {backgroundColor:'#6366F1'}]}><Ionicons name="people" size={24} color="#FFF"/></View>
+                <View style={[styles.shareIconWrap, {backgroundColor:'#D97706'}]}><Ionicons name="people" size={24} color="#FFF"/></View>
                 <Text style={styles.shareText}>Followers</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.shareItem} onPress={() => handleShare(selectedPost)}>

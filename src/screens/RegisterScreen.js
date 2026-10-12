@@ -338,7 +338,7 @@ const RegisterScreen = ({ navigation, route }) => {
                       style={[
                         styles.input, 
                         { flex: 1 }, 
-                        emailState === 'verified' && { borderColor: '#6366F1', backgroundColor: isDarkMode ? '#312E8120' : '#EEF2FF' }
+                        emailState === 'verified' && { borderColor: '#D97706', backgroundColor: isDarkMode ? '#78350F20' : '#FEF3C7' }
                       ]}
                       value={formData.email}
                       onChangeText={(text) => {
@@ -356,7 +356,7 @@ const RegisterScreen = ({ navigation, route }) => {
                     />
                     {emailState === 'verified' ? (
                       <View style={{ marginLeft: 10 }}>
-                        <Ionicons name="checkmark-circle" size={24} color="#6366F1" />
+                        <Ionicons name="checkmark-circle" size={24} color="#D97706" />
                       </View>
                     ) : (
                       <TouchableOpacity 
@@ -502,7 +502,7 @@ const RegisterScreen = ({ navigation, route }) => {
                   {/* Verified Badge */}
                   {emailState === 'verified' ? (
                     <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6 }}>
-                      <Text style={{ color: '#6366F1', fontSize: 12, fontWeight: '600' }}>
+                      <Text style={{ color: '#D97706', fontSize: 12, fontWeight: '600' }}>
                         ✅ Email verified successfully!
                       </Text>
                       <TouchableOpacity onPress={() => { setEmailState('idle'); setOtpVerified(false); }} style={{ marginLeft: 10 }}>
@@ -627,8 +627,8 @@ const RegisterScreen = ({ navigation, route }) => {
                             const isMet = status.checks && status.checks[crit.id];
                             return (
                               <View key={crit.id} style={{ flexDirection: 'row', alignItems: 'center', marginRight: 10, marginBottom: 4 }}>
-                                <Ionicons name={isMet ? "checkmark-circle" : "ellipse-outline"} size={13} color={isMet ? "#6366F1" : theme.textMuted} />
-                                <Text style={{ fontSize: 11, color: isMet ? '#6366F1' : theme.textMuted, marginLeft: 4 }}>
+                                <Ionicons name={isMet ? "checkmark-circle" : "ellipse-outline"} size={13} color={isMet ? "#D97706" : theme.textMuted} />
+                                <Text style={{ fontSize: 11, color: isMet ? '#D97706' : theme.textMuted, marginLeft: 4 }}>
                                   {crit.label}
                                 </Text>
                               </View>
@@ -721,13 +721,13 @@ const RegisterScreen = ({ navigation, route }) => {
                   By continuing, you agree to our{' '}
                 </Text>
                 <TouchableOpacity onPress={() => navigation.navigate('TermsOfService')}>
-                  <Text style={{ color: isDarkMode ? '#818CF8' : '#6366F1', fontSize: 12, fontWeight: '700', textDecorationLine: 'underline' }}>
+                  <Text style={{ color: isDarkMode ? '#FBBF24' : '#D97706', fontSize: 12, fontWeight: '700', textDecorationLine: 'underline' }}>
                     Terms of Service
                   </Text>
                 </TouchableOpacity>
                 <Text style={{ color: theme.textSecondary || '#64748B', fontSize: 12 }}> and </Text>
                 <TouchableOpacity onPress={() => navigation.navigate('PrivacyPolicy')}>
-                  <Text style={{ color: isDarkMode ? '#818CF8' : '#6366F1', fontSize: 12, fontWeight: '700', textDecorationLine: 'underline' }}>
+                  <Text style={{ color: isDarkMode ? '#FBBF24' : '#D97706', fontSize: 12, fontWeight: '700', textDecorationLine: 'underline' }}>
                     Privacy Policy
                   </Text>
                 </TouchableOpacity>

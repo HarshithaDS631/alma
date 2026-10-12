@@ -117,7 +117,7 @@ function JobCard({ item, onPress, onDelete, isSmallScreen }) {
           onPress={() => onPress(item)}
         >
           <View style={[s.jobLogo, isSmallScreen && { width: 40, height: 40, marginRight: 8 }]}>
-            <Ionicons name="business-outline" size={isSmallScreen ? 20 : 24} color="#6366F1" />
+            <Ionicons name="business-outline" size={isSmallScreen ? 20 : 24} color="#D97706" />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={[s.jobRole, isSmallScreen && { fontSize: 14 }]} numberOfLines={1}>{item.role}</Text>
@@ -150,7 +150,7 @@ function JobCard({ item, onPress, onDelete, isSmallScreen }) {
         </View>
         <View style={s.viewMoreBtn}>
           <Text style={s.viewMoreText}>View More</Text>
-          <Ionicons name="arrow-forward" size={16} color="#6366F1" />
+          <Ionicons name="arrow-forward" size={16} color="#D97706" />
         </View>
       </TouchableOpacity>
     </View>
@@ -188,7 +188,7 @@ function ResumeCard({ item, onShowResume, onForward }) {
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 10 }}>
           {skills.map((skill, index) => (
             <View key={`${skill}-${index}`} style={s.skillPill}>
-              <Text style={{ fontSize: 11, fontWeight: '600', color: '#6366F1' }}>{skill}</Text>
+              <Text style={{ fontSize: 11, fontWeight: '600', color: '#D97706' }}>{skill}</Text>
             </View>
           ))}
         </View>
@@ -213,8 +213,8 @@ function ResumeCard({ item, onShowResume, onForward }) {
         )}
         {Boolean(item.resumeFileName || item.resumeUrl) && (
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Ionicons name="document-attach-outline" size={13} color="#6366F1" />
-            <Text style={{ fontSize: 12, color: '#6366F1', marginLeft: 6, fontWeight: '600' }} numberOfLines={1}>
+            <Ionicons name="document-attach-outline" size={13} color="#D97706" />
+            <Text style={{ fontSize: 12, color: '#D97706', marginLeft: 6, fontWeight: '600' }} numberOfLines={1}>
               {item.resumeFileName || 'Resume Attached (PDF)'}
             </Text>
           </View>
@@ -233,13 +233,13 @@ function ResumeCard({ item, onShowResume, onForward }) {
           activeOpacity={0.7}
           onPress={() => onShowResume(item)}
         >
-          <Ionicons name="document-text-outline" size={16} color={item.resumeUrl ? '#6366F1' : '#94A3B8'} />
-          <Text style={{ fontSize: 13, fontWeight: '600', color: item.resumeUrl ? '#6366F1' : '#94A3B8', marginLeft: 6 }}>
+          <Ionicons name="document-text-outline" size={16} color={item.resumeUrl ? '#D97706' : '#94A3B8'} />
+          <Text style={{ fontSize: 13, fontWeight: '600', color: item.resumeUrl ? '#D97706' : '#94A3B8', marginLeft: 6 }}>
             {item.resumeUrl ? 'Show Resume' : 'No Resume'}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity 
-          style={[s.resumeActionBtn, { backgroundColor: '#6366F1', borderColor: '#6366F1', marginLeft: 8, marginRight: 0 }]} 
+          style={[s.resumeActionBtn, { backgroundColor: '#D97706', borderColor: '#D97706', marginLeft: 8, marginRight: 0 }]} 
           activeOpacity={0.7}
           onPress={() => onForward(item)}
         >
@@ -476,10 +476,10 @@ export default function AdminJobsScreen({ navigation, route }) {
         />
       </View>
       <TouchableOpacity style={{ padding: 6 }} onPress={() => navigation && navigation.navigate('Messages')}>
-        <Ionicons name="chatbubble-ellipses-outline" size={22} color="#6366F1" />
+        <Ionicons name="chatbubble-ellipses-outline" size={22} color="#D97706" />
       </TouchableOpacity>
       <TouchableOpacity style={{ padding: 6 }} onPress={() => navigation && navigation.navigate('Notifications')}>
-        <Ionicons name="notifications-outline" size={22} color="#6366F1" />
+        <Ionicons name="notifications-outline" size={22} color="#D97706" />
       </TouchableOpacity>
     </View>
   );
@@ -488,7 +488,7 @@ export default function AdminJobsScreen({ navigation, route }) {
   const subHeader = (title, onBack) => (
     <View style={s.subHeader}>
       <TouchableOpacity onPress={onBack} style={s.backBtn} activeOpacity={0.7}>
-        <Ionicons name="arrow-back" size={24} color="#6366F1" />
+        <Ionicons name="arrow-back" size={24} color="#D97706" />
       </TouchableOpacity>
       <Text style={s.subTitle}>{title}</Text>
       <View style={{ width: 40 }} />
@@ -504,7 +504,7 @@ export default function AdminJobsScreen({ navigation, route }) {
         {subHeader('Job Details', () => { setDetail(null); setScreen('list'); })}
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 20, paddingBottom: 32 }} showsVerticalScrollIndicator={false}>
           <View style={{ alignItems: 'center', marginBottom: 20 }}>
-            <View style={s.detailLogo}><Ionicons name="business-outline" size={36} color="#6366F1" /></View>
+            <View style={s.detailLogo}><Ionicons name="business-outline" size={36} color="#D97706" /></View>
           </View>
           <Text style={s.detailRole}>{detail.role}</Text>
           <Text style={s.detailCompany}>{detail.company}</Text>
@@ -570,14 +570,14 @@ export default function AdminJobsScreen({ navigation, route }) {
             </View>
             <View style={{ backgroundColor: 'rgba(255,255,255,0.15)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, alignItems: 'center' }}>
               <Text style={{ fontSize: 16, fontWeight: '800', color: '#FFFFFF' }}>{resumesCount}</Text>
-              <Text style={{ fontSize: 10, color: '#DDD6FE', fontWeight: '700', textTransform: 'uppercase' }}>Candidates</Text>
+              <Text style={{ fontSize: 10, color: '#FDE68A', fontWeight: '700', textTransform: 'uppercase' }}>Candidates</Text>
             </View>
           </View>
         </View>
 
         {loadingResumes ? (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <ActivityIndicator size="large" color="#6366F1" />
+            <ActivityIndicator size="large" color="#D97706" />
             <Text style={{ marginTop: 12, fontSize: 14, color: '#64748B', fontWeight: '600' }}>Loading Resume Book...</Text>
           </View>
         ) : (
@@ -617,8 +617,8 @@ export default function AdminJobsScreen({ navigation, route }) {
             <View style={[s.modalContent, { maxWidth: 440, borderRadius: 20, padding: 22 }]}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#F5F3FF', justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
-                    <Ionicons name="mail" size={18} color="#6366F1" />
+                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#FFFBEB', justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
+                    <Ionicons name="mail" size={18} color="#D97706" />
                   </View>
                   <Text style={{ fontSize: 17, fontWeight: '800', color: '#002144' }}>Forward Candidate</Text>
                 </View>
@@ -634,7 +634,7 @@ export default function AdminJobsScreen({ navigation, route }) {
                     {selectedCandidate.institution || 'Alumni Network'} • {selectedCandidate.department || 'General'}
                   </Text>
                   {selectedCandidate.resumeUrl ? (
-                    <Text style={{ fontSize: 11, color: '#6366F1', fontWeight: '700', marginTop: 4 }}>✓ Resume attached ({selectedCandidate.resumeFileName || 'PDF'})</Text>
+                    <Text style={{ fontSize: 11, color: '#D97706', fontWeight: '700', marginTop: 4 }}>✓ Resume attached ({selectedCandidate.resumeFileName || 'PDF'})</Text>
                   ) : (
                     <Text style={{ fontSize: 11, color: '#EF4444', fontWeight: '700', marginTop: 4 }}>⚠ No resume file attached to profile</Text>
                   )}
@@ -726,9 +726,9 @@ export default function AdminJobsScreen({ navigation, route }) {
             <View style={s.modalContent}>
               <Text style={{ fontSize: 18, fontWeight: '800', color: '#002144', marginBottom: 16, textAlign: 'center' }}>Select Work Mode</Text>
               {WORK_MODES.map(mode => (
-                <TouchableOpacity key={mode} style={[s.modalOption, fMode === mode && { backgroundColor: '#F5F3FF' }]} activeOpacity={0.7} onPress={() => { setFMode(mode); setModalVisible(false); }}>
-                  <Text style={{ fontSize: 15, fontWeight: '600', color: fMode === mode ? '#6366F1' : '#0F172A' }}>{mode}</Text>
-                  {fMode === mode && <Ionicons name="checkmark" size={20} color="#6366F1" />}
+                <TouchableOpacity key={mode} style={[s.modalOption, fMode === mode && { backgroundColor: '#FFFBEB' }]} activeOpacity={0.7} onPress={() => { setFMode(mode); setModalVisible(false); }}>
+                  <Text style={{ fontSize: 15, fontWeight: '600', color: fMode === mode ? '#D97706' : '#0F172A' }}>{mode}</Text>
+                  {fMode === mode && <Ionicons name="checkmark" size={20} color="#D97706" />}
                 </TouchableOpacity>
               ))}
             </View>
@@ -761,7 +761,7 @@ export default function AdminJobsScreen({ navigation, route }) {
           <Ionicons
             name="options-outline"
             size={18}
-            color={activeFiltersCount > 0 ? '#FFFFFF' : '#6366F1'}
+            color={activeFiltersCount > 0 ? '#FFFFFF' : '#D97706'}
           />
           <Text style={[s.filterButtonText, activeFiltersCount > 0 && s.filterButtonTextActive]}>
             Filter{activeFiltersCount > 0 ? ` (${activeFiltersCount})` : ''}
@@ -772,7 +772,7 @@ export default function AdminJobsScreen({ navigation, route }) {
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 10, paddingBottom: 12 }}>
         <Text style={{ fontSize: 20, fontWeight: '800', color: '#002144' }}>Job Postings</Text>
         <TouchableOpacity activeOpacity={0.7} onPress={() => setScreen('editor')}>
-          <Ionicons name="add-circle" size={26} color="#6366F1" />
+          <Ionicons name="add-circle" size={26} color="#D97706" />
         </TouchableOpacity>
       </View>
       <FlatList
@@ -877,7 +877,7 @@ export default function AdminJobsScreen({ navigation, route }) {
 const s = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#F8FAFC' },
   header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#E2E8F0' },
-  avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#6366F1', alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+  avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#D97706', alignItems: 'center', justifyContent: 'center', marginRight: 12 },
   avatarText: { color: '#FFFFFF', fontSize: 14, fontWeight: '800' },
   searchBar: { flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC', borderRadius: 10, paddingHorizontal: 12, height: 40, borderWidth: 1, borderColor: '#E2E8F0', marginRight: 8 },
   searchInput: { flex: 1, fontSize: 14, color: '#0F172A', padding: 0 },
@@ -888,34 +888,34 @@ const s = StyleSheet.create({
   // Job Card
   jobCard: { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 16, marginBottom: 14, borderWidth: 1, borderColor: '#E2E8F0' },
   jobCardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
-  jobLogo: { width: 48, height: 48, borderRadius: 14, backgroundColor: '#F5F3FF', alignItems: 'center', justifyContent: 'center', marginRight: 12, borderWidth: 1, borderColor: '#DDD6FE' },
+  jobLogo: { width: 48, height: 48, borderRadius: 14, backgroundColor: '#FFFBEB', alignItems: 'center', justifyContent: 'center', marginRight: 12, borderWidth: 1, borderColor: '#FDE68A' },
   jobRole: { fontSize: 16, fontWeight: '700', color: '#002144' },
   jobCompany: { fontSize: 13, fontWeight: '600', color: '#64748B', marginTop: 2 },
   badgeRow: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 10 },
-  badge: { backgroundColor: '#F5F3FF', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 5, marginRight: 8, marginBottom: 6, borderWidth: 1, borderColor: '#DDD6FE' },
-  badgeText: { fontSize: 12, fontWeight: '600', color: '#6366F1' },
+  badge: { backgroundColor: '#FFFBEB', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 5, marginRight: 8, marginBottom: 6, borderWidth: 1, borderColor: '#FDE68A' },
+  badgeText: { fontSize: 12, fontWeight: '600', color: '#D97706' },
   statsRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12, paddingTop: 10, borderTopWidth: 1, borderTopColor: '#F1F5F9' },
   statItem: { flexDirection: 'row', alignItems: 'center', marginRight: 20 },
   statText: { fontSize: 13, fontWeight: '600', color: '#64748B', marginLeft: 6 },
-  viewMoreBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 10, borderRadius: 10, backgroundColor: '#F5F3FF', borderWidth: 1, borderColor: '#DDD6FE' },
-  viewMoreText: { fontSize: 14, fontWeight: '600', color: '#6366F1', marginRight: 6 },
+  viewMoreBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 10, borderRadius: 10, backgroundColor: '#FFFBEB', borderWidth: 1, borderColor: '#FDE68A' },
+  viewMoreText: { fontSize: 14, fontWeight: '600', color: '#D97706', marginRight: 6 },
 
   // Detail
-  detailLogo: { width: 80, height: 80, borderRadius: 20, backgroundColor: '#F5F3FF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#DDD6FE' },
+  detailLogo: { width: 80, height: 80, borderRadius: 20, backgroundColor: '#FFFBEB', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#FDE68A' },
   detailRole: { fontSize: 22, fontWeight: '800', color: '#002144', textAlign: 'center', marginBottom: 4 },
   detailCompany: { fontSize: 16, fontWeight: '600', color: '#64748B', textAlign: 'center', marginBottom: 16 },
   statCard: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF', borderRadius: 14, paddingVertical: 16, marginHorizontal: 6, borderWidth: 1, borderColor: '#E2E8F0' },
   statCardText: { fontSize: 15, fontWeight: '700', color: '#002144' },
   footer: { padding: 16, backgroundColor: '#FFFFFF', borderTopWidth: 1, borderTopColor: '#E2E8F0' },
-  applyBtn: { backgroundColor: '#6366F1', borderRadius: 12, paddingVertical: 16, alignItems: 'center', justifyContent: 'center' },
+  applyBtn: { backgroundColor: '#D97706', borderRadius: 12, paddingVertical: 16, alignItems: 'center', justifyContent: 'center' },
 
   // Resume
-  resumeAvatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#6366F1', alignItems: 'center', justifyContent: 'center', marginRight: 12 },
-  resumeAvatarImage: { width: 44, height: 44, borderRadius: 22, marginRight: 12, backgroundColor: '#F5F3FF', borderWidth: 1, borderColor: '#CBD5E1' },
+  resumeAvatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#D97706', alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+  resumeAvatarImage: { width: 44, height: 44, borderRadius: 22, marginRight: 12, backgroundColor: '#FFFBEB', borderWidth: 1, borderColor: '#CBD5E1' },
   resumeCard: { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 16, marginBottom: 14, borderWidth: 1, borderColor: '#E2E8F0' },
-  skillPill: { backgroundColor: '#F5F3FF', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5, marginRight: 8, marginBottom: 6, borderWidth: 1, borderColor: '#DDD6FE' },
-  resumeActionBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 10, borderRadius: 10, borderWidth: 1, borderColor: '#6366F1', marginRight: 8 },
-  banner: { backgroundColor: '#6366F1', marginHorizontal: 16, marginTop: 16, borderRadius: 16, padding: 20 },
+  skillPill: { backgroundColor: '#FFFBEB', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5, marginRight: 8, marginBottom: 6, borderWidth: 1, borderColor: '#FDE68A' },
+  resumeActionBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 10, borderRadius: 10, borderWidth: 1, borderColor: '#D97706', marginRight: 8 },
+  banner: { backgroundColor: '#D97706', marginHorizontal: 16, marginTop: 16, borderRadius: 16, padding: 20 },
   bannerBtn: { backgroundColor: '#FFFFFF', borderRadius: 10, paddingHorizontal: 20, paddingVertical: 10, marginRight: 12 },
   bannerBtnOutline: { borderWidth: 1, borderColor: '#FFFFFF', borderRadius: 10, paddingHorizontal: 20, paddingVertical: 10 },
 
@@ -923,13 +923,13 @@ const s = StyleSheet.create({
   label: { fontSize: 14, fontWeight: '700', color: '#002144', marginBottom: 8, marginTop: 16 },
   input: { backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: '#E2E8F0', paddingHorizontal: 16, paddingVertical: 14, fontSize: 14, color: '#0F172A' },
   selector: { backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: '#E2E8F0', paddingHorizontal: 16, paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  postBtn: { backgroundColor: '#6366F1', borderRadius: 12, paddingVertical: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 28 },
+  postBtn: { backgroundColor: '#D97706', borderRadius: 12, paddingVertical: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 28 },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 32 },
   modalContent: { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 20, width: '100%', maxWidth: 340 },
   modalOption: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 14, paddingHorizontal: 12, borderRadius: 10, marginBottom: 4 },
 
   // FABs
-  fab: { position: 'absolute', bottom: Platform.OS === 'ios' ? 110 : 90, right: 20, width: 56, height: 56, borderRadius: 16, backgroundColor: '#6366F1', alignItems: 'center', justifyContent: 'center', elevation: 6, shadowColor: '#6366F1', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8 },
+  fab: { position: 'absolute', bottom: Platform.OS === 'ios' ? 110 : 90, right: 20, width: 56, height: 56, borderRadius: 16, backgroundColor: '#D97706', alignItems: 'center', justifyContent: 'center', elevation: 6, shadowColor: '#D97706', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8 },
   resumeFab: { position: 'absolute', bottom: Platform.OS === 'ios' ? 40 : 24, right: 20, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 18, paddingVertical: 14, borderRadius: 16, backgroundColor: '#002144', elevation: 6, shadowColor: '#002144', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8 },
 
   // Filter Styles
@@ -952,19 +952,19 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: '#6366F1',
+    borderColor: '#D97706',
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 6,
     gap: 6,
   },
   filterButtonActive: {
-    backgroundColor: '#6366F1',
+    backgroundColor: '#D97706',
   },
   filterButtonText: {
     fontSize: 12.5,
     fontWeight: '700',
-    color: '#6366F1',
+    color: '#D97706',
   },
   filterButtonTextActive: {
     color: '#FFFFFF',
@@ -1024,8 +1024,8 @@ const s = StyleSheet.create({
     borderColor: '#E2E8F0',
   },
   pillActive: {
-    backgroundColor: '#6366F1',
-    borderColor: '#6366F1',
+    backgroundColor: '#D97706',
+    borderColor: '#D97706',
   },
   pillText: {
     fontSize: 13,
@@ -1036,7 +1036,7 @@ const s = StyleSheet.create({
     color: '#FFFFFF',
   },
   applyButton: {
-    backgroundColor: '#6366F1',
+    backgroundColor: '#D97706',
     marginHorizontal: 20,
     marginTop: 10,
     borderRadius: 12,

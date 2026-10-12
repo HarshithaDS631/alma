@@ -59,7 +59,7 @@ const OnboardingScreen = ({ navigation }) => {
       <View style={[styles.slide, { width: width }]}>
         <View style={styles.imageContainer}>
           <View style={styles.circle}>
-            <Ionicons name={item.icon} size={84} color="#6366F1" />
+            <Ionicons name={item.icon} size={84} color="#D97706" />
           </View>
         </View>
 

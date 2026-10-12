@@ -71,10 +71,10 @@ export const validatePassword = (password) => {
   let color = '#EF4444'; // Red
   if (score >= 80) {
     level = 'Strong';
-    color = '#6366F1'; // Green
+    color = '#D97706'; // Green
   } else if (score >= 60) {
     level = 'Good';
-    color = '#6366F1'; // Blue
+    color = '#D97706'; // Blue
   } else if (score >= 40) {
     level = 'Fair';
     color = '#F59E0B'; // Amber
