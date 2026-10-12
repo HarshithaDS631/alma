@@ -84,7 +84,7 @@ const Mascot = ({
 
   if (variant === 'banner') {
     return (
-      <View style={[styles.bannerContainer, { backgroundColor: isDarkMode ? '#241B15' : '#FFF7F2', borderColor: isDarkMode ? 'rgba(255, 148, 114, 0.3)' : '#FFD5C2' }, style]}>
+      <View style={[styles.bannerContainer, { backgroundColor: isDarkMode ? '#121D18' : '#F0FDF4', borderColor: isDarkMode ? 'rgba(52, 211, 153, 0.3)' : '#A7F3D0' }, style]}>
         <View style={styles.bannerContent}>
           <View style={styles.bannerTextCol}>
             <View style={styles.bannerTagRow}>
@@ -92,15 +92,15 @@ const Mascot = ({
                 <Text style={styles.rvTagText}>RV ALUMNI PRIDE</Text>
               </View>
             </View>
-            <Text style={[styles.bannerTitle, { color: isDarkMode ? '#FDFBF7' : '#9A3412' }]}>
+            <Text style={[styles.bannerTitle, { color: isDarkMode ? '#F2FBF6' : '#065F46' }]}>
               {title || 'Welcome home, RVian!'}
             </Text>
-            <Text style={[styles.bannerSubtitle, { color: isDarkMode ? '#A8A29E' : '#4B5563' }]}>
+            <Text style={[styles.bannerSubtitle, { color: isDarkMode ? '#94A39B' : '#4B5563' }]}>
               {subtitle || 'Reconnect with your batchmates, mentors, and the global alumni family.'}
             </Text>
 
             {onActionPress && (
-              <TouchableOpacity style={[styles.bannerActionBtn, { backgroundColor: theme.primary || '#FF8A65' }]} onPress={onActionPress} activeOpacity={0.8}>
+              <TouchableOpacity style={[styles.bannerActionBtn, { backgroundColor: theme.primary || '#10B981' }]} onPress={onActionPress} activeOpacity={0.8}>
                 <Text style={styles.bannerActionBtnText}>{actionText || 'Explore Network'}</Text>
                 <Ionicons name="arrow-forward" size={14} color="#FFFFFF" style={{ marginLeft: 4 }} />
               </TouchableOpacity>

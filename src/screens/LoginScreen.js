@@ -512,7 +512,7 @@ const LoginScreen = ({ navigation }) => {
                 borderRadius: 9,
                 backgroundColor: authMode === 'password' ? (isDarkMode ? '#282A30' : '#FFFFFF') : 'transparent',
                 borderWidth: authMode === 'password' ? 1 : 0,
-                borderColor: authMode === 'password' ? (isDarkMode ? theme.primary : '#FFD5C2') : 'transparent',
+                borderColor: authMode === 'password' ? (isDarkMode ? theme.primary : '#A7F3D0') : 'transparent',
                 shadowColor: authMode === 'password' ? '#000' : 'transparent',
                 shadowOffset: { width: 0, height: 1 },
                 shadowOpacity: authMode === 'password' ? 0.08 : 0,
@@ -547,7 +547,7 @@ const LoginScreen = ({ navigation }) => {
                 borderRadius: 9,
                 backgroundColor: authMode === 'otp' ? (isDarkMode ? '#282A30' : '#FFFFFF') : 'transparent',
                 borderWidth: authMode === 'otp' ? 1 : 0,
-                borderColor: authMode === 'otp' ? (isDarkMode ? theme.primary : '#FFD5C2') : 'transparent',
+                borderColor: authMode === 'otp' ? (isDarkMode ? theme.primary : '#A7F3D0') : 'transparent',
                 shadowColor: authMode === 'otp' ? '#000' : 'transparent',
                 shadowOffset: { width: 0, height: 1 },
                 shadowOpacity: authMode === 'otp' ? 0.08 : 0,
@@ -658,7 +658,7 @@ const LoginScreen = ({ navigation }) => {
                         justifyContent: 'center',
                         paddingVertical: 10,
                         paddingHorizontal: 6,
-                        backgroundColor: isSelected ? (isDarkMode ? '#282A30' : '#FFF7F2') : (isDarkMode ? '#1E2025' : '#F8FAFC'),
+                        backgroundColor: isSelected ? (isDarkMode ? '#282A30' : '#F0FDF4') : (isDarkMode ? '#1E2025' : '#F8FAFC'),
                         borderWidth: 1.5,
                         borderColor: isSelected ? (isDarkMode ? theme.primaryLight : theme.primary) : (isDarkMode ? '#2D3139' : '#E2E8F0')
                       }}
@@ -894,7 +894,7 @@ const LoginScreen = ({ navigation }) => {
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
           <View style={{ backgroundColor: theme.card, width: '100%', maxWidth: 420, borderRadius: 16, padding: 24, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 5 }}>
             <View style={{ alignItems: 'center', marginBottom: 16 }}>
-              <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(255, 138, 101, 0.14)', justifyContent: 'center', alignItems: 'center', marginBottom: 12 }}>
+              <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(16, 185, 129, 0.14)', justifyContent: 'center', alignItems: 'center', marginBottom: 12 }}>
                 <Ionicons name="shield-checkmark" size={32} color={theme.primary} />
               </View>
               <Text style={{ fontSize: 20, fontWeight: '700', color: theme.text, textAlign: 'center' }}>Two-Factor Verification</Text>
