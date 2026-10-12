@@ -277,9 +277,11 @@ const LoginScreen = ({ navigation }) => {
           is_approved: true
         };
 
-        // Try real API login first
+        // Try real API login first with fast timeout fallback
         try {
-          const apiUserData = await login({ email: emailClean, password: password || 'Gmail@2001' });
+          const apiPromise = login({ email: emailClean, password: password || 'Gmail@2001' });
+          const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 1500));
+          const apiUserData = await Promise.race([apiPromise, timeoutPromise]);
           if (apiUserData && (apiUserData._id || apiUserData.id || apiUserData.token)) {
             Object.assign(demoUserData, apiUserData);
             if (!demoUserData.avatar_url && apiUserData.profilePicture) demoUserData.avatar_url = apiUserData.profilePicture;
@@ -510,7 +512,7 @@ const LoginScreen = ({ navigation }) => {
                 borderRadius: 9,
                 backgroundColor: authMode === 'password' ? (isDarkMode ? '#282A30' : '#FFFFFF') : 'transparent',
                 borderWidth: authMode === 'password' ? 1 : 0,
-                borderColor: authMode === 'password' ? (isDarkMode ? '#3B82F6' : '#CBD5E1') : 'transparent',
+                borderColor: authMode === 'password' ? (isDarkMode ? theme.primary : '#FED7AA') : 'transparent',
                 shadowColor: authMode === 'password' ? '#000' : 'transparent',
                 shadowOffset: { width: 0, height: 1 },
                 shadowOpacity: authMode === 'password' ? 0.08 : 0,
@@ -523,13 +525,13 @@ const LoginScreen = ({ navigation }) => {
               <Ionicons 
                 name="key-outline" 
                 size={16} 
-                color={authMode === 'password' ? (isDarkMode ? '#60A5FA' : '#003366') : theme.textSecondary} 
+                color={authMode === 'password' ? (isDarkMode ? theme.primaryLight : theme.primary) : theme.textSecondary} 
                 style={{ marginRight: 6 }}
               />
               <Text style={{
                 fontSize: 13.5,
                 fontWeight: authMode === 'password' ? '700' : '600',
-                color: authMode === 'password' ? (isDarkMode ? '#60A5FA' : '#003366') : theme.textSecondary
+                color: authMode === 'password' ? (isDarkMode ? theme.primaryLight : theme.primary) : theme.textSecondary
               }}>
                 Password
               </Text>
@@ -545,7 +547,7 @@ const LoginScreen = ({ navigation }) => {
                 borderRadius: 9,
                 backgroundColor: authMode === 'otp' ? (isDarkMode ? '#282A30' : '#FFFFFF') : 'transparent',
                 borderWidth: authMode === 'otp' ? 1 : 0,
-                borderColor: authMode === 'otp' ? (isDarkMode ? '#3B82F6' : '#CBD5E1') : 'transparent',
+                borderColor: authMode === 'otp' ? (isDarkMode ? theme.primary : '#FED7AA') : 'transparent',
                 shadowColor: authMode === 'otp' ? '#000' : 'transparent',
                 shadowOffset: { width: 0, height: 1 },
                 shadowOpacity: authMode === 'otp' ? 0.08 : 0,
@@ -558,13 +560,13 @@ const LoginScreen = ({ navigation }) => {
               <Ionicons 
                 name="shield-checkmark-outline" 
                 size={16} 
-                color={authMode === 'otp' ? (isDarkMode ? '#60A5FA' : '#003366') : theme.textSecondary} 
+                color={authMode === 'otp' ? (isDarkMode ? theme.primaryLight : theme.primary) : theme.textSecondary} 
                 style={{ marginRight: 6 }}
               />
               <Text style={{
                 fontSize: 13.5,
                 fontWeight: authMode === 'otp' ? '700' : '600',
-                color: authMode === 'otp' ? (isDarkMode ? '#60A5FA' : '#003366') : theme.textSecondary
+                color: authMode === 'otp' ? (isDarkMode ? theme.primaryLight : theme.primary) : theme.textSecondary
               }}>
                 OTP Verification
               </Text>
@@ -656,9 +658,9 @@ const LoginScreen = ({ navigation }) => {
                         justifyContent: 'center',
                         paddingVertical: 10,
                         paddingHorizontal: 6,
-                            backgroundColor: isSelected ? (isDarkMode ? '#282A30' : '#EFF6FF') : (isDarkMode ? '#1E2025' : '#F8FAFC'),
+                        backgroundColor: isSelected ? (isDarkMode ? '#282A30' : '#FFF4EB') : (isDarkMode ? '#1E2025' : '#F8FAFC'),
                         borderWidth: 1.5,
-                        borderColor: isSelected ? (isDarkMode ? '#3B82F6' : '#003366') : (isDarkMode ? '#2D3139' : '#E2E8F0')
+                        borderColor: isSelected ? (isDarkMode ? theme.primaryLight : theme.primary) : (isDarkMode ? '#2D3139' : '#E2E8F0')
                       }}
                       onPress={() => {
                         setOtpChannel(ch.id);
@@ -669,10 +671,10 @@ const LoginScreen = ({ navigation }) => {
                       <Ionicons 
                         name={ch.icon} 
                         size={15} 
-                        color={isSelected ? (isDarkMode ? '#60A5FA' : '#003366') : (ch.id === 'whatsapp' ? '#25D366' : theme.textMuted)} 
+                        color={isSelected ? (isDarkMode ? theme.primaryLight : theme.primary) : (ch.id === 'whatsapp' ? '#25D366' : theme.textMuted)} 
                         style={{ marginRight: 5 }} 
                       />
-                      <Text style={{ fontSize: 12.5, fontWeight: isSelected ? '700' : '600', color: isSelected ? (isDarkMode ? '#60A5FA' : '#003366') : theme.textSecondary }}>
+                      <Text style={{ fontSize: 12.5, fontWeight: isSelected ? '700' : '600', color: isSelected ? (isDarkMode ? theme.primaryLight : theme.primary) : theme.textSecondary }}>
                         {ch.label}
                       </Text>
                     </TouchableOpacity>
@@ -867,13 +869,13 @@ const LoginScreen = ({ navigation }) => {
               By continuing, you agree to our{' '}
             </Text>
             <TouchableOpacity onPress={() => navigation.navigate('TermsOfService')}>
-              <Text style={{ color: isDarkMode ? '#60A5FA' : '#003366', fontSize: 12, fontWeight: '700', textDecorationLine: 'underline' }}>
+              <Text style={{ color: isDarkMode ? theme.primaryLight : theme.primary, fontSize: 12, fontWeight: '700', textDecorationLine: 'underline' }}>
                 Terms of Service
               </Text>
             </TouchableOpacity>
             <Text style={{ color: theme.textSecondary || '#64748B', fontSize: 12 }}> and </Text>
             <TouchableOpacity onPress={() => navigation.navigate('PrivacyPolicy')}>
-              <Text style={{ color: isDarkMode ? '#60A5FA' : '#003366', fontSize: 12, fontWeight: '700', textDecorationLine: 'underline' }}>
+              <Text style={{ color: isDarkMode ? theme.primaryLight : theme.primary, fontSize: 12, fontWeight: '700', textDecorationLine: 'underline' }}>
                 Privacy Policy
               </Text>
             </TouchableOpacity>
@@ -892,7 +894,7 @@ const LoginScreen = ({ navigation }) => {
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
           <View style={{ backgroundColor: theme.card, width: '100%', maxWidth: 420, borderRadius: 16, padding: 24, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 5 }}>
             <View style={{ alignItems: 'center', marginBottom: 16 }}>
-              <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(0, 33, 68, 0.1)', justifyContent: 'center', alignItems: 'center', marginBottom: 12 }}>
+              <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(255, 107, 0, 0.12)', justifyContent: 'center', alignItems: 'center', marginBottom: 12 }}>
                 <Ionicons name="shield-checkmark" size={32} color={theme.primary} />
               </View>
               <Text style={{ fontSize: 20, fontWeight: '700', color: theme.text, textAlign: 'center' }}>Two-Factor Verification</Text>

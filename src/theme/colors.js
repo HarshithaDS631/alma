@@ -1,102 +1,102 @@
 export const lightTheme = {
-  // Base Surfaces (Rich ivory porcelain with multi-depth contrast)
-  background: '#F1F5F9',        // Modern soft slate-tinted canvas (no longer flat blank white)
+  // Base Surfaces (Warm porcelain cream canvas & pristine elevated white cards)
+  background: '#FAF5EE',        // Warm sunset ivory/porcelain canvas (inspired by Orange Health)
   card: '#FFFFFF',              // Pure crisp elevated white card
-  cardSecondary: '#E8EEF5',     // Tactile recessed container
+  cardSecondary: '#FFF4EB',     // Warm peach container
   surfaceElevated: '#FFFFFF',   // 3D elevated floating tile
-  surfaceDepressed: '#E2E8F0',  // 3D recessed input/pod container
+  surfaceDepressed: '#F3E8DC',  // Warm recessed input/pod container
   
-  // Typography (Ultra-sharp, high-contrast hierarchy)
-  text: '#091322',              // Obsidian navy black
-  textSecondary: '#475569',     // Slate gray
-  textMuted: '#94A3B8',         // Subtle guide gray
+  // Typography (Ultra-sharp high-contrast slate & charcoal)
+  text: '#111827',              // Deep slate black
+  textSecondary: '#4B5563',     // Neutral charcoal gray
+  textMuted: '#9CA3AF',         // Soft guide gray
   
-  // Brand & Accents (RVCE Royal & Electric Sapphire with 3D radiance)
-  primary: '#002B5C',           // Deep Royal RV Navy
-  primaryDark: '#001A38',
-  primaryLight: '#2563EB',
-  accent: '#2563EB',            // Electric Sapphire
-  gold: '#D97706',              // Rich Amber Gold
+  // Brand & Accents (Orange Health Tangerine & Forest Emerald contrast)
+  primary: '#FF6B00',           // Vibrant Sunset Tangerine Orange
+  primaryDark: '#E05D00',       // Deep Tangelo
+  primaryLight: '#FF8533',      // Bright Tangerine
+  accent: '#008B74',            // Rich Forest Emerald Teal
+  secondary: '#00A389',         // Fresh Mint Emerald Teal
+  gold: '#F59E0B',              // Amber Gold
   goldLight: '#FEF3C7',
-  secondary: '#0284C7',         // Vibrant Cyan Azure
   
   // 3D & Glassmorphic Tokens
-  border: '#E2E8F0',            // Clean structural border
-  cardBorder: 'rgba(226, 232, 240, 0.95)',
-  cardShadow: 'rgba(15, 23, 42, 0.08)',
+  border: '#EFE5D8',            // Soft warm border
+  cardBorder: 'rgba(239, 229, 216, 0.95)',
+  cardShadow: 'rgba(255, 107, 0, 0.08)',
   glassBackground: 'rgba(255, 255, 255, 0.92)',
-  glassBorder: 'rgba(255, 255, 255, 0.6)',
-  glowPrimary: 'rgba(37, 99, 235, 0.22)',
-  glowAccent: 'rgba(2, 132, 199, 0.2)',
-  glowGold: 'rgba(217, 119, 6, 0.25)',
+  glassBorder: 'rgba(255, 255, 255, 0.7)',
+  glowPrimary: 'rgba(255, 107, 0, 0.25)',
+  glowAccent: 'rgba(0, 139, 116, 0.22)',
+  glowGold: 'rgba(245, 158, 11, 0.25)',
   
-  // 3D Icon Pods
-  icon: '#475569',
-  iconActive: '#002B5C',
-  iconPodBg: '#F8FAFC',
-  iconPodActiveBg: '#E0EEFF',
-  iconPodBorder: '#BAE6FD',
-  icon3DGlow: 'rgba(37, 99, 235, 0.18)',
+  // 3D Icon Pods (Warm peach & mint teal pods)
+  icon: '#4B5563',
+  iconActive: '#FF6B00',
+  iconPodBg: '#FFF2E6',
+  iconPodActiveBg: '#FFE4CC',
+  iconPodBorder: '#FED7AA',
+  icon3DGlow: 'rgba(255, 107, 0, 0.18)',
   
   // Inputs & Interactive Buttons
   inputBackground: '#FFFFFF',
-  buttonBackground: '#002B5C',
+  buttonBackground: '#FF6B00',
   buttonText: '#FFFFFF',
-  tabBarBg: 'rgba(255, 255, 255, 0.95)',
-  tabBarBorder: 'rgba(226, 232, 240, 0.8)',
+  tabBarBg: 'rgba(255, 255, 255, 0.96)',
+  tabBarBorder: 'rgba(239, 229, 216, 0.8)',
 
   // Feedback Colors
-  success: '#10B981',
+  success: '#00A389',
   danger: '#EF4444',
   warning: '#F59E0B',
 };
 
 export const darkTheme = {
-  // Base Surfaces (Deep Space Obsidian & Cyber Navy with glowing contrast)
-  background: '#080C15',        // Immersive Deep Space Obsidian (rich depth, no flat gray)
-  card: '#111827',              // Elevated midnight slate tile
-  cardSecondary: '#192237',     // Tactile neo-container
-  surfaceElevated: '#172033',   // 3D raised glowing card
-  surfaceDepressed: '#0D1322',  // 3D inset recessed field
+  // Base Surfaces (Deep warm espresso obsidian with luminous amber depth)
+  background: '#120E0B',        // Deep warm espresso obsidian
+  card: '#1C1612',              // Elevated dark mahogany slate
+  cardSecondary: '#271E18',     // Tactile warm container
+  surfaceElevated: '#241B15',   // 3D raised glowing card
+  surfaceDepressed: '#17110E',  // 3D inset recessed field
   
-  // Typography (Luminescent anti-glare typography)
-  text: '#F8FAFC',              // Brilliant crisp white
-  textSecondary: '#94A3B8',     // Soothing metallic slate
-  textMuted: '#64748B',         // Subtle metallic gray
+  // Typography
+  text: '#FDFBF7',              // Brilliant warm ivory white
+  textSecondary: '#A8A29E',     // Warm stone slate
+  textMuted: '#78716C',         // Muted stone gray
   
-  // Brand & Accents (Vibrant Neon Sky & Indigo Aurora)
-  primary: '#38BDF8',           // Luminescent Electric Sky Blue
-  primaryDark: '#0284C7',
-  primaryLight: '#7DD3FC',
-  accent: '#818CF8',            // Cyber Indigo Glow
-  gold: '#FBBF24',              // Radiant Solar Gold
+  // Brand & Accents
+  primary: '#FF7A1A',           // Luminous Tangerine Orange
+  primaryDark: '#EA580C',
+  primaryLight: '#FFA057',
+  accent: '#2DD4BF',            // Glowing Emerald Mint
+  secondary: '#14B8A6',
+  gold: '#FBBF24',
   goldLight: 'rgba(251, 191, 36, 0.15)',
-  secondary: '#38BDF8',
   
   // 3D & Glassmorphic Tokens
-  border: 'rgba(56, 189, 248, 0.14)', // Luminous holographic cyan rim
-  cardBorder: 'rgba(99, 102, 241, 0.22)',
-  cardShadow: 'rgba(0, 0, 0, 0.65)',
-  glassBackground: 'rgba(17, 24, 39, 0.90)',
-  glassBorder: 'rgba(56, 189, 248, 0.25)',
-  glowPrimary: 'rgba(56, 189, 248, 0.35)',
-  glowAccent: 'rgba(129, 140, 248, 0.32)',
+  border: 'rgba(255, 122, 26, 0.16)',
+  cardBorder: 'rgba(255, 122, 26, 0.22)',
+  cardShadow: 'rgba(0, 0, 0, 0.7)',
+  glassBackground: 'rgba(28, 22, 18, 0.92)',
+  glassBorder: 'rgba(255, 122, 26, 0.25)',
+  glowPrimary: 'rgba(255, 122, 26, 0.35)',
+  glowAccent: 'rgba(45, 212, 191, 0.32)',
   glowGold: 'rgba(251, 191, 36, 0.3)',
   
   // 3D Icon Pods
-  icon: '#94A3B8',
-  iconActive: '#38BDF8',
-  iconPodBg: '#131C2E',
-  iconPodActiveBg: 'rgba(56, 189, 248, 0.18)',
-  iconPodBorder: 'rgba(56, 189, 248, 0.45)',
-  icon3DGlow: 'rgba(56, 189, 248, 0.4)',
+  icon: '#A8A29E',
+  iconActive: '#FF7A1A',
+  iconPodBg: '#261B14',
+  iconPodActiveBg: 'rgba(255, 122, 26, 0.2)',
+  iconPodBorder: 'rgba(255, 122, 26, 0.4)',
+  icon3DGlow: 'rgba(255, 122, 26, 0.4)',
   
   // Inputs & Interactive Buttons
-  inputBackground: '#0B0F1A',
-  buttonBackground: '#2563EB',
+  inputBackground: '#16110D',
+  buttonBackground: '#FF6B00',
   buttonText: '#FFFFFF',
-  tabBarBg: 'rgba(11, 15, 26, 0.94)',
-  tabBarBorder: 'rgba(56, 189, 248, 0.16)',
+  tabBarBg: 'rgba(18, 14, 11, 0.95)',
+  tabBarBorder: 'rgba(255, 122, 26, 0.16)',
 
   // Feedback Colors
   success: '#10B981',

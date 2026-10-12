@@ -52,7 +52,7 @@ const Mascot = ({
 
   if (variant === 'badge') {
     return (
-      <View style={[styles.badgeContainer, { backgroundColor: isDarkMode ? '#1E293B' : '#EFF6FF', borderColor: theme.primary }, style]}>
+      <View style={[styles.badgeContainer, { backgroundColor: isDarkMode ? '#271E18' : '#FFF4EB', borderColor: theme.primary }, style]}>
         <Image 
           source={mascotSource} 
           style={{ width: dimension, height: dimension, resizeMode: 'contain' }} 
@@ -70,9 +70,9 @@ const Mascot = ({
             style={{ width: 110, height: 138, resizeMode: 'contain' }} 
           />
           {speechText && (
-            <View style={[styles.speechBubble, { backgroundColor: isDarkMode ? '#1E293B' : '#FFFFFF', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}>
+            <View style={[styles.speechBubble, { backgroundColor: isDarkMode ? '#241B15' : '#FFFFFF', borderColor: isDarkMode ? '#3B2A1E' : '#EFE5D8' }]}>
               <Text style={[styles.speechText, { color: theme.text }]}>{speechText}</Text>
-              <View style={[styles.speechArrow, { borderTopColor: isDarkMode ? '#1E293B' : '#FFFFFF' }]} />
+              <View style={[styles.speechArrow, { borderTopColor: isDarkMode ? '#241B15' : '#FFFFFF' }]} />
             </View>
           )}
         </View>
@@ -84,7 +84,7 @@ const Mascot = ({
 
   if (variant === 'banner') {
     return (
-      <View style={[styles.bannerContainer, { backgroundColor: isDarkMode ? '#0F2744' : '#EBF5FF', borderColor: isDarkMode ? '#1E3A8A' : '#BFDBFE' }, style]}>
+      <View style={[styles.bannerContainer, { backgroundColor: isDarkMode ? '#241B15' : '#FFF5EB', borderColor: isDarkMode ? 'rgba(255, 107, 0, 0.3)' : '#FED7AA' }, style]}>
         <View style={styles.bannerContent}>
           <View style={styles.bannerTextCol}>
             <View style={styles.bannerTagRow}>
@@ -92,10 +92,10 @@ const Mascot = ({
                 <Text style={styles.rvTagText}>RV ALUMNI PRIDE</Text>
               </View>
             </View>
-            <Text style={[styles.bannerTitle, { color: isDarkMode ? '#F8FAFC' : '#002B5C' }]}>
+            <Text style={[styles.bannerTitle, { color: isDarkMode ? '#FDFBF7' : '#9A3412' }]}>
               {title || 'Welcome home, RVian!'}
             </Text>
-            <Text style={[styles.bannerSubtitle, { color: isDarkMode ? '#94A3B8' : '#334155' }]}>
+            <Text style={[styles.bannerSubtitle, { color: isDarkMode ? '#A8A29E' : '#4B5563' }]}>
               {subtitle || 'Reconnect with your batchmates, mentors, and the global alumni family.'}
             </Text>
 
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   bannerActionBtn: {
-    backgroundColor: '#002B5C',
+    backgroundColor: '#FF6B00',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,

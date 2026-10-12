@@ -57,7 +57,7 @@ const LandingScreen = ({ navigation }) => {
 const getStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: theme.background,
   },
   content: {
     flex: 1,
@@ -65,7 +65,7 @@ const getStyles = (theme) => StyleSheet.create({
     justifyContent: 'center',
   },
   badge: {
-    backgroundColor: 'rgba(10, 61, 145, 0.1)',
+    backgroundColor: 'rgba(255, 107, 0, 0.12)',
     color: theme.primary,
     alignSelf: 'flex-start',
     paddingHorizontal: 12,

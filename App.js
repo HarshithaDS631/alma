@@ -94,16 +94,16 @@ function Render3DTabIcon({ name, focused, isDarkMode, theme, isPost, label, isMa
           width: 48,
           height: 48,
           borderRadius: 24,
-          backgroundColor: isDarkMode ? '#2563EB' : '#002B5C',
+          backgroundColor: theme.primary,
           justifyContent: 'center',
           alignItems: 'center',
-          shadowColor: isDarkMode ? '#38BDF8' : '#002B5C',
+          shadowColor: theme.primary,
           shadowOffset: { width: 0, height: 6 },
           shadowOpacity: isDarkMode ? 0.55 : 0.35,
           shadowRadius: 10,
           elevation: 9,
           borderWidth: 2,
-          borderColor: isDarkMode ? '#60A5FA' : '#93C5FD'
+          borderColor: isDarkMode ? theme.primaryLight : '#FED7AA'
         }}>
           <Ionicons name="add" size={26} color="#FFFFFF" />
         </View>
@@ -126,10 +126,10 @@ function Render3DTabIcon({ name, focused, isDarkMode, theme, isPost, label, isMa
         paddingHorizontal: focused ? 14 : 10,
         paddingVertical: 5,
         borderRadius: 14,
-        backgroundColor: focused ? (theme.iconPodActiveBg || 'rgba(37, 99, 235, 0.14)') : 'transparent',
+        backgroundColor: focused ? (theme.iconPodActiveBg || 'rgba(255, 107, 0, 0.12)') : 'transparent',
         borderWidth: focused ? 1.5 : 0,
-        borderColor: focused ? (theme.iconPodBorder || 'rgba(37, 99, 235, 0.35)') : 'transparent',
-        shadowColor: focused ? (isDarkMode ? '#38BDF8' : '#002B5C') : 'transparent',
+        borderColor: focused ? (theme.iconPodBorder || 'rgba(255, 107, 0, 0.35)') : 'transparent',
+        shadowColor: focused ? (isDarkMode ? theme.primaryLight : theme.primary) : 'transparent',
         shadowOffset: { width: 0, height: 3 },
         shadowOpacity: focused ? 0.35 : 0,
         shadowRadius: 6,
@@ -274,23 +274,23 @@ function MainTabs() {
             paddingHorizontal: 10,
             marginVertical: 3,
           },
-          drawerActiveBackgroundColor: isDarkMode ? 'rgba(56, 189, 248, 0.14)' : 'rgba(0, 43, 92, 0.08)',
-          drawerActiveTintColor: isDarkMode ? '#38BDF8' : '#002B5C',
+          drawerActiveBackgroundColor: isDarkMode ? 'rgba(255, 107, 0, 0.14)' : 'rgba(255, 107, 0, 0.08)',
+          drawerActiveTintColor: isDarkMode ? theme.primaryLight : theme.primary,
           drawerInactiveTintColor: isDarkMode ? '#94A3B8' : '#64748B',
           drawerLabelStyle: { fontSize: 14, fontWeight: '700', marginLeft: -4 },
           drawerIcon: ({ focused, color }) => {
             let iconComp = null;
-            if (route.name === 'Home') iconComp = <Ionicons name={focused ? 'home' : 'home-outline'} size={20} color={focused ? (isDarkMode ? '#38BDF8' : '#002B5C') : color} />;
-            if (route.name === 'Engage') iconComp = <MaterialCommunityIcons name={focused ? 'handshake' : 'handshake-outline'} size={20} color={focused ? (isDarkMode ? '#38BDF8' : '#002B5C') : color} />;
-            if (route.name === 'Post') iconComp = <Ionicons name={focused ? 'add-circle' : 'add-circle-outline'} size={22} color={focused ? (isDarkMode ? '#38BDF8' : '#002B5C') : color} />;
-            if (route.name === 'Jobs') iconComp = <Ionicons name={focused ? 'briefcase' : 'briefcase-outline'} size={20} color={focused ? (isDarkMode ? '#38BDF8' : '#002B5C') : color} />;
-            if (route.name === 'Contribute') iconComp = <MaterialCommunityIcons name={focused ? 'hand-heart' : 'hand-heart-outline'} size={20} color={focused ? (isDarkMode ? '#38BDF8' : '#002B5C') : color} />;
+            if (route.name === 'Home') iconComp = <Ionicons name={focused ? 'home' : 'home-outline'} size={20} color={focused ? (isDarkMode ? theme.primaryLight : theme.primary) : color} />;
+            if (route.name === 'Engage') iconComp = <MaterialCommunityIcons name={focused ? 'handshake' : 'handshake-outline'} size={20} color={focused ? (isDarkMode ? theme.primaryLight : theme.primary) : color} />;
+            if (route.name === 'Post') iconComp = <Ionicons name={focused ? 'add-circle' : 'add-circle-outline'} size={22} color={focused ? (isDarkMode ? theme.primaryLight : theme.primary) : color} />;
+            if (route.name === 'Jobs') iconComp = <Ionicons name={focused ? 'briefcase' : 'briefcase-outline'} size={20} color={focused ? (isDarkMode ? theme.primaryLight : theme.primary) : color} />;
+            if (route.name === 'Contribute') iconComp = <MaterialCommunityIcons name={focused ? 'hand-heart' : 'hand-heart-outline'} size={20} color={focused ? (isDarkMode ? theme.primaryLight : theme.primary) : color} />;
             return (
               <View style={{
                 width: 32,
                 height: 32,
                 borderRadius: 9,
-                backgroundColor: focused ? (isDarkMode ? 'rgba(56, 189, 248, 0.2)' : 'rgba(0, 43, 92, 0.12)') : 'transparent',
+                backgroundColor: focused ? (isDarkMode ? 'rgba(255, 107, 0, 0.2)' : 'rgba(255, 107, 0, 0.12)') : 'transparent',
                 justifyContent: 'center',
                 alignItems: 'center'
               }}>
@@ -376,7 +376,7 @@ function AdminTabs() {
             marginVertical: 4,
           },
           drawerActiveBackgroundColor: isDarkMode ? '#1E293B' : '#F4F6F9',
-          drawerActiveTintColor: isDarkMode ? '#60A5FA' : '#003366',
+          drawerActiveTintColor: isDarkMode ? theme.primaryLight : theme.primary,
           drawerInactiveTintColor: isDarkMode ? '#94A3B8' : '#8A99AD',
           drawerLabelStyle: { fontSize: 16, fontWeight: '700', marginLeft: -8 },
           drawerIcon: ({ focused, color, size }) => {
@@ -469,7 +469,7 @@ function SuperAdminTabs() {
             marginVertical: 4,
           },
           drawerActiveBackgroundColor: isDarkMode ? '#1E293B' : '#F4F6F9',
-          drawerActiveTintColor: isDarkMode ? '#60A5FA' : '#003366',
+          drawerActiveTintColor: isDarkMode ? theme.primaryLight : theme.primary,
           drawerInactiveTintColor: isDarkMode ? '#94A3B8' : '#8A99AD',
           drawerLabelStyle: { fontSize: 16, fontWeight: '700', marginLeft: -8 },
           drawerIcon: ({ focused, color, size }) => {
