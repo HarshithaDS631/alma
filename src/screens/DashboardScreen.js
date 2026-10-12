@@ -141,9 +141,9 @@ const DashboardScreen = ({ navigation }) => {
 
   const { width } = useWindowDimensions();
   const isWeb = Platform.OS === 'web';
-  const isDesktop = isWeb && width >= 768;
+  const isDesktop = isWeb && width >= 1200;
   const contentWidth = isWeb ? Math.min(width, 800) : width;
-  const webContainerStyle = isWeb ? { alignSelf: 'center', width: '100%', maxWidth: isDesktop ? 1200 : 800, flex: 1 } : { flex: 1 };
+  const webContainerStyle = isWeb ? { alignSelf: 'center', width: '100%', maxWidth: isDesktop ? 1200 : 760, flex: 1 } : { flex: 1 };
   
   const [likedPosts, setLikedPosts] = useState({});
   const [bookmarkedPosts, setBookmarkedPosts] = useState({});
@@ -1201,7 +1201,7 @@ const DashboardScreen = ({ navigation }) => {
       <View style={styles.feedTitleRow}>
         <View style={{ flex: 1 }}>
           <View style={styles.feedInstitutionTag}>
-            <Ionicons name="shield-checkmark" size={12} color="#059669" />
+            <Ionicons name="shield-checkmark" size={12} color={isDarkMode ? '#D4A373' : '#C89565'} />
             <Text style={styles.feedInstitutionText}>RVCE ALUMNI NETWORK</Text>
           </View>
           <Text style={styles.feedMainTitle}>Alumni Updates & Feed</Text>
@@ -1229,7 +1229,7 @@ const DashboardScreen = ({ navigation }) => {
         />
       )}
 
-      {/* Bento Box Alumni Hub (Orange Health-inspired modular compartments) */}
+      {/* Bento Box Alumni Hub (Orange Health-inspired modular compartments with Sage + Warm Sand Latte) */}
       <View style={styles.bentoSectionContainer}>
         <View style={styles.bentoSectionHeader}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
@@ -1242,7 +1242,7 @@ const DashboardScreen = ({ navigation }) => {
         </View>
 
         <BentoGrid style={{ marginTop: 2, marginBottom: 12 }}>
-          {/* 1. Mentorship Hero (Wide) */}
+          {/* 1. Mentorship Hero (Wide Sage Green) */}
           <BentoCard
             variant="hero"
             title="1-on-1 Alumni Mentorship"
@@ -1256,50 +1256,55 @@ const DashboardScreen = ({ navigation }) => {
             onPress={() => navigation.navigate('Engage', { tab: 'directory' })}
           />
 
-          {/* 2. Job Referrals (Left 50%) */}
-          <View style={{ flex: 1, minWidth: 140 }}>
-            <BentoCard
-              variant="compact"
-              metric="45+ Roles"
-              title="Job Referrals"
-              subtitle="RV alumni priority hiring"
-              badge="HIRING"
-              badgeBg={isDarkMode ? '#064E3B' : '#DCFCE7'}
-              badgeTextColor="#166534"
-              icon="briefcase-outline"
-              iconColor="#059669"
-              onPress={() => navigation.navigate('Main', { screen: 'Jobs' })}
-            />
+          {/* Row 2: 2 Side-by-Side Responsive Compartments */}
+          <View style={{ flexDirection: 'row', width: '100%', gap: 10 }}>
+            {/* 2. Job Referrals (Warm Sand Latte) */}
+            <View style={{ flex: 1, minWidth: 120 }}>
+              <BentoCard
+                variant="sand"
+                metric="45+ Roles"
+                title="Job Referrals"
+                subtitle="RV alumni priority hiring"
+                badge="HIRING"
+                badgeBg={isDarkMode ? '#3B2A1E' : '#F5E6D8'}
+                badgeTextColor={isDarkMode ? '#E8CAAE' : '#B88758'}
+                icon="briefcase-outline"
+                iconColor={isDarkMode ? '#E8CAAE' : '#C89565'}
+                iconBg={isDarkMode ? '#3B2A1E' : '#FAF4ED'}
+                onPress={() => navigation.navigate('Main', { screen: 'Jobs' })}
+              />
+            </View>
+
+            {/* 3. Global Chapters (Sage Community) */}
+            <View style={{ flex: 1, minWidth: 120 }}>
+              <BentoCard
+                variant="compact"
+                metric="12 Cities"
+                title="Global Chapters"
+                subtitle="Bengaluru, US, UK & EU"
+                badge="COMMUNITY"
+                badgeBg={isDarkMode ? '#064E3B' : '#DCFCE7'}
+                badgeTextColor={isDarkMode ? '#34D399' : '#047857'}
+                icon="globe-outline"
+                iconColor="#059669"
+                iconBg={isDarkMode ? '#1E3A2B' : '#DCFCE7'}
+                onPress={() => navigation.navigate('Engage', { tab: 'communities' })}
+              />
+            </View>
           </View>
 
-          {/* 3. Global Chapters (Right 50%) */}
-          <View style={{ flex: 1, minWidth: 140 }}>
-            <BentoCard
-              variant="compact"
-              metric="12 Cities"
-              title="Global Chapters"
-              subtitle="Bengaluru, US, UK & EU"
-              badge="COMMUNITY"
-              badgeBg={isDarkMode ? '#082F49' : '#DCFCE7'}
-              badgeTextColor="#047857"
-              icon="globe-outline"
-              iconColor="#059669"
-              iconBg={isDarkMode ? '#082F49' : '#DCFCE7'}
-              onPress={() => navigation.navigate('Engage', { tab: 'communities' })}
-            />
-          </View>
-
-          {/* 4. Campus Fast Services (Wide Accent) */}
+          {/* 4. Campus Fast Services (Wide Warm Sand Latte) */}
           <BentoCard
-            variant="accent"
+            variant="sand"
+            style={{ width: '100%' }}
             title="Degree Verification & Transcripts"
             subtitle="Official exam section requests, RSST innovation grants & alumni reunions."
             badge="RVCE SERVICES"
-            badgeBg={isDarkMode ? '#134E4A' : '#CCFBF1'}
-            badgeTextColor="#0F766E"
+            badgeBg={isDarkMode ? '#3B2A1E' : '#F5E6D8'}
+            badgeTextColor={isDarkMode ? '#E8CAAE' : '#B88758'}
             icon="school-outline"
-            iconColor="#0F766E"
-            iconBg={isDarkMode ? '#134E4A' : '#CCFBF1'}
+            iconColor={isDarkMode ? '#E8CAAE' : '#C89565'}
+            iconBg={isDarkMode ? '#3B2A1E' : '#FAF4ED'}
             onPress={() => handleOpenExternalUrl('https://rvce.edu.in/exam-section')}
           />
         </BentoGrid>
@@ -1487,11 +1492,11 @@ const DashboardScreen = ({ navigation }) => {
 
         {isDesktop ? (
           <View style={styles.desktopContainer}>
-            {/* 1. Left Column: Streamlined Feed Header & Posts */}
+            {/* 1. Left Column: Streamlined Feed Header & Posts inside unified ScrollView */}
             <View style={styles.desktopMainColumn}>
-              {renderFeedHeader()}
-
               <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 60 }}>
+                {renderFeedHeader()}
+
                 {filteredPosts.length > 0 ? (
                   filteredPosts.map(post => renderPostCard(post))
                 ) : (
@@ -1520,8 +1525,9 @@ const DashboardScreen = ({ navigation }) => {
               </ScrollView>
             </View>
 
-            {/* 2. Right Column: Institutional Sidebar */}
+            {/* 2. Right Column: Institutional Sidebar with independent smooth scrolling */}
             <View style={styles.desktopSidebarColumn}>
+              <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
               {/* Profile Identity Card */}
               <View style={styles.sidebarCard}>
                 <View style={styles.sidebarCoverBanner}>
@@ -1744,8 +1750,8 @@ const DashboardScreen = ({ navigation }) => {
                       Campus Quick Links
                     </Text>
                   </View>
-                  <View style={[styles.sidebarPillTag, { backgroundColor: isDarkMode ? '#1E293B' : '#DCFCE7', borderColor: isDarkMode ? '#334155' : '#A7F3D0' }]}>
-                    <Text style={{ fontSize: 10, fontWeight: '800', color: '#059669' }}>RVCE SERVICES</Text>
+                  <View style={[styles.sidebarPillTag, { backgroundColor: isDarkMode ? '#241B15' : '#FAF4ED', borderColor: isDarkMode ? 'rgba(212, 163, 115, 0.35)' : '#E8D4C1' }]}>
+                    <Text style={{ fontSize: 10, fontWeight: '800', color: isDarkMode ? '#D4A373' : '#B88758' }}>RVCE SERVICES</Text>
                   </View>
                 </View>
 
@@ -1774,14 +1780,14 @@ const DashboardScreen = ({ navigation }) => {
                   onPress={() => handleOpenExternalUrl('https://rvce.edu.in/exam-section')}
                   activeOpacity={0.7}
                 >
-                  <View style={[styles.sidebarCampusIcon, { backgroundColor: isDarkMode ? '#134E4A' : '#CCFBF1' }]}>
-                    <Ionicons name="document-text" size={17} color="#0F766E" />
+                  <View style={[styles.sidebarCampusIcon, { backgroundColor: isDarkMode ? '#241B15' : '#FAF4ED', borderWidth: 1, borderColor: isDarkMode ? 'rgba(212, 163, 115, 0.35)' : '#E8D4C1' }]}>
+                    <Ionicons name="document-text" size={17} color={isDarkMode ? '#D4A373' : '#C89565'} />
                   </View>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                       <Text style={{ fontSize: 12.5, fontWeight: '700', color: theme.text }}>Transcripts & Verifications</Text>
-                      <View style={{ backgroundColor: '#CCFBF1', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 6 }}>
-                        <Text style={{ fontSize: 9, fontWeight: '800', color: '#0F766E' }}>EXAM CELL</Text>
+                      <View style={{ backgroundColor: isDarkMode ? '#241B15' : '#FAF4ED', borderWidth: 1, borderColor: isDarkMode ? 'rgba(212, 163, 115, 0.35)' : '#E8D4C1', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 6 }}>
+                        <Text style={{ fontSize: 9, fontWeight: '800', color: isDarkMode ? '#D4A373' : '#B88758' }}>EXAM CELL</Text>
                       </View>
                     </View>
                     <Text style={{ fontSize: 11, color: theme.textMuted }}>Official degree & marksheet requests</Text>
@@ -1830,15 +1836,16 @@ const DashboardScreen = ({ navigation }) => {
                 </TouchableOpacity>
               </View>
 
-              {/* Sidebar Footer */}
-              <View style={{ paddingHorizontal: 8, paddingBottom: 24 }}>
-                <Text style={{ fontSize: 11, color: '#94A3B8', lineHeight: 18 }}>
-                  About • Guidelines • Career Hub • Privacy Policy • Terms • Institutional Verification
-                </Text>
-                <Text style={{ fontSize: 11, color: '#94A3B8', marginTop: 8, fontWeight: '500' }}>
-                  © 2026 RASHTREEYA SIKSHANA SAMITHI TRUST
-                </Text>
-              </View>
+                {/* Sidebar Footer */}
+                <View style={{ paddingHorizontal: 8, paddingBottom: 24 }}>
+                  <Text style={{ fontSize: 11, color: '#94A3B8', lineHeight: 18 }}>
+                    About • Guidelines • Career Hub • Privacy Policy • Terms • Institutional Verification
+                  </Text>
+                  <Text style={{ fontSize: 11, color: '#94A3B8', marginTop: 8, fontWeight: '500' }}>
+                    © 2026 RASHTREEYA SIKSHANA SAMITHI TRUST
+                  </Text>
+                </View>
+              </ScrollView>
             </View>
           </View>
         ) : (
@@ -2485,18 +2492,20 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   feedInstitutionTag: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: isDarkMode ? '#1E293B' : '#F0FDF4',
+    backgroundColor: isDarkMode ? '#241B15' : '#FAF4ED',
     alignSelf: 'flex-start',
     paddingHorizontal: 7,
     paddingVertical: 2.5,
     borderRadius: 6,
     gap: 4,
     marginBottom: 4,
+    borderWidth: 1,
+    borderColor: isDarkMode ? 'rgba(212, 163, 115, 0.35)' : '#E8D4C1',
   },
   feedInstitutionText: {
     fontSize: 10,
     fontWeight: '800',
-    color: '#059669',
+    color: isDarkMode ? '#D4A373' : '#B88758',
     letterSpacing: 0.5,
   },
   feedMainTitle: {
@@ -2540,17 +2549,17 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     letterSpacing: -0.2,
   },
   bentoSectionBadgePod: {
-    backgroundColor: isDarkMode ? '#1E293B' : '#F0FDF4',
+    backgroundColor: isDarkMode ? '#241B15' : '#FAF4ED',
     paddingHorizontal: 7,
     paddingVertical: 2,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: isDarkMode ? '#334155' : '#A7F3D0',
+    borderColor: isDarkMode ? 'rgba(212, 163, 115, 0.35)' : '#E8D4C1',
   },
   bentoSectionBadge: {
     fontSize: 9.5,
     fontWeight: '800',
-    color: '#059669',
+    color: isDarkMode ? '#D4A373' : '#B88758',
     letterSpacing: 0.5,
   },
 
@@ -3019,15 +3028,18 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   /* ── 2-Column Desktop Layout ─────────────────────────── */
   desktopContainer: {
     flex: 1,
-    padding: 24,
+    paddingHorizontal: 20,
+    paddingVertical: 14,
     flexDirection: 'row',
-    gap: 24,
+    gap: 20,
   },
   desktopMainColumn: {
-    flex: 6.8,
+    flex: 1,
+    maxWidth: 760,
   },
   desktopSidebarColumn: {
-    flex: 3.2,
+    width: 320,
+    maxWidth: 320,
   },
   sidebarCard: {
     backgroundColor: isDarkMode ? '#131C2E' : '#FFFFFF',
@@ -3049,7 +3061,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   },
   sidebarCoverBanner: {
     height: 70,
-    backgroundColor: '#059669',
+    backgroundColor: '#C89565',
     position: 'relative',
   },
   sidebarCoverDecor1: {
@@ -3059,7 +3071,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: 'rgba(255,255,255,0.12)',
   },
   sidebarCoverDecor2: {
     position: 'absolute',
@@ -3068,7 +3080,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(52, 211, 153, 0.15)',
+    backgroundColor: 'rgba(5, 150, 105, 0.25)',
   },
   sidebarProfileBody: {
     alignItems: 'center',
@@ -3106,12 +3118,12 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   sidebarViewProfileBtn: {
     width: '100%',
     marginTop: 12,
-    backgroundColor: isDarkMode ? '#1E293B' : '#F0FDF4',
+    backgroundColor: isDarkMode ? '#1E293B' : '#FAF8F5',
     borderRadius: 10,
     paddingVertical: 8,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: isDarkMode ? '#334155' : '#A7F3D0',
+    borderColor: isDarkMode ? '#334155' : '#E8DCCF',
   },
   sidebarPillTag: {
     backgroundColor: isDarkMode ? '#241B15' : '#FAF4ED',

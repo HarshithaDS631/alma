@@ -253,7 +253,7 @@ function MainTabs() {
   const { theme, isDarkMode } = useTheme();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
-  const showDrawer = Platform.OS === 'web' && width >= 768;
+  const showDrawer = Platform.OS === 'web' && width >= 1024;
   const bottomPadding = Math.max(insets.bottom, Platform.OS === 'ios' ? 24 : 10);
 
   if (showDrawer) {
@@ -353,7 +353,7 @@ function AdminTabs() {
   const { theme, isDarkMode } = useTheme();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
-  const showDrawer = Platform.OS === 'web' && width >= 768;
+  const showDrawer = Platform.OS === 'web' && width >= 1024;
   const bottomPadding = Math.max(insets.bottom, Platform.OS === 'ios' ? 24 : 10);
 
   if (showDrawer) {

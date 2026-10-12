@@ -84,7 +84,14 @@ const Mascot = ({
 
   if (variant === 'banner') {
     return (
-      <View style={[styles.bannerContainer, { backgroundColor: isDarkMode ? '#121D18' : '#F0FDF4', borderColor: isDarkMode ? 'rgba(52, 211, 153, 0.3)' : '#A7F3D0' }, style]}>
+      <View style={[
+        styles.bannerContainer, 
+        { 
+          backgroundColor: isDarkMode ? '#1E1712' : '#FAF6F0', 
+          borderColor: isDarkMode ? 'rgba(212, 163, 115, 0.35)' : '#E8DCCF' 
+        }, 
+        style
+      ]}>
         <View style={styles.bannerContent}>
           <View style={styles.bannerTextCol}>
             <View style={styles.bannerTagRow}>
@@ -92,10 +99,10 @@ const Mascot = ({
                 <Text style={styles.rvTagText}>RV ALUMNI PRIDE</Text>
               </View>
             </View>
-            <Text style={[styles.bannerTitle, { color: isDarkMode ? '#F2FBF6' : '#047857' }]}>
+            <Text style={[styles.bannerTitle, { color: isDarkMode ? '#F8FAFC' : '#111827' }]}>
               {title || 'Welcome home, RVian!'}
             </Text>
-            <Text style={[styles.bannerSubtitle, { color: isDarkMode ? '#94A39B' : '#4B5563' }]}>
+            <Text style={[styles.bannerSubtitle, { color: isDarkMode ? '#94A3B8' : '#4B5563' }]}>
               {subtitle || 'Reconnect with your batchmates, mentors, and the global alumni family.'}
             </Text>
 
