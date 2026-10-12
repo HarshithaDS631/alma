@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
 import GradientView from './GradientView';
+import { FloatingElement } from './MotionGraphic';
 
 /**
  * BentoCard Component
@@ -73,24 +74,26 @@ export function BentoCard({
         {/* Top Header Row with Icon and Badge */}
         <View style={styles.headerRow}>
           {icon && (
-            <View
-              style={[
-                styles.iconPod,
-                {
-                  backgroundColor: iconBg || (isSand 
-                    ? (isDarkMode ? '#3B2A1E' : '#F5E6D8') 
-                    : (isDarkMode ? '#1E3A2B' : '#DCFCE7')),
-                },
-              ]}
-            >
-              <Ionicons
-                name={icon}
-                size={isHero ? 20 : 17}
-                color={iconColor || (isSand 
-                  ? (isDarkMode ? '#E8CAAE' : '#C89565') 
-                  : (isDarkMode ? '#34D399' : '#059669'))}
-              />
-            </View>
+            <FloatingElement distance={2} duration={2600}>
+              <View
+                style={[
+                  styles.iconPod,
+                  {
+                    backgroundColor: iconBg || (isSand 
+                      ? (isDarkMode ? '#3B2A1E' : '#F5E6D8') 
+                      : (isDarkMode ? '#1E3A2B' : '#DCFCE7')),
+                  },
+                ]}
+              >
+                <Ionicons
+                  name={icon}
+                  size={isHero ? 20 : 17}
+                  color={iconColor || (isSand 
+                    ? (isDarkMode ? '#E8CAAE' : '#C89565') 
+                    : (isDarkMode ? '#34D399' : '#059669'))}
+                />
+              </View>
+            </FloatingElement>
           )}
 
           {badge && (
@@ -124,13 +127,15 @@ export function BentoCard({
 
           {/* Forward chevron indicator if clickable and no badge */}
           {!badge && onPress && (
-            <View style={styles.chevronPod}>
-              <Ionicons
-                name="arrow-forward-outline"
-                size={14}
-                color={isSand ? (isDarkMode ? '#E8CAAE' : '#C89565') : (isDarkMode ? '#34D399' : '#059669')}
-              />
-            </View>
+            <FloatingElement distance={1.5} duration={1800}>
+              <View style={styles.chevronPod}>
+                <Ionicons
+                  name="arrow-forward-outline"
+                  size={14}
+                  color={isSand ? (isDarkMode ? '#E8CAAE' : '#C89565') : (isDarkMode ? '#34D399' : '#059669')}
+                />
+              </View>
+            </FloatingElement>
           )}
         </View>
 

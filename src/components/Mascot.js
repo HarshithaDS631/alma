@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
+import { FloatingElement } from './MotionGraphic';
 
 const mascotSource = require('../../assets/images/mascot.png');
 
@@ -65,10 +66,12 @@ const Mascot = ({
     return (
       <View style={[styles.emptyContainer, style]}>
         <View style={styles.emptyMascotWrapper}>
-          <Image 
-            source={mascotSource} 
-            style={{ width: 110, height: 138, resizeMode: 'contain' }} 
-          />
+          <FloatingElement distance={4} duration={3000}>
+            <Image 
+              source={mascotSource} 
+              style={{ width: 110, height: 138, resizeMode: 'contain' }} 
+            />
+          </FloatingElement>
           {speechText && (
             <View style={[styles.speechBubble, { backgroundColor: isDarkMode ? '#241B15' : '#FFFFFF', borderColor: isDarkMode ? '#3B2A1E' : '#EFE5D8' }]}>
               <Text style={[styles.speechText, { color: theme.text }]}>{speechText}</Text>
@@ -115,10 +118,12 @@ const Mascot = ({
           </View>
 
           <View style={styles.bannerMascotWrap}>
-            <Image 
-              source={mascotSource} 
-              style={{ width: 100, height: 125, resizeMode: 'contain' }} 
-            />
+            <FloatingElement distance={3.5} duration={2600}>
+              <Image 
+                source={mascotSource} 
+                style={{ width: 100, height: 125, resizeMode: 'contain' }} 
+              />
+            </FloatingElement>
           </View>
         </View>
 

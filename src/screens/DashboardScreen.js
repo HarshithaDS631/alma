@@ -31,6 +31,7 @@ import { initSocket, getSocket } from '../services/socketService';
 import getInitials from '../lib/getInitials';
 import Mascot from '../components/Mascot';
 import BentoGrid, { BentoCard } from '../components/BentoGrid';
+import { FloatingElement, PulseElement } from '../components/MotionGraphic';
 
 
 // Pool of all known posts across all users — used as offline fallback
@@ -1126,11 +1127,13 @@ const DashboardScreen = ({ navigation }) => {
             onPress={() => toggleLike(post.id)} 
             activeOpacity={0.65}
           >
-            <Ionicons
-              name={likedPosts[post.id] ? 'heart' : 'heart-outline'}
-              size={18}
-              color={likedPosts[post.id] ? '#F43F5E' : theme.text}
-            />
+            {likedPosts[post.id] ? (
+              <PulseElement minScale={0.9} maxScale={1.22} duration={900}>
+                <Ionicons name="heart" size={18} color="#F43F5E" />
+              </PulseElement>
+            ) : (
+              <Ionicons name="heart-outline" size={18} color={theme.text} />
+            )}
             <Text style={[styles.alumniActionLabel, likedPosts[post.id] && { color: '#F43F5E', fontWeight: '700' }]}>
               {post.likes > 0 ? `${post.likes} Applaud` : 'Applaud'}
             </Text>
@@ -1201,7 +1204,9 @@ const DashboardScreen = ({ navigation }) => {
       <View style={styles.feedTitleRow}>
         <View style={{ flex: 1 }}>
           <View style={styles.feedInstitutionTag}>
-            <Ionicons name="shield-checkmark" size={12} color={isDarkMode ? '#D4A373' : '#C89565'} />
+            <FloatingElement distance={1.2} duration={2000}>
+              <Ionicons name="shield-checkmark" size={12} color={isDarkMode ? '#D4A373' : '#C89565'} />
+            </FloatingElement>
             <Text style={styles.feedInstitutionText}>RVCE ALUMNI NETWORK</Text>
           </View>
           <Text style={styles.feedMainTitle}>Alumni Updates & Feed</Text>
@@ -1337,7 +1342,9 @@ const DashboardScreen = ({ navigation }) => {
           onPress={() => navigation.navigate('PostCreation')}
           activeOpacity={0.8}
         >
-          <Ionicons name="add" size={16} color="#FFFFFF" />
+          <PulseElement minScale={0.96} maxScale={1.06} duration={2200}>
+            <Ionicons name="add" size={16} color="#FFFFFF" />
+          </PulseElement>
           <Text style={styles.compactComposerBtnText}>Post</Text>
         </TouchableOpacity>
       </View>
@@ -1459,14 +1466,22 @@ const DashboardScreen = ({ navigation }) => {
               onPress={() => { setUnreadMessages(0); navigation.navigate('Messages'); }}
             >
               <Ionicons name="chatbubble-ellipses-outline" size={22} color={theme.primary} />
-              {unreadMessages > 0 && <View style={styles.dot} />}
+              {unreadMessages > 0 && (
+                <PulseElement minScale={0.8} maxScale={1.3} duration={1400} style={{ position: 'absolute', top: 5, right: 5 }}>
+                  <View style={[styles.dot, { position: 'relative', top: 0, right: 0 }]} />
+                </PulseElement>
+              )}
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.headerIconBtn}
               onPress={() => { setUnreadNotifications(0); navigation.navigate('Notifications'); }}
             >
               <Ionicons name="notifications-outline" size={22} color={theme.primary} />
-              {unreadNotifications > 0 && <View style={styles.dot} />}
+              {unreadNotifications > 0 && (
+                <PulseElement minScale={0.8} maxScale={1.3} duration={1400} style={{ position: 'absolute', top: 5, right: 5 }}>
+                  <View style={[styles.dot, { position: 'relative', top: 0, right: 0 }]} />
+                </PulseElement>
+              )}
             </TouchableOpacity>
           </View>
         </View>
@@ -1609,9 +1624,11 @@ const DashboardScreen = ({ navigation }) => {
                   onPress={() => navigation.navigate('Main', { screen: 'Engage', params: { tab: 'directory' } })}
                   activeOpacity={0.7}
                 >
-                  <View style={[styles.sidebarHubIcon, { backgroundColor: isDarkMode ? '#064E3B' : '#DCFCE7' }]}>
-                    <Ionicons name="sparkles" size={17} color="#047857" />
-                  </View>
+                  <FloatingElement distance={1.8} duration={2400}>
+                    <View style={[styles.sidebarHubIcon, { backgroundColor: isDarkMode ? '#064E3B' : '#DCFCE7' }]}>
+                      <Ionicons name="sparkles" size={17} color="#047857" />
+                    </View>
+                  </FloatingElement>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                       <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }}>1-on-1 Mentorship</Text>
@@ -1630,9 +1647,11 @@ const DashboardScreen = ({ navigation }) => {
                   onPress={() => navigation.navigate('Main', { screen: 'Engage', params: { tab: 'communities' } })}
                   activeOpacity={0.7}
                 >
-                  <View style={[styles.sidebarHubIcon, { backgroundColor: isDarkMode ? '#241B15' : '#FAF4ED', borderWidth: 1, borderColor: isDarkMode ? 'rgba(212, 163, 115, 0.35)' : '#E8D4C1' }]}>
-                    <Ionicons name="globe" size={17} color={isDarkMode ? '#D4A373' : '#C89565'} />
-                  </View>
+                  <FloatingElement distance={1.8} duration={2600} delay={200}>
+                    <View style={[styles.sidebarHubIcon, { backgroundColor: isDarkMode ? '#241B15' : '#FAF4ED', borderWidth: 1, borderColor: isDarkMode ? 'rgba(212, 163, 115, 0.35)' : '#E8D4C1' }]}>
+                      <Ionicons name="globe" size={17} color={isDarkMode ? '#D4A373' : '#C89565'} />
+                    </View>
+                  </FloatingElement>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                       <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }}>Global Chapters</Text>
@@ -1651,9 +1670,11 @@ const DashboardScreen = ({ navigation }) => {
                   onPress={() => navigation.navigate('Main', { screen: 'Engage', params: { tab: 'directory' } })}
                   activeOpacity={0.7}
                 >
-                  <View style={[styles.sidebarHubIcon, { backgroundColor: isDarkMode ? '#241B15' : '#FAF4ED', borderWidth: 1, borderColor: isDarkMode ? 'rgba(212, 163, 115, 0.35)' : '#E8D4C1' }]}>
-                    <Ionicons name="people" size={17} color={isDarkMode ? '#D4A373' : '#C89565'} />
-                  </View>
+                  <FloatingElement distance={1.8} duration={2500} delay={400}>
+                    <View style={[styles.sidebarHubIcon, { backgroundColor: isDarkMode ? '#241B15' : '#FAF4ED', borderWidth: 1, borderColor: isDarkMode ? 'rgba(212, 163, 115, 0.35)' : '#E8D4C1' }]}>
+                      <Ionicons name="people" size={17} color={isDarkMode ? '#D4A373' : '#C89565'} />
+                    </View>
+                  </FloatingElement>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                       <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }}>Batchmate Circles</Text>
@@ -1672,9 +1693,11 @@ const DashboardScreen = ({ navigation }) => {
                   onPress={() => navigation.navigate('Main', { screen: 'Jobs' })}
                   activeOpacity={0.7}
                 >
-                  <View style={[styles.sidebarHubIcon, { backgroundColor: isDarkMode ? '#064E3B' : '#DCFCE7' }]}>
-                    <Ionicons name="briefcase" size={17} color="#059669" />
-                  </View>
+                  <FloatingElement distance={1.8} duration={2700} delay={600}>
+                    <View style={[styles.sidebarHubIcon, { backgroundColor: isDarkMode ? '#064E3B' : '#DCFCE7' }]}>
+                      <Ionicons name="briefcase" size={17} color="#059669" />
+                    </View>
+                  </FloatingElement>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                       <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }}>Founder Referrals</Text>

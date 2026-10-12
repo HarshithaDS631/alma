@@ -12,7 +12,6 @@ import {
   Alert,
   ScrollView,
   Modal,
-  Platform,
   useWindowDimensions,
   ActivityIndicator,
   Switch
@@ -21,6 +20,7 @@ import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import useUserRole from '../hooks/useUserRole';
+import { FloatingElement, PulseElement } from '../components/MotionGraphic';
 import {
   fetchJobs,
   createJobPosting,
@@ -270,9 +270,11 @@ const JobsScreen = ({ navigation, route }) => {
     return (
       <View key={job._id || job.id} style={styles.card}>
         <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
-          <View style={styles.logoBox}>
-            <Ionicons name="business-outline" size={24} color={isDarkMode ? '#34D399' : '#059669'} />
-          </View>
+          <FloatingElement distance={1.8} duration={2600}>
+            <View style={styles.logoBox}>
+              <Ionicons name="business-outline" size={24} color={isDarkMode ? '#34D399' : '#059669'} />
+            </View>
+          </FloatingElement>
 
           <View style={{ flex: 1, marginLeft: 12 }}>
             <Text style={styles.titleText}>{job.title}</Text>
@@ -359,7 +361,9 @@ const JobsScreen = ({ navigation, route }) => {
               onPress={() => { setSelectedJob(job); setApplyModalVisible(true); }}
               activeOpacity={0.8}
             >
-              <Ionicons name="flash" size={14} color="#FFFFFF" style={{ marginRight: 5 }} />
+              <PulseElement minScale={0.88} maxScale={1.16} duration={1500}>
+                <Ionicons name="flash" size={14} color="#FFFFFF" style={{ marginRight: 5 }} />
+              </PulseElement>
               <Text style={styles.easyApplyText}>Easy Apply</Text>
             </TouchableOpacity>
 

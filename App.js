@@ -6,11 +6,12 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
-import { useWindowDimensions, View, Platform, Text, Alert, Image, TouchableOpacity } from 'react-native';
+import { useWindowDimensions, View, Platform, Text, Alert, Image, TouchableOpacity, Animated } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import getInitials from './src/lib/getInitials';
+import { PulseElement } from './src/components/MotionGraphic';
 
 // Polyfill Alert for web to prevent crashes and ensure button interactivity
 if (Platform.OS === 'web') {
@@ -85,28 +86,41 @@ const Drawer = createDrawerNavigator();
 const AdminDrawer = createDrawerNavigator();
 const SuperAdminDrawer = createDrawerNavigator();
 
-// ===== 3D TACTILE ICON POD HELPER =====
+// ===== 3D TACTILE ICON POD HELPER WITH MICRO-MOTION GRAPHICS =====
 function Render3DTabIcon({ name, focused, isDarkMode, theme, isPost, label, isMaterial }) {
+  const scaleAnim = React.useRef(new Animated.Value(focused ? 1.08 : 1)).current;
+
+  React.useEffect(() => {
+    Animated.spring(scaleAnim, {
+      toValue: focused ? 1.1 : 1,
+      friction: 6,
+      tension: 140,
+      useNativeDriver: Platform.OS !== 'web',
+    }).start();
+  }, [focused, scaleAnim]);
+
   if (isPost) {
     return (
       <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: -14 }}>
-        <View style={{
-          width: 48,
-          height: 48,
-          borderRadius: 24,
-          backgroundColor: theme.primary,
-          justifyContent: 'center',
-          alignItems: 'center',
-          shadowColor: theme.primary,
-          shadowOffset: { width: 0, height: 6 },
-          shadowOpacity: isDarkMode ? 0.55 : 0.35,
-          shadowRadius: 10,
-          elevation: 9,
-          borderWidth: 2,
-          borderColor: isDarkMode ? theme.primaryLight : '#A7F3D0'
-        }}>
-          <Ionicons name="add" size={26} color="#FFFFFF" />
-        </View>
+        <PulseElement minScale={0.97} maxScale={1.06} duration={2400}>
+          <View style={{
+            width: 48,
+            height: 48,
+            borderRadius: 24,
+            backgroundColor: theme.primary,
+            justifyContent: 'center',
+            alignItems: 'center',
+            shadowColor: theme.primary,
+            shadowOffset: { width: 0, height: 6 },
+            shadowOpacity: isDarkMode ? 0.55 : 0.35,
+            shadowRadius: 10,
+            elevation: 9,
+            borderWidth: 2,
+            borderColor: isDarkMode ? theme.primaryLight : '#A7F3D0'
+          }}>
+            <Ionicons name="add" size={26} color="#FFFFFF" />
+          </View>
+        </PulseElement>
         <Text style={{
           color: focused ? theme.primary : theme.textMuted,
           fontSize: 10,
@@ -121,7 +135,7 @@ function Render3DTabIcon({ name, focused, isDarkMode, theme, isPost, label, isMa
   }
 
   return (
-    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+    <Animated.View style={{ alignItems: 'center', justifyContent: 'center', transform: [{ scale: scaleAnim }] }}>
       <View style={{
         paddingHorizontal: focused ? 14 : 10,
         paddingVertical: 5,
@@ -152,7 +166,7 @@ function Render3DTabIcon({ name, focused, isDarkMode, theme, isPost, label, isMa
       }}>
         {label}
       </Text>
-    </View>
+    </Animated.View>
   );
 }
 
