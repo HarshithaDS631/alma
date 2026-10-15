@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,24 +8,50 @@ import {
   TouchableOpacity,
   StatusBar,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
-
-const INITIAL_ALUMNI_MASTER = [];
+import { getAllUsers } from '../services/adminService';
 
 export default function AdminPlacementDetailsScreen({ navigation, route }) {
   const { companyName } = route.params || { companyName: 'Company' };
   const { theme, isDarkMode } = useTheme();
   const styles = getStyles(theme);
+  const [alumniList, setAlumniList] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const getInitialAlumni = () => {
-    if (!companyName) return [];
-    const keyword = companyName.split(' ')[0].toLowerCase();
-    return INITIAL_ALUMNI_MASTER.filter(a => a.title.toLowerCase().includes(keyword));
-  };
-
-  const [alumniList, setAlumniList] = useState(getInitialAlumni());
+  useEffect(() => {
+    const fetchCompanyAlumni = async () => {
+      if (!companyName) {
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
+      try {
+        const users = await getAllUsers();
+        if (Array.isArray(users)) {
+          const target = companyName.trim().toLowerCase();
+          const filtered = users
+            .filter((u) => u.company && u.company.trim().toLowerCase() === target)
+            .map((u) => ({
+              id: u._id,
+              name: u.name,
+              degree: u.degree || (u.branch ? `${u.branch} '${String(u.batchYear || '').slice(-2)}` : 'Alumni'),
+              title: u.designation ? `${u.designation} at ${u.company}` : (u.headline || u.company || 'Alumni'),
+              location: u.city || u.location || 'Bengaluru',
+              connected: false,
+            }));
+          setAlumniList(filtered);
+        }
+      } catch (err) {
+        console.log('[PLACEMENT DETAILS FETCH NOTE]:', err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCompanyAlumni();
+  }, [companyName]);
 
   const toggleConnect = (id) => {
     setAlumniList(alumniList.map(item => {
@@ -88,9 +114,22 @@ export default function AdminPlacementDetailsScreen({ navigation, route }) {
           </View>
         )}
         ListEmptyComponent={
-          <Text style={{ textAlign: 'center', marginTop: 40, color: theme.textSecondary, fontSize: 16 }}>
-            No alumni found for this company.
-          </Text>
+          loading ? (
+            <View style={{ padding: 40, alignItems: 'center' }}>
+              <ActivityIndicator size="large" color={theme.primary} />
+              <Text style={{ marginTop: 12, color: theme.textSecondary }}>Fetching registered alumni...</Text>
+            </View>
+          ) : (
+            <View style={{ padding: 40, alignItems: 'center' }}>
+              <Ionicons name="briefcase-outline" size={48} color="#94A3B8" />
+              <Text style={{ textAlign: 'center', marginTop: 14, color: theme.text, fontSize: 16, fontWeight: '700' }}>
+                No alumni listed for {companyName}
+              </Text>
+              <Text style={{ textAlign: 'center', marginTop: 6, color: theme.textSecondary, fontSize: 13 }}>
+                Alumni will appear here once they specify this company in their profile.
+              </Text>
+            </View>
+          )
         }
       />
     </SafeAreaView>
