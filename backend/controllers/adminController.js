@@ -145,27 +145,48 @@ const findStudentMatches = async (user) => {
         }
     }
 
-    // Calculate match confidence
+    // De-duplicate roster rows that share the same name + years (roster has duplicate imports)
+    const seen = new Set();
+    matches = matches.filter(m => {
+        const key = `${(m.name || '').trim().toLowerCase()}|${m.joiningYear || ''}|${m.leavingYear || ''}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
+
+    // Calculate match confidence.
+    // HIGH (verified) requires the name AND every year the user supplied to match the roster.
+    // A name-only hit with different years is NOT a verification.
+    const userJoin = user.joiningYear ? String(user.joiningYear).trim() : '';
+    const userLeave = (user.batchYear || user.leavingYear) ? String(user.batchYear || user.leavingYear).trim() : '';
+
     return matches.map(m => {
         const mName = (m.name || '').toLowerCase();
-        const nameMatches = userName && (userName.includes(mName) || mName.includes(userName));
-        const joinMatches = user.joiningYear && String(user.joiningYear).trim() === String(m.joiningYear).trim();
-        const leaveMatches = (user.batchYear || user.leavingYear) && String(user.batchYear || user.leavingYear).trim() === String(m.leavingYear).trim();
+        const nameMatches = Boolean(userName && mName && (userName.includes(mName) || mName.includes(userName)));
+        const joinMatches = Boolean(userJoin && userJoin === String(m.joiningYear || '').trim());
+        const leaveMatches = Boolean(userLeave && userLeave === String(m.leavingYear || '').trim());
+        const yearsMatch = Boolean((userJoin || userLeave) && (!userJoin || joinMatches) && (!userLeave || leaveMatches));
 
-        let confidence = 'MEDIUM';
-        if (nameMatches && (joinMatches || leaveMatches)) {
+        let confidence;
+        if (nameMatches && yearsMatch) {
             confidence = 'HIGH';
-        } else if (!nameMatches && (joinMatches && leaveMatches)) {
+        } else if (nameMatches) {
+            confidence = 'NAME_ONLY';
+        } else if (yearsMatch) {
             confidence = 'YEAR_MATCH';
+        } else {
+            confidence = 'LOW';
         }
 
         return {
             ...m,
             confidence,
-            matchedName: Boolean(nameMatches),
-            matchedYears: Boolean(joinMatches || leaveMatches)
+            matchedName: nameMatches,
+            matchedYears: yearsMatch,
+            matchedJoiningYear: joinMatches,
+            matchedLeavingYear: leaveMatches
         };
-    });
+    }).sort((a, b) => ['HIGH', 'NAME_ONLY', 'YEAR_MATCH', 'LOW'].indexOf(a.confidence) - ['HIGH', 'NAME_ONLY', 'YEAR_MATCH', 'LOW'].indexOf(b.confidence));
 };
 
 // @desc    Get all users pending approval

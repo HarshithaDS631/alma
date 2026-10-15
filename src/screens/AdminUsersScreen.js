@@ -463,19 +463,31 @@ const AdminUsersScreen = ({ navigation, route }) => {
                   {isChecking ? 'Checking...' : 'Check Sheet Data'}
                 </Text>
               </TouchableOpacity>
-            ) : (
-              <View style={{ backgroundColor: '#DEF7EC', padding: 8, borderRadius: 8, marginTop: 4, borderWidth: 1, borderColor: '#31C48D' }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2, gap: 4 }}>
-                  <Ionicons name="checkmark-circle" size={13} color="#03543F" />
-                  <Text style={{ fontSize: 11, color: '#03543F', fontWeight: '800' }}>Verified in RVCE Records:</Text>
+            ) : (() => {
+              const isVerified = matches.some(m => m.confidence === 'HIGH');
+              const boxStyle = isVerified
+                ? { backgroundColor: '#DEF7EC', borderColor: '#31C48D' }
+                : { backgroundColor: '#FEF3C7', borderColor: '#F59E0B' };
+              const textColor = isVerified ? '#03543F' : '#92400E';
+              return (
+                <View style={{ padding: 8, borderRadius: 8, marginTop: 4, borderWidth: 1, ...boxStyle }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2, gap: 4 }}>
+                    <Ionicons name={isVerified ? 'checkmark-circle' : 'warning'} size={13} color={textColor} />
+                    <Text style={{ fontSize: 11, color: textColor, fontWeight: '800' }}>
+                      {isVerified ? 'Verified in RVCE Records:' : 'Not verified — years do not match RVCE Records:'}
+                    </Text>
+                  </View>
+                  {matches.map((m, idx) => (
+                    <Text key={idx} style={{ fontSize: 11, color: textColor }}>
+                      • {m.name} ({m.joiningYear || '?'} – {m.leavingYear || '?'})
+                      {m.confidence === 'HIGH' ? '  ★ Name + years match' : ''}
+                      {m.confidence === 'NAME_ONLY' ? `  ✗ Name only (signed up as ${joiningYear || '?'} – ${batchYear || '?'})` : ''}
+                      {m.confidence === 'YEAR_MATCH' ? '  ✗ Years only, name differs' : ''}
+                    </Text>
+                  ))}
                 </View>
-                {matches.map((m, idx) => (
-                  <Text key={idx} style={{ fontSize: 11, color: '#03543F' }}>
-                    • {m.name} ({m.joiningYear} – {m.leavingYear}) {m.confidence === 'HIGH' ? '★ Exact Match' : ''}
-                  </Text>
-                ))}
-              </View>
-            )}
+              );
+            })()}
           </View>
         </View>
         <View style={{ flexDirection: 'column', gap: 6, justifyContent: 'center' }}>
