@@ -86,11 +86,11 @@ const AdminProfileScreen = ({ navigation }) => {
 
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileData, setProfileData] = useState({
-    name: 'RVCE Alumni Affairs Admin',
-    username: '@rvce_alumniaffairs',
-    bio: 'Official Admin • RV College of Engineering Alumni Affairs • Managing 33,000+ RVians across global chapters.',
-    branch: 'Alumni Affairs',
-    department: 'Alumni Relations & Career Affairs',
+    name: 'RVCE Admin',
+    username: '@rvce_admin',
+    bio: 'Official Administrator • RV College of Engineering Alumni Network.',
+    branch: 'Administration',
+    department: 'Alumni Network & Relations',
     batchYear: 'Staff',
     institution: 'RV College of Engineering',
     role: 'Admin',

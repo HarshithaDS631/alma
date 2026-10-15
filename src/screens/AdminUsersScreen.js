@@ -74,7 +74,13 @@ const AdminUsersScreen = ({ navigation, route }) => {
   const isSuperAdmin = route?.params?.isSuperAdmin || false;
   const isFocused = useIsFocused();
   const [selectedInstitution, setSelectedInstitution] = useState(global.selectedInstitution || 'All');
-  const [activeTab, setActiveTab] = useState('friends');
+  const [activeTab, setActiveTab] = useState(route?.params?.initialTab || 'friends');
+
+  useEffect(() => {
+    if (route?.params?.initialTab) {
+      setActiveTab(route?.params?.initialTab);
+    }
+  }, [route?.params?.initialTab]);
   const [searchQuery, setSearchQuery] = useState('');
   const [communities, setCommunities] = useState(COMMUNITIES_DATA);
   const [pendingUsers, setPendingUsers] = useState([]);

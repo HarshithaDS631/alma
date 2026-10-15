@@ -21,12 +21,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AdminMetricsScreen from './AdminMetricsScreen';
-import { getActivityLogs, getEmailStats } from '../services/adminService';
+import { getActivityLogs, getEmailStats, getDashboardStats } from '../services/adminService';
 import { getImageUrl } from '../services/uploadService';
 import getInitials from '../lib/getInitials';
 
 // ==========================================
-// AUTHENTIC RVCE ALMACONNECT DATA & MODULES
+// ALUMNI NETWORK ADMINISTRATION DATA & MODULES
 // ==========================================
 
 const INITIAL_SPAM_REPORTS = [
@@ -35,7 +35,7 @@ const INITIAL_SPAM_REPORTS = [
     name: 'Rahul Verma',
     branch: 'Mechanical Engineering',
     year: '2022',
-    reason: 'Suspicious crypto promotional link posted in batch community',
+    reason: 'Suspicious promotional link posted in batch community',
     reportedBy: 'Karthik Rao (ECE \'20)',
     date: 'Yesterday at 4:15 PM'
   },
@@ -44,7 +44,7 @@ const INITIAL_SPAM_REPORTS = [
     name: 'Alok Kulkarni',
     branch: 'Civil Engineering',
     year: '2020',
-    reason: 'Multiple duplicate external job referral requests flagged by alumni',
+    reason: 'Multiple duplicate external referral requests flagged by alumni',
     reportedBy: 'Sneha Deshmukh (CSE \'21)',
     date: 'Sep 23, 2026'
   }
@@ -63,13 +63,7 @@ const INITIAL_ALUMNI_MASTER = [
   { id: 'alm-10', name: 'Nikhil N', degree: "BE '23", title: 'Associate Software Engineer @ Accenture', location: 'Bengaluru, India', course: 'BE', year: '2023', department: 'Information Science', connected: true },
 ];
 
-const INITIAL_MEMBERSHIP_REQUESTS = [
-  { id: 'req-1', name: 'Ramesh Kumar', year: '2024', branch: 'Computer Science and Engineering', email: 'ramesh.k@gmail.com', usn: '1RV20CS142', proof: 'Provisional Degree Certificate' },
-  { id: 'req-2', name: 'Sneha Patel', year: '2025', branch: 'Information Science and Engineering', email: 'sneha.p@outlook.com', usn: '1RV21IS098', proof: 'Current Student ID & Sem 6 Grade Card' },
-  { id: 'req-3', name: 'Vikram Desai', year: '2021', branch: 'Electronics and Communication', email: 'vikram.desai@yahoo.com', usn: '1RV17EC088', proof: 'Official RVCE Alumni ID & Convocation Slip' },
-  { id: 'req-4', name: 'Ananya Sharma', year: '2023', branch: 'Digital Communication (M.Tech)', email: 'ananya.s@gmail.com', usn: '1RV21LDC05', proof: 'Master Course Completion Letter' },
-  { id: 'req-5', name: 'Priya Nair', year: '2022', branch: 'Master of Business Administration (MBA)', email: 'priya.nair@live.com', usn: '1RV20BA034', proof: 'VTU/Autonomous Degree Transcript' }
-];
+const INITIAL_MEMBERSHIP_REQUESTS = [];
 
 const INITIAL_PLACEMENTS = [
   { id: '1', company: 'Cisco Systems', industry: 'Networking & Cloud', count: 312 },
@@ -103,24 +97,24 @@ const INITIAL_RESUME_CANDIDATES = [
 ];
 
 const INITIAL_IMPORT_LOGS = [
-  { id: 'imp-1', fileName: 'RVCE_Class_of_2024_Registrar_Master.csv', date: 'Sep 24, 2026', totalRows: 1240, imported: 1228, failed: 12, status: 'Completed', initiatedBy: 'alumniaffairs@rvei.edu.in' },
-  { id: 'imp-2', fileName: 'MTech_VLSI_DigitalComm_2023.csv', date: 'Aug 18, 2026', totalRows: 180, imported: 180, failed: 0, status: 'Completed', initiatedBy: 'alumniaffairs@rvei.edu.in' },
-  { id: 'imp-3', fileName: 'Faculty_Advisors_Roster_2026.csv', date: 'Jul 05, 2026', totalRows: 340, imported: 338, failed: 2, status: 'Completed', initiatedBy: 'alumniaffairs@rvei.edu.in' }
+  { id: 'imp-1', fileName: 'RVCE_Class_of_2024_Registrar_Master.csv', date: 'Sep 24, 2026', totalRows: 1240, imported: 1228, failed: 12, status: 'Completed', initiatedBy: 'admin@rvce.edu.in' },
+  { id: 'imp-2', fileName: 'MTech_VLSI_DigitalComm_2023.csv', date: 'Aug 18, 2026', totalRows: 180, imported: 180, failed: 0, status: 'Completed', initiatedBy: 'admin@rvce.edu.in' },
+  { id: 'imp-3', fileName: 'Faculty_Advisors_Roster_2026.csv', date: 'Jul 05, 2026', totalRows: 340, imported: 338, failed: 2, status: 'Completed', initiatedBy: 'admin@rvce.edu.in' }
 ];
 
 const INITIAL_ACTIVITIES = [
-  { id: 'act-1', type: 'Email', title: 'Welcome Invitation Dispatched', target: 'Batch of 2024 (1,228 graduates)', date: 'Today, 10:30 AM', admin: 'RVCE Alumni Affairs' },
-  { id: 'act-2', type: 'Approval', title: 'Alumni Profile Verified', target: 'Harshitha D S (CSE \'23)', date: 'Yesterday, 3:15 PM', admin: 'RVCE Alumni Affairs' },
-  { id: 'act-3', type: 'LinkedIn', title: 'Career Connect Cross-sync', target: 'Cisco Systems & Qualcomm RVians', date: 'Sep 23, 2026', admin: 'RVCE Alumni Affairs' },
-  { id: 'act-4', type: 'WhatsApp', title: 'Chapter Meetup Broadcast', target: 'RVCE Silicon Valley Chapter (412 members)', date: 'Sep 21, 2026', admin: 'RVCE Alumni Affairs' }
+  { id: 'act-1', type: 'Email', title: 'Welcome Invitation Dispatched', target: 'Batch of 2024 (1,228 graduates)', date: 'Today, 10:30 AM', admin: 'RVCE Admin' },
+  { id: 'act-2', type: 'Approval', title: 'Alumni Profile Verified', target: 'Harshitha D S (CSE \'23)', date: 'Yesterday, 3:15 PM', admin: 'RVCE Admin' },
+  { id: 'act-3', type: 'LinkedIn', title: 'Career Connect Cross-sync', target: 'Cisco Systems & Qualcomm RVians', date: 'Sep 23, 2026', admin: 'RVCE Admin' },
+  { id: 'act-4', type: 'WhatsApp', title: 'Chapter Meetup Broadcast', target: 'Silicon Valley Alumni Chapter', date: 'Sep 21, 2026', admin: 'RVCE Admin' }
 ];
 
 const panelItems = [
-  { id: '1', title: 'Dashboard Overview', icon: 'pie-chart-outline', color: '#DCFCE7', iconColor: '#047857', moduleName: 'dashboard_overview', desc: 'Real-time metrics: 33,368 total members, 9,931 registered RVians' },
+  { id: '1', title: 'Dashboard Overview', icon: 'pie-chart-outline', color: '#DCFCE7', iconColor: '#047857', moduleName: 'dashboard_overview', desc: 'Real-time metrics for alumni network members, active posts, and pending approvals' },
   { id: '2', title: 'Membership Requests', icon: 'checkbox-outline', color: '#DCFCE7', iconColor: '#059669', moduleName: 'membership_request', desc: 'Verify & approve pending alumni, student & faculty signups' },
-  { id: '3', title: 'Database Manager', icon: 'people-outline', color: '#F0FDF4', iconColor: '#16A34A', moduleName: 'master_list', desc: 'Filter 33,368 master directory records by dept, batch & company' },
+  { id: '3', title: 'Database Manager', icon: 'people-outline', color: '#F0FDF4', iconColor: '#16A34A', moduleName: 'master_list', desc: 'Search & filter registered alumni directory by department and batch' },
   { id: '4', title: 'Talent / Resume Book', icon: 'book-outline', color: '#FAF5FF', iconColor: '#9333EA', moduleName: 'resume_book', desc: 'Browse verified alumni resumes, domain skills & recruiter dispatch' },
-  { id: '5', title: 'Placement Tool', icon: 'briefcase-outline', color: '#DCFCE7', iconColor: '#059669', moduleName: 'placement_tool', desc: 'Track 4,038 companies employing RVCE alumni with live counts' },
+  { id: '5', title: 'Placement Tool', icon: 'briefcase-outline', color: '#DCFCE7', iconColor: '#059669', moduleName: 'placement_tool', desc: 'Explore employer network and placement opportunities' },
   { id: '6', title: 'Bulk Data Import', icon: 'cloud-upload-outline', color: '#DCFCE7', iconColor: '#059669', moduleName: 'bulk_import', desc: 'Import student and alumni datasets via CSV with column mapping' },
   { id: '7', title: 'Mass Mail Broadcast', icon: 'paper-plane-outline', color: '#F0FDF4', iconColor: '#059669', moduleName: 'mass_mail', desc: 'Targeted broadcast campaigns by batch, department or region' },
   { id: '8', title: 'Welcome Mail Automator', icon: 'mail-open-outline', color: '#F0FDF4', iconColor: '#059669', moduleName: 'welcome_mail', desc: 'Automated welcome email triggers with customizable template tokens' },
@@ -128,7 +122,7 @@ const panelItems = [
   { id: '10', title: 'Mentorship Moderation', icon: 'git-pull-request-outline', color: '#DCFCE7', iconColor: '#059669', moduleName: 'mentor_application', desc: 'Approve mentor applications and monitor 1-on-1 mentorship pairings' },
   { id: '11', title: 'Spam & Moderation', icon: 'flag-outline', color: '#FFF5F5', iconColor: '#E53E3E', moduleName: 'spam_report', desc: 'Review reported content, flagged accounts, and suspension tools' },
   { id: '12', title: 'Custom Page Builder', icon: 'document-text-outline', color: '#F0FDF4', iconColor: '#059669', moduleName: 'page_builder', desc: 'Create custom institutional pages, forms, and event registrations' },
-  { id: '13', title: 'Activities & Audit Log', icon: 'time-outline', color: '#F1F5F9', iconColor: '#475569', moduleName: 'admin_activities', desc: 'Track administrative outreach logs across email, phone & WhatsApp' },
+  { id: '13', title: 'Activities & Audit Log', icon: 'time-outline', color: '#F1F5F9', iconColor: '#475569', moduleName: 'admin_activities', desc: 'Track administrative outreach logs across email, phone & platform' },
   { id: '14', title: 'Data Exports', icon: 'download-outline', color: '#F0FDF4', iconColor: '#059669', moduleName: 'data_exports', desc: 'Export verified directory & placement analytics to CSV' },
 ];
 
@@ -206,21 +200,39 @@ export default function AdminPanelScreen({ navigation }) {
   const [isImporting, setIsImporting] = useState(false);
   const [importProgress, setImportProgress] = useState(0);
 
+  // Dashboard Live Stats State
+  const [dashboardStats, setDashboardStats] = useState({ totalUsers: 0, pendingUsers: 0, totalAlumni: 0, totalPosts: 0, totalEvents: 0 });
+
   // Mass Mail States
-  const [massAudience, setMassAudience] = useState('All Verified (9,931 RVians)');
-  const [massSubject, setMassSubject] = useState('Official Update: RVCE Alumni Affairs Annual Convocation & Chapter Meetup');
-  const [massBody, setMassBody] = useState('Dear {alumni_name},\n\nWe cordially invite you to reconnect with faculty and fellow graduates for the upcoming RVCE Global Network Chapter Sessions. We are proud to announce new initiatives across mentorship circles, placement referrals, and institutional incubation funds.\n\nWarm regards,\nRVCE Alumni Affairs Team');
+  const [massAudience, setMassAudience] = useState('All Verified Alumni');
+  const [massSubject, setMassSubject] = useState('Official Update: Community Announcement & Campus Events');
+  const [massBody, setMassBody] = useState('Dear {alumni_name},\n\nWe are pleased to connect with you through our official Alumni Portal. Stay tuned for upcoming community initiatives, mentorship sessions, and campus events.\n\nWarm regards,\nAlumni Network Administration');
   const [sendingMassMail, setSendingMassMail] = useState(false);
 
   // Custom Page Builder States
   const [customPages, setCustomPages] = useState([
-    { id: 'p-1', title: 'RVCE Global Alumni Meet 2026 Registration', slug: '/meet2026', views: 840, status: 'Published' },
-    { id: 'p-2', title: 'Alumni Mentorship Circle Guidelines & Code of Conduct', slug: '/mentor-guidelines', views: 512, status: 'Published' },
-    { id: 'p-3', title: 'RVCE Innovation & Startup Incubation Fund 2026', slug: '/startup-fund', views: 329, status: 'Published' }
+    { id: 'p-1', title: 'Alumni Meet 2026 Registration', slug: '/meet2026', views: 840, status: 'Published' },
+    { id: 'p-2', title: 'Alumni Mentorship Guidelines & Code of Conduct', slug: '/mentor-guidelines', views: 512, status: 'Published' },
+    { id: 'p-3', title: 'Campus Innovation & Startup Incubation Fund', slug: '/startup-fund', views: 329, status: 'Published' }
   ]);
   const [newPageTitle, setNewPageTitle] = useState('');
   const [newPageSlug, setNewPageSlug] = useState('');
   const [showAddPageModal, setShowAddPageModal] = useState(false);
+
+  const fetchLiveStats = async (inst) => {
+    try {
+      const stats = await getDashboardStats(inst);
+      if (stats) {
+        setDashboardStats({
+          totalUsers: stats.totalUsers ?? 0,
+          pendingUsers: stats.pendingUsers ?? 0,
+          totalAlumni: stats.totalAlumni ?? 0,
+          totalPosts: stats.totalPosts ?? 0,
+          totalEvents: stats.totalEvents ?? 0,
+        });
+      }
+    } catch (_) {}
+  };
 
   useEffect(() => {
     const loadAdminDetails = async () => {
@@ -232,6 +244,7 @@ export default function AdminPanelScreen({ navigation }) {
           const inst = parsed.institution || 'RV College of Engineering';
           setAdminEmail(email);
           setAdminInstitution(inst);
+          fetchLiveStats(inst);
           if (parsed.name) setUserName(parsed.name);
           const rawAv = parsed.avatar_url || parsed.profilePicture;
           if (rawAv) setUserAvatarUrl(getImageUrl(rawAv));
@@ -251,6 +264,7 @@ export default function AdminPanelScreen({ navigation }) {
           if (parsed.name) setUserName(parsed.name);
           const rawAv = parsed.avatar_url || parsed.profilePicture;
           if (rawAv) setUserAvatarUrl(getImageUrl(rawAv));
+          if (parsed.institution) fetchLiveStats(parsed.institution);
         }
       }).catch(() => {});
     }, [])
@@ -1224,7 +1238,7 @@ export default function AdminPanelScreen({ navigation }) {
             initiatedBy: adminEmail
           };
           setImportLogs([newLog, ...importLogs]);
-          Alert.alert('Import Complete', '846 alumni records successfully mapped, verified, and sent AlmaConnect invitations.');
+          Alert.alert('Import Complete', 'Alumni records successfully mapped, verified, and updated in database.');
           return 100;
         }
         return prev + 25;
@@ -1398,7 +1412,7 @@ export default function AdminPanelScreen({ navigation }) {
           <View style={styles.customPageRow}>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text }}>{item.title}</Text>
-              <Text style={{ fontSize: 12, color: theme.primary, marginTop: 2 }}>rvce.almaconnect.com{item.slug}</Text>
+              <Text style={{ fontSize: 12, color: theme.primary, marginTop: 2 }}>alma-orpin-delta.vercel.app{item.slug}</Text>
             </View>
             <View style={{ alignItems: 'flex-end' }}>
               <View style={styles.greenBadge}><Text style={styles.greenBadgeText}>{item.status}</Text></View>
@@ -1468,7 +1482,7 @@ export default function AdminPanelScreen({ navigation }) {
                 <Ionicons name="school" size={28} color="#059669" />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={styles.welcomeTitle}>Welcome, {userName || 'RVCE Alumni Affairs'}</Text>
+                <Text style={styles.welcomeTitle}>Welcome, {userName || 'Administrator'}</Text>
                 <Text style={styles.welcomeSub}>{adminInstitution || 'RV College of Engineering'} Management Console</Text>
               </View>
             </View>
@@ -1476,28 +1490,38 @@ export default function AdminPanelScreen({ navigation }) {
             {/* Quick KPI Row */}
             <View style={styles.quickStatsRow}>
               <View style={styles.quickStat}>
-                <Text style={styles.quickStatValue}>33,368</Text>
-                <Text style={styles.quickStatLabel}>Total Database</Text>
+                <Text style={styles.quickStatValue}>{dashboardStats.totalAlumni || dashboardStats.totalUsers || 0}</Text>
+                <Text style={styles.quickStatLabel}>Total Alumni</Text>
               </View>
               <View style={[styles.quickStat, styles.quickStatMiddle]}>
-                <Text style={[styles.quickStatValue, { color: '#059669' }]}>9,931</Text>
-                <Text style={styles.quickStatLabel}>Verified RVians</Text>
+                <Text style={[styles.quickStatValue, { color: dashboardStats.pendingUsers > 0 ? '#DC2626' : '#059669' }]}>
+                  {dashboardStats.pendingUsers || 0}
+                </Text>
+                <Text style={styles.quickStatLabel}>Pending Approvals</Text>
               </View>
               <View style={styles.quickStat}>
-                <Text style={[styles.quickStatValue, { color: '#059669' }]}>4,038</Text>
-                <Text style={styles.quickStatLabel}>Companies</Text>
+                <Text style={[styles.quickStatValue, { color: '#059669' }]}>{dashboardStats.totalPosts || 0}</Text>
+                <Text style={styles.quickStatLabel}>Community Posts</Text>
               </View>
             </View>
 
             {/* Panel Grid */}
-            <Text style={styles.sectionTitle}>AlmaConnect Management Modules</Text>
+            <Text style={styles.sectionTitle}>Administration Modules</Text>
             <View style={styles.grid}>
               {panelItems.map((item) => (
                 <TouchableOpacity 
                   key={item.id} 
                   style={[styles.gridCard, { width: width > 1024 ? '23%' : width > 768 ? '31%' : '48%' }]} 
                   activeOpacity={0.7}
-                  onPress={() => setActiveModule(item.moduleName)}
+                  onPress={() => {
+                    if (item.moduleName === 'membership_request') {
+                      navigation.navigate('AdminUsers', { initialTab: 'pending' });
+                    } else if (item.moduleName === 'master_list') {
+                      navigation.navigate('AdminUsers', { initialTab: 'friends' });
+                    } else {
+                      setActiveModule(item.moduleName);
+                    }
+                  }}
                 >
                   <View style={[styles.gridIconCircle, { backgroundColor: item.color }]}>
                     <Ionicons name={item.icon} size={24} color={item.iconColor} />
@@ -1545,7 +1569,7 @@ export default function AdminPanelScreen({ navigation }) {
         )}
         <View style={styles.headerCenter}>
           <Text style={styles.headerTitle}>{activeModule ? (panelItems.find(p => p.moduleName === activeModule)?.title || 'Admin Module') : 'Admin Panel'}</Text>
-          <Text style={styles.headerSub}>RVCE AlmaConnect Hub</Text>
+          <Text style={styles.headerSub}>{adminInstitution || 'RVCE'} Admin Console</Text>
         </View>
         <View style={styles.headerIcons}>
           <TouchableOpacity style={styles.headerIconBtn} onPress={() => navigation.navigate('Messages')}>

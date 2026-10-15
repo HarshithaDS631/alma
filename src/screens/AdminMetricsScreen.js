@@ -53,12 +53,12 @@ export default function AdminMetricsScreen({ navigation, isEmbedded = false }) {
       
       setMetrics(prev => ({
         ...prev,
-        totalAlumni: stats.totalAlumni || 9931,
-        totalDatabase: 33368,
-        companiesCount: 4038,
-        pendingApprovals: stats.pendingUsers || 5,
-        activeJobs: stats.totalPosts || 45,
-        upcomingEvents: stats.totalEvents || 8
+        totalAlumni: stats.totalAlumni ?? 0,
+        totalDatabase: stats.totalUsers ?? 0,
+        companiesCount: stats.companiesCount ?? 0,
+        pendingApprovals: stats.pendingUsers ?? 0,
+        activeJobs: stats.totalPosts ?? 0,
+        upcomingEvents: stats.totalEvents ?? 0
       }));
 
     } catch (err) {
@@ -305,38 +305,32 @@ export default function AdminMetricsScreen({ navigation, isEmbedded = false }) {
             <MetricCard 
               icon="people" 
               color={theme.primary} 
-              value={(metrics.totalDatabase || 33368).toLocaleString()} 
-              label="Network Members" 
+              value={(metrics.totalDatabase ?? 0).toLocaleString()} 
+              label="Registered Users" 
             />
             <MetricCard 
               icon="checkmark-circle" 
               color="#059669" // Emerald
-              value={(metrics.totalAlumni || 9931).toLocaleString()} 
-              label="Verified RVians" 
-            />
-            <MetricCard 
-              icon="business" 
-              color="#059669" // Sky Blue
-              value={(metrics.companiesCount || 4038).toLocaleString()} 
-              label="Employing Companies" 
+              value={(metrics.totalAlumni ?? 0).toLocaleString()} 
+              label="Verified Alumni" 
             />
             <MetricCard 
               icon="time" 
               color="#F59E0B" // Amber
-              value={(metrics.pendingApprovals || 5).toString()} 
+              value={(metrics.pendingApprovals ?? 0).toString()} 
               label="Pending Approvals" 
             />
             <MetricCard 
-              icon="briefcase" 
-              color="#34D399" // Violet
-              value={(metrics.activeJobs || 45).toString()} 
-              label="Active Jobs" 
+              icon="newspaper-outline" 
+              color="#3B82F6" // Blue
+              value={(metrics.activeJobs ?? 0).toString()} 
+              label="Community Posts" 
             />
             <MetricCard 
               icon="calendar" 
               color="#EC4899" // Pink
-              value={(metrics.upcomingEvents || 8).toString()} 
-              label="Upcoming Events" 
+              value={(metrics.upcomingEvents ?? 0).toString()} 
+              label="Campus Events" 
             />
           </View>
 

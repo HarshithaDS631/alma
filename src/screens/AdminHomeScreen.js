@@ -43,9 +43,9 @@ const AdminHomeScreen = ({ navigation }) => {
   const [followedSuggestions, setFollowedSuggestions] = useState({});
   const [searchText, setSearchText] = useState('');
   const [userInstitution, setUserInstitution] = useState('RV College of Engineering');
-  const [userName, setUserName] = useState('RVCE Alumni Affairs Admin');
+  const [userName, setUserName] = useState('RVCE Admin');
   const [userRole, setUserRole] = useState('Admin');
-  const [userDepartment, setUserDepartment] = useState('Alumni Affairs');
+  const [userDepartment, setUserDepartment] = useState('Administration');
   const [userInitials, setUserInitials] = useState('RV');
 
 
@@ -81,7 +81,7 @@ const AdminHomeScreen = ({ navigation }) => {
       if (Array.isArray(data)) {
         const formatted = data.map(p => ({
           id: p._id,
-          user: p.user?.name || 'RVCE Alumni Affairs Admin',
+          user: p.user?.name || 'RVCE Admin',
           role: `${p.user?.role || 'Admin'} • ${p.user?.institution || 'RV College of Engineering'}`,
           avatar: getInitials(p.user?.name, 'RV'),
           content: p.content,
