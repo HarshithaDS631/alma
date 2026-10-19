@@ -8,6 +8,7 @@ import { login, loginVerify2FA, sendLoginOtp, loginWithOtp, fetchCaptcha } from 
 import { handleGoogleLogin } from '../services/googleAuthService';
 import { handleAppleLogin } from '../services/appleAuthService';
 import CaptchaBox from '../components/CaptchaBox';
+import ServerHealthBanner from '../components/ServerHealthBanner';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -578,7 +579,8 @@ const LoginScreen = ({ navigation }) => {
             </Text>
           </View>
 
-
+          {/* ── Real-Time Server Health & Security Shield Status ── */}
+          <ServerHealthBanner theme={{ isDarkMode }} showOnlyWhenOffline={false} />
 
           {/* ── Standard Segmented Auth Mode Switcher ── */}
           <View style={{

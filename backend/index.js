@@ -30,6 +30,8 @@ const { initScheduler } = require('./utils/cronScheduler');
 const { apiLimiter } = require('./middleware/rateLimiter');
 const activityLogger = require('./middleware/activityLogger');
 const botProtectionMiddleware = require('./middleware/botProtection');
+const sqlAndNoSqlInjectionGuard = require('./middleware/sqlAndNoSqlInjectionGuard');
+const { getHealth, getPing } = require('./controllers/healthController');
 
 dotenv.config();
 
@@ -127,6 +129,9 @@ app.use(cors({
 // Body parsing with size limits (prevent memory exhaustion and payload DoS attacks)
 app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true, limit: '2mb' }));
+
+// SQL & NoSQL Injection Defense & Prototype Pollution Shield
+app.use(sqlAndNoSqlInjectionGuard);
 
 // Global API rate limiter: 100 requests per 15 minutes per IP
 app.use('/api/', apiLimiter);
@@ -286,30 +291,19 @@ const handleSystemStatus = async (req, res) => {
     });
 };
 
-const handleHealth = async (req, res) => {
-    try {
-        await connectDB();
-        const mongoose = require('mongoose');
-        res.json({
-            status: 'ok',
-            version: 'v1.0.0',
-            timestamp: new Date(),
-            dbState: mongoose.connection.readyState,
-            dbHost: mongoose.connection.host || 'none',
-            dbName: mongoose.connection.name || 'none'
-        });
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-};
-
-app.get('/api/v1/system-status', handleSystemStatus);
-app.get('/api/system-status', handleSystemStatus);
-app.get('/api/v1/health', handleHealth);
-app.get('/api/health', handleHealth);
+// ─── Health Checks & System Monitoring (Liveness & Readiness Probes) ───
+app.get('/health', getHealth);
+app.get('/healthz', getHealth);
+app.get('/ping', getPing);
+app.get('/api/health', getHealth);
+app.get('/api/v1/health', getHealth);
+app.get('/api/status', getHealth);
+app.get('/api/v1/status', getHealth);
+app.get('/api/system-status', getHealth);
+app.get('/api/v1/system-status', getHealth);
 
 app.get('/', (req, res) => {
-    res.send('RVITM Alumni API is running with HTTPS, WSS (Socket.IO), JWT Auth & MongoDB Atlas...');
+    res.send('RVITM Alumni API is running with HTTPS, WSS (Socket.IO), JWT Auth, Anti-Bot & Injection Defense & MongoDB Atlas...');
 });
 
 // ─── Error Handler ──────────────────────────────────────────────
