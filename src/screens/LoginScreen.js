@@ -4,9 +4,10 @@ import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as WebBrowser from 'expo-web-browser';
-import { login, loginVerify2FA, sendLoginOtp, loginWithOtp } from '../services/authService';
+import { login, loginVerify2FA, sendLoginOtp, loginWithOtp, fetchCaptcha } from '../services/authService';
 import { handleGoogleLogin } from '../services/googleAuthService';
 import { handleAppleLogin } from '../services/appleAuthService';
+import CaptchaBox from '../components/CaptchaBox';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -22,7 +23,6 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState('Alumni@6363');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [portal, setPortal] = useState(null);
 
   // OTP Login States
   const [otpChannel, setOtpChannel] = useState('email'); // 'email' | 'mobile' | 'whatsapp'
@@ -42,13 +42,60 @@ const LoginScreen = ({ navigation }) => {
   const [twoFactorCode, setTwoFactorCode] = useState('');
   const [verifying2FA, setVerifying2FA] = useState(false);
 
+  // Anti-Bot CAPTCHA & Brute Force Lockout States
+  const [showCaptcha, setShowCaptcha] = useState(false);
+  const [captchaData, setCaptchaData] = useState(null);
+  const [captchaAnswer, setCaptchaAnswer] = useState('');
+  const [captchaLoading, setCaptchaLoading] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [lockoutSeconds, setLockoutSeconds] = useState(0);
+  const [lockoutMessage, setLockoutMessage] = useState('');
+
+  // Lockout Countdown Timer Effect
+  useEffect(() => {
+    let timer = null;
+    if (isBlocked && lockoutSeconds > 0) {
+      timer = setInterval(() => {
+        setLockoutSeconds(prev => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            setIsBlocked(false);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [isBlocked, lockoutSeconds]);
+
+  const formatTimeRemaining = (totalSeconds) => {
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const loadCaptcha = async () => {
+    setCaptchaLoading(true);
+    try {
+      const data = await fetchCaptcha();
+      if (data && data.success) {
+        setCaptchaData(data);
+        setCaptchaAnswer('');
+      }
+    } catch (e) {
+      console.warn('Failed to load CAPTCHA:', e.message);
+    } finally {
+      setCaptchaLoading(false);
+    }
+  };
+
   useEffect(() => {
     const fetchPortal = async () => {
       try {
-        const portalStr = await AsyncStorage.getItem('current_portal_institution');
-        if (portalStr) {
-          setPortal(JSON.parse(portalStr));
-        }
+        await AsyncStorage.getItem('current_portal_institution');
       } catch (e) {
         console.error(e);
       }
@@ -251,14 +298,14 @@ const LoginScreen = ({ navigation }) => {
         setLoading(false);
         navigation.navigate('AdminMain');
         return;
-      } catch (err) {
+      } catch (_err) {
         navigation.navigate('AdminMain');
         return;
       }
     }
 
-    // Fast-track Demo Account for Manager Presentation
-    if (emailClean === 'harshithads2001@gmail.com') {
+    // Fast-track Demo Account for Manager Presentation (Only when using valid demo password)
+    if (emailClean === 'harshithads2001@gmail.com' && (password === 'Alumni@6363' || password === 'Gmail@2001')) {
       try {
         const validToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNTlkYWE0ZTU3MjEzZmQ2M2Q4MjYxNyIsImlhdCI6MTc5MDA3OTU5NiwiZXhwIjoxODIxNjE1NTk2fQ.DcyI1VcrrHQ4OrGXdGOvCo4-AB7lKu4r6o7E7ZLPgdU';
         const demoUserData = {
@@ -338,15 +385,30 @@ const LoginScreen = ({ navigation }) => {
         setLoading(false);
         navigation.navigate('Main');
         return;
-      } catch (err) {
+      } catch (_err) {
         // Fallback gracefully
         navigation.navigate('Main');
         return;
       }
     }
 
+    if (isBlocked) {
+      alert(`🔒 Access Temporarily Blocked\n\nPlease wait ${formatTimeRemaining(lockoutSeconds)} before attempting to sign in again.`);
+      return;
+    }
+
+    if (showCaptcha && !captchaAnswer.trim()) {
+      alert('⚠️ Security Check Required\n\nPlease enter the CAPTCHA code shown in the security box before signing in.');
+      return;
+    }
+
     try {
-      const userData = await login({ email: emailClean, password });
+      const userData = await login({ 
+        email: emailClean, 
+        password,
+        captchaToken: captchaData?.token,
+        captchaAnswer: captchaAnswer?.trim()
+      });
 
       if (userData.requires2FA) {
         setTwoFactorToken(userData.twoFactorToken);
@@ -354,6 +416,12 @@ const LoginScreen = ({ navigation }) => {
         setLoading(false);
         return;
       }
+
+      // Successful login - clear security challenges
+      setShowCaptcha(false);
+      setCaptchaAnswer('');
+      setIsBlocked(false);
+      setLockoutSeconds(0);
 
       // Successful login
       await AsyncStorage.setItem('userInfo', JSON.stringify({
@@ -385,11 +453,31 @@ const LoginScreen = ({ navigation }) => {
         navigation.navigate('Main');
       }
     } catch (error) {
-      const msg = error.response?.data?.message || error.message || 'Login failed';
-      if (error.response?.status === 403 || msg.toLowerCase().includes('pending')) {
+      const resData = error.response?.data;
+      const status = error.response?.status;
+      const msg = resData?.message || error.message || 'Login failed';
+
+      // Status 423: Brute force lockout triggered after 5 attempts
+      if (status === 423 || resData?.isBlocked || resData?.accountLocked) {
+        setIsBlocked(true);
+        const secs = resData?.remainingSeconds || (resData?.remainingMinutes ? resData.remainingMinutes * 60 : 600);
+        setLockoutSeconds(secs);
+        setLockoutMessage(msg);
+        setShowCaptcha(true);
+        loadCaptcha();
+        alert(`🔒 Account Temporarily Blocked\n\n${msg}`);
+      } else if (resData?.requiresCaptcha) {
+        setShowCaptcha(true);
+        loadCaptcha();
+        alert(`⚠️ Security Verification Required\n\n${msg}`);
+      } else if (status === 403 || msg.toLowerCase().includes('pending')) {
         alert(`⏳ Account Pending Approval\n\n${msg}`);
       } else {
-        alert(msg);
+        if (resData?.failedAttempts) {
+          alert(`${msg}\n\n⚠️ Failed attempt ${resData.failedAttempts}/5. Reaching 5 attempts will temporarily block your account.`);
+        } else {
+          alert(msg);
+        }
       }
     } finally {
       setLoading(false);
@@ -620,13 +708,46 @@ const LoginScreen = ({ navigation }) => {
                 <Text style={{ color: theme.primary, fontWeight: '600', fontSize: 13 }}>Forgot Password?</Text>
               </TouchableOpacity>
 
+              {/* ── Brute Force Lockout Banner ── */}
+              {isBlocked && (
+                <View style={styles.lockoutBanner}>
+                  <Ionicons name="lock-closed" size={22} color="#DC2626" style={{ marginRight: 10, marginTop: 2 }} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.lockoutTitle}>Access Temporarily Blocked</Text>
+                    <Text style={styles.lockoutText}>
+                      {lockoutMessage || 'Too many consecutive failed password attempts. Access is locked to protect your account.'}
+                    </Text>
+                    <View style={styles.lockoutTimerRow}>
+                      <Ionicons name="time-outline" size={14} color="#DC2626" />
+                      <Text style={styles.lockoutTimerText}>
+                        Unlocks in: <Text style={{ fontWeight: '800', color: '#DC2626' }}>{formatTimeRemaining(lockoutSeconds)}</Text>
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              )}
+
+              {/* ── Anti-Bot CAPTCHA Challenge ── */}
+              {showCaptcha && (
+                <CaptchaBox
+                  captcha={captchaData}
+                  answer={captchaAnswer}
+                  onChangeAnswer={setCaptchaAnswer}
+                  onRefresh={loadCaptcha}
+                  loading={captchaLoading}
+                  theme={{ isDarkMode }}
+                />
+              )}
+
               <TouchableOpacity 
-                style={[styles.primaryButton, loading && styles.disabledButton]} 
+                style={[styles.primaryButton, (loading || isBlocked) && styles.disabledButton]} 
                 onPress={handleLogin}
-                disabled={loading}
+                disabled={loading || isBlocked}
               >
                 {loading ? (
                   <ActivityIndicator color="#FFFFFF" size="small" />
+                ) : isBlocked ? (
+                  <Text style={styles.primaryButtonText}>Blocked ({formatTimeRemaining(lockoutSeconds)})</Text>
                 ) : (
                   <Text style={styles.primaryButtonText}>Sign In</Text>
                 )}
@@ -1120,6 +1241,39 @@ const getStyles = (theme) => StyleSheet.create({
     fontSize: 11,
     color: theme.textSecondary,
     marginTop: 1,
+  },
+  lockoutBanner: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1.5,
+    borderColor: '#F87171',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 16,
+  },
+  lockoutTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#991B1B',
+    marginBottom: 4,
+  },
+  lockoutText: {
+    fontSize: 12,
+    color: '#B91C1C',
+    lineHeight: 16,
+    marginBottom: 6,
+  },
+  lockoutTimerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 2,
+  },
+  lockoutTimerText: {
+    fontSize: 12,
+    color: '#991B1B',
+    fontWeight: '600',
   },
 });
 

@@ -20,6 +20,14 @@ const speakeasy = require('speakeasy');
 const QRCode = require('qrcode');
 const { OAuth2Client } = require('google-auth-library');
 const { sendFCMNotification } = require('../utils/fcmService');
+const { verifyCaptcha } = require('../services/captchaService');
+const { 
+    recordFailedAttempt, 
+    recordSuccessfulLogin, 
+    getBlockStatus, 
+    isCaptchaRequired,
+    MAX_FAILED_ATTEMPTS 
+} = require('../middleware/bruteForceProtection');
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -320,10 +328,44 @@ exports.registerUser = async (req, res) => {
 // @desc    Auth user & get token
 // @route   POST /api/auth/login
 exports.loginUser = async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, captchaToken, captchaAnswer } = req.body;
     const emailClean = (email || '').trim().toLowerCase();
+    const clientIp = req.ip || req.connection?.remoteAddress || 'unknown';
 
     try {
+        // 1. Check if IP or Account is currently blocked due to >= 5 failed attempts
+        const blockStatus = getBlockStatus(clientIp, emailClean);
+        if (blockStatus.isBlocked) {
+            res.setHeader('Retry-After', blockStatus.remainingSeconds);
+            return res.status(423).json({
+                isBlocked: true,
+                accountLocked: true,
+                message: `Too many failed password attempts. Access is temporarily blocked for ${blockStatus.remainingMinutes} minute(s) to protect your account. Please try again later or reset your password.`,
+                remainingMinutes: blockStatus.remainingMinutes,
+                remainingSeconds: blockStatus.remainingSeconds,
+                blockedUntil: blockStatus.blockedUntil,
+                requiresCaptcha: true
+            });
+        }
+
+        // 2. CAPTCHA verification check if client has >= 2 failed attempts or flagged by guard
+        const captchaNeeded = isCaptchaRequired(clientIp, emailClean) || (req.bruteForce && req.bruteForce.requiresCaptcha);
+        if (captchaNeeded) {
+            if (!captchaToken || !captchaAnswer) {
+                return res.status(400).json({
+                    requiresCaptcha: true,
+                    message: 'Security verification required: Please complete the visual CAPTCHA challenge.'
+                });
+            }
+            const captchaCheck = verifyCaptcha(captchaToken, captchaAnswer);
+            if (!captchaCheck.valid) {
+                return res.status(400).json({
+                    requiresCaptcha: true,
+                    message: captchaCheck.message || 'Incorrect CAPTCHA answer. Please try again.'
+                });
+            }
+        }
+
         await connectDB();
 
         const AdminUser = require('../models/AdminUser');
@@ -333,6 +375,7 @@ exports.loginUser = async (req, res) => {
 
         // Direct support for official RVCE Admin & Alumni Credentials
         if (emailClean === 'alumniaffairs@rvei.edu.in' && (password === 'Rsst@1234' || password === 'admin@123' || password === 'Rsst@123')) {
+            recordSuccessfulLogin(clientIp, emailClean);
             return res.json({
                 _id: '6a59daa4e57213fd63d82699',
                 name: 'RVCE Alumni Affairs Admin',
@@ -351,6 +394,7 @@ exports.loginUser = async (req, res) => {
         }
 
         if (emailClean === 'harshithads2001@gmail.com' && (password === 'Gmail@2001' || password === 'Alumni@6363')) {
+            recordSuccessfulLogin(clientIp, emailClean);
             return res.json({
                 _id: '6a59daa4e57213fd63d82617',
                 name: 'Harshitha D S',
@@ -370,6 +414,7 @@ exports.loginUser = async (req, res) => {
 
         // Official App Reviewer Account for Apple App Store & Google Play Store teams
         if (emailClean === 'reviewer@rvei.edu.in' && (password === 'Reviewer@2026!' || password === 'Reviewer@123' || password === 'admin@123')) {
+            recordSuccessfulLogin(clientIp, emailClean);
             return res.json({
                 _id: '6a59daa4e57213fd63d82688',
                 name: 'App Store Reviewer',
@@ -406,8 +451,15 @@ exports.loginUser = async (req, res) => {
         // Check if account is locked due to too many failed attempts
         if (user && typeof user.isLocked === 'function' && user.isLocked()) {
             const remainingMins = Math.max(1, Math.ceil((new Date(user.lockUntil).getTime() - Date.now()) / (60 * 1000)));
+            const remainingSecs = Math.max(1, Math.ceil((new Date(user.lockUntil).getTime() - Date.now()) / 1000));
             return res.status(423).json({
-                message: `Account temporarily locked due to consecutive failed login attempts. Please try again in ${remainingMins} minute(s) or reset your password.`
+                isBlocked: true,
+                accountLocked: true,
+                message: `Account temporarily locked due to consecutive failed login attempts. Please try again in ${remainingMins} minute(s) or reset your password.`,
+                remainingMinutes: remainingMins,
+                remainingSeconds: remainingSecs,
+                blockedUntil: user.lockUntil,
+                requiresCaptcha: true
             });
         }
 
@@ -449,6 +501,7 @@ exports.loginUser = async (req, res) => {
 
             // Record successful login
             loginEntry.success = true;
+            recordSuccessfulLogin(clientIp, emailClean);
             try {
                 user.loginHistory = [...(user.loginHistory || []).slice(-19), loginEntry]; // Keep last 20
                 await user.save({ validateBeforeSave: false });
@@ -487,25 +540,37 @@ exports.loginUser = async (req, res) => {
             });
         } else {
             // Record failed login attempt and enforce lockout after 5 attempts
+            const attemptResult = recordFailedAttempt(clientIp, emailClean);
+
             if (user) {
                 user.failedLoginAttempts = (user.failedLoginAttempts || 0) + 1;
-                let isNowLocked = false;
-                if (user.failedLoginAttempts >= 5) {
-                    user.lockUntil = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes lockout
-                    isNowLocked = true;
+                if (user.failedLoginAttempts >= (MAX_FAILED_ATTEMPTS || 5)) {
+                    user.lockUntil = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes lockout
                 }
                 try {
                     user.loginHistory = [...(user.loginHistory || []).slice(-19), loginEntry];
                     await user.save({ validateBeforeSave: false });
                 } catch (_) {}
-
-                if (isNowLocked) {
-                    return res.status(423).json({
-                        message: 'Account locked for 15 minutes due to 5 consecutive failed login attempts. Please reset your password or try again later.'
-                    });
-                }
             }
-            res.status(401).json({ message: 'Invalid email or password' });
+
+            if (attemptResult.isBlocked) {
+                res.setHeader('Retry-After', attemptResult.remainingSeconds);
+                return res.status(423).json({
+                    isBlocked: true,
+                    accountLocked: true,
+                    message: `Too many failed password attempts (${attemptResult.failedAttempts}/${MAX_FAILED_ATTEMPTS || 5}). Access is temporarily blocked for ${attemptResult.remainingMinutes} minute(s) to protect your account. Please try again later or reset your password.`,
+                    remainingMinutes: attemptResult.remainingMinutes,
+                    remainingSeconds: attemptResult.remainingSeconds,
+                    blockedUntil: attemptResult.blockedUntil,
+                    requiresCaptcha: true
+                });
+            }
+
+            return res.status(401).json({ 
+                message: 'Invalid email or password',
+                failedAttempts: attemptResult.failedAttempts,
+                requiresCaptcha: attemptResult.requiresCaptcha || false
+            });
         }
     } catch (error) {
         console.error('[LOGIN ERROR]:', error.message);

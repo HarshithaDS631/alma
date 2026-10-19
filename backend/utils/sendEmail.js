@@ -448,4 +448,86 @@ const sendCandidateResumeEmail = async ({ recipientEmail, candidate, adminName, 
     return { success: true, simulated: true };
 };
 
-module.exports = { sendWelcomeEmail, sendOtpEmail, sendPasswordResetEmail, sendCandidateResumeEmail };
+// ─── Generic HTML email (Mass Mail broadcasts / custom welcome templates) ────
+const escapeHtml = (s = '') => String(s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+const buildPlainTemplateHtml = (institution, bodyText) => `
+    <div style="font-family: 'Segoe UI', Tahoma, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden;">
+        <div style="background: linear-gradient(135deg, #003366, #0055A5); padding: 24px; text-align: center;">
+            <h1 style="color: #FFFFFF; margin: 0; font-size: 20px;">${escapeHtml(institution)}</h1>
+        </div>
+        <div style="padding: 28px; font-size: 15px; color: #334155; line-height: 1.7;">
+            ${escapeHtml(bodyText).replace(/\n/g, '<br/>')}
+        </div>
+        <div style="background-color: #F8FAFC; padding: 14px; text-align: center; border-top: 1px solid #E2E8F0;">
+            <p style="font-size: 12px; color: #94A3B8; margin: 0;">© ${new Date().getFullYear()} ${escapeHtml(institution)}</p>
+        </div>
+    </div>`;
+
+const sendGenericEmail = async ({ to, toName = '', subject, text, institution = 'Alumni Network' }) => {
+    const apiKey = process.env.SENDGRID_API_KEY;
+    const fromEmail = process.env.SENDGRID_FROM_EMAIL || 'rvmediadevelopers@gmail.com';
+    const html = buildPlainTemplateHtml(institution, text);
+
+    if (apiKey) {
+        try {
+            const payload = JSON.stringify({
+                personalizations: [{ to: [{ email: to, name: toName || to }] }],
+                from: { email: fromEmail, name: institution },
+                subject,
+                content: [
+                    { type: 'text/plain', value: text },
+                    { type: 'text/html', value: html },
+                ],
+            });
+            await new Promise((resolve, reject) => {
+                const req = https.request({
+                    hostname: 'api.sendgrid.com',
+                    port: 443,
+                    path: '/v3/mail/send',
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json',
+                        'Content-Length': Buffer.byteLength(payload),
+                    },
+                }, (res) => {
+                    let body = '';
+                    res.on('data', (d) => { body += d; });
+                    res.on('end', () => (res.statusCode >= 200 && res.statusCode < 300)
+                        ? resolve()
+                        : reject(new Error(`SendGrid API error (${res.statusCode}): ${body}`)));
+                });
+                req.on('error', reject);
+                req.write(payload);
+                req.end();
+            });
+            return true;
+        } catch (apiErr) {
+            console.warn('[GENERIC EMAIL SendGrid failed, falling back to SMTP]:', apiErr.message);
+        }
+    }
+
+    try {
+        const transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST || 'smtp.sendgrid.net',
+            port: parseInt(process.env.SMTP_PORT || '587', 10),
+            secure: false,
+            auth: { user: 'apikey', pass: process.env.SENDGRID_API_KEY },
+        });
+        await transporter.sendMail({
+            from: process.env.SMTP_FROM || `"${institution}" <${fromEmail}>`,
+            to,
+            subject,
+            text,
+            html,
+        });
+        return true;
+    } catch (smtpErr) {
+        console.error('[GENERIC EMAIL SMTP ERROR]:', smtpErr.message);
+        return false;
+    }
+};
+
+module.exports = { sendWelcomeEmail, sendOtpEmail, sendPasswordResetEmail, sendCandidateResumeEmail, sendGenericEmail };

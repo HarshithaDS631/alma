@@ -54,6 +54,12 @@ const mentorshipProfileSchema = new mongoose.Schema({
     isActive: { 
         type: Boolean, 
         default: true 
+    },
+    // Admin moderation state (Mentorship Applications tile)
+    status: {
+        type: String,
+        enum: ['pending', 'approved', 'rejected'],
+        default: 'pending'
     }
 }, { timestamps: true });
 

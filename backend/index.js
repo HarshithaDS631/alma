@@ -29,6 +29,7 @@ const recommendationRoutes = require('./routes/recommendationRoutes');
 const { initScheduler } = require('./utils/cronScheduler');
 const { apiLimiter } = require('./middleware/rateLimiter');
 const activityLogger = require('./middleware/activityLogger');
+const botProtectionMiddleware = require('./middleware/botProtection');
 
 dotenv.config();
 
@@ -40,6 +41,17 @@ console.log(`[ENV CONFIG] SMTP Host: ${process.env.SMTP_HOST || 'Not Set'} | SMT
 
 const app = express();
 app.set('trust proxy', 1);
+
+// Cluster Load Balancer Telemetry & Anti-Bot Shield
+app.use((req, res, next) => {
+    res.setHeader('X-Cluster-Worker-Pid', String(process.pid));
+    if (process.env.WORKER_INDEX) {
+        res.setHeader('X-Cluster-Worker-Index', String(process.env.WORKER_INDEX));
+    }
+    next();
+});
+app.use(botProtectionMiddleware);
+
 const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 

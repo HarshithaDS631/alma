@@ -10,6 +10,16 @@ export const login = async (credentials) => {
     return data;
 };
 
+export const fetchCaptcha = async (type = 'mixed') => {
+    const { data } = await api.get(`/auth/captcha?type=${type}&_t=${Date.now()}`);
+    return data;
+};
+
+export const verifyCaptchaSolution = async (token, answer) => {
+    const { data } = await api.post('/auth/verify-captcha', { token, answer });
+    return data;
+};
+
 export const checkEmailExists = async (email) => {
     const { data } = await api.post('/auth/check-email', { email });
     return data.exists; // returns boolean

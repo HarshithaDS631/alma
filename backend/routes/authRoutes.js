@@ -40,10 +40,16 @@ const {
     acceptConnectionRequest,
     declineConnectionRequest
 } = require('../controllers/authController');
+const { getCaptcha, checkCaptcha } = require('../controllers/captchaController');
 const { protect, optionalProtect } = require('../middleware/authMiddleware');
 const { authLimiter, otpLimiter, passwordResetLimiter } = require('../middleware/rateLimiter');
+const { bruteForceLoginGuard } = require('../middleware/bruteForceProtection');
 const { loginValidation, registerValidation, otpValidation, forgotPasswordValidation, profileUpdateValidation, changePasswordValidation, resetPasswordValidation } = require('../middleware/requestValidator');
 const router = express.Router();
+
+// Security & Anti-Bot CAPTCHA Endpoints
+router.get('/captcha', getCaptcha);
+router.post('/verify-captcha', checkCaptcha);
 
 router.post('/check-email', checkEmailExists);
 router.post('/send-otp', otpLimiter, otpValidation, sendOtp);
@@ -51,7 +57,7 @@ router.post('/verify-otp', otpLimiter, verifyOtp);
 router.post('/send-login-otp', otpLimiter, sendLoginOtp);
 router.post('/login-otp', authLimiter, loginWithOtp);
 router.post('/register', authLimiter, registerValidation, registerUser);
-router.post('/login', authLimiter, loginValidation, loginUser);
+router.post('/login', authLimiter, bruteForceLoginGuard, loginValidation, loginUser);
 router.post('/logout', protect, logoutUser);
 router.post('/google', googleAuth);
 router.post('/linkedin', linkedinAuth);

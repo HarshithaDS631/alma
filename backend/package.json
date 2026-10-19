@@ -4,7 +4,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js",
-    "start": "node index.js"
+    "start": "node index.js",
+    "start:cluster": "node cluster.js",
+    "cluster": "node cluster.js"
   },
   "keywords": [],
   "author": "",
