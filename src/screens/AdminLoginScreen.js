@@ -7,7 +7,7 @@ import { login } from '../services/authService';
 
 const AdminLoginScreen = ({ navigation }) => {
   const { theme, isDarkMode } = useTheme();
-  const styles = getStyles(theme);
+  const styles = getStyles(theme, isDarkMode);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -75,7 +75,7 @@ const AdminLoginScreen = ({ navigation }) => {
               }
             }}
           >
-            <Ionicons name="arrow-back" size={24} color="#002144" />
+            <Ionicons name="arrow-back" size={24} color={theme.primary} />
           </TouchableOpacity>
 
           <View style={styles.header}>
@@ -157,7 +157,7 @@ const AdminLoginScreen = ({ navigation }) => {
   );
 };
 
-const getStyles = (theme) => StyleSheet.create({
+const getStyles = (theme, isDarkMode) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.card,
@@ -288,17 +288,18 @@ const getStyles = (theme) => StyleSheet.create({
   },
   credentialsBox: {
     marginTop: 16,
-    backgroundColor: '#F0FDF4',
+    backgroundColor: isDarkMode ? '#241B15' : '#FAF4ED',
     borderRadius: 12,
     padding: 14,
     borderWidth: 1,
-    borderColor: '#A7F3D0',
+    borderColor: isDarkMode ? 'rgba(212, 163, 115, 0.35)' : '#E8D4C1',
   },
   credentialsTitle: {
     fontSize: 13,
-    fontWeight: '700',
-    color: '#047857',
+    fontWeight: '800',
+    color: isDarkMode ? '#D4A373' : '#B88758',
     marginBottom: 10,
+    letterSpacing: 0.3,
   },
   credentialRow: {
     marginBottom: 6,
@@ -306,7 +307,7 @@ const getStyles = (theme) => StyleSheet.create({
   credentialLabel: {
     fontSize: 12,
     fontWeight: '700',
-    color: theme.primary,
+    color: isDarkMode ? '#D4A373' : '#B88758',
   },
   credentialValue: {
     fontSize: 11,

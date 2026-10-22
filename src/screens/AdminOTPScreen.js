@@ -87,12 +87,12 @@ const AdminOTPScreen = ({ navigation, route }) => {
             }
           }}
         >
-          <Ionicons name="arrow-back" size={24} color="#002144" />
+          <Ionicons name="arrow-back" size={24} color={theme.primary} />
         </TouchableOpacity>
 
         <View style={styles.header}>
           <View style={styles.iconCircle}>
-            <Ionicons name="mail-open-outline" size={32} color="#059669" />
+            <Ionicons name="mail-open-outline" size={32} color={theme.primary} />
           </View>
           <Text style={styles.title}>Verify OTP</Text>
           <Text style={styles.subtitle}>We&apos;ve sent a 4-digit verification code to{'\n'}<Text style={styles.emailHighlight}>{adminEmail}</Text></Text>

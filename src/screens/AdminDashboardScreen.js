@@ -7,7 +7,7 @@ import { getPosts, getEvents } from '../services/authService';
 
 const AdminDashboardScreen = ({ navigation }) => {
   const { theme, isDarkMode } = useTheme();
-  const styles = getStyles(theme);
+  const styles = getStyles(theme, isDarkMode);
 
   const { width } = useWindowDimensions();
   const isWeb = Platform.OS === 'web';
@@ -61,7 +61,7 @@ const AdminDashboardScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={theme.card} />
       
       {/* Header with Back Button */}
       <View style={styles.header}>
@@ -76,7 +76,7 @@ const AdminDashboardScreen = ({ navigation }) => {
             }} 
             style={styles.backButton}
           >
-            <Ionicons name="arrow-back" size={24} color="#002144" />
+            <Ionicons name="arrow-back" size={24} color={theme.primary} />
           </TouchableOpacity>
           <View>
             <Text style={styles.headerTitle}>Admin Console</Text>
@@ -84,7 +84,7 @@ const AdminDashboardScreen = ({ navigation }) => {
           </View>
         </View>
         <TouchableOpacity style={styles.settingsBtn} onPress={() => Alert.alert('Admin Settings', 'Configuration panel.')}>
-          <Ionicons name="settings-outline" size={24} color="#002144" />
+          <Ionicons name="settings-outline" size={20} color={theme.textSecondary} />
         </TouchableOpacity>
       </View>
 
@@ -92,12 +92,12 @@ const AdminDashboardScreen = ({ navigation }) => {
         {/* Left Column (Desktop Only) */}
         {isDesktop && (
           <View style={{ flex: 3 }}>
-             <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 20, elevation: 2, borderWidth: 1, borderColor: theme.border, alignItems: 'center' }}>
-               <View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: '#059669', justifyContent: 'center', alignItems: 'center', marginBottom: 12 }}>
+             <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, elevation: 2, borderWidth: 1, borderColor: theme.border, alignItems: 'center' }}>
+               <View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center', marginBottom: 12, shadowColor: theme.primary, shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.2, shadowRadius: 6, elevation: 3 }}>
                  <Ionicons name="shield-checkmark" size={32} color="#FFF" />
                </View>
-               <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>Admin Console</Text>
-               <Text style={{ fontSize: 13, color: theme.textSecondary, textAlign: 'center', marginTop: 6 }}>{adminInstitution} Portal</Text>
+               <Text style={{ fontSize: 18, fontWeight: '800', color: theme.text }}>Admin Console</Text>
+               <Text style={{ fontSize: 13, color: theme.textSecondary, textAlign: 'center', marginTop: 4 }}>{adminInstitution} Portal</Text>
                <View style={{ width: '100%', height: 1, backgroundColor: theme.border, marginVertical: 16 }} />
                <View style={{ width: '100%', gap: 12 }}>
                  <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
@@ -121,21 +121,21 @@ const AdminDashboardScreen = ({ navigation }) => {
               <View style={styles.statsGrid}>
                 <View style={[styles.statCard, { width: width > 768 ? '31%' : '48%' }]}>
                   <View style={styles.statTopRow}>
-                    <View style={[styles.iconBox, { backgroundColor: '#DCFCE7' }]}><Ionicons name="newspaper-outline" size={20} color="#059669" /></View>
+                    <View style={[styles.iconBox, { backgroundColor: isDarkMode ? '#14251B' : '#F0FDF4' }]}><Ionicons name="newspaper-outline" size={20} color={theme.primary} /></View>
                   </View>
                   <Text style={styles.statValue}>{actualStats.posts}</Text>
                   <Text style={styles.statLabel}>Total Posts</Text>
                 </View>
                 <View style={[styles.statCard, { width: width > 768 ? '31%' : '48%' }]}>
                   <View style={styles.statTopRow}>
-                    <View style={[styles.iconBox, { backgroundColor: '#DCFCE7' }]}><Ionicons name="calendar-outline" size={20} color="#16A34A" /></View>
+                    <View style={[styles.iconBox, { backgroundColor: isDarkMode ? '#241B15' : '#FAF4ED' }]}><Ionicons name="calendar-outline" size={20} color={isDarkMode ? '#D4A373' : '#B88758'} /></View>
                   </View>
                   <Text style={styles.statValue}>{actualStats.events}</Text>
                   <Text style={styles.statLabel}>Total Events</Text>
                 </View>
                 <View style={[styles.statCard, { width: width > 768 ? '31%' : '48%' }]}>
                   <View style={styles.statTopRow}>
-                    <View style={[styles.iconBox, { backgroundColor: '#F0FDF4' }]}><Ionicons name="people-outline" size={20} color="#059669" /></View>
+                    <View style={[styles.iconBox, { backgroundColor: isDarkMode ? '#14251B' : '#F0FDF4' }]}><Ionicons name="people-outline" size={20} color={theme.primary} /></View>
                   </View>
                   <Text style={styles.statValue}>{pendingApprovals}</Text>
                   <Text style={styles.statLabel}>Pending Approvals</Text>
@@ -148,28 +148,28 @@ const AdminDashboardScreen = ({ navigation }) => {
             
             <TouchableOpacity style={styles.actionCard} onPress={() => handleQuickAction('Review Flagged Content')}>
               <View style={styles.actionInfo}>
-                <View style={[styles.actionIcon, { backgroundColor: '#FEE2E2' }]}>
-                  <Ionicons name="flag" size={22} color="#EF4444" />
+                <View style={[styles.actionIcon, { backgroundColor: isDarkMode ? '#3B1219' : '#FEE2E2' }]}>
+                  <Ionicons name="flag" size={22} color={theme.danger} />
                 </View>
                 <View>
                   <Text style={styles.actionTitle}>Review Flagged Content</Text>
                   <Text style={styles.actionSub}>Review reported posts, jobs, and events</Text>
                 </View>
               </View>
-              <Ionicons name="chevron-forward" size={18} color="#CBD5E1" />
+              <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.actionCard} onPress={() => handleQuickAction('Block/Unblock Users')}>
               <View style={styles.actionInfo}>
-                <View style={[styles.actionIcon, { backgroundColor: '#F1F5F9' }]}>
-                  <Ionicons name="shield-half-outline" size={22} color="#059669" />
+                <View style={[styles.actionIcon, { backgroundColor: isDarkMode ? '#241B15' : '#FAF4ED' }]}>
+                  <Ionicons name="shield-half-outline" size={22} color={isDarkMode ? '#D4A373' : '#C89565'} />
                 </View>
                 <View>
                   <Text style={styles.actionTitle}>Block/Unblock Users</Text>
                   <Text style={styles.actionSub}>Manage access for institutional members</Text>
                 </View>
               </View>
-              <Ionicons name="chevron-forward" size={18} color="#CBD5E1" />
+              <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
             </TouchableOpacity>
 
             {/* Management Section */}
@@ -177,8 +177,8 @@ const AdminDashboardScreen = ({ navigation }) => {
 
             <TouchableOpacity style={styles.actionCard} onPress={() => handleQuickAction('User Approvals')}>
               <View style={styles.actionInfo}>
-                <View style={[styles.actionIcon, { backgroundColor: '#F0FDF4' }]}>
-                  <Ionicons name="people" size={22} color="#059669" />
+                <View style={[styles.actionIcon, { backgroundColor: isDarkMode ? '#14251B' : '#F0FDF4' }]}>
+                  <Ionicons name="people" size={22} color={theme.primary} />
                 </View>
                 <View>
                   <Text style={styles.actionTitle}>User Approvals</Text>
@@ -191,34 +191,34 @@ const AdminDashboardScreen = ({ navigation }) => {
                     <Text style={styles.countBadgeText}>{pendingApprovals}</Text>
                   </View>
                 )}
-                <Ionicons name="chevron-forward" size={18} color="#CBD5E1" />
+                <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
               </View>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.actionCard} onPress={() => handleQuickAction('Manage Events')}>
               <View style={styles.actionInfo}>
-                <View style={[styles.actionIcon, { backgroundColor: '#F3E8FF' }]}>
-                  <Ionicons name="calendar" size={22} color="#9333EA" />
+                <View style={[styles.actionIcon, { backgroundColor: isDarkMode ? '#241B15' : '#FAF4ED' }]}>
+                  <Ionicons name="calendar" size={22} color={isDarkMode ? '#D4A373' : '#C89565'} />
                 </View>
                 <View>
                   <Text style={styles.actionTitle}>Manage Events</Text>
                   <Text style={styles.actionSub}>Approve and organize alumni meets</Text>
                 </View>
               </View>
-              <Ionicons name="chevron-forward" size={18} color="#CBD5E1" />
+              <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.actionCard} onPress={() => handleQuickAction('Manage Jobs')}>
               <View style={styles.actionInfo}>
-                <View style={[styles.actionIcon, { backgroundColor: '#DCFCE7' }]}>
-                  <Ionicons name="briefcase" size={22} color="#059669" />
+                <View style={[styles.actionIcon, { backgroundColor: isDarkMode ? '#14251B' : '#F0FDF4' }]}>
+                  <Ionicons name="briefcase" size={22} color={theme.primary} />
                 </View>
                 <View>
                   <Text style={styles.actionTitle}>Manage Jobs</Text>
                   <Text style={styles.actionSub}>Verify professional opportunities</Text>
                 </View>
               </View>
-              <Ionicons name="chevron-forward" size={18} color="#CBD5E1" />
+              <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
             </TouchableOpacity>
 
           </ScrollView>
@@ -227,12 +227,12 @@ const AdminDashboardScreen = ({ navigation }) => {
         {/* Right Column (Desktop Only) */}
         {isDesktop && (
           <View style={{ flex: 3.5 }}>
-            <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 16, elevation: 2, borderWidth: 1, borderColor: theme.border }}>
-              <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text, marginBottom: 16 }}>Platform Stats</Text>
+            <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 18, elevation: 2, borderWidth: 1, borderColor: theme.border }}>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: theme.text, marginBottom: 16 }}>Platform Stats</Text>
               
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
-                <View style={[styles.iconBox, { backgroundColor: '#DCFCE7', marginRight: 12 }]}>
-                  <Ionicons name="newspaper-outline" size={20} color="#059669" />
+                <View style={[styles.iconBox, { backgroundColor: isDarkMode ? '#14251B' : '#F0FDF4', marginRight: 12 }]}>
+                  <Ionicons name="newspaper-outline" size={20} color={theme.primary} />
                 </View>
                 <View>
                   <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>{actualStats.posts}</Text>
@@ -241,8 +241,8 @@ const AdminDashboardScreen = ({ navigation }) => {
               </View>
 
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
-                <View style={[styles.iconBox, { backgroundColor: '#DCFCE7', marginRight: 12 }]}>
-                  <Ionicons name="calendar-outline" size={20} color="#16A34A" />
+                <View style={[styles.iconBox, { backgroundColor: isDarkMode ? '#241B15' : '#FAF4ED', marginRight: 12 }]}>
+                  <Ionicons name="calendar-outline" size={20} color={isDarkMode ? '#D4A373' : '#B88758'} />
                 </View>
                 <View>
                   <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>{actualStats.events}</Text>
@@ -251,8 +251,8 @@ const AdminDashboardScreen = ({ navigation }) => {
               </View>
 
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
-                <View style={[styles.iconBox, { backgroundColor: '#F0FDF4', marginRight: 12 }]}>
-                  <Ionicons name="people-outline" size={20} color="#059669" />
+                <View style={[styles.iconBox, { backgroundColor: isDarkMode ? '#14251B' : '#F0FDF4', marginRight: 12 }]}>
+                  <Ionicons name="people-outline" size={20} color={theme.primary} />
                 </View>
                 <View>
                   <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>{pendingApprovals}</Text>
@@ -269,7 +269,7 @@ const AdminDashboardScreen = ({ navigation }) => {
   );
 };
 
-const getStyles = (theme) => StyleSheet.create({
+const getStyles = (theme, isDarkMode) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.background,
@@ -309,7 +309,9 @@ const getStyles = (theme) => StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: isDarkMode ? '#1C251F' : '#FAF4ED',
+    borderWidth: 1,
+    borderColor: isDarkMode ? 'rgba(212, 163, 115, 0.35)' : '#E8D4C1',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -330,11 +332,11 @@ const getStyles = (theme) => StyleSheet.create({
     marginBottom: 12,
     borderWidth: 1,
     borderColor: theme.border,
-    shadowColor: '#000',
+    shadowColor: theme.text,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.02,
+    shadowOpacity: 0.03,
     shadowRadius: 6,
-    elevation: 1,
+    elevation: 2,
   },
   statTopRow: {
     flexDirection: 'row',
@@ -343,8 +345,8 @@ const getStyles = (theme) => StyleSheet.create({
     marginBottom: 8,
   },
   iconBox: {
-    width: 36,
-    height: 36,
+    width: 38,
+    height: 38,
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
@@ -367,7 +369,7 @@ const getStyles = (theme) => StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: theme.primary,
+    color: theme.text,
     marginBottom: 12,
     marginTop: 16,
   },
@@ -406,7 +408,7 @@ const getStyles = (theme) => StyleSheet.create({
   barBackground: {
     height: 80,
     width: 14,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: isDarkMode ? '#1C251F' : '#F1EFEA',
     borderRadius: 7,
     justifyContent: 'flex-end',
     overflow: 'hidden',
@@ -462,7 +464,7 @@ const getStyles = (theme) => StyleSheet.create({
     gap: 6,
   },
   countBadge: {
-    backgroundColor: '#059669',
+    backgroundColor: theme.primary,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 10,

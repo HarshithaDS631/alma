@@ -108,6 +108,8 @@ const WORK_MODES = ['Full-Time', 'Part-Time', 'Remote', 'Hybrid', 'Contract', 'I
 
 // ─── JOB CARD COMPONENT ──────────────────────────────────────────────
 function JobCard({ item, onPress, onDelete, isSmallScreen }) {
+  const { theme, isDarkMode } = useTheme();
+  const s = getStyles(theme, isDarkMode);
   return (
     <View style={s.jobCard}>
       <View style={s.jobCardHeader}>
@@ -159,6 +161,8 @@ function JobCard({ item, onPress, onDelete, isSmallScreen }) {
 
 // ─── RESUME CARD COMPONENT ───────────────────────────────────────────
 function ResumeCard({ item, onShowResume, onForward }) {
+  const { theme, isDarkMode } = useTheme();
+  const s = getStyles(theme, isDarkMode);
   const avatarUrl = item.avatar_url || item.profilePicture;
   const initials = getInitials(item.name || 'Alumni');
   const skills = Array.isArray(item.skills) ? item.skills : (typeof item.skills === 'string' ? item.skills.split(',').map(s => s.trim()).filter(Boolean) : []);
@@ -174,11 +178,11 @@ function ResumeCard({ item, onShowResume, onForward }) {
           </View>
         )}
         <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: 16, fontWeight: '700', color: '#002144' }}>{item.name}</Text>
-          <Text style={{ fontSize: 12.5, fontWeight: '500', color: '#64748B', marginTop: 2 }}>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{item.name}</Text>
+          <Text style={{ fontSize: 12.5, fontWeight: '500', color: theme.textSecondary, marginTop: 2 }}>
             {item.designation || item.headline || 'Alumni Member'} {item.company ? `• ${item.company}` : ''}
           </Text>
-          <Text style={{ fontSize: 11.5, color: '#0055A5', fontWeight: '600', marginTop: 1 }}>
+          <Text style={{ fontSize: 11.5, color: theme.primary, fontWeight: '600', marginTop: 1 }}>
             {item.institution || 'Alumni Network'} {item.department ? `(${item.department})` : ''} {item.batchYear ? `'${String(item.batchYear).slice(-2)}` : ''}
           </Text>
         </View>
@@ -188,26 +192,26 @@ function ResumeCard({ item, onShowResume, onForward }) {
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 10 }}>
           {skills.map((skill, index) => (
             <View key={`${skill}-${index}`} style={s.skillPill}>
-              <Text style={{ fontSize: 11, fontWeight: '600', color: '#059669' }}>{skill}</Text>
+              <Text style={{ fontSize: 11, fontWeight: '600', color: theme.primary }}>{skill}</Text>
             </View>
           ))}
         </View>
       )}
 
-      <View style={{ marginBottom: 12, backgroundColor: '#F8FAFC', padding: 10, borderRadius: 10, borderWidth: 1, borderColor: '#F1F5F9' }}>
+      <View style={{ marginBottom: 12, backgroundColor: isDarkMode ? '#1C251F' : '#F8F6F2', padding: 10, borderRadius: 10, borderWidth: 1, borderColor: theme.border }}>
         {Boolean(item.domain) && (
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
-            <Ionicons name="grid-outline" size={13} color="#64748B" />
-            <Text style={{ fontSize: 12.5, color: '#334155', marginLeft: 6, fontWeight: '500' }}>
-              Domain: <Text style={{ fontWeight: '600', color: '#002144' }}>{item.domain}</Text>
+            <Ionicons name="grid-outline" size={13} color={theme.textMuted} />
+            <Text style={{ fontSize: 12.5, color: theme.textSecondary, marginLeft: 6, fontWeight: '500' }}>
+              Domain: <Text style={{ fontWeight: '600', color: theme.text }}>{item.domain}</Text>
             </Text>
           </View>
         )}
         {Boolean(item.experienceYears) && (
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
-            <Ionicons name="time-outline" size={13} color="#64748B" />
-            <Text style={{ fontSize: 12.5, color: '#334155', marginLeft: 6, fontWeight: '500' }}>
-              Experience: <Text style={{ fontWeight: '600', color: '#002144' }}>{item.experienceYears}</Text>
+            <Ionicons name="time-outline" size={13} color={theme.textMuted} />
+            <Text style={{ fontSize: 12.5, color: theme.textSecondary, marginLeft: 6, fontWeight: '500' }}>
+              Experience: <Text style={{ fontWeight: '600', color: theme.text }}>{item.experienceYears}</Text>
             </Text>
           </View>
         )}
@@ -254,6 +258,7 @@ function ResumeCard({ item, onShowResume, onForward }) {
 // ─── MAIN SCREEN COMPONENT ──────────────────────────────────────────
 export default function AdminJobsScreen({ navigation, route }) {
   const { theme, isDarkMode } = useTheme();
+  const s = getStyles(theme, isDarkMode);
   
   const { width: screenWidth } = useWindowDimensions();
   const isSmallScreen = screenWidth < 400;
@@ -514,8 +519,8 @@ export default function AdminJobsScreen({ navigation, route }) {
             <View style={s.badge}><Text style={s.badgeText}>{detail.location}</Text></View>
           </View>
           <View style={{ marginTop: 16 }}>
-            <Text style={{ fontSize: 16, fontWeight: '700', color: '#002144', marginBottom: 10 }}>Job Description</Text>
-            <Text style={{ fontSize: 14, color: '#64748B', lineHeight: 22 }}>{detail.description}</Text>
+            <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text, marginBottom: 10 }}>Job Description</Text>
+            <Text style={{ fontSize: 14, color: theme.textSecondary, lineHeight: 22 }}>{detail.description}</Text>
           </View>
           <View style={[s.statsRow, { marginTop: 24 }]}>
             <View style={s.statCard}><Text style={{ fontSize: 20, marginRight: 8 }}>👁</Text><Text style={s.statCardText}>{detail.views} Views</Text></View>
@@ -617,26 +622,26 @@ export default function AdminJobsScreen({ navigation, route }) {
             <View style={[s.modalContent, { maxWidth: 440, borderRadius: 20, padding: 22 }]}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#F0FDF4', justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
-                    <Ionicons name="mail" size={18} color="#059669" />
+                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: isDarkMode ? '#14251B' : '#F0FDF4', justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
+                    <Ionicons name="mail" size={18} color={theme.primary} />
                   </View>
-                  <Text style={{ fontSize: 17, fontWeight: '800', color: '#002144' }}>Forward Candidate</Text>
+                  <Text style={{ fontSize: 17, fontWeight: '800', color: theme.text }}>Forward Candidate</Text>
                 </View>
                 <TouchableOpacity onPress={() => setForwardModalVisible(false)} style={{ padding: 4 }}>
-                  <Ionicons name="close-circle" size={22} color="#94A3B8" />
+                  <Ionicons name="close-circle" size={22} color={theme.textMuted} />
                 </TouchableOpacity>
               </View>
 
               {selectedCandidate && (
-                <View style={{ backgroundColor: '#F8FAFC', padding: 12, borderRadius: 12, borderWidth: 1, borderColor: '#E2E8F0', marginBottom: 14 }}>
-                  <Text style={{ fontSize: 14, fontWeight: '700', color: '#002144' }}>{selectedCandidate.name}</Text>
-                  <Text style={{ fontSize: 12, color: '#64748B', marginTop: 2 }}>
+                <View style={{ backgroundColor: isDarkMode ? '#1C251F' : '#F8F6F2', padding: 12, borderRadius: 12, borderWidth: 1, borderColor: theme.border, marginBottom: 14 }}>
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>{selectedCandidate.name}</Text>
+                  <Text style={{ fontSize: 12, color: theme.textSecondary, marginTop: 2 }}>
                     {selectedCandidate.institution || 'Alumni Network'} • {selectedCandidate.department || 'General'}
                   </Text>
                   {selectedCandidate.resumeUrl ? (
-                    <Text style={{ fontSize: 11, color: '#059669', fontWeight: '700', marginTop: 4 }}>✓ Resume attached ({selectedCandidate.resumeFileName || 'PDF'})</Text>
+                    <Text style={{ fontSize: 11, color: theme.primary, fontWeight: '700', marginTop: 4 }}>✓ Resume attached ({selectedCandidate.resumeFileName || 'PDF'})</Text>
                   ) : (
-                    <Text style={{ fontSize: 11, color: '#EF4444', fontWeight: '700', marginTop: 4 }}>⚠ No resume file attached to profile</Text>
+                    <Text style={{ fontSize: 11, color: theme.danger, fontWeight: '700', marginTop: 4 }}>⚠ No resume file attached to profile</Text>
                   )}
                 </View>
               )}
@@ -724,11 +729,11 @@ export default function AdminJobsScreen({ navigation, route }) {
         <Modal visible={modalVisible} transparent animationType="fade" onRequestClose={() => setModalVisible(false)}>
           <TouchableOpacity style={s.modalOverlay} activeOpacity={1} onPress={() => setModalVisible(false)}>
             <View style={s.modalContent}>
-              <Text style={{ fontSize: 18, fontWeight: '800', color: '#002144', marginBottom: 16, textAlign: 'center' }}>Select Work Mode</Text>
+              <Text style={{ fontSize: 18, fontWeight: '800', color: theme.text, marginBottom: 16, textAlign: 'center' }}>Select Work Mode</Text>
               {WORK_MODES.map(mode => (
-                <TouchableOpacity key={mode} style={[s.modalOption, fMode === mode && { backgroundColor: '#F0FDF4' }]} activeOpacity={0.7} onPress={() => { setFMode(mode); setModalVisible(false); }}>
-                  <Text style={{ fontSize: 15, fontWeight: '600', color: fMode === mode ? '#059669' : '#0F172A' }}>{mode}</Text>
-                  {fMode === mode && <Ionicons name="checkmark" size={20} color="#059669" />}
+                <TouchableOpacity key={mode} style={[s.modalOption, fMode === mode && { backgroundColor: isDarkMode ? '#14251B' : '#F0FDF4' }]} activeOpacity={0.7} onPress={() => { setFMode(mode); setModalVisible(false); }}>
+                  <Text style={{ fontSize: 15, fontWeight: '600', color: fMode === mode ? theme.primary : theme.text }}>{mode}</Text>
+                  {fMode === mode && <Ionicons name="checkmark" size={20} color={theme.primary} />}
                 </TouchableOpacity>
               ))}
             </View>
@@ -745,7 +750,7 @@ export default function AdminJobsScreen({ navigation, route }) {
   return (
     <SafeAreaView style={s.safe}>
       <View style={webContainerStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor="#FFFFFF" />
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={theme.card} />
       {header}
       
       {/* Filter Summary Bar */}
@@ -761,7 +766,7 @@ export default function AdminJobsScreen({ navigation, route }) {
           <Ionicons
             name="options-outline"
             size={18}
-            color={activeFiltersCount > 0 ? '#FFFFFF' : '#059669'}
+            color={activeFiltersCount > 0 ? '#FFFFFF' : theme.primary}
           />
           <Text style={[s.filterButtonText, activeFiltersCount > 0 && s.filterButtonTextActive]}>
             Filter{activeFiltersCount > 0 ? ` (${activeFiltersCount})` : ''}
@@ -770,9 +775,9 @@ export default function AdminJobsScreen({ navigation, route }) {
       </View>
 
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 10, paddingBottom: 12 }}>
-        <Text style={{ fontSize: 20, fontWeight: '800', color: '#002144' }}>Job Postings</Text>
+        <Text style={{ fontSize: 20, fontWeight: '800', color: theme.text }}>Job Postings</Text>
         <TouchableOpacity activeOpacity={0.7} onPress={() => setScreen('editor')}>
-          <Ionicons name="add-circle" size={26} color="#059669" />
+          <Ionicons name="add-circle" size={26} color={theme.primary} />
         </TouchableOpacity>
       </View>
       <FlatList
@@ -874,63 +879,63 @@ export default function AdminJobsScreen({ navigation, route }) {
 }
 
 // ─── STYLES ──────────────────────────────────────────────────────────
-const s = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#F8FAFC' },
-  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#E2E8F0' },
-  avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#059669', alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+const getStyles = (theme, isDarkMode) => StyleSheet.create({
+  safe: { flex: 1, backgroundColor: theme.background },
+  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, backgroundColor: theme.card, borderBottomWidth: 1, borderBottomColor: theme.border },
+  avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: theme.primary, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
   avatarText: { color: '#FFFFFF', fontSize: 14, fontWeight: '800' },
-  searchBar: { flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC', borderRadius: 10, paddingHorizontal: 12, height: 40, borderWidth: 1, borderColor: '#E2E8F0', marginRight: 8 },
-  searchInput: { flex: 1, fontSize: 14, color: '#0F172A', padding: 0 },
-  subHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 14, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#E2E8F0' },
-  subTitle: { fontSize: 18, fontWeight: '800', color: '#002144' },
-  backBtn: { width: 40, height: 40, borderRadius: 12, backgroundColor: '#F8FAFC', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#E2E8F0' },
+  searchBar: { flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: isDarkMode ? '#1C251F' : '#F8F6F2', borderRadius: 10, paddingHorizontal: 12, height: 40, borderWidth: 1, borderColor: theme.border, marginRight: 8 },
+  searchInput: { flex: 1, fontSize: 14, color: theme.text, padding: 0 },
+  subHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 14, backgroundColor: theme.card, borderBottomWidth: 1, borderBottomColor: theme.border },
+  subTitle: { fontSize: 18, fontWeight: '800', color: theme.text },
+  backBtn: { width: 40, height: 40, borderRadius: 12, backgroundColor: isDarkMode ? '#1C251F' : '#F8F6F2', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: theme.border },
 
   // Job Card
-  jobCard: { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 16, marginBottom: 14, borderWidth: 1, borderColor: '#E2E8F0' },
+  jobCard: { backgroundColor: theme.card, borderRadius: 16, padding: 16, marginBottom: 14, borderWidth: 1, borderColor: theme.border, shadowColor: theme.text, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.03, shadowRadius: 6, elevation: 2 },
   jobCardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
-  jobLogo: { width: 48, height: 48, borderRadius: 14, backgroundColor: '#F0FDF4', alignItems: 'center', justifyContent: 'center', marginRight: 12, borderWidth: 1, borderColor: '#A7F3D0' },
-  jobRole: { fontSize: 16, fontWeight: '700', color: '#002144' },
-  jobCompany: { fontSize: 13, fontWeight: '600', color: '#64748B', marginTop: 2 },
+  jobLogo: { width: 48, height: 48, borderRadius: 14, backgroundColor: isDarkMode ? '#14251B' : '#F0FDF4', alignItems: 'center', justifyContent: 'center', marginRight: 12, borderWidth: 1, borderColor: isDarkMode ? 'rgba(52, 211, 153, 0.3)' : '#A7F3D0' },
+  jobRole: { fontSize: 16, fontWeight: '700', color: theme.text },
+  jobCompany: { fontSize: 13, fontWeight: '600', color: theme.textSecondary, marginTop: 2 },
   badgeRow: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 10 },
-  badge: { backgroundColor: '#F0FDF4', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 5, marginRight: 8, marginBottom: 6, borderWidth: 1, borderColor: '#A7F3D0' },
-  badgeText: { fontSize: 12, fontWeight: '600', color: '#059669' },
-  statsRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12, paddingTop: 10, borderTopWidth: 1, borderTopColor: '#F1F5F9' },
+  badge: { backgroundColor: isDarkMode ? '#241B15' : '#FAF4ED', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 5, marginRight: 8, marginBottom: 6, borderWidth: 1, borderColor: isDarkMode ? 'rgba(212, 163, 115, 0.35)' : '#E8D4C1' },
+  badgeText: { fontSize: 12, fontWeight: '700', color: isDarkMode ? '#D4A373' : '#B88758' },
+  statsRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12, paddingTop: 10, borderTopWidth: 1, borderTopColor: theme.border },
   statItem: { flexDirection: 'row', alignItems: 'center', marginRight: 20 },
-  statText: { fontSize: 13, fontWeight: '600', color: '#64748B', marginLeft: 6 },
-  viewMoreBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 10, borderRadius: 10, backgroundColor: '#F0FDF4', borderWidth: 1, borderColor: '#A7F3D0' },
-  viewMoreText: { fontSize: 14, fontWeight: '600', color: '#059669', marginRight: 6 },
+  statText: { fontSize: 13, fontWeight: '600', color: theme.textSecondary, marginLeft: 6 },
+  viewMoreBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 10, borderRadius: 10, backgroundColor: isDarkMode ? '#14251B' : '#F0FDF4', borderWidth: 1, borderColor: isDarkMode ? 'rgba(52, 211, 153, 0.3)' : '#A7F3D0' },
+  viewMoreText: { fontSize: 14, fontWeight: '700', color: theme.primary, marginRight: 6 },
 
   // Detail
-  detailLogo: { width: 80, height: 80, borderRadius: 20, backgroundColor: '#F0FDF4', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#A7F3D0' },
-  detailRole: { fontSize: 22, fontWeight: '800', color: '#002144', textAlign: 'center', marginBottom: 4 },
-  detailCompany: { fontSize: 16, fontWeight: '600', color: '#64748B', textAlign: 'center', marginBottom: 16 },
-  statCard: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF', borderRadius: 14, paddingVertical: 16, marginHorizontal: 6, borderWidth: 1, borderColor: '#E2E8F0' },
-  statCardText: { fontSize: 15, fontWeight: '700', color: '#002144' },
-  footer: { padding: 16, backgroundColor: '#FFFFFF', borderTopWidth: 1, borderTopColor: '#E2E8F0' },
-  applyBtn: { backgroundColor: '#059669', borderRadius: 12, paddingVertical: 16, alignItems: 'center', justifyContent: 'center' },
+  detailLogo: { width: 80, height: 80, borderRadius: 20, backgroundColor: isDarkMode ? '#14251B' : '#F0FDF4', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: isDarkMode ? 'rgba(52, 211, 153, 0.3)' : '#A7F3D0' },
+  detailRole: { fontSize: 22, fontWeight: '800', color: theme.text, textAlign: 'center', marginBottom: 4 },
+  detailCompany: { fontSize: 16, fontWeight: '600', color: theme.textSecondary, textAlign: 'center', marginBottom: 16 },
+  statCard: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: theme.card, borderRadius: 14, paddingVertical: 16, marginHorizontal: 6, borderWidth: 1, borderColor: theme.border },
+  statCardText: { fontSize: 15, fontWeight: '700', color: theme.text },
+  footer: { padding: 16, backgroundColor: theme.card, borderTopWidth: 1, borderTopColor: theme.border },
+  applyBtn: { backgroundColor: theme.primary, borderRadius: 12, paddingVertical: 16, alignItems: 'center', justifyContent: 'center' },
 
   // Resume
-  resumeAvatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#059669', alignItems: 'center', justifyContent: 'center', marginRight: 12 },
-  resumeAvatarImage: { width: 44, height: 44, borderRadius: 22, marginRight: 12, backgroundColor: '#F0FDF4', borderWidth: 1, borderColor: '#CBD5E1' },
-  resumeCard: { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 16, marginBottom: 14, borderWidth: 1, borderColor: '#E2E8F0' },
-  skillPill: { backgroundColor: '#F0FDF4', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5, marginRight: 8, marginBottom: 6, borderWidth: 1, borderColor: '#A7F3D0' },
-  resumeActionBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 10, borderRadius: 10, borderWidth: 1, borderColor: '#059669', marginRight: 8 },
-  banner: { backgroundColor: '#059669', marginHorizontal: 16, marginTop: 16, borderRadius: 16, padding: 20 },
-  bannerBtn: { backgroundColor: '#FFFFFF', borderRadius: 10, paddingHorizontal: 20, paddingVertical: 10, marginRight: 12 },
+  resumeAvatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: theme.primary, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+  resumeAvatarImage: { width: 44, height: 44, borderRadius: 22, marginRight: 12, backgroundColor: isDarkMode ? '#1C251F' : '#F0FDF4', borderWidth: 1, borderColor: theme.border },
+  resumeCard: { backgroundColor: theme.card, borderRadius: 16, padding: 16, marginBottom: 14, borderWidth: 1, borderColor: theme.border },
+  skillPill: { backgroundColor: isDarkMode ? '#14251B' : '#F0FDF4', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5, marginRight: 8, marginBottom: 6, borderWidth: 1, borderColor: isDarkMode ? 'rgba(52, 211, 153, 0.3)' : '#A7F3D0' },
+  resumeActionBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 10, borderRadius: 10, borderWidth: 1, borderColor: theme.primary, marginRight: 8 },
+  banner: { backgroundColor: theme.primary, marginHorizontal: 16, marginTop: 16, borderRadius: 16, padding: 20 },
+  bannerBtn: { backgroundColor: theme.card, borderRadius: 10, paddingHorizontal: 20, paddingVertical: 10, marginRight: 12 },
   bannerBtnOutline: { borderWidth: 1, borderColor: '#FFFFFF', borderRadius: 10, paddingHorizontal: 20, paddingVertical: 10 },
 
   // Editor
-  label: { fontSize: 14, fontWeight: '700', color: '#002144', marginBottom: 8, marginTop: 16 },
-  input: { backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: '#E2E8F0', paddingHorizontal: 16, paddingVertical: 14, fontSize: 14, color: '#0F172A' },
-  selector: { backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: '#E2E8F0', paddingHorizontal: 16, paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  postBtn: { backgroundColor: '#059669', borderRadius: 12, paddingVertical: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 28 },
+  label: { fontSize: 14, fontWeight: '700', color: theme.text, marginBottom: 8, marginTop: 16 },
+  input: { backgroundColor: theme.card, borderRadius: 12, borderWidth: 1, borderColor: theme.border, paddingHorizontal: 16, paddingVertical: 14, fontSize: 14, color: theme.text },
+  selector: { backgroundColor: theme.card, borderRadius: 12, borderWidth: 1, borderColor: theme.border, paddingHorizontal: 16, paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  postBtn: { backgroundColor: theme.primary, borderRadius: 12, paddingVertical: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 28 },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 32 },
-  modalContent: { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 20, width: '100%', maxWidth: 340 },
+  modalContent: { backgroundColor: theme.card, borderRadius: 16, padding: 20, width: '100%', maxWidth: 340, borderWidth: 1, borderColor: theme.border },
   modalOption: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 14, paddingHorizontal: 12, borderRadius: 10, marginBottom: 4 },
 
   // FABs
-  fab: { position: 'absolute', bottom: Platform.OS === 'ios' ? 110 : 90, right: 20, width: 56, height: 56, borderRadius: 16, backgroundColor: '#059669', alignItems: 'center', justifyContent: 'center', elevation: 6, shadowColor: '#059669', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8 },
-  resumeFab: { position: 'absolute', bottom: Platform.OS === 'ios' ? 40 : 24, right: 20, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 18, paddingVertical: 14, borderRadius: 16, backgroundColor: '#002144', elevation: 6, shadowColor: '#002144', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8 },
+  fab: { position: 'absolute', bottom: Platform.OS === 'ios' ? 110 : 90, right: 20, width: 56, height: 56, borderRadius: 16, backgroundColor: theme.primary, alignItems: 'center', justifyContent: 'center', elevation: 6, shadowColor: theme.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8 },
+  resumeFab: { position: 'absolute', bottom: Platform.OS === 'ios' ? 40 : 24, right: 20, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 18, paddingVertical: 14, borderRadius: 16, backgroundColor: isDarkMode ? '#241B15' : '#FAF4ED', borderWidth: 1, borderColor: isDarkMode ? 'rgba(212, 163, 115, 0.35)' : '#E8D4C1', elevation: 6, shadowColor: theme.text, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 8 },
 
   // Filter Styles
   filterSummaryBar: {
@@ -939,32 +944,32 @@ const s = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 10,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.card,
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: theme.border,
   },
   filterSummaryText: {
     fontSize: 13,
-    color: '#64748B',
+    color: theme.textSecondary,
     fontWeight: '600',
   },
   filterButton: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: '#059669',
+    borderColor: theme.primary,
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 6,
     gap: 6,
   },
   filterButtonActive: {
-    backgroundColor: '#059669',
+    backgroundColor: theme.primary,
   },
   filterButtonText: {
     fontSize: 12.5,
     fontWeight: '700',
-    color: '#059669',
+    color: theme.primary,
   },
   filterButtonTextActive: {
     color: '#FFFFFF',
@@ -975,7 +980,7 @@ const s = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   filterSheet: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.card,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     maxHeight: '85%',
@@ -987,17 +992,17 @@ const s = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
+    borderBottomColor: theme.border,
   },
   filterSheetTitle: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#0F172A',
+    color: theme.text,
   },
   resetText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#EF4444',
+    color: theme.danger,
   },
   filterScrollView: {
     padding: 20,
@@ -1005,7 +1010,7 @@ const s = StyleSheet.create({
   filterGroupLabel: {
     fontSize: 13.5,
     fontWeight: '800',
-    color: '#475569',
+    color: theme.textSecondary,
     marginTop: 16,
     marginBottom: 10,
     textTransform: 'uppercase',
@@ -1016,27 +1021,27 @@ const s = StyleSheet.create({
     paddingBottom: 4,
   },
   pill: {
-    backgroundColor: '#F1F5F9',
+    backgroundColor: isDarkMode ? '#1C251F' : '#FAF4ED',
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: isDarkMode ? 'rgba(212, 163, 115, 0.35)' : '#E8D4C1',
   },
   pillActive: {
-    backgroundColor: '#059669',
-    borderColor: '#059669',
+    backgroundColor: theme.primary,
+    borderColor: theme.primary,
   },
   pillText: {
     fontSize: 13,
-    fontWeight: '600',
-    color: '#475569',
+    fontWeight: '700',
+    color: isDarkMode ? '#D4A373' : '#B88758',
   },
   pillTextActive: {
     color: '#FFFFFF',
   },
   applyButton: {
-    backgroundColor: '#059669',
+    backgroundColor: theme.primary,
     marginHorizontal: 20,
     marginTop: 10,
     borderRadius: 12,

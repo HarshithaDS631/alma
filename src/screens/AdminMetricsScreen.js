@@ -310,25 +310,25 @@ export default function AdminMetricsScreen({ navigation, isEmbedded = false }) {
             />
             <MetricCard 
               icon="checkmark-circle" 
-              color="#059669" // Emerald
+              color={theme.primary} 
               value={(metrics.totalAlumni ?? 0).toLocaleString()} 
               label="Verified Alumni" 
             />
             <MetricCard 
               icon="time" 
-              color="#F59E0B" // Amber
+              color={theme.secondary || '#C89565'} 
               value={(metrics.pendingApprovals ?? 0).toString()} 
               label="Pending Approvals" 
             />
             <MetricCard 
               icon="newspaper-outline" 
-              color="#3B82F6" // Blue
+              color={theme.primaryDark || '#047857'} 
               value={(metrics.activeJobs ?? 0).toString()} 
               label="Community Posts" 
             />
             <MetricCard 
               icon="calendar" 
-              color="#EC4899" // Pink
+              color={theme.sand || '#D4A373'} 
               value={(metrics.upcomingEvents ?? 0).toString()} 
               label="Campus Events" 
             />

@@ -59,7 +59,7 @@ const checkDatabaseVerification = (name, batchYear, joiningYear, institution) =>
 const FRIENDS_DATA = [];
 const COMMUNITIES_DATA = [];
 
-const AVATAR_COLORS = ['#059669', '#0F172A', '#1E3A5F', '#2C5282', '#1A365D', '#2D3748'];
+const AVATAR_COLORS = ['#059669', '#C89565', '#047857', '#D4A373', '#34D399', '#B88758'];
 
 const BATCH_OPTIONS = ['All', '2015', '2017', '2018', '2019', '2020', '2021', '2022', '2023'];
 const BRANCH_OPTIONS = ['All', 'CSE', 'ECE', 'ISE', 'MBA', 'ME', 'EEE'];
@@ -69,7 +69,7 @@ const COURSE_OPTIONS = ['All', 'B.E.', 'M.Tech', 'MCA', 'MBA'];
 
 const AdminUsersScreen = ({ navigation, route }) => {
   const { theme, isDarkMode } = useTheme();
-  const styles = getStyles(theme);
+  const styles = getStyles(theme, isDarkMode);
 
   const isSuperAdmin = route?.params?.isSuperAdmin || false;
   const isFocused = useIsFocused();
@@ -359,7 +359,7 @@ const AdminUsersScreen = ({ navigation, route }) => {
   const renderHeader = () => (
     <View style={styles.header}>
       <TouchableOpacity
-        style={[styles.headerAvatar, { overflow: 'hidden', justifyContent: 'center', alignItems: 'center' }, isSuperAdmin && { backgroundColor: '#059669' }]}
+        style={[styles.headerAvatar, { overflow: 'hidden', justifyContent: 'center', alignItems: 'center' }, isSuperAdmin && { backgroundColor: theme.primary }]}
         onPress={() => navigation && navigation.navigate('AdminProfile')}
       >
         {userAvatarUrl ? (
@@ -372,17 +372,17 @@ const AdminUsersScreen = ({ navigation, route }) => {
         )}
       </TouchableOpacity>
       <View style={styles.headerSearchContainer}>
-        <Ionicons name="search-outline" size={18} color="#94A3B8" style={styles.headerSearchIcon} />
+        <Ionicons name="search-outline" size={18} color={theme.textMuted} style={styles.headerSearchIcon} />
         <TextInput
           style={styles.headerSearchInput}
           placeholder="Search users..."
-          placeholderTextColor="#94A3B8"
+          placeholderTextColor={theme.textMuted}
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
         {searchQuery.length > 0 && (
           <TouchableOpacity onPress={() => setSearchQuery('')} activeOpacity={0.7}>
-            <Ionicons name="close-circle" size={18} color="#94A3B8" />
+            <Ionicons name="close-circle" size={18} color={theme.textMuted} />
           </TouchableOpacity>
         )}
       </View>
@@ -392,14 +392,14 @@ const AdminUsersScreen = ({ navigation, route }) => {
           activeOpacity={0.7}
           onPress={() => navigation && navigation.navigate('Messages')}
         >
-          <Ionicons name="chatbubble-ellipses-outline" size={22} color="#059669" />
+          <Ionicons name="chatbubble-ellipses-outline" size={22} color={theme.primary} />
         </TouchableOpacity>
         <TouchableOpacity 
           style={styles.headerIconBtn} 
           activeOpacity={0.7}
           onPress={() => navigation && navigation.navigate('Notifications')}
         >
-          <Ionicons name="notifications-outline" size={22} color="#059669" />
+          <Ionicons name="notifications-outline" size={22} color={theme.primary} />
         </TouchableOpacity>
       </View>
     </View>
@@ -539,7 +539,7 @@ const AdminUsersScreen = ({ navigation, route }) => {
             } 
           })}
         >
-          <Ionicons name="chatbubble-outline" size={16} color="#059669" />
+          <Ionicons name="chatbubble-outline" size={16} color={theme.primary} />
           <Text style={styles.messageBtnText}>Message</Text>
         </TouchableOpacity>
 
@@ -572,7 +572,7 @@ const AdminUsersScreen = ({ navigation, route }) => {
   const renderCommunityItem = ({ item }) => (
     <View style={styles.communityCard}>
       <View style={styles.communityIcon}>
-        <Ionicons name={item.icon} size={24} color="#059669" />
+        <Ionicons name={item.icon} size={24} color={theme.primary} />
       </View>
       <View style={styles.communityInfo}>
         <Text style={styles.communityName}>{item.name}</Text>
@@ -595,7 +595,7 @@ const AdminUsersScreen = ({ navigation, route }) => {
 
   const renderEmptyFriends = () => (
     <View style={styles.emptyContainer}>
-      <Ionicons name="people-outline" size={56} color="#94A3B8" />
+      <Ionicons name="people-outline" size={56} color={theme.textMuted} />
       <Text style={styles.emptyTitle}>No users found</Text>
       <Text style={styles.emptySubtitle}>Try a different search or clear filters</Text>
     </View>
@@ -607,7 +607,7 @@ const AdminUsersScreen = ({ navigation, route }) => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={webContainerStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor="#FFFFFF" />
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={theme.card} />
       {renderHeader()}
       {renderTabs()}
 
@@ -658,18 +658,18 @@ const AdminUsersScreen = ({ navigation, route }) => {
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           ListHeaderComponent={() => (
-            <View style={{ backgroundColor: '#F0FDF4', borderColor: '#A7F3D0', borderWidth: 1, borderRadius: 12, padding: 12, marginBottom: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <View style={{ backgroundColor: isDarkMode ? '#14251B' : '#F0FDF4', borderColor: isDarkMode ? 'rgba(52, 211, 153, 0.3)' : '#A7F3D0', borderWidth: 1, borderRadius: 12, padding: 12, marginBottom: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
               <View style={{ flex: 1, marginRight: 8 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                  <Ionicons name="document-text" size={16} color="#059669" />
-                  <Text style={{ fontSize: 13, fontWeight: '700', color: '#047857' }}>RVCE Roster Verification</Text>
+                  <Ionicons name="document-text" size={16} color={theme.primary} />
+                  <Text style={{ fontSize: 13, fontWeight: '700', color: theme.primary }}>RVCE Roster Verification</Text>
                 </View>
-                <Text style={{ fontSize: 11, color: '#059669', marginTop: 2 }}>
+                <Text style={{ fontSize: 11, color: theme.textSecondary, marginTop: 2 }}>
                   Alumni applications verified against official Google Sheet roster.
                 </Text>
               </View>
               <TouchableOpacity
-                style={{ backgroundColor: '#059669', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, flexDirection: 'row', alignItems: 'center', gap: 4 }}
+                style={{ backgroundColor: theme.primary, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, flexDirection: 'row', alignItems: 'center', gap: 4 }}
                 onPress={handleSyncSheet}
                 disabled={syncingSheet}
               >
@@ -837,7 +837,7 @@ const AdminUsersScreen = ({ navigation, route }) => {
   );
 };
 
-const getStyles = (theme) => StyleSheet.create({
+const getStyles = (theme, isDarkMode) => StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: theme.background,
@@ -1118,7 +1118,7 @@ const getStyles = (theme) => StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
+    borderBottomColor: theme.border,
   },
   filterSheetTitle: {
     fontSize: 18,
@@ -1136,7 +1136,7 @@ const getStyles = (theme) => StyleSheet.create({
   filterGroupLabel: {
     fontSize: 13.5,
     fontWeight: '800',
-    color: '#475569',
+    color: theme.textSecondary,
     marginTop: 16,
     marginBottom: 10,
     textTransform: 'uppercase',
@@ -1147,12 +1147,12 @@ const getStyles = (theme) => StyleSheet.create({
     paddingBottom: 4,
   },
   pill: {
-    backgroundColor: '#F1F5F9',
+    backgroundColor: isDarkMode ? '#1C251F' : '#FAF4ED',
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderWidth: 1,
-    borderColor: theme.border,
+    borderColor: isDarkMode ? 'rgba(212, 163, 115, 0.35)' : '#E8D4C1',
   },
   pillActive: {
     backgroundColor: theme.primary,
@@ -1161,7 +1161,7 @@ const getStyles = (theme) => StyleSheet.create({
   pillText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#475569',
+    color: isDarkMode ? '#D4A373' : '#B88758',
   },
   pillTextActive: {
     color: theme.card,
@@ -1191,7 +1191,7 @@ const getStyles = (theme) => StyleSheet.create({
   selectorLabel: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#475569',
+    color: theme.textSecondary,
     marginRight: 8,
   },
   selectorScroll: {
@@ -1201,15 +1201,18 @@ const getStyles = (theme) => StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: isDarkMode ? '#1C251F' : '#FAF4ED',
+    borderWidth: 1,
+    borderColor: isDarkMode ? 'rgba(212, 163, 115, 0.35)' : '#E8D4C1',
   },
   selectorChipActive: {
     backgroundColor: theme.primary,
+    borderColor: theme.primary,
   },
   selectorChipText: {
     fontSize: 11,
     fontWeight: '700',
-    color: theme.textSecondary,
+    color: isDarkMode ? '#D4A373' : '#B88758',
   },
   selectorChipTextActive: {
     color: theme.card,

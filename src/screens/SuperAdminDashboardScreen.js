@@ -132,12 +132,12 @@ const MASTER_COMPANIES = ['Cisco Systems', 'Accenture', 'Qualcomm', 'Infosys', '
 
 const panelItems = [
   { id: '0', title: 'Alumni Portals', icon: 'grid-outline', color: '#F0FDF4', iconColor: '#059669', moduleName: 'alumni_portals_grid', desc: 'Select institution to access dedicated alumni networks' },
-  { id: '1', title: 'Administrator', icon: 'person-add-outline', color: '#DCFCE7', iconColor: '#059669', moduleName: 'administrator', desc: 'Manage institution administrators' },
+  { id: '1', title: 'Administrator', icon: 'person-add-outline', color: '#FAF4ED', iconColor: '#C89565', moduleName: 'administrator', desc: 'Manage institution administrators' },
   { id: '2', title: 'Network Settings', icon: 'settings-outline', color: '#F0FDF4', iconColor: '#059669', moduleName: 'network_settings', desc: 'AlmaConnect-style institution configs' },
-  { id: '3', title: 'Bulk Import', icon: 'cloud-upload-outline', color: '#DCFCE7', iconColor: '#059669', moduleName: 'bulk_import', desc: 'Bulk import alumni profiles via CSV' },
-  { id: '4', title: 'Logs/Stats', icon: 'bar-chart-outline', color: '#FFF1F2', iconColor: '#E11D48', moduleName: 'logs_stats', desc: 'Database, visitors, jobs & email charts' },
-  { id: '5', title: 'Admin Activities', icon: 'time-outline', color: '#F1F5F9', iconColor: '#475569', moduleName: 'admin_activities', desc: 'Audit log of actions taken by admins' },
-  { id: '6', title: 'Master List', icon: 'list-outline', color: '#F0FDF4', iconColor: '#16A34A', moduleName: 'master_list', desc: 'Institutions, locations, batches & companies' },
+  { id: '3', title: 'Bulk Import', icon: 'cloud-upload-outline', color: '#FAF4ED', iconColor: '#C89565', moduleName: 'bulk_import', desc: 'Bulk import alumni profiles via CSV' },
+  { id: '4', title: 'Logs/Stats', icon: 'bar-chart-outline', color: '#F0FDF4', iconColor: '#047857', moduleName: 'logs_stats', desc: 'Database, visitors, jobs & email charts' },
+  { id: '5', title: 'Admin Activities', icon: 'time-outline', color: '#FAF4ED', iconColor: '#B88758', moduleName: 'admin_activities', desc: 'Audit log of actions taken by admins' },
+  { id: '6', title: 'Master List', icon: 'list-outline', color: '#F0FDF4', iconColor: '#059669', moduleName: 'master_list', desc: 'Institutions, locations, batches & companies' },
 ];
 
 const MOCK_POSTS = [];
@@ -345,7 +345,7 @@ const SuperAdminDashboardScreen = ({ navigation, route }) => {
           fullName: 'RV College of Nursing',
           subtitle: 'Bengaluru, Karnataka • Est. 2003',
           logo: 'CN',
-          color: '#0D9488',
+          color: '#047857',
         };
       case 'RVCP':
         return {
@@ -408,7 +408,7 @@ const SuperAdminDashboardScreen = ({ navigation, route }) => {
           fullName: 'All Campuses',
           subtitle: 'Aggregated view across all campuses',
           logo: 'ALL',
-          color: '#0D9488',
+          color: theme.primary,
         };
     }
   };
@@ -1960,7 +1960,7 @@ const SuperAdminDashboardScreen = ({ navigation, route }) => {
               <Ionicons 
                 name={expandedChart === 'signups' ? 'chevron-up-circle' : 'chevron-down-circle'} 
                 size={20} 
-                color="#0D9488" 
+                color={theme.primary} 
               />
             </View>
             <View style={styles.statNumbersRow}>
@@ -1977,14 +1977,14 @@ const SuperAdminDashboardScreen = ({ navigation, route }) => {
               <View style={styles.chartBarRow}>
                 <Text style={styles.chartBarLabel}>Signups</Text>
                 <View style={styles.chartBarTrack}>
-                  <View style={[styles.chartBarFill, { width: '38%', backgroundColor: '#0D9488' }]} />
+                  <View style={[styles.chartBarFill, { width: '38%', backgroundColor: theme.primary }]} />
                 </View>
                 <Text style={styles.chartBarValue}>38%</Text>
               </View>
               <View style={styles.chartBarRow}>
                 <Text style={styles.chartBarLabel}>Updates</Text>
                 <View style={styles.chartBarTrack}>
-                  <View style={[styles.chartBarFill, { width: '60%', backgroundColor: '#0D9488' }]} />
+                  <View style={[styles.chartBarFill, { width: '60%', backgroundColor: theme.secondary || '#C89565' }]} />
                 </View>
                 <Text style={styles.chartBarValue}>60%</Text>
               </View>
@@ -2028,7 +2028,7 @@ const SuperAdminDashboardScreen = ({ navigation, route }) => {
               <Ionicons 
                 name={expandedChart === 'engagement' ? 'chevron-up-circle' : 'chevron-down-circle'} 
                 size={20} 
-                color="#0D9488" 
+                color={theme.primary} 
               />
             </View>
             <View style={styles.statNumbersRow}>
@@ -2045,14 +2045,14 @@ const SuperAdminDashboardScreen = ({ navigation, route }) => {
               <View style={styles.chartBarRow}>
                 <Text style={styles.chartBarLabel}>Feed</Text>
                 <View style={styles.chartBarTrack}>
-                  <View style={[styles.chartBarFill, { width: '20%', backgroundColor: '#0D9488' }]} />
+                  <View style={[styles.chartBarFill, { width: '20%', backgroundColor: theme.primary }]} />
                 </View>
                 <Text style={styles.chartBarValue}>2.4%</Text>
               </View>
               <View style={styles.chartBarRow}>
                 <Text style={styles.chartBarLabel}>Jobs</Text>
                 <View style={styles.chartBarTrack}>
-                  <View style={[styles.chartBarFill, { width: '90%', backgroundColor: '#0D9488' }]} />
+                  <View style={[styles.chartBarFill, { width: '90%', backgroundColor: theme.secondary || '#C89565' }]} />
                 </View>
                 <Text style={styles.chartBarValue}>97.6%</Text>
               </View>
@@ -2096,7 +2096,7 @@ const SuperAdminDashboardScreen = ({ navigation, route }) => {
               <Ionicons 
                 name={expandedChart === 'users' ? 'chevron-up-circle' : 'chevron-down-circle'} 
                 size={20} 
-                color="#0D9488" 
+                color={theme.primary} 
               />
             </View>
             <View style={styles.statNumbersRowMulti}>
@@ -2117,14 +2117,14 @@ const SuperAdminDashboardScreen = ({ navigation, route }) => {
               <View style={styles.chartBarRow}>
                 <Text style={styles.chartBarLabel}>Registered</Text>
                 <View style={styles.chartBarTrack}>
-                  <View style={[styles.chartBarFill, { width: '29%', backgroundColor: '#0D9488' }]} />
+                  <View style={[styles.chartBarFill, { width: '29%', backgroundColor: theme.primary }]} />
                 </View>
                 <Text style={styles.chartBarValue}>29%</Text>
               </View>
               <View style={styles.chartBarRow}>
                 <Text style={styles.chartBarLabel}>Unregister</Text>
                 <View style={styles.chartBarTrack}>
-                  <View style={[styles.chartBarFill, { width: '71%', backgroundColor: '#0D9488' }]} />
+                  <View style={[styles.chartBarFill, { width: '71%', backgroundColor: theme.secondary || '#C89565' }]} />
                 </View>
                 <Text style={styles.chartBarValue}>71%</Text>
               </View>
@@ -2171,7 +2171,7 @@ const SuperAdminDashboardScreen = ({ navigation, route }) => {
               <Ionicons 
                 name={expandedChart === 'jobs' ? 'chevron-up-circle' : 'chevron-down-circle'} 
                 size={20} 
-                color="#0D9488" 
+                color={theme.primary} 
               />
             </View>
             <View style={styles.statNumbersRowMulti}>
@@ -2196,7 +2196,7 @@ const SuperAdminDashboardScreen = ({ navigation, route }) => {
               <View style={styles.chartBarRow}>
                 <Text style={styles.chartBarLabel}>Apply Rate</Text>
                 <View style={styles.chartBarTrack}>
-                  <View style={[styles.chartBarFill, { width: '50%', backgroundColor: '#0D9488' }]} />
+                  <View style={[styles.chartBarFill, { width: '50%', backgroundColor: theme.primary }]} />
                 </View>
                 <Text style={styles.chartBarValue}>50%</Text>
               </View>
@@ -2243,14 +2243,14 @@ const SuperAdminDashboardScreen = ({ navigation, route }) => {
               <Ionicons 
                 name={expandedChart === 'emails' ? 'chevron-up-circle' : 'chevron-down-circle'} 
                 size={20} 
-                color="#0D9488" 
+                color={theme.primary} 
               />
             </View>
             <View style={{ paddingBottom: 10 }}>
               <Text style={[styles.statHugeText, { fontSize: 18 }]}>23118</Text>
               <Text style={styles.statSubtitleText}>News feed emails sent (10.63% opened, 3.77% clicked)</Text>
             </View>
-            <View style={{ paddingTop: 8, borderTopWidth: 1, borderColor: '#F1F5F9' }}>
+            <View style={{ paddingTop: 8, borderTopWidth: 1, borderColor: theme.border }}>
               <Text style={[styles.statHugeText, { fontSize: 18 }]}>0</Text>
               <Text style={styles.statSubtitleText}>Email sent from master list (0% opened, 0% clicked)</Text>
             </View>
@@ -2258,14 +2258,14 @@ const SuperAdminDashboardScreen = ({ navigation, route }) => {
               <View style={styles.chartBarRow}>
                 <Text style={styles.chartBarLabel}>Opened</Text>
                 <View style={styles.chartBarTrack}>
-                  <View style={[styles.chartBarFill, { width: '10.6%', backgroundColor: '#0D9488' }]} />
+                  <View style={[styles.chartBarFill, { width: '10.6%', backgroundColor: theme.primary }]} />
                 </View>
                 <Text style={styles.chartBarValue}>10.6%</Text>
               </View>
               <View style={styles.chartBarRow}>
                 <Text style={styles.chartBarLabel}>Clicked</Text>
                 <View style={styles.chartBarTrack}>
-                  <View style={[styles.chartBarFill, { width: '3.7%', backgroundColor: '#0D9488' }]} />
+                  <View style={[styles.chartBarFill, { width: '3.7%', backgroundColor: theme.secondary || '#C89565' }]} />
                 </View>
                 <Text style={styles.chartBarValue}>3.7%</Text>
               </View>
@@ -2662,7 +2662,7 @@ const SuperAdminDashboardScreen = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor="#FFFFFF" />
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={theme.card} />
       <View style={webContainerStyle}>
 
         {/* Header - shown only on Mobile/Tablet or if we need a top bar */}
@@ -2670,18 +2670,18 @@ const SuperAdminDashboardScreen = ({ navigation, route }) => {
           !isMainScreen ? (
             <View style={styles.headerAdminStyle}>
               <TouchableOpacity onPress={handleGoBack} style={styles.headerIconBtnAdminStyle}>
-                <Ionicons name="arrow-back" size={24} color="#002144" />
+                <Ionicons name="arrow-back" size={24} color={theme.primary} />
               </TouchableOpacity>
               <View style={{ flex: 1, justifyContent: 'center' }}>
-                <Text style={{ fontSize: 18, fontWeight: '800', color: '#047857' }}>{currentModuleData?.title}</Text>
+                <Text style={{ fontSize: 18, fontWeight: '800', color: theme.primary }}>{currentModuleData?.title}</Text>
                 <Text style={{ fontSize: 11, color: theme.textSecondary, fontWeight: '500' }}>Super Admin Panel</Text>
               </View>
               <View style={styles.headerIconsAdminStyle}>
                 <TouchableOpacity style={styles.headerIconBtnAdminStyle} onPress={() => navigation && navigation.navigate('Messages')}>
-                  <Ionicons name="chatbubble-ellipses-outline" size={24} color="#059669" />
+                  <Ionicons name="chatbubble-ellipses-outline" size={24} color={theme.primary} />
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.headerIconBtnAdminStyle} onPress={() => navigation && navigation.navigate('Notifications')}>
-                  <Ionicons name="notifications-outline" size={24} color="#059669" />
+                  <Ionicons name="notifications-outline" size={24} color={theme.primary} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -2700,16 +2700,16 @@ const SuperAdminDashboardScreen = ({ navigation, route }) => {
               </TouchableOpacity>
               {activeModule === 'dashboard_home' ? (
                 <View style={{ flex: 1, justifyContent: 'center' }}>
-                  <Text style={{ fontSize: 18, fontWeight: '800', color: '#047857' }}>Super Admin Dashboard</Text>
+                  <Text style={{ fontSize: 18, fontWeight: '800', color: theme.primary }}>Super Admin Dashboard</Text>
                   <Text style={{ fontSize: 11, color: theme.textSecondary, fontWeight: '500' }}>System Status Overview</Text>
                 </View>
               ) : (
                 <View style={styles.searchBarAdminStyle}>
-                  <Ionicons name="search-outline" size={18} color="#94A3B8" style={{ marginRight: 6 }} />
+                  <Ionicons name="search-outline" size={18} color={theme.textMuted} style={{ marginRight: 6 }} />
                   <TextInput
                     style={styles.searchInputAdminStyle}
                     placeholder="Search Panel..."
-                    placeholderTextColor="#94A3B8"
+                    placeholderTextColor={theme.textMuted}
                     value={searchQuery}
                     onChangeText={setSearchQuery}
                   />
@@ -2717,10 +2717,10 @@ const SuperAdminDashboardScreen = ({ navigation, route }) => {
               )}
               <View style={styles.headerIconsAdminStyle}>
                 <TouchableOpacity style={styles.headerIconBtnAdminStyle} onPress={() => navigation && navigation.navigate('Messages')}>
-                  <Ionicons name="chatbubble-ellipses-outline" size={24} color="#059669" />
+                  <Ionicons name="chatbubble-ellipses-outline" size={24} color={theme.primary} />
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.headerIconBtnAdminStyle} onPress={() => navigation && navigation.navigate('Notifications')}>
-                  <Ionicons name="notifications-outline" size={24} color="#059669" />
+                  <Ionicons name="notifications-outline" size={24} color={theme.primary} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -2730,12 +2730,12 @@ const SuperAdminDashboardScreen = ({ navigation, route }) => {
         {/* Left Column (Desktop Only) */}
         {isDesktop && (
           <View style={{ flex: 3 }}>
-             <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 20, elevation: 2, borderWidth: 1, borderColor: theme.border, alignItems: 'center', marginBottom: 24 }}>
-               <View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: '#059669', justifyContent: 'center', alignItems: 'center', marginBottom: 12 }}>
-                 <Text style={{ fontSize: 24, fontWeight: '700', color: theme.card }}>SA</Text>
+             <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, elevation: 2, borderWidth: 1, borderColor: theme.border, alignItems: 'center', marginBottom: 24 }}>
+               <View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center', marginBottom: 12, shadowColor: theme.primary, shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.2, shadowRadius: 6, elevation: 3 }}>
+                 <Text style={{ fontSize: 24, fontWeight: '800', color: theme.card }}>SA</Text>
                </View>
-               <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>Super Admin</Text>
-               <Text style={{ fontSize: 13, color: theme.textSecondary, textAlign: 'center', marginTop: 6 }}>Global Administrator</Text>
+               <Text style={{ fontSize: 18, fontWeight: '800', color: theme.text }}>Super Admin</Text>
+               <Text style={{ fontSize: 13, color: theme.textSecondary, textAlign: 'center', marginTop: 4 }}>Global Administrator</Text>
                <View style={{ width: '100%', height: 1, backgroundColor: theme.border, marginVertical: 16 }} />
                <View style={{ width: '100%', gap: 12 }}>
                  <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
@@ -2761,12 +2761,19 @@ const SuperAdminDashboardScreen = ({ navigation, route }) => {
                 {filteredPanelItems.map((item) => (
                   <TouchableOpacity
                     key={item.id}
-                    style={[styles.gridCard, { backgroundColor: item.color, width: width > 768 && !isDesktop ? '31%' : '48%' }]}
+                    style={[
+                      styles.gridCard, 
+                      { 
+                        backgroundColor: isDarkMode ? (item.color === '#FAF4ED' ? '#241B15' : '#14251B') : item.color, 
+                        borderColor: isDarkMode ? (item.color === '#FAF4ED' ? 'rgba(212, 163, 115, 0.35)' : 'rgba(52, 211, 153, 0.25)') : (item.color === '#FAF4ED' ? '#E8D4C1' : '#A7F3D0'),
+                        width: width > 768 && !isDesktop ? '31%' : '48%' 
+                      }
+                    ]}
                     onPress={() => { setActiveModule(item.moduleName); setActiveSubTab('1'); }}
                     activeOpacity={0.7}
                   >
                     <View style={[styles.gridIconBg, { backgroundColor: theme.card }]}>
-                      <Ionicons name={item.icon} size={24} color={item.iconColor} />
+                      <Ionicons name={item.icon} size={24} color={isDarkMode && item.iconColor === '#C89565' ? '#D4A373' : (isDarkMode && item.iconColor === '#059669' ? '#34D399' : item.iconColor)} />
                     </View>
                     <Text style={styles.gridCardTitle}>{item.title}</Text>
                     <Text style={styles.gridCardDesc} numberOfLines={2}>{item.desc}</Text>
@@ -2784,12 +2791,12 @@ const SuperAdminDashboardScreen = ({ navigation, route }) => {
         {/* Right Column (Desktop Only) */}
         {isDesktop && (
           <View style={{ flex: 3.5 }}>
-            <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 16, elevation: 2, borderWidth: 1, borderColor: theme.border }}>
-              <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text, marginBottom: 16 }}>Global Stats</Text>
+            <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 18, elevation: 2, borderWidth: 1, borderColor: theme.border }}>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: theme.text, marginBottom: 16 }}>Global Stats</Text>
               
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
-                <View style={{ width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center', backgroundColor: '#DCFCE7', marginRight: 12 }}>
-                  <Ionicons name="business-outline" size={20} color="#059669" />
+                <View style={{ width: 38, height: 38, borderRadius: 10, justifyContent: 'center', alignItems: 'center', backgroundColor: isDarkMode ? '#14251B' : '#F0FDF4', marginRight: 12 }}>
+                  <Ionicons name="business-outline" size={20} color={theme.primary} />
                 </View>
                 <View>
                   <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>{INSTITUTIONS.length}</Text>
@@ -2798,8 +2805,8 @@ const SuperAdminDashboardScreen = ({ navigation, route }) => {
               </View>
 
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
-                <View style={{ width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center', backgroundColor: '#DCFCE7', marginRight: 12 }}>
-                  <Ionicons name="newspaper-outline" size={20} color="#16A34A" />
+                <View style={{ width: 38, height: 38, borderRadius: 10, justifyContent: 'center', alignItems: 'center', backgroundColor: isDarkMode ? '#241B15' : '#FAF4ED', marginRight: 12 }}>
+                  <Ionicons name="newspaper-outline" size={20} color={isDarkMode ? '#D4A373' : '#B88758'} />
                 </View>
                 <View>
                   <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>{actualStats.posts}</Text>
@@ -2808,8 +2815,8 @@ const SuperAdminDashboardScreen = ({ navigation, route }) => {
               </View>
 
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
-                <View style={{ width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F0FDF4', marginRight: 12 }}>
-                  <Ionicons name="calendar-outline" size={20} color="#059669" />
+                <View style={{ width: 38, height: 38, borderRadius: 10, justifyContent: 'center', alignItems: 'center', backgroundColor: isDarkMode ? '#14251B' : '#F0FDF4', marginRight: 12 }}>
+                  <Ionicons name="calendar-outline" size={20} color={theme.primary} />
                 </View>
                 <View>
                   <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>{actualStats.events}</Text>
@@ -3533,7 +3540,7 @@ const getStyles = (theme) => StyleSheet.create({
     borderWidth: 1,
     borderColor: theme.border,
     borderLeftWidth: 4,
-    borderLeftColor: '#0D9488',
+    borderLeftColor: theme.primary,
     padding: 16,
     marginBottom: 12,
   },
@@ -4508,7 +4515,7 @@ const getStyles = (theme) => StyleSheet.create({
   chartDetailsTitle: {
     fontSize: 12.5,
     fontWeight: '800',
-    color: '#0D9488',
+    color: theme.primary,
     marginBottom: 8,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -4538,22 +4545,22 @@ const getStyles = (theme) => StyleSheet.create({
     flexDirection: 'row',
     paddingVertical: 6,
     borderBottomWidth: 1,
-    borderColor: '#F1F5F9',
+    borderColor: theme.border,
   },
   chartDetailsCellLabel: {
     fontSize: 12,
     fontWeight: '700',
-    color: theme.inputBackground,
+    color: theme.text,
   },
   chartDetailsCellVal: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#475569',
+    color: theme.textSecondary,
     textAlign: 'right',
   },
   chartDetailsHelpText: {
     fontSize: 11,
-    color: '#0D9488',
+    color: theme.primary,
     fontWeight: '600',
     textAlign: 'center',
     marginTop: 10,
