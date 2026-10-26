@@ -142,7 +142,7 @@ const DashboardScreen = ({ navigation }) => {
 
   const { width } = useWindowDimensions();
   const isWeb = Platform.OS === 'web';
-  const isDesktop = isWeb && width >= 1200;
+  const isDesktop = isWeb && width >= 1024;
   const contentWidth = isWeb ? Math.min(width, 800) : width;
   const webContainerStyle = isWeb ? { alignSelf: 'center', width: '100%', maxWidth: isDesktop ? 1200 : 760, flex: 1 } : { flex: 1 };
   
@@ -324,15 +324,13 @@ const DashboardScreen = ({ navigation }) => {
 
   const filteredPosts = React.useMemo(() => {
     if (!Array.isArray(posts)) return [];
-    if (feedFilter === 'all') return posts;
+    let result = posts;
     if (feedFilter === 'jobs') {
-      return posts.filter(p => /hiring|referral|job|opening|career|internship|role|recruit|opportunity/i.test((p.content || '') + ' ' + (p.role || '')));
-    }
-    if (feedFilter === 'campus') {
-      return posts.filter(p => /rvce|campus|convocation|exam|faculty|department|research|rsst|reunion|alumni meet/i.test((p.content || '') + ' ' + (p.role || '')));
-    }
-    if (feedFilter === 'network') {
-      return posts.filter(p => {
+      result = result.filter(p => /hiring|referral|job|opening|career|internship|role|recruit|opportunity/i.test((p.content || '') + ' ' + (p.role || '')));
+    } else if (feedFilter === 'campus') {
+      result = result.filter(p => /rvce|campus|convocation|exam|faculty|department|research|rsst|reunion|alumni meet/i.test((p.content || '') + ' ' + (p.role || '')));
+    } else if (feedFilter === 'network') {
+      result = result.filter(p => {
         const isOwn = (p.authorId && (p.authorId === currentUser?._id || p.authorId === currentUser?.id)) ||
           (p.user && currentUser?.name && p.user.toLowerCase().includes(currentUser.name.toLowerCase()));
         const isFollowing = Boolean(
@@ -342,8 +340,16 @@ const DashboardScreen = ({ navigation }) => {
         return isOwn || isFollowing;
       });
     }
-    return posts;
-  }, [posts, feedFilter, currentUser, followingMap]);
+    if (searchText && searchText.trim()) {
+      const q = searchText.toLowerCase().trim();
+      result = result.filter(p => 
+        (p.content && p.content.toLowerCase().includes(q)) ||
+        (p.user && (typeof p.user === 'string' ? p.user : p.user.name || '').toLowerCase().includes(q)) ||
+        (p.role && p.role.toLowerCase().includes(q))
+      );
+    }
+    return result;
+  }, [posts, feedFilter, currentUser, followingMap, searchText]);
 
   const [suggestions, setSuggestions] = useState([]);
   const [eventsAndJobs, setEventsAndJobs] = useState([]);
@@ -1242,39 +1248,6 @@ const DashboardScreen = ({ navigation }) => {
 
 
 
-      {/* 2. Sleek, Single-Line Quick Composer */}
-      <View style={styles.compactComposerCard}>
-        <TouchableOpacity 
-          style={styles.compactComposerAvatar}
-          onPress={() => navigation.navigate('Profile')}
-          activeOpacity={0.8}
-        >
-          {userAvatarUrl ? (
-            <Image source={{ uri: userAvatarUrl }} style={{ width: '100%', height: '100%' }} />
-          ) : (
-            <Text style={styles.compactComposerAvatarInitials}>{getInitials(userName || currentUser?.name || 'User')}</Text>
-          )}
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={styles.compactComposerInput}
-          onPress={() => navigation.navigate('PostCreation')}
-          activeOpacity={0.85}
-        >
-          <Text style={styles.compactComposerPlaceholder}>Share an update, referral, or notice...</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={styles.compactComposerBtn}
-          onPress={() => navigation.navigate('PostCreation')}
-          activeOpacity={0.8}
-        >
-          <PulseElement minScale={0.96} maxScale={1.06} duration={2200}>
-            <Ionicons name="add" size={16} color="#FFFFFF" />
-          </PulseElement>
-          <Text style={styles.compactComposerBtnText}>Post</Text>
-        </TouchableOpacity>
-      </View>
 
       {/* 3. Intuitive Category Filter Bar with counts */}
       <View style={styles.feedFilterBar}>
@@ -1352,27 +1325,61 @@ const DashboardScreen = ({ navigation }) => {
         
         {/* ── Main Top Bar: Search, Messages, Notifications, Support ── */}
         <View style={styles.header}>
-          {/* Brand Logo & Title on Left */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}>
-            <View style={styles.header3DLogoPod}>
-              <Ionicons name="school" size={19} color="#FFFFFF" />
+          {/* Left: On desktop show clean page context without duplicate RV ALUMNI logo pod */}
+          {isDesktop ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <View style={styles.desktopSectionBadge}>
+                <Ionicons name="newspaper" size={17} color="#059669" />
+                <Text style={styles.desktopSectionTitle}>Campus Feed</Text>
+              </View>
+              <View style={styles.desktopCampusBadge}>
+                <View style={styles.desktopCampusDot} />
+                <Text style={styles.desktopCampusBadgeText}>{userInstitution || 'RV College of Engineering'}</Text>
+              </View>
             </View>
-            <View>
-              <Text style={styles.headerBrandTitle}>RV ALUMNI</Text>
-              <Text style={styles.headerBrandSub}>{userInstitution || 'Official Network'}</Text>
+          ) : (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}>
+              <View style={styles.header3DLogoPod}>
+                <Ionicons name="school" size={19} color="#FFFFFF" />
+              </View>
+              <View>
+                <Text style={styles.headerBrandTitle}>RV ALUMNI</Text>
+                <Text style={styles.headerBrandSub}>{userInstitution || 'Official Network'}</Text>
+              </View>
             </View>
-          </View>
+          )}
 
-          {/* Right Action Pods: Search, Messages, Notifications, Support with 3D tactile look */}
+          {/* Center: On desktop, integrated user-friendly real-time search bar */}
+          {isDesktop && (
+            <View style={styles.desktopSearchBox}>
+              <Ionicons name="search" size={17} color="#059669" style={{ marginRight: 8 }} />
+              <TextInput
+                style={styles.desktopSearchInput}
+                placeholder="Search alumni, skills, posts, batches..."
+                placeholderTextColor="#94A3B8"
+                value={searchText}
+                onChangeText={setSearchText}
+              />
+              {searchText.length > 0 && (
+                <TouchableOpacity onPress={() => setSearchText('')}>
+                  <Ionicons name="close-circle" size={16} color="#94A3B8" />
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
+
+          {/* Right Action Pods: Search, Messages, Notifications, Support with genuine 3D tactile look */}
           <View style={styles.headerIcons}>
-            <TouchableOpacity
-              style={[styles.headerIconBtn, showSearch && styles.headerIconBtnActive]}
-              onPress={() => setShowSearch(prev => !prev)}
-              activeOpacity={0.75}
-              title="Search"
-            >
-              <Ionicons name="search-outline" size={20} color={showSearch ? '#FFFFFF' : theme.primary} />
-            </TouchableOpacity>
+            {!isDesktop && (
+              <TouchableOpacity
+                style={[styles.headerIconBtn, showSearch && styles.headerIconBtnActive]}
+                onPress={() => setShowSearch(prev => !prev)}
+                activeOpacity={0.75}
+                title="Search"
+              >
+                <Ionicons name="search" size={20} color={showSearch ? '#FFFFFF' : '#059669'} style={styles.icon3DGlyph} />
+              </TouchableOpacity>
+            )}
 
             <TouchableOpacity
               style={styles.headerIconBtn}
@@ -1380,7 +1387,7 @@ const DashboardScreen = ({ navigation }) => {
               activeOpacity={0.75}
               title="Messages"
             >
-              <Ionicons name="chatbubble-ellipses-outline" size={20} color={theme.primary} />
+              <Ionicons name="chatbubbles" size={20} color="#059669" style={styles.icon3DGlyph} />
               {unreadMessages > 0 && (
                 <PulseElement minScale={0.8} maxScale={1.3} duration={1400} style={{ position: 'absolute', top: 3, right: 3 }}>
                   <View style={[styles.dot, { position: 'relative', top: 0, right: 0 }]} />
@@ -1394,7 +1401,7 @@ const DashboardScreen = ({ navigation }) => {
               activeOpacity={0.75}
               title="Notifications"
             >
-              <Ionicons name="notifications-outline" size={20} color={theme.primary} />
+              <Ionicons name="notifications" size={20} color="#D97706" style={styles.icon3DGlyph} />
               {unreadNotifications > 0 && (
                 <PulseElement minScale={0.8} maxScale={1.3} duration={1400} style={{ position: 'absolute', top: 3, right: 3 }}>
                   <View style={[styles.dot, { position: 'relative', top: 0, right: 0 }]} />
@@ -1408,7 +1415,7 @@ const DashboardScreen = ({ navigation }) => {
               activeOpacity={0.75}
               title="Support"
             >
-              <MaterialCommunityIcons name="hand-heart-outline" size={20} color={theme.primary} />
+              <MaterialCommunityIcons name="hand-heart" size={21} color="#E11D48" style={styles.icon3DGlyph} />
             </TouchableOpacity>
           </View>
         </View>
@@ -2372,16 +2379,82 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingVertical: 11,
+    paddingVertical: 10,
     backgroundColor: theme.card,
     borderBottomWidth: 1.5,
     borderBottomColor: theme.cardBorder || theme.border,
     shadowColor: theme.cardShadow || '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
     elevation: 4,
     zIndex: 10,
+  },
+  desktopSectionBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: isDarkMode ? '#064E3B' : '#ECFDF5',
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: isDarkMode ? '#059669' : '#A7F3D0',
+  },
+  desktopSectionTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: isDarkMode ? '#34D399' : '#059669',
+    letterSpacing: -0.2,
+  },
+  desktopCampusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 12,
+    backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+    borderWidth: 1,
+    borderColor: isDarkMode ? '#334155' : '#E2E8F0',
+  },
+  desktopCampusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#059669',
+  },
+  desktopCampusBadgeText: {
+    fontSize: 12.5,
+    fontWeight: '600',
+    color: theme.textSecondary || theme.textMuted || '#64748B',
+  },
+  desktopSearchBox: {
+    flex: 1,
+    maxWidth: 440,
+    marginHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    height: 42,
+    borderWidth: 1.5,
+    borderTopColor: isDarkMode ? '#334155' : '#FFFFFF',
+    borderLeftColor: isDarkMode ? '#334155' : '#F8FAFC',
+    borderRightColor: isDarkMode ? '#1E293B' : '#CBD5E1',
+    borderBottomColor: isDarkMode ? '#0F172A' : '#94A3B8',
+    borderBottomWidth: 2.5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+  },
+  desktopSearchInput: {
+    flex: 1,
+    fontSize: 13.5,
+    color: theme.text,
+    paddingVertical: 0,
   },
   header3DLogoPod: {
     width: 38,
@@ -2416,33 +2489,42 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   headerIcons: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 9,
   },
   headerIconBtn: {
     position: 'relative',
-    width: 38,
-    height: 38,
-    borderRadius: 12,
+    width: 42,
+    height: 42,
+    borderRadius: 13,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
-    borderWidth: 1,
+    backgroundColor: isDarkMode ? '#1E293B' : '#FFFFFF',
+    borderWidth: 1.5,
     borderTopColor: isDarkMode ? '#475569' : '#FFFFFF',
-    borderLeftColor: isDarkMode ? '#334155' : '#F1F5F9',
-    borderRightColor: isDarkMode ? '#1E293B' : '#E2E8F0',
-    borderBottomColor: isDarkMode ? '#0F172A' : '#CBD5E1',
+    borderLeftColor: isDarkMode ? '#334155' : '#F8FAFC',
+    borderRightColor: isDarkMode ? '#1E293B' : '#CBD5E1',
+    borderBottomColor: isDarkMode ? '#0F172A' : '#94A3B8',
+    borderBottomWidth: 3.5,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: isDarkMode ? 0.4 : 0.12,
-    shadowRadius: 4,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: isDarkMode ? 0.45 : 0.16,
+    shadowRadius: 5,
+    elevation: 6,
   },
   headerIconBtnActive: {
     backgroundColor: '#059669',
     borderTopColor: '#34D399',
-    borderBottomColor: '#047857',
+    borderLeftColor: '#10B981',
+    borderRightColor: '#047857',
+    borderBottomColor: '#064E3B',
+    borderBottomWidth: 3.5,
     shadowColor: '#059669',
     shadowOpacity: 0.45,
+  },
+  icon3DGlyph: {
+    textShadowColor: 'rgba(0, 0, 0, 0.28)',
+    textShadowOffset: { width: 0, height: 1.5 },
+    textShadowRadius: 2.5,
   },
   expandedSearchBarRow: {
     flexDirection: 'row',

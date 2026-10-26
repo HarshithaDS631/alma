@@ -123,7 +123,8 @@ const ProfileScreen = ({ navigation }) => {
 
   const { width } = useWindowDimensions();
   const isWeb = Platform.OS === 'web';
-  const containerWidth = isWeb ? Math.min(width, 800) : width;
+  const isDesktop = isWeb && width >= 1024;
+  const containerWidth = isWeb ? Math.min(width, isDesktop ? 1200 : 800) : width;
   const gridItemSize = (containerWidth - 6) / 3;
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [settingsSubView, setSettingsSubView] = useState('menu'); // 'menu' | 'profile_edit' | 'profile_settings' | 'security'
@@ -1196,18 +1197,31 @@ const DEFAULT_TAGGED_POSTS = [];
       
       {/* Modern Tactile Header Bar (Unified across all pages) */}
       <View style={styles.header}>
-        {/* Brand Logo & Title on Left */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}>
-          <View style={styles.header3DLogoPod}>
-            <Ionicons name="school" size={19} color="#FFFFFF" />
+        {/* Left: On desktop show section context without duplicate RV ALUMNI logo pod */}
+        {isDesktop ? (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <View style={styles.desktopSectionBadge}>
+              <Ionicons name="person" size={17} color="#059669" />
+              <Text style={styles.desktopSectionTitle}>My Profile</Text>
+            </View>
+            <View style={styles.desktopCampusBadge}>
+              <View style={styles.desktopCampusDot} />
+              <Text style={styles.desktopCampusBadgeText}>{profileData?.institution || 'RV College of Engineering'}</Text>
+            </View>
           </View>
-          <View>
-            <Text style={styles.headerBrandTitle}>RV ALUMNI</Text>
-            <Text style={styles.headerBrandSub}>{profileData?.name || 'My Profile'}</Text>
+        ) : (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}>
+            <View style={styles.header3DLogoPod}>
+              <Ionicons name="school" size={19} color="#FFFFFF" />
+            </View>
+            <View>
+              <Text style={styles.headerBrandTitle}>RV ALUMNI</Text>
+              <Text style={styles.headerBrandSub}>{profileData?.name || 'My Profile'}</Text>
+            </View>
           </View>
-        </View>
+        )}
 
-        {/* Right Action Pods: Settings, Messages, Notifications, Support */}
+        {/* Right Action Pods: Settings, Messages, Notifications, Support with genuine 3D tactile look */}
         <View style={styles.headerIcons}>
           <TouchableOpacity
             style={styles.headerIconBtn}
@@ -1215,7 +1229,7 @@ const DEFAULT_TAGGED_POSTS = [];
             activeOpacity={0.75}
             title="Settings"
           >
-            <Ionicons name="settings-outline" size={20} color={theme.primary} />
+            <Ionicons name="settings" size={20} color="#059669" style={styles.icon3DGlyph} />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -1224,7 +1238,7 @@ const DEFAULT_TAGGED_POSTS = [];
             activeOpacity={0.75}
             title="Messages"
           >
-            <Ionicons name="chatbubble-ellipses-outline" size={20} color={theme.primary} />
+            <Ionicons name="chatbubbles" size={20} color="#059669" style={styles.icon3DGlyph} />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -1233,7 +1247,7 @@ const DEFAULT_TAGGED_POSTS = [];
             activeOpacity={0.75}
             title="Notifications"
           >
-            <Ionicons name="notifications-outline" size={20} color={theme.primary} />
+            <Ionicons name="notifications" size={20} color="#D97706" style={styles.icon3DGlyph} />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -1242,7 +1256,7 @@ const DEFAULT_TAGGED_POSTS = [];
             activeOpacity={0.75}
             title="Support"
           >
-            <MaterialCommunityIcons name="hand-heart-outline" size={20} color={theme.primary} />
+            <MaterialCommunityIcons name="hand-heart" size={21} color="#E11D48" style={styles.icon3DGlyph} />
           </TouchableOpacity>
         </View>
       </View>
@@ -4561,16 +4575,55 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingVertical: 11,
+    paddingVertical: 10,
     backgroundColor: theme.card,
-    borderBottomWidth: 1,
+    borderBottomWidth: 1.5,
     borderBottomColor: theme.cardBorder || theme.border,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: isDarkMode ? 0.35 : 0.06,
-    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
     elevation: 4,
     zIndex: 10,
+  },
+  desktopSectionBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: isDarkMode ? '#064E3B' : '#ECFDF5',
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: isDarkMode ? '#059669' : '#A7F3D0',
+  },
+  desktopSectionTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: isDarkMode ? '#34D399' : '#059669',
+    letterSpacing: -0.2,
+  },
+  desktopCampusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 12,
+    backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+    borderWidth: 1,
+    borderColor: isDarkMode ? '#334155' : '#E2E8F0',
+  },
+  desktopCampusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#059669',
+  },
+  desktopCampusBadgeText: {
+    fontSize: 12.5,
+    fontWeight: '600',
+    color: theme.textSecondary || theme.textMuted || '#64748B',
   },
   header3DLogoPod: {
     width: 38,
@@ -4605,32 +4658,42 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   headerIcons: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 9,
   },
   headerIconBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
+    position: 'relative',
+    width: 42,
+    height: 42,
+    borderRadius: 13,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
-    borderWidth: 1,
+    backgroundColor: isDarkMode ? '#1E293B' : '#FFFFFF',
+    borderWidth: 1.5,
     borderTopColor: isDarkMode ? '#475569' : '#FFFFFF',
-    borderLeftColor: isDarkMode ? '#334155' : '#F1F5F9',
-    borderRightColor: isDarkMode ? '#1E293B' : '#E2E8F0',
-    borderBottomColor: isDarkMode ? '#0F172A' : '#CBD5E1',
+    borderLeftColor: isDarkMode ? '#334155' : '#F8FAFC',
+    borderRightColor: isDarkMode ? '#1E293B' : '#CBD5E1',
+    borderBottomColor: isDarkMode ? '#0F172A' : '#94A3B8',
+    borderBottomWidth: 3.5,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: isDarkMode ? 0.4 : 0.12,
-    shadowRadius: 4,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: isDarkMode ? 0.45 : 0.16,
+    shadowRadius: 5,
+    elevation: 6,
   },
   headerIconBtnActive: {
     backgroundColor: '#059669',
     borderTopColor: '#34D399',
-    borderBottomColor: '#047857',
+    borderLeftColor: '#10B981',
+    borderRightColor: '#047857',
+    borderBottomColor: '#064E3B',
+    borderBottomWidth: 3.5,
     shadowColor: '#059669',
     shadowOpacity: 0.45,
+  },
+  icon3DGlyph: {
+    textShadowColor: 'rgba(0, 0, 0, 0.28)',
+    textShadowOffset: { width: 0, height: 1.5 },
+    textShadowRadius: 2.5,
   },
   // ── Profile Identity & Avatar Section (Clean Minimal Layout) ──
   profileInfoContainer: {

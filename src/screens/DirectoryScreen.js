@@ -96,7 +96,7 @@ const DirectoryScreen = ({ navigation, route }) => {
   const { isAdminOrSuper, userRole, userInstitution } = useUserRole();
   const { width } = useWindowDimensions();
   const isWeb = Platform.OS === 'web';
-  const isDesktop = isWeb && width >= 768;
+  const isDesktop = isWeb && width >= 1024;
 
   const [currentUser, setCurrentUser] = useState(null);
   const [activeTab, setActiveTab] = useState(route?.params?.tab || 'directory');
@@ -1178,27 +1178,61 @@ const DirectoryScreen = ({ navigation, route }) => {
 
         {/* ───── Header Bar ───── */}
         <View style={styles.header}>
-          {/* Brand Logo & Title on Left */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}>
-            <View style={styles.header3DLogoPod}>
-              <Ionicons name="people" size={19} color="#FFFFFF" />
+          {/* Left: On desktop show section context without duplicate RV ALUMNI logo pod */}
+          {isDesktop ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <View style={styles.desktopSectionBadge}>
+                <Ionicons name="people" size={17} color="#059669" />
+                <Text style={styles.desktopSectionTitle}>Alumni Directory</Text>
+              </View>
+              <View style={styles.desktopCampusBadge}>
+                <View style={styles.desktopCampusDot} />
+                <Text style={styles.desktopCampusBadgeText}>{currentUser?.institution || userInstitution || 'RV College of Engineering'}</Text>
+              </View>
             </View>
-            <View>
-              <Text style={styles.headerBrandTitle}>DIRECTORY</Text>
-              <Text style={styles.headerBrandSub}>{currentUser?.institution || 'Alumni Network'}</Text>
+          ) : (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}>
+              <View style={styles.header3DLogoPod}>
+                <Ionicons name="people" size={19} color="#FFFFFF" />
+              </View>
+              <View>
+                <Text style={styles.headerBrandTitle}>DIRECTORY</Text>
+                <Text style={styles.headerBrandSub}>{currentUser?.institution || 'Alumni Network'}</Text>
+              </View>
             </View>
-          </View>
+          )}
 
-          {/* Right Action Pods: Search, Messages, Notifications, Support with 3D tactile look */}
+          {/* Center: On desktop, integrated user-friendly real-time search bar */}
+          {isDesktop && (
+            <View style={styles.desktopSearchBox}>
+              <Ionicons name="search" size={17} color="#059669" style={{ marginRight: 8 }} />
+              <TextInput
+                style={styles.desktopSearchInput}
+                placeholder="Search alumni by name, branch, batch, company..."
+                placeholderTextColor="#94A3B8"
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+              />
+              {searchQuery.length > 0 && (
+                <TouchableOpacity onPress={() => setSearchQuery('')}>
+                  <Ionicons name="close-circle" size={16} color="#94A3B8" />
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
+
+          {/* Right Action Pods: Search, Messages, Notifications, Support with genuine 3D tactile look */}
           <View style={styles.headerIcons}>
-            <TouchableOpacity 
-              style={[styles.headerIconBtn, showSearch && styles.headerIconBtnActive]} 
-              activeOpacity={0.7}
-              onPress={() => setShowSearch(prev => !prev)}
-              title="Search"
-            >
-              <Ionicons name="search-outline" size={20} color={showSearch ? '#FFFFFF' : '#059669'} />
-            </TouchableOpacity>
+            {!isDesktop && (
+              <TouchableOpacity 
+                style={[styles.headerIconBtn, showSearch && styles.headerIconBtnActive]} 
+                activeOpacity={0.7}
+                onPress={() => setShowSearch(prev => !prev)}
+                title="Search"
+              >
+                <Ionicons name="search" size={20} color={showSearch ? '#FFFFFF' : '#059669'} style={styles.icon3DGlyph} />
+              </TouchableOpacity>
+            )}
 
             <TouchableOpacity 
               style={styles.headerIconBtn} 
@@ -1206,7 +1240,7 @@ const DirectoryScreen = ({ navigation, route }) => {
               onPress={() => navigation.navigate('Messages')}
               title="Messages"
             >
-              <Ionicons name="chatbubble-ellipses-outline" size={20} color="#059669" />
+              <Ionicons name="chatbubbles" size={20} color="#059669" style={styles.icon3DGlyph} />
             </TouchableOpacity>
 
             <TouchableOpacity 
@@ -1215,7 +1249,7 @@ const DirectoryScreen = ({ navigation, route }) => {
               onPress={() => navigation.navigate('Notifications')}
               title="Notifications"
             >
-              <Ionicons name="notifications-outline" size={20} color="#059669" />
+              <Ionicons name="notifications" size={20} color="#D97706" style={styles.icon3DGlyph} />
             </TouchableOpacity>
 
             <TouchableOpacity 
@@ -1224,7 +1258,7 @@ const DirectoryScreen = ({ navigation, route }) => {
               onPress={() => navigation.navigate('Contribute')}
               title="Support"
             >
-              <MaterialCommunityIcons name="hand-heart-outline" size={20} color="#059669" />
+              <MaterialCommunityIcons name="hand-heart" size={21} color="#E11D48" style={styles.icon3DGlyph} />
             </TouchableOpacity>
           </View>
         </View>
@@ -1617,10 +1651,82 @@ const getStyles = (theme) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 10,
     backgroundColor: theme.card || '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: theme.border || '#E2E8F0',
+    borderBottomWidth: 1.5,
+    borderBottomColor: theme.cardBorder || theme.border || '#E2E8F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
+    zIndex: 10,
+  },
+  desktopSectionBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: theme.isDark ? '#064E3B' : '#ECFDF5',
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: theme.isDark ? '#059669' : '#A7F3D0',
+  },
+  desktopSectionTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: theme.isDark ? '#34D399' : '#059669',
+    letterSpacing: -0.2,
+  },
+  desktopCampusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 12,
+    backgroundColor: theme.isDark ? '#1E293B' : '#F8FAFC',
+    borderWidth: 1,
+    borderColor: theme.isDark ? '#334155' : '#E2E8F0',
+  },
+  desktopCampusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#059669',
+  },
+  desktopCampusBadgeText: {
+    fontSize: 12.5,
+    fontWeight: '600',
+    color: theme.textSecondary || theme.textMuted || '#64748B',
+  },
+  desktopSearchBox: {
+    flex: 1,
+    maxWidth: 440,
+    marginHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.isDark ? '#1E293B' : '#F1F5F9',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    height: 42,
+    borderWidth: 1.5,
+    borderTopColor: theme.isDark ? '#334155' : '#FFFFFF',
+    borderLeftColor: theme.isDark ? '#334155' : '#F8FAFC',
+    borderRightColor: theme.isDark ? '#1E293B' : '#CBD5E1',
+    borderBottomColor: theme.isDark ? '#0F172A' : '#94A3B8',
+    borderBottomWidth: 2.5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+  },
+  desktopSearchInput: {
+    flex: 1,
+    fontSize: 13.5,
+    color: theme.text,
+    paddingVertical: 0,
   },
   header3DLogoPod: {
     width: 38,
@@ -1655,32 +1761,42 @@ const getStyles = (theme) => StyleSheet.create({
   headerIcons: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 7,
+    gap: 9,
   },
   headerIconBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    backgroundColor: theme.isDark ? '#1E293B' : '#F8FAFC',
-    borderWidth: 1,
+    position: 'relative',
+    width: 42,
+    height: 42,
+    borderRadius: 13,
+    backgroundColor: theme.isDark ? '#1E293B' : '#FFFFFF',
+    borderWidth: 1.5,
     borderTopColor: theme.isDark ? '#475569' : '#FFFFFF',
-    borderLeftColor: theme.isDark ? '#334155' : '#F1F5F9',
-    borderRightColor: theme.isDark ? '#1E293B' : '#E2E8F0',
-    borderBottomColor: theme.isDark ? '#0F172A' : '#CBD5E1',
+    borderLeftColor: theme.isDark ? '#334155' : '#F8FAFC',
+    borderRightColor: theme.isDark ? '#1E293B' : '#CBD5E1',
+    borderBottomColor: theme.isDark ? '#0F172A' : '#94A3B8',
+    borderBottomWidth: 3.5,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: theme.isDark ? 0.35 : 0.12,
-    shadowRadius: 4,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: theme.isDark ? 0.45 : 0.16,
+    shadowRadius: 5,
+    elevation: 6,
   },
   headerIconBtnActive: {
     backgroundColor: '#059669',
     borderTopColor: '#34D399',
-    borderBottomColor: '#047857',
+    borderLeftColor: '#10B981',
+    borderRightColor: '#047857',
+    borderBottomColor: '#064E3B',
+    borderBottomWidth: 3.5,
     shadowColor: '#059669',
     shadowOpacity: 0.45,
+  },
+  icon3DGlyph: {
+    textShadowColor: 'rgba(0, 0, 0, 0.28)',
+    textShadowOffset: { width: 0, height: 1.5 },
+    textShadowRadius: 2.5,
   },
   expandedSearchBarRow: {
     flexDirection: 'row',
