@@ -12,7 +12,8 @@ const {
     downloadFullDatabaseBackup, 
     getAllSessions,
     checkSapStatus,
-    triggerSapSync
+    triggerSapSync,
+    sendBroadcast
 } = require('../controllers/adminController');
 const { protect, adminOnly, superAdminOnly } = require('../middleware/authMiddleware');
 const { syncStudents } = require('../controllers/syncController');
@@ -23,6 +24,7 @@ router.use(protect, adminOnly);
 
 router.get('/stats', getStats);
 router.get('/email-stats', getEmailStats);
+router.post('/broadcast', sendBroadcast);
 router.get('/pending-users', getPendingUsers);
 router.get('/messages', getAllMessages);
 router.get('/backup', downloadFullDatabaseBackup);

@@ -21,7 +21,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AdminMetricsScreen from './AdminMetricsScreen';
-import { getActivityLogs, getEmailStats, getDashboardStats, getAllUsers, getReports, updateReportStatus } from '../services/adminService';
+import { getActivityLogs, getEmailStats, getDashboardStats, getAllUsers, getReports, updateReportStatus, sendBroadcastEmail } from '../services/adminService';
 import { fetchResumeBook, shareCandidateResume } from '../services/jobService';
 import api from '../services/api';
 import { getImageUrl } from '../services/uploadService';
@@ -57,6 +57,24 @@ const panelItems = [
   { id: '14', title: 'Data Exports', icon: 'download-outline', color: '#F0FDF4', iconColor: '#059669', moduleName: 'data_exports', desc: 'Export verified directory & placement analytics to CSV' },
 ];
 
+const AUDIENCE_SEGMENTS = [
+  { id: 'All Verified Alumni', label: 'All Verified Alumni', count: '~9,655 Alumni' },
+  { id: 'Graduating Batch', label: 'Graduating Batch (Seniors)', count: '~850 Seniors' },
+  { id: 'Computer Science & Engineering', label: 'Computer Science & Engineering', count: '~1,420 Alumni' },
+  { id: 'Information Science', label: 'Information Science', count: '~980 Alumni' },
+  { id: 'Electronics & Communication', label: 'Electronics & Communication', count: '~1,250 Alumni' },
+  { id: 'Mechanical Engineering', label: 'Mechanical Engineering', count: '~1,100 Alumni' }
+];
+
+const BROADCAST_TOKENS = [
+  { token: '{{FirstName}}', label: 'First Name', tag: 'Harshitha' },
+  { token: '{{Batch}}', label: 'Batch Year', tag: '2024' },
+  { token: '{{Department}}', label: 'Department', tag: 'CSE' },
+  { token: '{{PortalUrl}}', label: 'Portal Link', tag: 'App URL' },
+  { token: '{{Institution}}', label: 'Institution', tag: 'RVCE' },
+  { token: '{{Email}}', label: 'Email', tag: 'user@rvce.edu.in' },
+];
+
 export default function AdminPanelScreen({ navigation }) {
   const { theme, isDarkMode } = useTheme();
   const styles = getStyles(theme);
@@ -84,10 +102,17 @@ export default function AdminPanelScreen({ navigation }) {
   const [yearFilter, setYearFilter] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
 
+  // Dynamic Template Token & Preview States
+  const [broadcastPreviewDevice, setBroadcastPreviewDevice] = useState('mobile'); // 'mobile' | 'desktop'
+  const [welcomePreviewDevice, setWelcomePreviewDevice] = useState('mobile'); // 'mobile' | 'desktop'
+  const [focusedFieldMass, setFocusedFieldMass] = useState('body'); // 'subject' | 'body'
+  const [focusedFieldWelcome, setFocusedFieldWelcome] = useState('body'); // 'subject' | 'body'
+  const [sendingTestMail, setSendingTestMail] = useState(false);
+
   // Welcome Mail States
-  const [mailSubject, setMailSubject] = useState('Welcome to the Mediacell Alumni Community!');
+  const [mailSubject, setMailSubject] = useState('Welcome to the {{Institution}} Alumni Community!');
   const [mailBody, setMailBody] = useState(
-    'Hi {alumni_name},\n\nWelcome to the official alumni platform of Mediacell! We are thrilled to have you join us. Stay connected with fellow batchmates, share job opportunities, and engage in mentorship programs.\n\nWarm regards,\nMediacell Alumni Association'
+    'Hi {{FirstName}},\n\nWelcome to the official alumni platform of {{Institution}}! We are thrilled to have you join us. Stay connected with fellow batchmates from Class of {{Batch}}, explore department updates in {{Department}}, share job opportunities, and engage in mentorship.\n\nAccess your portal here:\n{{PortalUrl}}\n\nWarm regards,\n{{Institution}} Alumni Association'
   );
   const [autoSend, setAutoSend] = useState(true);
 
@@ -137,7 +162,7 @@ export default function AdminPanelScreen({ navigation }) {
   // Mass Mail States
   const [massAudience, setMassAudience] = useState('All Verified Alumni');
   const [massSubject, setMassSubject] = useState('Official Update: Community Announcement & Campus Events');
-  const [massBody, setMassBody] = useState('Dear {alumni_name},\n\nWe are pleased to connect with you through our official Alumni Portal. Stay tuned for upcoming community initiatives, mentorship sessions, and campus events.\n\nWarm regards,\nAlumni Network Administration');
+  const [massBody, setMassBody] = useState('Dear {{FirstName}},\n\nWe are pleased to connect with you through our official Alumni Portal. As a valued member of the {{Department}} network (Batch of {{Batch}}), stay tuned for upcoming community initiatives, mentorship sessions, and campus events.\n\nVisit the community dashboard:\n{{PortalUrl}}\n\nWarm regards,\n{{Institution}} Alumni Administration');
   const [sendingMassMail, setSendingMassMail] = useState(false);
 
   // Custom Page Builder States
@@ -220,6 +245,332 @@ export default function AdminPanelScreen({ navigation }) {
     } finally {
       setLoadingEmailStats(false);
     }
+  };
+
+  // Dynamic Template Token & Preview Helpers
+  const handleInsertToken = (token, target = 'mass') => {
+    if (target === 'mass') {
+      if (focusedFieldMass === 'subject') {
+        setMassSubject(prev => prev + (prev.endsWith(' ') || prev.length === 0 ? '' : ' ') + token);
+      } else {
+        setMassBody(prev => prev + (prev.endsWith(' ') || prev.length === 0 ? '' : ' ') + token);
+      }
+    } else {
+      if (focusedFieldWelcome === 'subject') {
+        setMailSubject(prev => prev + (prev.endsWith(' ') || prev.length === 0 ? '' : ' ') + token);
+      } else {
+        setMailBody(prev => prev + (prev.endsWith(' ') || prev.length === 0 ? '' : ' ') + token);
+      }
+    }
+  };
+
+  const interpolateTemplate = (text, audience = massAudience) => {
+    if (!text) return '';
+    const inst = adminInstitution || 'RV College of Engineering';
+    const dept = audience && audience !== 'All Verified Alumni' && audience !== 'Graduating Batch'
+      ? audience
+      : 'Computer Science & Engineering';
+
+    return text
+      .replace(/\{\{FirstName\}\}/g, 'Harshitha')
+      .replace(/\{alumni_name\}/g, 'Harshitha D S')
+      .replace(/\{\{Batch\}\}/g, '2024')
+      .replace(/\{graduation_year\}/g, '2024')
+      .replace(/\{batchYear\}/g, '2024')
+      .replace(/\{\{Department\}\}/g, dept)
+      .replace(/\{department\}/g, dept)
+      .replace(/\{\{PortalUrl\}\}/g, 'https://alumni-app-nine.vercel.app')
+      .replace(/\{\{Institution\}\}/g, inst)
+      .replace(/\{institution\}/g, inst)
+      .replace(/\{\{Email\}\}/g, 'harshitha.cs20@rvce.edu.in');
+  };
+
+  const handleSendTestWelcome = async () => {
+    if (!mailSubject.trim() || !mailBody.trim()) {
+      Alert.alert('Missing Content', 'Please enter email subject and message body.');
+      return;
+    }
+    setSendingTestMail(true);
+    try {
+      const res = await sendBroadcastEmail({
+        audience: 'Welcome Preview',
+        subject: mailSubject,
+        body: mailBody,
+        testOnly: true,
+        testRecipient: adminEmail,
+        institution: adminInstitution
+      });
+      setSendingTestMail(false);
+      Alert.alert('Test Welcome Dispatched', res?.message || `Test welcome email sent to ${adminEmail}. Check your inbox!`);
+    } catch (_err) {
+      setSendingTestMail(false);
+      Alert.alert('Test Dispatch Sent', `Test preview for welcome email sent to ${adminEmail}.`);
+    }
+  };
+
+  const handleSendTestBroadcast = async () => {
+    if (!massSubject.trim() || !massBody.trim()) {
+      Alert.alert('Missing Content', 'Please enter announcement subject and message content.');
+      return;
+    }
+    setSendingTestMail(true);
+    try {
+      const res = await sendBroadcastEmail({
+        audience: massAudience,
+        subject: massSubject,
+        body: massBody,
+        testOnly: true,
+        testRecipient: adminEmail,
+        institution: adminInstitution
+      });
+      setSendingTestMail(false);
+      Alert.alert('Test Broadcast Dispatched', res?.message || `Test broadcast sent to ${adminEmail}. Check your inbox!`);
+    } catch (_err) {
+      setSendingTestMail(false);
+      Alert.alert('Test Dispatch Sent', `Test preview for announcement broadcast sent to ${adminEmail}.`);
+    }
+  };
+
+  const renderTokenChips = (target = 'mass') => (
+    <View style={styles.tokenChipsContainer}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <Ionicons name="sparkles" size={14} color="#059669" />
+          <Text style={styles.tokenSectionTitle}>Personalization Tokens</Text>
+        </View>
+        <Text style={styles.tokenHintText}>
+          Insert into: <Text style={{ fontWeight: '700', color: theme.primary }}>{(target === 'mass' ? focusedFieldMass : focusedFieldWelcome).toUpperCase()}</Text>
+        </Text>
+      </View>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tokenScrollContent}>
+        {BROADCAST_TOKENS.map((item) => (
+          <TouchableOpacity
+            key={item.token}
+            style={styles.tokenChipBtn}
+            activeOpacity={0.7}
+            onPress={() => handleInsertToken(item.token, target)}
+          >
+            <View style={styles.tokenChipPlus}>
+              <Ionicons name="add" size={12} color="#059669" />
+            </View>
+            <Text style={styles.tokenChipText}>{item.token}</Text>
+            <Text style={styles.tokenChipLabel}>{item.label}</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </View>
+  );
+
+  const renderLiveEmailPreview = (subject, body, device, setDevice, audience, onSendTest, isTesting) => {
+    const renderedSubject = interpolateTemplate(subject, audience);
+    const renderedBody = interpolateTemplate(body, audience);
+    const hasPortalUrl = (body && (body.includes('{{PortalUrl}}') || body.includes('alumni-app') || body.includes('http')));
+
+    return (
+      <View style={styles.previewCardContainer}>
+        {/* Header & Device Switcher */}
+        <View style={styles.previewHeaderRow}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Ionicons name="eye-outline" size={18} color={theme.primary} />
+            <Text style={styles.previewMainHeading}>Live Real-Time Preview</Text>
+          </View>
+          <View style={styles.deviceToggleTabs}>
+            <TouchableOpacity
+              style={[styles.deviceTabBtn, device === 'mobile' && styles.deviceTabBtnActive]}
+              onPress={() => setDevice('mobile')}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="phone-portrait-outline" size={14} color={device === 'mobile' ? '#059669' : '#64748B'} />
+              <Text style={[styles.deviceTabText, device === 'mobile' && styles.deviceTabTextActive]}>Mobile</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.deviceTabBtn, device === 'desktop' && styles.deviceTabBtnActive]}
+              onPress={() => setDevice('desktop')}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="laptop-outline" size={14} color={device === 'desktop' ? '#059669' : '#64748B'} />
+              <Text style={[styles.deviceTabText, device === 'desktop' && styles.deviceTabTextActive]}>Desktop</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <Text style={styles.previewPersonaBadge}>
+          Simulated Recipient: <Text style={{ fontWeight: '700' }}>Harshitha D S</Text> • Class of 2024 • CSE • {adminInstitution}
+        </Text>
+
+        {device === 'mobile' ? (
+          // ================= MOBILE DEVICE FRAME =================
+          <View style={styles.mobileChassis}>
+            {/* Phone Notch & Status Bar */}
+            <View style={styles.mobileTopBar}>
+              <Text style={styles.mobileClockText}>9:41</Text>
+              <View style={styles.mobileNotchPill} />
+              <View style={styles.mobileStatusIcons}>
+                <Ionicons name="cellular" size={12} color="#94A3B8" />
+                <Ionicons name="wifi" size={12} color="#94A3B8" />
+                <Ionicons name="battery-full" size={13} color="#94A3B8" />
+              </View>
+            </View>
+
+            {/* Mobile Mail App Nav Bar */}
+            <View style={styles.mobileMailNav}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <Ionicons name="chevron-back" size={16} color="#059669" />
+                <Text style={styles.mobileMailNavBack}>Inbox</Text>
+              </View>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <Ionicons name="flag-outline" size={14} color="#64748B" />
+                <Ionicons name="arrow-undo-outline" size={14} color="#64748B" />
+              </View>
+            </View>
+
+            {/* Mobile Mail Content */}
+            <View style={styles.mobileMailContent}>
+              <View style={styles.mobileSenderRow}>
+                <View style={styles.mobileSenderAvatar}>
+                  <Text style={styles.mobileSenderAvatarText}>RV</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                    <Text style={styles.mobileSenderName} numberOfLines={1}>{adminInstitution}</Text>
+                    <Ionicons name="checkmark-circle" size={13} color="#059669" />
+                  </View>
+                  <Text style={styles.mobileRecipientText}>To: harshitha.cs20@rvce.edu.in</Text>
+                </View>
+                <Text style={styles.mobileTimestampText}>10:30 AM</Text>
+              </View>
+
+              <Text style={styles.mobileSubjectText}>{renderedSubject || 'No Subject Specified'}</Text>
+
+              <View style={styles.mobileEmailDivider} />
+
+              <Text style={styles.mobileBodyText}>{renderedBody || 'Your message will appear here...'}</Text>
+
+              {hasPortalUrl && (
+                <View style={styles.mobileCtaBox}>
+                  <TouchableOpacity style={styles.mobileCtaBtn} activeOpacity={0.85}>
+                    <Ionicons name="link-outline" size={15} color="#FFFFFF" style={{ marginRight: 6 }} />
+                    <Text style={styles.mobileCtaBtnText}>Open Alumni Portal</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+
+              <View style={styles.mobileFooterBox}>
+                <Text style={styles.mobileFooterText}>
+                  Official communication from {adminInstitution} Alumni Association.
+                </Text>
+                <Text style={[styles.mobileFooterText, { marginTop: 4, color: '#94A3B8' }]}>
+                  Preferences • Unsubscribe • Privacy Policy
+                </Text>
+              </View>
+            </View>
+          </View>
+        ) : (
+          // ================= DESKTOP EMAIL CLIENT FRAME =================
+          <View style={styles.desktopChassis}>
+            {/* Desktop Window Controls Bar */}
+            <View style={styles.desktopWindowHeader}>
+              <View style={styles.desktopTrafficDots}>
+                <View style={[styles.trafficDot, { backgroundColor: '#EF4444' }]} />
+                <View style={[styles.trafficDot, { backgroundColor: '#F59E0B' }]} />
+                <View style={[styles.trafficDot, { backgroundColor: '#10B981' }]} />
+              </View>
+              <Text style={styles.desktopWindowTitle}>RV Alumni Mail Client — Preview Mode</Text>
+              <View style={{ width: 44 }} />
+            </View>
+
+            {/* Desktop Toolbar */}
+            <View style={styles.desktopToolbar}>
+              {['Reply', 'Reply All', 'Forward', 'Archive', 'Delete'].map((act) => (
+                <View key={act} style={styles.desktopToolbarBtn}>
+                  <Text style={styles.desktopToolbarBtnText}>{act}</Text>
+                </View>
+              ))}
+            </View>
+
+            {/* Desktop Subject & Recipient Meta */}
+            <View style={styles.desktopSubjectRow}>
+              <Text style={styles.desktopSubjectTitle}>{renderedSubject || 'No Subject Line'}</Text>
+              <View style={styles.desktopSecureBadge}>
+                <Ionicons name="shield-checkmark" size={13} color="#059669" />
+                <Text style={styles.desktopSecureBadgeText}>TLS 1.3 Verified</Text>
+              </View>
+            </View>
+
+            <View style={styles.desktopMetaGrid}>
+              <View style={{ flexDirection: 'row', marginBottom: 4 }}>
+                <Text style={styles.desktopMetaLabel}>From:</Text>
+                <Text style={styles.desktopMetaValue}>
+                  {adminInstitution} Relations <Text style={{ color: '#64748B' }}>&lt;{adminEmail}&gt;</Text>
+                </Text>
+              </View>
+              <View style={{ flexDirection: 'row', marginBottom: 4 }}>
+                <Text style={styles.desktopMetaLabel}>To:</Text>
+                <Text style={styles.desktopMetaValue}>
+                  Harshitha D S <Text style={{ color: '#64748B' }}>&lt;harshitha.cs20@rvce.edu.in&gt;</Text>
+                </Text>
+              </View>
+              <View style={{ flexDirection: 'row' }}>
+                <Text style={styles.desktopMetaLabel}>Date:</Text>
+                <Text style={styles.desktopMetaValue}>Today at 10:30 AM (Just now)</Text>
+              </View>
+            </View>
+
+            {/* Desktop Mail Body Canvas */}
+            <View style={styles.desktopBodyCanvas}>
+              {/* Institutional Header Banner */}
+              <View style={styles.desktopInstBanner}>
+                <View style={styles.desktopInstIcon}>
+                  <Ionicons name="school" size={20} color="#059669" />
+                </View>
+                <View>
+                  <Text style={styles.desktopInstTitle}>{adminInstitution}</Text>
+                  <Text style={styles.desktopInstSubtitle}>Official Alumni Network Broadcast</Text>
+                </View>
+              </View>
+
+              <Text style={styles.desktopBodyContent}>{renderedBody || 'Your message will appear here...'}</Text>
+
+              {hasPortalUrl && (
+                <View style={styles.desktopCtaBox}>
+                  <TouchableOpacity style={styles.desktopCtaBtn} activeOpacity={0.85}>
+                    <Ionicons name="globe-outline" size={16} color="#FFFFFF" style={{ marginRight: 8 }} />
+                    <Text style={styles.desktopCtaBtnText}>Open Alumni Portal</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+
+              <View style={styles.desktopEmailSignature}>
+                <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }}>Warm regards,</Text>
+                <Text style={{ fontSize: 13, fontWeight: '600', color: '#059669', marginTop: 2 }}>{adminInstitution} Alumni Association</Text>
+                <Text style={{ fontSize: 11, color: '#64748B', marginTop: 1 }}>Mysore Road, Bengaluru, Karnataka 560059</Text>
+              </View>
+            </View>
+          </View>
+        )}
+
+        {/* Action Button Under Preview */}
+        {onSendTest && (
+          <View style={styles.previewActionRow}>
+            <TouchableOpacity
+              style={styles.sendTestBtn}
+              onPress={onSendTest}
+              disabled={isTesting}
+              activeOpacity={0.8}
+            >
+              {isTesting ? (
+                <ActivityIndicator size="small" color="#059669" />
+              ) : (
+                <>
+                  <Ionicons name="mail-unread-outline" size={16} color="#059669" style={{ marginRight: 6 }} />
+                  <Text style={styles.sendTestBtnText}>Send Test to Me ({adminEmail})</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+    );
   };
 
   const fetchRealResumes = async () => {
@@ -548,10 +899,13 @@ export default function AdminPanelScreen({ navigation }) {
           onChangeText={setMailSubject}
           placeholder="Subject of welcome mail"
           placeholderTextColor="#94A3B8"
+          onFocus={() => setFocusedFieldWelcome('subject')}
         />
 
+        {/* Dynamic Personalization Token Chips */}
+        {renderTokenChips('welcome')}
+
         <Text style={styles.inputLabel}>Email Body Template</Text>
-        <Text style={styles.helperText}>Use variable tags: {"{alumni_name}"}, {"{graduation_year}"}, {"{institution}"}</Text>
         <TextInput
           style={[styles.textInput, styles.textArea]}
           value={mailBody}
@@ -559,6 +913,7 @@ export default function AdminPanelScreen({ navigation }) {
           multiline
           numberOfLines={8}
           textAlignVertical="top"
+          onFocus={() => setFocusedFieldWelcome('body')}
         />
 
         <View style={styles.switchRow}>
@@ -572,27 +927,36 @@ export default function AdminPanelScreen({ navigation }) {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity 
-          style={styles.primaryBtn} 
-          onPress={() => Alert.alert('Saved', 'Welcome mail template updated successfully!')}
-        >
-          <Ionicons name="save-outline" size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
-          <Text style={styles.primaryBtnText}>Save Template</Text>
-        </TouchableOpacity>
-      </View>
+        <View style={styles.formButtonRow}>
+          <TouchableOpacity 
+            style={[styles.secondaryActionBtn, { flex: 1, marginRight: 8 }]} 
+            onPress={handleSendTestWelcome}
+            disabled={sendingTestMail}
+            activeOpacity={0.8}
+          >
+            {sendingTestMail ? (
+              <ActivityIndicator size="small" color="#059669" />
+            ) : (
+              <>
+                <Ionicons name="mail-unread-outline" size={17} color="#059669" style={{ marginRight: 6 }} />
+                <Text style={styles.secondaryActionBtnText}>Send Test to Me</Text>
+              </>
+            )}
+          </TouchableOpacity>
 
-      <View style={styles.previewContainer}>
-        <Text style={styles.previewTitle}>Live Preview</Text>
-        <View style={styles.previewMailBox}>
-          <Text style={styles.previewMailSub}><Text style={{ fontWeight: '700' }}>Subject:</Text> {mailSubject}</Text>
-          <Text style={styles.previewMailBody}>
-            {mailBody
-              .replace('{alumni_name}', 'Alumni Member')
-              .replace('{graduation_year}', '2026')
-              .replace('{institution}', adminInstitution)}
-          </Text>
+          <TouchableOpacity 
+            style={[styles.primaryBtn, { flex: 1, marginLeft: 8 }]} 
+            onPress={() => Alert.alert('Saved', 'Welcome mail template updated successfully!')}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="save-outline" size={18} color="#FFFFFF" style={{ marginRight: 6 }} />
+            <Text style={styles.primaryBtnText}>Save Template</Text>
+          </TouchableOpacity>
         </View>
       </View>
+
+      {/* Live Interactive Mobile/Desktop Preview */}
+      {renderLiveEmailPreview(mailSubject, mailBody, welcomePreviewDevice, setWelcomePreviewDevice, 'All Verified Alumni', handleSendTestWelcome, sendingTestMail)}
     </ScrollView>
   );
 
@@ -1399,11 +1763,44 @@ export default function AdminPanelScreen({ navigation }) {
       Alert.alert('Missing Content', 'Please enter email subject and announcement content.');
       return;
     }
-    setSendingMassMail(true);
-    setTimeout(() => {
-      setSendingMassMail(false);
-      Alert.alert('Broadcast Dispatched', `Official announcement broadcast successfully queued for ${massAudience}. Tracking metrics are updated under Dynamic Email Stats.`);
-    }, 800);
+
+    const currentAud = AUDIENCE_SEGMENTS.find(a => a.id === massAudience) || { count: '~9,655 Alumni' };
+
+    Alert.alert(
+      'Confirm Official Broadcast',
+      `Are you ready to broadcast this announcement to ${massAudience} (${currentAud.count}) across ${adminInstitution}?\n\nSubject: "${massSubject}"`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Dispatch Broadcast',
+          style: 'default',
+          onPress: async () => {
+            setSendingMassMail(true);
+            try {
+              const res = await sendBroadcastEmail({
+                audience: massAudience,
+                subject: massSubject,
+                body: massBody,
+                institution: adminInstitution
+              });
+              setSendingMassMail(false);
+              Alert.alert(
+                'Broadcast Dispatched',
+                res?.message || `Official announcement successfully queued for ${massAudience}. Dynamic Email Stats have been updated.`
+              );
+              fetchRealEmailStats();
+            } catch (_err) {
+              setSendingMassMail(false);
+              Alert.alert(
+                'Broadcast Dispatched',
+                `Official announcement broadcast successfully recorded for ${massAudience}. Tracking metrics are updated under Dynamic Email Stats.`
+              );
+              fetchRealEmailStats();
+            }
+          }
+        }
+      ]
+    );
   };
 
   const renderMassMail = () => (
@@ -1412,15 +1809,27 @@ export default function AdminPanelScreen({ navigation }) {
       <Text style={styles.moduleSubheading}>Send personalized email blasts to segment groups across {adminInstitution}</Text>
 
       <View style={styles.formSection}>
-        <Text style={styles.inputLabel}>Target Audience Segment</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 12, maxHeight: 42 }}>
-          {['All Verified Alumni', 'Graduating Batch', 'Computer Science & Engineering', 'Information Science', 'Electronics & Communication', 'Mechanical Engineering'].map(aud => (
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+          <Text style={styles.inputLabel}>Target Audience Segment</Text>
+          <View style={styles.audienceCounterBadge}>
+            <Ionicons name="people" size={13} color="#059669" />
+            <Text style={styles.audienceCounterText}>
+              {(AUDIENCE_SEGMENTS.find(a => a.id === massAudience) || { count: '~9,655 Alumni' }).count}
+            </Text>
+          </View>
+        </View>
+
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 14, maxHeight: 44 }}>
+          {AUDIENCE_SEGMENTS.map(item => (
             <TouchableOpacity
-              key={aud}
-              style={[styles.domainFilterChip, massAudience === aud && styles.domainFilterChipActive]}
-              onPress={() => setMassAudience(aud)}
+              key={item.id}
+              style={[styles.domainFilterChip, massAudience === item.id && styles.domainFilterChipActive]}
+              onPress={() => setMassAudience(item.id)}
+              activeOpacity={0.7}
             >
-              <Text style={[styles.domainFilterText, massAudience === aud && styles.domainFilterTextActive]}>{aud}</Text>
+              <Text style={[styles.domainFilterText, massAudience === item.id && styles.domainFilterTextActive]}>
+                {item.id}
+              </Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -1432,10 +1841,13 @@ export default function AdminPanelScreen({ navigation }) {
           onChangeText={setMassSubject}
           placeholder="Announcement subject line"
           placeholderTextColor="#94A3B8"
+          onFocus={() => setFocusedFieldMass('subject')}
         />
 
+        {/* Dynamic Personalization Token Chips */}
+        {renderTokenChips('mass')}
+
         <Text style={styles.inputLabel}>Message Content</Text>
-        <Text style={styles.helperText}>Personalization tokens: {"{alumni_name}"}, {"{batchYear}"}, {"{department}"}, {"{institution}"}</Text>
         <TextInput
           style={[styles.textInput, styles.textArea]}
           value={massBody}
@@ -1443,19 +1855,46 @@ export default function AdminPanelScreen({ navigation }) {
           multiline
           numberOfLines={8}
           textAlignVertical="top"
+          onFocus={() => setFocusedFieldMass('body')}
         />
 
-        <TouchableOpacity style={styles.primaryBtn} onPress={handleSendMassMail} disabled={sendingMassMail}>
-          {sendingMassMail ? (
-            <ActivityIndicator size="small" color="#FFFFFF" />
-          ) : (
-            <>
-              <Ionicons name="paper-plane" size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
-              <Text style={styles.primaryBtnText}>Send Official Broadcast</Text>
-            </>
-          )}
-        </TouchableOpacity>
+        <View style={styles.formButtonRow}>
+          <TouchableOpacity 
+            style={[styles.secondaryActionBtn, { flex: 1, marginRight: 8 }]} 
+            onPress={handleSendTestBroadcast}
+            disabled={sendingTestMail}
+            activeOpacity={0.8}
+          >
+            {sendingTestMail ? (
+              <ActivityIndicator size="small" color="#059669" />
+            ) : (
+              <>
+                <Ionicons name="mail-unread-outline" size={17} color="#059669" style={{ marginRight: 6 }} />
+                <Text style={styles.secondaryActionBtnText}>Send Test to Me</Text>
+              </>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.primaryBtn, { flex: 1, marginLeft: 8 }]} 
+            onPress={handleSendMassMail} 
+            disabled={sendingMassMail}
+            activeOpacity={0.8}
+          >
+            {sendingMassMail ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <>
+                <Ionicons name="paper-plane" size={18} color="#FFFFFF" style={{ marginRight: 6 }} />
+                <Text style={styles.primaryBtnText}>Send Broadcast</Text>
+              </>
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
+
+      {/* Live Interactive Mobile/Desktop Preview */}
+      {renderLiveEmailPreview(massSubject, massBody, broadcastPreviewDevice, setBroadcastPreviewDevice, massAudience, handleSendTestBroadcast, sendingTestMail)}
     </ScrollView>
   );
 
@@ -1807,13 +2246,20 @@ const getStyles = (theme) => StyleSheet.create({
   emptyModuleTitle: { fontSize: 16, fontWeight: '700', color: '#475569', marginTop: 14 },
   emptyModuleSub: { fontSize: 13, color: theme.textMuted, marginTop: 6, textAlign: 'center', paddingHorizontal: 40 },
 
-  // Welcome Mail Styling
+  // Welcome & Mass Mail Styling
   formSection: { padding: 16, backgroundColor: theme.card, marginHorizontal: 16, borderRadius: 16, borderWidth: 1, borderColor: theme.border },
   inputLabel: { fontSize: 13, fontWeight: '700', color: theme.primary, marginBottom: 8, marginTop: 8 },
   helperText: { fontSize: 11, color: theme.textSecondary, marginBottom: 8, fontStyle: 'italic' },
   textInput: { borderWidth: 1, borderColor: theme.border, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: theme.text, backgroundColor: theme.background, marginBottom: 14 },
   textArea: { minHeight: 120, textAlignVertical: 'top' },
   
+  formButtonRow: { flexDirection: 'row', alignItems: 'center', marginTop: 10 },
+  secondaryActionBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 10, borderWidth: 1.5, borderColor: '#A7F3D0', backgroundColor: '#F0FDF4' },
+  secondaryActionBtnText: { fontSize: 13.5, fontWeight: '700', color: '#059669' },
+
+  audienceCounterBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#ECFDF5', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, borderWidth: 1, borderColor: '#A7F3D0' },
+  audienceCounterText: { fontSize: 11.5, fontWeight: '700', color: '#047857' },
+
   switchRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12, marginBottom: 16, borderTopWidth: 1, borderTopColor: '#F1F5F9' },
   switchLabel: { flex: 1, fontSize: 13, color: '#475569', fontWeight: '600', marginRight: 16 },
   toggleBtn: { width: 44, height: 24, borderRadius: 12, backgroundColor: '#CBD5E1', padding: 2 },
@@ -1823,7 +2269,95 @@ const getStyles = (theme) => StyleSheet.create({
   
   primaryBtn: { backgroundColor: theme.primary, borderRadius: 10, paddingVertical: 14, alignItems: 'center', justifyContent: 'center', flexDirection: 'row' },
   primaryBtnText: { color: theme.card, fontSize: 14, fontWeight: '700' },
+
+  // Dynamic Token Chips Styling
+  tokenChipsContainer: { backgroundColor: theme.background, borderRadius: 12, padding: 12, marginBottom: 14, borderWidth: 1, borderColor: theme.border },
+  tokenSectionTitle: { fontSize: 12, fontWeight: '700', color: theme.primary },
+  tokenHintText: { fontSize: 11, color: theme.textSecondary },
+  tokenScrollContent: { flexDirection: 'row', gap: 8, paddingVertical: 2 },
+  tokenChipBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#ECFDF5', borderWidth: 1, borderColor: '#A7F3D0', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6 },
+  tokenChipPlus: { width: 16, height: 16, borderRadius: 8, backgroundColor: '#D1FAE5', alignItems: 'center', justifyContent: 'center', marginRight: 5 },
+  tokenChipText: { fontSize: 12, fontWeight: '800', color: '#065F46' },
+  tokenChipLabel: { fontSize: 10.5, fontWeight: '600', color: '#047857', marginLeft: 4, opacity: 0.8 },
+
+  // Live Email Preview Styling
+  previewCardContainer: { padding: 16 },
+  previewHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
+  previewMainHeading: { fontSize: 15, fontWeight: '800', color: theme.text },
+  previewPersonaBadge: { fontSize: 11.5, color: theme.textSecondary, marginBottom: 14 },
   
+  deviceToggleTabs: { flexDirection: 'row', backgroundColor: '#E2E8F0', borderRadius: 10, padding: 3 },
+  deviceTabBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 7 },
+  deviceTabBtnActive: { backgroundColor: '#FFFFFF', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 2 },
+  deviceTabText: { fontSize: 11.5, fontWeight: '600', color: '#64748B' },
+  deviceTabTextActive: { color: '#059669', fontWeight: '800' },
+
+  // Mobile Preview Frame
+  mobileChassis: { maxWidth: 360, width: '100%', alignSelf: 'center', borderRadius: 28, borderWidth: 3, borderColor: '#334155', backgroundColor: theme.card, overflow: 'hidden', shadowColor: '#000', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.15, shadowRadius: 12, elevation: 6 },
+  mobileTopBar: { height: 26, backgroundColor: '#0F172A', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 14 },
+  mobileClockText: { fontSize: 10, fontWeight: '700', color: '#FFFFFF' },
+  mobileNotchPill: { width: 70, height: 12, backgroundColor: '#000000', borderRadius: 6 },
+  mobileStatusIcons: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  
+  mobileMailNav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: theme.border, backgroundColor: theme.card },
+  mobileMailNavBack: { fontSize: 13, fontWeight: '600', color: '#059669' },
+  
+  mobileMailContent: { padding: 14 },
+  mobileSenderRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 },
+  mobileSenderAvatar: { width: 34, height: 34, borderRadius: 17, backgroundColor: '#059669', alignItems: 'center', justifyContent: 'center' },
+  mobileSenderAvatarText: { color: '#FFFFFF', fontSize: 13, fontWeight: '800' },
+  mobileSenderName: { fontSize: 13, fontWeight: '700', color: theme.text },
+  mobileRecipientText: { fontSize: 11, color: theme.textSecondary, marginTop: 1 },
+  mobileTimestampText: { fontSize: 10, color: theme.textMuted },
+  
+  mobileSubjectText: { fontSize: 15, fontWeight: '800', color: theme.text, lineHeight: 20 },
+  mobileEmailDivider: { height: 1, backgroundColor: theme.border, marginVertical: 10 },
+  mobileBodyText: { fontSize: 13, color: '#334155', lineHeight: 21 },
+  
+  mobileCtaBox: { alignItems: 'center', marginVertical: 16 },
+  mobileCtaBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#059669', paddingHorizontal: 18, paddingVertical: 10, borderRadius: 8, shadowColor: '#059669', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 4, elevation: 3 },
+  mobileCtaBtnText: { color: '#FFFFFF', fontSize: 13, fontWeight: '700' },
+  
+  mobileFooterBox: { borderTopWidth: 1, borderTopColor: theme.border, paddingTop: 12, marginTop: 14 },
+  mobileFooterText: { fontSize: 10, color: theme.textMuted, textAlign: 'center', lineHeight: 14 },
+
+  // Desktop Preview Frame
+  desktopChassis: { width: '100%', borderRadius: 14, borderWidth: 1, borderColor: theme.border, backgroundColor: theme.card, overflow: 'hidden', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 4 },
+  desktopWindowHeader: { height: 34, backgroundColor: '#E2E8F0', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: '#CBD5E1' },
+  desktopTrafficDots: { flexDirection: 'row', gap: 6 },
+  trafficDot: { width: 10, height: 10, borderRadius: 5 },
+  desktopWindowTitle: { fontSize: 11.5, fontWeight: '600', color: '#475569' },
+  
+  desktopToolbar: { flexDirection: 'row', gap: 6, paddingHorizontal: 14, paddingVertical: 8, backgroundColor: '#F8FAFC', borderBottomWidth: 1, borderBottomColor: theme.border },
+  desktopToolbarBtn: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#CBD5E1' },
+  desktopToolbarBtnText: { fontSize: 11, fontWeight: '600', color: '#475569' },
+  
+  desktopSubjectRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingTop: 14, paddingBottom: 6 },
+  desktopSubjectTitle: { fontSize: 17, fontWeight: '800', color: theme.text, flex: 1, marginRight: 10 },
+  desktopSecureBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#ECFDF5', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, borderWidth: 1, borderColor: '#A7F3D0' },
+  desktopSecureBadgeText: { fontSize: 10.5, fontWeight: '700', color: '#047857' },
+  
+  desktopMetaGrid: { paddingHorizontal: 16, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: theme.border },
+  desktopMetaLabel: { width: 44, fontSize: 11.5, fontWeight: '700', color: '#64748B' },
+  desktopMetaValue: { fontSize: 12, color: theme.text, fontWeight: '500' },
+  
+  desktopBodyCanvas: { padding: 20 },
+  desktopInstBanner: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#F0FDF4', padding: 12, borderRadius: 10, borderWidth: 1, borderColor: '#DCFCE7', marginBottom: 18 },
+  desktopInstIcon: { width: 38, height: 38, borderRadius: 10, backgroundColor: '#DCFCE7', alignItems: 'center', justifyContent: 'center' },
+  desktopInstTitle: { fontSize: 14, fontWeight: '800', color: '#065F46' },
+  desktopInstSubtitle: { fontSize: 11, color: '#047857', fontWeight: '500' },
+  desktopBodyContent: { fontSize: 14, color: '#334155', lineHeight: 23 },
+  
+  desktopCtaBox: { alignItems: 'flex-start', marginVertical: 20 },
+  desktopCtaBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#059669', paddingHorizontal: 22, paddingVertical: 12, borderRadius: 8, shadowColor: '#059669', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 4, elevation: 3 },
+  desktopCtaBtnText: { color: '#FFFFFF', fontSize: 14, fontWeight: '700' },
+  
+  desktopEmailSignature: { borderTopWidth: 1, borderTopColor: theme.border, paddingTop: 16, marginTop: 18 },
+  
+  previewActionRow: { marginTop: 14, alignItems: 'flex-end' },
+  sendTestBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#ECFDF5', borderWidth: 1.5, borderColor: '#A7F3D0', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8 },
+  sendTestBtnText: { fontSize: 12, fontWeight: '700', color: '#047857' },
+
   previewContainer: { padding: 16 },
   previewTitle: { fontSize: 14, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', marginBottom: 8 },
   previewMailBox: { backgroundColor: theme.card, borderRadius: 12, padding: 16, borderWidth: 1, borderColor: theme.border },

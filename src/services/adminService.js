@@ -75,3 +75,8 @@ export const syncStudentsFromSheet = async (sheetUrl = undefined) => {
     const { data } = await api.post('/admin/sync-students', { sheetUrl });
     return data;
 };
+
+export const sendBroadcastEmail = async (payload) => {
+    const { data } = await api.post('/admin/broadcast', payload);
+    return data;
+};
