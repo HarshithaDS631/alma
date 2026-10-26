@@ -35,7 +35,6 @@ import useUserRole from '../hooks/useUserRole';
 import getInitials from '../lib/getInitials';
 import InstagramProfileShareModal from '../components/InstagramProfileShareModal';
 import Mascot from '../components/Mascot';
-import BentoGrid, { BentoCard } from '../components/BentoGrid';
 
 // ─── Specialized Directory Discovery Categories ───────────────────────────
 const DEFAULT_SPECIALIZED_LISTS = [
@@ -775,65 +774,6 @@ const DirectoryScreen = ({ navigation, route }) => {
         contentContainerStyle={styles.mainScrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* ─── Bento Box Directory Discovery Grid (Orange Health modular compartments) ─── */}
-        <BentoGrid style={{ marginBottom: 14 }}>
-          {/* 1. Global Network (Wide Hero) */}
-          <BentoCard
-            variant="hero"
-            metric={`${unifiedDirectory.length} Members`}
-            title={`${currentUser?.institution || 'Institution'} Directory`}
-            subtitle="Explore verified graduates, students, researchers and faculty."
-            badge="DIRECTORY"
-            badgeBg="#DCFCE7"
-            badgeTextColor="#047857"
-            icon="people-outline"
-            iconColor="#059669"
-            iconBg="#DCFCE7"
-            onPress={() => {
-              setSelectedMemberType('all');
-              setSelectedCourse('all');
-              setSelectedGraduationYear('all');
-              setSelectedLocation('all');
-              setSelectedSpecializedList(null);
-              setSearchQuery('');
-            }}
-          />
-
-          {/* 2. Tech Leaders (50%) */}
-          <View style={{ flex: 1, minWidth: 140 }}>
-            <BentoCard
-              variant="compact"
-              metric="347+ Leads"
-              title="Tech & Software"
-              subtitle="SDEs & Architects"
-              badge="TECH"
-              badgeBg="#DCFCE7"
-              badgeTextColor="#047857"
-              icon="hardware-chip-outline"
-              iconColor="#047857"
-              iconBg="#DCFCE7"
-              onPress={() => setSelectedSpecializedList('tech_mgrs')}
-            />
-          </View>
-
-          {/* 3. Core Engineers (50%) */}
-          <View style={{ flex: 1, minWidth: 140 }}>
-            <BentoCard
-              variant="compact"
-              metric="549+ Core"
-              title="Core & Non-IT"
-              subtitle="Mechanical & Civil"
-              badge="CORE"
-              badgeBg="#DCFCE7"
-              badgeTextColor="#047857"
-              icon="construct-outline"
-              iconColor="#059669"
-              iconBg="#DCFCE7"
-              onPress={() => setSelectedSpecializedList('eng_non_it')}
-            />
-          </View>
-
-          </BentoGrid>
 
         {/* ─── Member Type Filter Chips ─── */}
         <View style={styles.memberTypeRow}>

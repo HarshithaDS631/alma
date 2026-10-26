@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, useWindowDimensions, Image, StatusBar, Modal, TextInput, FlatList, Alert , Platform} from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { getPosts, createPost, reportItem } from '../services/postService';
@@ -11,10 +11,11 @@ import getInitials from '../lib/getInitials';
 
 const EngageScreen = ({ navigation, route }) => {
   const { theme, isDarkMode } = useTheme();
-  const styles = getStyles(theme);
+  const styles = getStyles(theme, isDarkMode);
 
   const { width } = useWindowDimensions();
   const [currentView, setCurrentView] = useState('feed');
+  const [showSearch, setShowSearch] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [actionSheetVisible, setActionSheetVisible] = useState(false);
   const [jobPreference, setJobPreference] = useState('Full-Time');
@@ -851,52 +852,81 @@ const EngageScreen = ({ navigation, route }) => {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor="#FFFFFF" />
       <View style={webContainerStyle}>
-        {/* ── Header ─────────────────────────────────────── */}
+        {/* Modern Tactile Header Bar (Unified across all pages) */}
         <View style={styles.header}>
-          {/* Left – User avatar */}
-          <TouchableOpacity
-            style={[styles.headerAvatar, { overflow: 'hidden', backgroundColor: '#059669', justifyContent: 'center', alignItems: 'center' }]}
-            activeOpacity={0.8}
-            onPress={() => navigation.navigate('Profile')}
-          >
-            {(currentUser?.avatar_url || currentUser?.profilePicture) ? (
-              <Image 
-                source={{ uri: getImageUrl(currentUser.avatar_url || currentUser.profilePicture) }} 
-                style={{ width: '100%', height: '100%', borderRadius: 17 }} 
-              />
-            ) : (
-              <Text style={styles.headerAvatarText}>{getInitials(currentUser?.name, 'AL')}</Text>
-            )}
-          </TouchableOpacity>
+          {/* Brand Logo & Title on Left */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}>
+            <View style={styles.header3DLogoPod}>
+              <Ionicons name="school" size={19} color="#FFFFFF" />
+            </View>
+            <View>
+              <Text style={styles.headerBrandTitle}>RV ALUMNI</Text>
+              <Text style={styles.headerBrandSub}>Feed & Events</Text>
+            </View>
+          </View>
 
-          {/* Center – Search bar */}
-          <View style={styles.searchBar}>
-            <Ionicons name="search-outline" size={18} color="#94A3B8" style={{ marginRight: 6 }} />
+          {/* Right Action Pods: Search, Messages, Notifications, Support */}
+          <View style={styles.headerIcons}>
+            <TouchableOpacity
+              style={[styles.headerIconBtn, showSearch && styles.headerIconBtnActive]}
+              onPress={() => setShowSearch(prev => !prev)}
+              activeOpacity={0.75}
+              title="Search"
+            >
+              <Ionicons name="search-outline" size={20} color={showSearch ? '#FFFFFF' : theme.primary} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.headerIconBtn}
+              onPress={() => navigation.navigate('Messages')}
+              activeOpacity={0.75}
+              title="Messages"
+            >
+              <Ionicons name="chatbubble-ellipses-outline" size={20} color={theme.primary} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.headerIconBtn}
+              onPress={() => navigation.navigate('Notifications')}
+              activeOpacity={0.75}
+              title="Notifications"
+            >
+              <Ionicons name="notifications-outline" size={20} color={theme.primary} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.headerIconBtn}
+              onPress={() => navigation.navigate('Contribute')}
+              activeOpacity={0.75}
+              title="Support"
+            >
+              <MaterialCommunityIcons name="hand-heart-outline" size={20} color={theme.primary} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Expandable Search Input when Search Button is Clicked */}
+        {showSearch && (
+          <View style={styles.expandedSearchBarRow}>
+            <Ionicons name="search" size={17} color="#059669" style={{ marginRight: 8 }} />
             <TextInput
-              style={styles.searchInput}
+              style={styles.expandedSearchInput}
               placeholder="Search posts..."
               placeholderTextColor="#94A3B8"
               value={searchText}
               onChangeText={setSearchText}
+              autoFocus
             />
-          </View>
-
-          {/* Right – Icons */}
-          <View style={styles.headerIcons}>
-            <TouchableOpacity
-              style={styles.headerIconBtn}
-              onPress={() => navigation.navigate('Messages')}
-            >
-              <Ionicons name="chatbubble-ellipses-outline" size={22} color="#059669" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.headerIconBtn}
-              onPress={() => navigation.navigate('Notifications')}
-            >
-              <Ionicons name="notifications-outline" size={22} color="#059669" />
+            {searchText.length > 0 && (
+              <TouchableOpacity onPress={() => setSearchText('')}>
+                <Ionicons name="close-circle" size={16} color="#94A3B8" />
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity onPress={() => setShowSearch(false)} style={{ marginLeft: 8 }}>
+              <Text style={{ fontSize: 13, color: '#059669', fontWeight: '700' }}>Done</Text>
             </TouchableOpacity>
           </View>
-        </View>
+        )}
 
         <View style={{ flex: 1, flexDirection: isDesktop ? 'row' : 'column' }}>
           {feedContent}
@@ -984,9 +1014,9 @@ const EngageScreen = ({ navigation, route }) => {
   );
 };
 
-const getStyles = (theme) => StyleSheet.create({
+const getStyles = (theme, isDarkMode) => StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.background },
-  scrollContent: { paddingBottom: 100 },
+  scrollContent: { paddingBottom: 110 },
 
   // Post Card
   postCard: { backgroundColor: theme.card, marginBottom: 8, borderBottomWidth: 1, borderBottomColor: theme.border },
@@ -1289,64 +1319,98 @@ const getStyles = (theme) => StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 10,
     backgroundColor: theme.card,
     borderBottomWidth: 1,
     borderBottomColor: theme.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: isDarkMode ? 0.3 : 0.06,
+    shadowRadius: 4,
+    elevation: 3,
+    zIndex: 10,
   },
-  headerAvatar: {
+  header3DLogoPod: {
     width: 38,
     height: 38,
-    borderRadius: 19,
-    backgroundColor: theme.primary,
+    borderRadius: 12,
+    backgroundColor: '#059669',
+    borderWidth: 1,
+    borderTopColor: '#34D399',
+    borderLeftColor: '#10B981',
+    borderRightColor: '#047857',
+    borderBottomColor: '#064E3B',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 10,
+    shadowColor: '#059669',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.35,
+    shadowRadius: 5,
+    elevation: 5,
   },
-  headerAvatarText: {
-    color: theme.card,
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  searchBar: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.background,
-    paddingHorizontal: 12,
-    height: 38,
-    borderRadius: 8,
-    marginRight: 12,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 14,
+  headerBrandTitle: {
+    fontSize: 14.5,
+    fontWeight: '900',
     color: theme.text,
-    paddingVertical: 0,
+    letterSpacing: -0.3,
+  },
+  headerBrandSub: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: theme.textSecondary || theme.textMuted || '#64748B',
+    marginTop: 1,
   },
   headerIcons: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 7,
   },
   headerIconBtn: {
-    position: 'relative',
-    width: 36,
-    height: 36,
+    width: 38,
+    height: 38,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+    borderWidth: 1,
+    borderTopColor: isDarkMode ? '#475569' : '#FFFFFF',
+    borderLeftColor: isDarkMode ? '#334155' : '#F1F5F9',
+    borderRightColor: isDarkMode ? '#1E293B' : '#E2E8F0',
+    borderBottomColor: isDarkMode ? '#0F172A' : '#CBD5E1',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: isDarkMode ? 0.4 : 0.12,
+    shadowRadius: 4,
+    elevation: 4,
   },
-  dot: {
-    position: 'absolute',
-    top: 5,
-    right: 5,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: theme.danger,
-    borderWidth: 1.5,
-    borderColor: theme.card,
+  headerIconBtnActive: {
+    backgroundColor: '#059669',
+    borderTopColor: '#34D399',
+    borderBottomColor: '#047857',
+    shadowColor: '#059669',
+    shadowOpacity: 0.45,
+  },
+  expandedSearchBarRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: theme.card,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  expandedSearchInput: {
+    flex: 1,
+    fontSize: 13.5,
+    color: theme.text,
+    paddingVertical: 0,
   },
 });
 

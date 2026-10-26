@@ -3,16 +3,17 @@ import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, StatusBar, Scro
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../theme/ThemeContext';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { getImageUrl } from '../services/uploadService';
 import useUserRole from '../hooks/useUserRole';
 import getInitials from '../lib/getInitials';
 
 const ContributeScreen = ({ navigation }) => {
   const { theme, isDarkMode } = useTheme();
-  const styles = getStyles(theme);
+  const styles = getStyles(theme, isDarkMode);
   const { isAdminOrSuper, userRole } = useUserRole();
 
+  const [showSearch, setShowSearch] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [userInitials, setUserInitials] = useState('MA');
   const [userAvatarUrl, setUserAvatarUrl] = useState('');
@@ -707,43 +708,81 @@ const ContributeScreen = ({ navigation }) => {
       <View style={webContainerStyle}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       
-      {/* Header exactly like Dashboard/Jobs flow */}
+      {/* Modern Tactile Header Bar (Unified across all pages) */}
       <View style={styles.header}>
-        <TouchableOpacity 
-          style={[styles.headerAvatar, { overflow: 'hidden', backgroundColor: '#059669', justifyContent: 'center', alignItems: 'center' }]} 
-          activeOpacity={0.8} 
-          onPress={() => navigation.navigate('Profile')}
-        >
-          {userAvatarUrl ? (
-            <Image 
-              source={{ uri: userAvatarUrl }} 
-              style={{ width: '100%', height: '100%', borderRadius: 17 }} 
-            />
-          ) : (
-            <Text style={styles.headerAvatarText}>{userInitials}</Text>
-          )}
-        </TouchableOpacity>
-
-        <View style={styles.searchBar}>
-          <Ionicons name="search-outline" size={18} color="#94A3B8" style={{ marginRight: 6 }} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search"
-            placeholderTextColor="#94A3B8"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
+        {/* Brand Logo & Title on Left */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}>
+          <View style={styles.header3DLogoPod}>
+            <Ionicons name="school" size={19} color="#FFFFFF" />
+          </View>
+          <View>
+            <Text style={styles.headerBrandTitle}>RV ALUMNI</Text>
+            <Text style={styles.headerBrandSub}>{currentUser?.institution || 'Official Network'}</Text>
+          </View>
         </View>
 
+        {/* Right Action Pods: Search, Messages, Notifications, Support */}
         <View style={styles.headerIcons}>
-          <TouchableOpacity style={styles.headerIconBtn} onPress={() => navigation.navigate('Messages')}>
-            <Ionicons name="chatbubble-ellipses-outline" size={22} color="#059669" />
+          <TouchableOpacity
+            style={[styles.headerIconBtn, showSearch && styles.headerIconBtnActive]}
+            onPress={() => setShowSearch(prev => !prev)}
+            activeOpacity={0.75}
+            title="Search"
+          >
+            <Ionicons name="search-outline" size={20} color={showSearch ? '#FFFFFF' : theme.primary} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.headerIconBtn} onPress={() => navigation.navigate('Notifications')}>
-            <Ionicons name="notifications-outline" size={22} color="#059669" />
+
+          <TouchableOpacity
+            style={styles.headerIconBtn}
+            onPress={() => navigation.navigate('Messages')}
+            activeOpacity={0.75}
+            title="Messages"
+          >
+            <Ionicons name="chatbubble-ellipses-outline" size={20} color={theme.primary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.headerIconBtn}
+            onPress={() => navigation.navigate('Notifications')}
+            activeOpacity={0.75}
+            title="Notifications"
+          >
+            <Ionicons name="notifications-outline" size={20} color={theme.primary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.headerIconBtn, styles.headerIconBtnActive]}
+            onPress={() => {}}
+            activeOpacity={0.75}
+            title="Support"
+          >
+            <MaterialCommunityIcons name="hand-heart" size={20} color="#FFFFFF" />
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Expandable Search Input when Search Button is Clicked */}
+      {showSearch && (
+        <View style={styles.expandedSearchBarRow}>
+          <Ionicons name="search" size={17} color="#059669" style={{ marginRight: 8 }} />
+          <TextInput
+            style={styles.expandedSearchInput}
+            placeholder="Search mentorship, funds, resources..."
+            placeholderTextColor="#94A3B8"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            autoFocus
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchQuery('')}>
+              <Ionicons name="close-circle" size={16} color="#94A3B8" />
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity onPress={() => setShowSearch(false)} style={{ marginLeft: 8 }}>
+            <Text style={{ fontSize: 13, color: '#059669', fontWeight: '700' }}>Done</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* Role Badge for Admin/Super Admin */}
       {isAdminOrSuper && (
@@ -1074,50 +1113,58 @@ const ContributeScreen = ({ navigation }) => {
   );
 };
 
-const getStyles = (theme) => StyleSheet.create({
+const getStyles = (theme, isDarkMode) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.card,
   },
   
-  // Header matched with JobsScreen/DashboardScreen
+  // Header matched with DashboardScreen 3D Look
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: 11,
     backgroundColor: theme.card,
     borderBottomWidth: 1,
-    borderBottomColor: theme.border,
+    borderBottomColor: theme.cardBorder || theme.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: isDarkMode ? 0.35 : 0.06,
+    shadowRadius: 5,
+    elevation: 4,
+    zIndex: 10,
   },
-  headerAvatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: theme.primary,
+  header3DLogoPod: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: '#059669',
+    borderWidth: 1,
+    borderTopColor: '#34D399',
+    borderLeftColor: '#10B981',
+    borderRightColor: '#047857',
+    borderBottomColor: '#064E3B',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    shadowColor: '#059669',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.35,
+    shadowRadius: 5,
+    elevation: 5,
   },
-  headerAvatarText: {
-    color: theme.card,
-    fontSize: 13,
-    fontWeight: '700',
-  },
-  searchBar: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F1F5F9',
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    height: 38,
-    marginRight: 12,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 14,
+  headerBrandTitle: {
+    fontSize: 14.5,
+    fontWeight: '900',
     color: theme.text,
+    letterSpacing: -0.3,
+  },
+  headerBrandSub: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: theme.textMuted,
+    marginTop: 1,
   },
   headerIcons: {
     flexDirection: 'row',
@@ -1125,22 +1172,60 @@ const getStyles = (theme) => StyleSheet.create({
     gap: 8,
   },
   headerIconBtn: {
-    position: 'relative',
-    width: 34,
-    height: 34,
+    width: 38,
+    height: 38,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+    borderWidth: 1,
+    borderTopColor: isDarkMode ? '#475569' : '#FFFFFF',
+    borderLeftColor: isDarkMode ? '#334155' : '#F1F5F9',
+    borderRightColor: isDarkMode ? '#1E293B' : '#E2E8F0',
+    borderBottomColor: isDarkMode ? '#0F172A' : '#CBD5E1',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: isDarkMode ? 0.4 : 0.12,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  headerIconBtnActive: {
+    backgroundColor: '#059669',
+    borderTopColor: '#34D399',
+    borderBottomColor: '#047857',
+    shadowColor: '#059669',
+    shadowOpacity: 0.45,
+  },
+  expandedSearchBarRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: theme.card,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  expandedSearchInput: {
+    flex: 1,
+    fontSize: 13.5,
+    color: theme.text,
+    paddingVertical: 0,
   },
   dot: {
     position: 'absolute',
-    top: 6,
-    right: 6,
-    width: 8,
-    height: 8,
+    top: 3,
+    right: 3,
+    width: 7.5,
+    height: 7.5,
     borderRadius: 4,
-    backgroundColor: theme.danger,
-    borderWidth: 1,
-    borderColor: theme.card,
+    backgroundColor: '#EF4444',
+    borderWidth: 1.5,
+    borderColor: '#FFFFFF',
   },
   
   // Main Tabs
@@ -1172,7 +1257,7 @@ const getStyles = (theme) => StyleSheet.create({
 
   content: {
     padding: 16,
-    paddingBottom: 60,
+    paddingBottom: 110,
   },
   
   // Mentorship Sub Tabs

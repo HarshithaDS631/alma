@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, FlatList, TouchableOpacity, TextInput, StatusBar, Alert, Modal , Platform} from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { getSuggestions } from '../services/authService';
 import { getChatHistory } from '../services/messageService';
 import { useFocusEffect } from '@react-navigation/native';
@@ -12,8 +12,9 @@ const initialChats = [];
 
 const MessagesScreen = ({ navigation }) => {
   const { theme, isDarkMode } = useTheme();
-  const styles = getStyles(theme);
+  const styles = getStyles(theme, isDarkMode);
 
+  const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [chatList, setChatList] = useState([]);
   const [suggestionsList, setSuggestionsList] = useState([]);
@@ -132,48 +133,90 @@ const MessagesScreen = ({ navigation }) => {
       <View style={webContainerStyle}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       
-      {/* Header with Back Button */}
+      {/* Modern Tactile Header Bar (Unified across all pages) */}
       <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <TouchableOpacity 
-            style={styles.backButton}
-            hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
-            activeOpacity={0.6}
-            onPress={() => {
-              if (navigation && typeof navigation.canGoBack === 'function' && navigation.canGoBack()) {
-                navigation.goBack();
-              } else if (navigation && typeof navigation.navigate === 'function') {
-                navigation.navigate('Main');
-              }
-            }} 
-          >
-            <Ionicons name="arrow-back" size={24} color="#002144" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Direct Messages</Text>
+        {/* Brand Logo & Title on Left */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}>
+          <View style={styles.header3DLogoPod}>
+            <Ionicons name="school" size={19} color="#FFFFFF" />
+          </View>
+          <View>
+            <Text style={styles.headerBrandTitle}>RV ALUMNI</Text>
+            <Text style={styles.headerBrandSub}>Direct Messages</Text>
+          </View>
         </View>
-        <TouchableOpacity style={styles.createBtn} activeOpacity={0.6} onPress={() => setComposeModalVisible(true)}>
-          <Ionicons name="create-outline" size={24} color="#059669" />
-        </TouchableOpacity>
+
+        {/* Right Action Pods: Compose, Search, Messages (Active), Notifications, Support */}
+        <View style={styles.headerIcons}>
+          <TouchableOpacity
+            style={styles.headerIconBtn}
+            onPress={() => setComposeModalVisible(true)}
+            activeOpacity={0.75}
+            title="Compose New Message"
+          >
+            <Ionicons name="create-outline" size={20} color={theme.primary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.headerIconBtn, showSearch && styles.headerIconBtnActive]}
+            onPress={() => setShowSearch(prev => !prev)}
+            activeOpacity={0.75}
+            title="Search"
+          >
+            <Ionicons name="search-outline" size={20} color={showSearch ? '#FFFFFF' : theme.primary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.headerIconBtn, styles.headerIconBtnActive]}
+            onPress={() => {}}
+            activeOpacity={0.75}
+            title="Messages"
+          >
+            <Ionicons name="chatbubble-ellipses" size={20} color="#FFFFFF" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.headerIconBtn}
+            onPress={() => navigation.navigate('Notifications')}
+            activeOpacity={0.75}
+            title="Notifications"
+          >
+            <Ionicons name="notifications-outline" size={20} color={theme.primary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.headerIconBtn}
+            onPress={() => navigation.navigate('Contribute')}
+            activeOpacity={0.75}
+            title="Support"
+          >
+            <MaterialCommunityIcons name="hand-heart-outline" size={20} color={theme.primary} />
+          </TouchableOpacity>
+        </View>
       </View>
 
-      {/* Search Bar */}
-      <View style={styles.searchSection}>
-        <View style={styles.searchBar}>
-          <Ionicons name="search-outline" size={18} color="#94A3B8" />
-          <TextInput 
-            placeholder="Search contacts or chats..." 
-            style={styles.searchInput}
+      {/* Expandable Search Input when Search Button is Clicked */}
+      {showSearch && (
+        <View style={styles.expandedSearchBarRow}>
+          <Ionicons name="search" size={17} color="#059669" style={{ marginRight: 8 }} />
+          <TextInput
+            style={styles.expandedSearchInput}
+            placeholder="Search contacts, degrees, or message text..."
             placeholderTextColor="#94A3B8"
             value={searchQuery}
             onChangeText={setSearchQuery}
+            autoFocus
           />
           {searchQuery.length > 0 && (
             <TouchableOpacity onPress={() => setSearchQuery('')}>
               <Ionicons name="close-circle" size={16} color="#94A3B8" />
             </TouchableOpacity>
           )}
+          <TouchableOpacity onPress={() => setShowSearch(false)} style={{ marginLeft: 8 }}>
+            <Text style={{ fontSize: 13, color: '#059669', fontWeight: '700' }}>Done</Text>
+          </TouchableOpacity>
         </View>
-      </View>
+      )}
 
       {filteredChats.length === 0 ? (
         <View style={styles.emptyState}>
@@ -263,7 +306,7 @@ const MessagesScreen = ({ navigation }) => {
               </TouchableOpacity>
             );
           }}
-          contentContainerStyle={{ paddingBottom: 24 }}
+          contentContainerStyle={{ paddingBottom: 110 }}
         />
       )}
 
@@ -305,8 +348,8 @@ const MessagesScreen = ({ navigation }) => {
                           name: item.name,
                           institution: item.institution || item.department || item.degree || ''
                         },
-                        lastMessage: { text: '' },
-                        unreadCount: 0
+                        lastMessage: { text: '' }, 
+                        unreadCount: 0 
                       };
                       setChatList([newUser, ...chatList]);
                       setComposeModalVisible(false);
@@ -335,67 +378,106 @@ const MessagesScreen = ({ navigation }) => {
   );
 };
 
-const getStyles = (theme) => StyleSheet.create({
+const getStyles = (theme, isDarkMode) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.card,
   },
   header: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
-  },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  backButton: {
-    width: 32,
-    height: 32,
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: theme.primary,
-    letterSpacing: -0.5,
-  },
-  createBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#F1F5F9',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  searchSection: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 11,
     backgroundColor: theme.card,
     borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
+    borderBottomColor: theme.cardBorder || theme.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: isDarkMode ? 0.35 : 0.06,
+    shadowRadius: 5,
+    elevation: 4,
+    zIndex: 10,
   },
-  searchBar: {
+  header3DLogoPod: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: '#059669',
+    borderWidth: 1,
+    borderTopColor: '#34D399',
+    borderLeftColor: '#10B981',
+    borderRightColor: '#047857',
+    borderBottomColor: '#064E3B',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#059669',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.35,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  headerBrandTitle: {
+    fontSize: 14.5,
+    fontWeight: '900',
+    color: theme.text,
+    letterSpacing: -0.3,
+  },
+  headerBrandSub: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: theme.textMuted,
+    marginTop: 1,
+  },
+  headerIcons: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.background,
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    height: 40,
-    borderWidth: 1,
-    borderColor: theme.border,
+    gap: 7,
   },
-  searchInput: {
+  headerIconBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+    borderWidth: 1,
+    borderTopColor: isDarkMode ? '#475569' : '#FFFFFF',
+    borderLeftColor: isDarkMode ? '#334155' : '#F1F5F9',
+    borderRightColor: isDarkMode ? '#1E293B' : '#E2E8F0',
+    borderBottomColor: isDarkMode ? '#0F172A' : '#CBD5E1',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: isDarkMode ? 0.4 : 0.12,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  headerIconBtnActive: {
+    backgroundColor: '#059669',
+    borderTopColor: '#34D399',
+    borderBottomColor: '#047857',
+    shadowColor: '#059669',
+    shadowOpacity: 0.45,
+  },
+  expandedSearchBarRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: theme.card,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  expandedSearchInput: {
     flex: 1,
-    fontSize: 14,
+    fontSize: 13.5,
     color: theme.text,
-    marginLeft: 8,
+    paddingVertical: 0,
   },
   chatItem: {
     flexDirection: 'row',

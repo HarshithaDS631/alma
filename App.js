@@ -407,6 +407,9 @@ function MainTabs() {
         <Drawer.Screen name="Jobs" component={JobsScreen} options={{ drawerLabel: 'Jobs' }} />
         <Drawer.Screen name="Profile" component={ProfileScreen} options={{ drawerLabel: 'Profile' }} />
         <Drawer.Screen name="Messages" component={MessagesScreen} options={{ drawerItemStyle: { display: 'none' } }} />
+        <Drawer.Screen name="Support" component={ContributeScreen} options={{ drawerItemStyle: { display: 'none' } }} />
+        <Drawer.Screen name="Contribute" component={ContributeScreen} options={{ drawerItemStyle: { display: 'none' } }} />
+        <Drawer.Screen name="Notifications" component={NotificationsScreen} options={{ drawerItemStyle: { display: 'none' } }} />
       </Drawer.Navigator>
     );
   }
@@ -459,6 +462,9 @@ function MainTabs() {
       <Tab.Screen name="Jobs" component={JobsScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
       <Tab.Screen name="Messages" component={MessagesScreen} options={{ tabBarItemStyle: { display: 'none' } }} />
+      <Tab.Screen name="Support" component={ContributeScreen} options={{ tabBarItemStyle: { display: 'none' } }} />
+      <Tab.Screen name="Contribute" component={ContributeScreen} options={{ tabBarItemStyle: { display: 'none' } }} />
+      <Tab.Screen name="Notifications" component={NotificationsScreen} options={{ tabBarItemStyle: { display: 'none' } }} />
     </Tab.Navigator>
   );
 }
@@ -701,10 +707,11 @@ const linking = {
           Jobs: 'jobs',
           Profile: 'profile',
           Messages: 'messages',
+          Support: 'support',
+          Contribute: 'contribute',
+          Notifications: 'notifications',
         }
       },
-      Contribute: 'support',
-      Support: 'support',
       AdminLogin: 'admin-login',
       AdminOTP: 'admin-otp',
       AdminMain: {
@@ -728,11 +735,8 @@ const linking = {
           SAPanel: 'panel',
         }
       },
-      Messages: 'messages',
       Chat: 'chat',
-      Notifications: 'notifications',
       PostCreation: 'create-post',
-      Profile: 'profile',
       ResumeBook: 'resume-book',
       Events: 'events',
       Mentorship: 'mentorship',
@@ -788,12 +792,8 @@ function RootNavigator() {
         <Stack.Screen name="SuperAdminMain" component={SuperAdminTabs} />
 
         {/* Shared Overlay/Secondary Screens */}
-        <Stack.Screen name="Contribute" component={ContributeScreen} />
-        <Stack.Screen name="Support" component={ContributeScreen} />
         <Stack.Screen name="Chat" component={ChatScreen} />
-        <Stack.Screen name="Notifications" component={NotificationsScreen} />
         <Stack.Screen name="PostCreation" component={PostCreationScreen} options={{ animation: 'slide_from_bottom' }} />
-        <Stack.Screen name="Profile" component={ProfileScreen} />
         <Stack.Screen name="Events" component={AdminEventsScreen} />
         <Stack.Screen name="AdminProfile" component={AdminProfileScreen} />
         <Stack.Screen name="AdminPlacementDetails" component={AdminPlacementDetailsScreen} />

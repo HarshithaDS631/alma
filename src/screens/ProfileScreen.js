@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Image, ScrollView, useWindowDimensions, Alert, StatusBar, Modal, TextInput, Platform, Share, Switch, Linking } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../theme/ThemeContext';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getProfile, updateProfile, changePassword, deleteAccount, getPosts, getFollowers, getFollowing, toggleFollowUser, logout, setup2FA, verify2FA, disable2FA, getActiveSessions, revokeSession, getLoginHistory, toggleLikePost } from '../services/authService';
 import { getChatHistory, sendMessage } from '../services/messageService';
@@ -119,7 +119,7 @@ const formatHeadlineDomain = (domain, branch) => {
 
 const ProfileScreen = ({ navigation }) => {
   const { theme, isDarkMode } = useTheme();
-  const styles = getStyles(theme);
+  const styles = getStyles(theme, isDarkMode);
 
   const { width } = useWindowDimensions();
   const isWeb = Platform.OS === 'web';
@@ -1194,37 +1194,60 @@ const DEFAULT_TAGGED_POSTS = [];
       <View style={webContainerStyle}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       
-      {/* Premium Header */}
+      {/* Modern Tactile Header Bar (Unified across all pages) */}
       <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <TouchableOpacity 
-            style={{ marginRight: 8, padding: 8, borderRadius: 20, zIndex: 999 }} 
-            hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
-            activeOpacity={0.6}
-            onPress={() => {
-              if (navigation && typeof navigation.canGoBack === 'function' && navigation.canGoBack()) {
-                navigation.goBack();
-              } else if (navigation && typeof navigation.navigate === 'function') {
-                navigation.navigate('Main');
-              }
-            }}
-          >
-            <Ionicons name="arrow-back" size={26} color={theme.text} />
-          </TouchableOpacity>
-          <Ionicons name="shield-checkmark" size={18} color="#059669" />
-          <Text style={styles.headerUsername}>{profileData.username}</Text>
+        {/* Brand Logo & Title on Left */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}>
+          <View style={styles.header3DLogoPod}>
+            <Ionicons name="school" size={19} color="#FFFFFF" />
+          </View>
+          <View>
+            <Text style={styles.headerBrandTitle}>RV ALUMNI</Text>
+            <Text style={styles.headerBrandSub}>{profileData?.name || 'My Profile'}</Text>
+          </View>
         </View>
-        <View style={styles.headerRight}>
-          <TouchableOpacity style={styles.headerIcon} onPress={() => navigation.navigate('PostCreation')} activeOpacity={0.7}>
-            <Ionicons name="add-circle-outline" size={26} color="#002144" />
+
+        {/* Right Action Pods: Settings, Messages, Notifications, Support */}
+        <View style={styles.headerIcons}>
+          <TouchableOpacity
+            style={styles.headerIconBtn}
+            onPress={handleSettings}
+            activeOpacity={0.75}
+            title="Settings"
+          >
+            <Ionicons name="settings-outline" size={20} color={theme.primary} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.headerIcon} onPress={handleSettings} activeOpacity={0.7}>
-            <Ionicons name="settings-outline" size={24} color="#002144" />
+
+          <TouchableOpacity
+            style={styles.headerIconBtn}
+            onPress={() => navigation.navigate('Messages')}
+            activeOpacity={0.75}
+            title="Messages"
+          >
+            <Ionicons name="chatbubble-ellipses-outline" size={20} color={theme.primary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.headerIconBtn}
+            onPress={() => navigation.navigate('Notifications')}
+            activeOpacity={0.75}
+            title="Notifications"
+          >
+            <Ionicons name="notifications-outline" size={20} color={theme.primary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.headerIconBtn}
+            onPress={() => navigation.navigate('Contribute')}
+            activeOpacity={0.75}
+            title="Support"
+          >
+            <MaterialCommunityIcons name="hand-heart-outline" size={20} color={theme.primary} />
           </TouchableOpacity>
         </View>
       </View>
 
-      <ScrollView ref={profileScrollViewRef} showsVerticalScrollIndicator={false}>
+      <ScrollView ref={profileScrollViewRef} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 110 }}>
         {/* Profile Identity & Showcase Container */}
         <View style={styles.profileInfoContainer}>
           {/* Centered Avatar Row */}
@@ -4528,47 +4551,86 @@ const DEFAULT_TAGGED_POSTS = [];
   );
 };
 
-const getStyles = (theme) => StyleSheet.create({
+const getStyles = (theme, isDarkMode) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F0F4F8',
+    backgroundColor: theme.card,
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 14,
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 11,
     backgroundColor: theme.card,
-    borderBottomWidth: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.cardBorder || theme.border,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: isDarkMode ? 0.35 : 0.06,
+    shadowRadius: 5,
+    elevation: 4,
+    zIndex: 10,
   },
-  headerLeft: {
+  header3DLogoPod: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: '#059669',
+    borderWidth: 1,
+    borderTopColor: '#34D399',
+    borderLeftColor: '#10B981',
+    borderRightColor: '#047857',
+    borderBottomColor: '#064E3B',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#059669',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.35,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  headerBrandTitle: {
+    fontSize: 14.5,
+    fontWeight: '900',
+    color: theme.text,
+    letterSpacing: -0.3,
+  },
+  headerBrandSub: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: theme.textMuted,
+    marginTop: 1,
+  },
+  headerIcons: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
   },
-  headerUsername: {
-    fontSize: 19,
-    fontWeight: '800',
-    color: theme.text,
-    letterSpacing: -0.3,
-  },
-  headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-  },
-  headerIcon: {
+  headerIconBtn: {
     width: 38,
     height: 38,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 19,
+    backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+    borderWidth: 1,
+    borderTopColor: isDarkMode ? '#475569' : '#FFFFFF',
+    borderLeftColor: isDarkMode ? '#334155' : '#F1F5F9',
+    borderRightColor: isDarkMode ? '#1E293B' : '#E2E8F0',
+    borderBottomColor: isDarkMode ? '#0F172A' : '#CBD5E1',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: isDarkMode ? 0.4 : 0.12,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  headerIconBtnActive: {
+    backgroundColor: '#059669',
+    borderTopColor: '#34D399',
+    borderBottomColor: '#047857',
+    shadowColor: '#059669',
+    shadowOpacity: 0.45,
   },
   // ── Profile Identity & Avatar Section (Clean Minimal Layout) ──
   profileInfoContainer: {

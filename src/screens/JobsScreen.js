@@ -17,7 +17,7 @@ import {
   Switch
 } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import useUserRole from '../hooks/useUserRole';
 import { FloatingElement, PulseElement } from '../components/MotionGraphic';
@@ -383,6 +383,59 @@ const JobsScreen = ({ navigation, route }) => {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+
+      {/* Modern Tactile Header Bar (Unified across all pages) */}
+      <View style={styles.topHeader}>
+        {/* Brand Logo & Title on Left */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}>
+          <View style={styles.header3DLogoPod}>
+            <Ionicons name="school" size={19} color="#FFFFFF" />
+          </View>
+          <View>
+            <Text style={styles.headerBrandTitle}>RV ALUMNI</Text>
+            <Text style={styles.headerBrandSub}>Career & Job Hub</Text>
+          </View>
+        </View>
+
+        {/* Right Action Pods: Search, Messages, Notifications, Support */}
+        <View style={styles.headerIcons}>
+          <TouchableOpacity
+            style={[styles.headerIconBtn, activeTab === 'search' && styles.headerIconBtnActive]}
+            onPress={() => setActiveTab('search')}
+            activeOpacity={0.75}
+            title="Search Jobs"
+          >
+            <Ionicons name="search-outline" size={20} color={activeTab === 'search' ? '#FFFFFF' : theme.primary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.headerIconBtn}
+            onPress={() => navigation.navigate('Messages')}
+            activeOpacity={0.75}
+            title="Messages"
+          >
+            <Ionicons name="chatbubble-ellipses-outline" size={20} color={theme.primary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.headerIconBtn}
+            onPress={() => navigation.navigate('Notifications')}
+            activeOpacity={0.75}
+            title="Notifications"
+          >
+            <Ionicons name="notifications-outline" size={20} color={theme.primary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.headerIconBtn}
+            onPress={() => navigation.navigate('Contribute')}
+            activeOpacity={0.75}
+            title="Support"
+          >
+            <MaterialCommunityIcons name="hand-heart-outline" size={20} color={theme.primary} />
+          </TouchableOpacity>
+        </View>
+      </View>
 
       {/* LinkedIn Jobs Navigation Header */}
       <View style={styles.headerContainer}>
@@ -1061,6 +1114,82 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   container: { 
     flex: 1,
     backgroundColor: theme.background,
+  },
+  topHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 11,
+    backgroundColor: theme.card,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.cardBorder || theme.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: isDarkMode ? 0.35 : 0.06,
+    shadowRadius: 5,
+    elevation: 4,
+    zIndex: 10,
+  },
+  header3DLogoPod: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: '#059669',
+    borderWidth: 1,
+    borderTopColor: '#34D399',
+    borderLeftColor: '#10B981',
+    borderRightColor: '#047857',
+    borderBottomColor: '#064E3B',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#059669',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.35,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  headerBrandTitle: {
+    fontSize: 14.5,
+    fontWeight: '900',
+    color: theme.text,
+    letterSpacing: -0.3,
+  },
+  headerBrandSub: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: theme.textMuted,
+    marginTop: 1,
+  },
+  headerIcons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  headerIconBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+    borderWidth: 1,
+    borderTopColor: isDarkMode ? '#475569' : '#FFFFFF',
+    borderLeftColor: isDarkMode ? '#334155' : '#F1F5F9',
+    borderRightColor: isDarkMode ? '#1E293B' : '#E2E8F0',
+    borderBottomColor: isDarkMode ? '#0F172A' : '#CBD5E1',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: isDarkMode ? 0.4 : 0.12,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  headerIconBtnActive: {
+    backgroundColor: '#059669',
+    borderTopColor: '#34D399',
+    borderBottomColor: '#047857',
+    shadowColor: '#059669',
+    shadowOpacity: 0.45,
   },
   headerContainer: { 
     paddingVertical: 14, 
