@@ -87,7 +87,7 @@ const AdminDrawer = createDrawerNavigator();
 const SuperAdminDrawer = createDrawerNavigator();
 
 // ===== 3D TACTILE ICON POD HELPER WITH MICRO-MOTION GRAPHICS =====
-function Render3DTabIcon({ name, focused, isDarkMode, theme, isPost, label, isMaterial }) {
+function Render3DTabIcon({ name, focused, isDarkMode, theme, isPost, label, isMaterial, isProfile, profileAvatar, profileInitials }) {
   const scaleAnim = React.useRef(new Animated.Value(focused ? 1.08 : 1)).current;
 
   React.useEffect(() => {
@@ -134,27 +134,76 @@ function Render3DTabIcon({ name, focused, isDarkMode, theme, isPost, label, isMa
     );
   }
 
+  if (isProfile) {
+    return (
+      <Animated.View style={{ alignItems: 'center', justifyContent: 'center', transform: [{ scale: scaleAnim }] }}>
+        <View style={{
+          padding: 2,
+          borderRadius: 16,
+          backgroundColor: focused ? (theme.primary || '#059669') : 'transparent',
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 3 },
+          shadowOpacity: focused ? 0.35 : 0.12,
+          shadowRadius: 5,
+          elevation: focused ? 5 : 2,
+        }}>
+          <View style={{
+            width: 28,
+            height: 28,
+            borderRadius: 14,
+            overflow: 'hidden',
+            backgroundColor: '#059669',
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderWidth: 1.5,
+            borderColor: focused ? '#FFFFFF' : (isDarkMode ? '#334155' : '#CBD5E1'),
+          }}>
+            {profileAvatar ? (
+              <Image source={{ uri: profileAvatar }} style={{ width: 28, height: 28, borderRadius: 14 }} />
+            ) : (
+              <Text style={{ fontSize: 10, fontWeight: '800', color: '#FFFFFF' }}>{profileInitials || 'AL'}</Text>
+            )}
+          </View>
+        </View>
+        <Text style={{
+          color: focused ? theme.primary : theme.textMuted,
+          fontSize: 10,
+          fontWeight: focused ? '800' : '600',
+          marginTop: 2,
+          letterSpacing: -0.2
+        }}>
+          {label}
+        </Text>
+      </Animated.View>
+    );
+  }
+
   return (
     <Animated.View style={{ alignItems: 'center', justifyContent: 'center', transform: [{ scale: scaleAnim }] }}>
       <View style={{
-        paddingHorizontal: focused ? 14 : 10,
+        paddingHorizontal: focused ? 14 : 11,
         paddingVertical: 5,
-        borderRadius: 14,
-        backgroundColor: focused ? (theme.iconPodActiveBg || 'rgba(5, 150, 105, 0.12)') : 'transparent',
-        borderWidth: focused ? 1.5 : 0,
-        borderColor: focused ? (theme.iconPodBorder || 'rgba(5, 150, 105, 0.35)') : 'transparent',
-        shadowColor: focused ? (isDarkMode ? theme.primaryLight : theme.primary) : 'transparent',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: focused ? 0.35 : 0,
-        shadowRadius: 6,
-        elevation: focused ? 4 : 0,
+        borderRadius: 13,
+        backgroundColor: focused 
+          ? (isDarkMode ? '#1E293B' : '#ECFDF5') 
+          : (isDarkMode ? 'rgba(30, 41, 59, 0.4)' : '#F8FAFC'),
+        borderWidth: 1,
+        borderTopColor: isDarkMode ? '#475569' : '#FFFFFF',
+        borderLeftColor: isDarkMode ? '#334155' : '#F1F5F9',
+        borderRightColor: isDarkMode ? '#1E293B' : '#E2E8F0',
+        borderBottomColor: isDarkMode ? '#0F172A' : (focused ? '#059669' : '#CBD5E1'),
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: focused ? 3 : 2 },
+        shadowOpacity: isDarkMode ? 0.45 : 0.12,
+        shadowRadius: focused ? 5 : 3,
+        elevation: focused ? 5 : 2,
         alignItems: 'center',
         justifyContent: 'center'
       }}>
         {isMaterial ? (
-          <MaterialCommunityIcons name={name} size={21} color={focused ? theme.primary : theme.textMuted} />
+          <MaterialCommunityIcons name={name} size={21} color={focused ? theme.primary : (isDarkMode ? '#94A3B8' : '#64748B')} />
         ) : (
-          <Ionicons name={name} size={21} color={focused ? theme.primary : theme.textMuted} />
+          <Ionicons name={name} size={21} color={focused ? theme.primary : (isDarkMode ? '#94A3B8' : '#64748B')} />
         )}
       </View>
       <Text style={{
@@ -269,6 +318,18 @@ function MainTabs() {
   const { width } = useWindowDimensions();
   const showDrawer = Platform.OS === 'web' && width >= 1024;
   const bottomPadding = Math.max(insets.bottom, Platform.OS === 'ios' ? 24 : 10);
+  const [currentUser, setCurrentUser] = React.useState(null);
+
+  React.useEffect(() => {
+    AsyncStorage.getItem('userInfo').then(str => {
+      if (str) {
+        try { setCurrentUser(JSON.parse(str)); } catch (_) {}
+      }
+    }).catch(() => {});
+  }, []);
+
+  const avatarUrl = currentUser?.avatar_url || currentUser?.profilePicture || null;
+  const initials = getInitials(currentUser?.name, 'AL');
 
   if (showDrawer) {
     return (
@@ -298,7 +359,32 @@ function MainTabs() {
             if (route.name === 'Engage') iconComp = <MaterialCommunityIcons name={focused ? 'handshake' : 'handshake-outline'} size={20} color={focused ? (isDarkMode ? theme.primaryLight : theme.primary) : color} />;
             if (route.name === 'Post') iconComp = <Ionicons name={focused ? 'add-circle' : 'add-circle-outline'} size={22} color={focused ? (isDarkMode ? theme.primaryLight : theme.primary) : color} />;
             if (route.name === 'Jobs') iconComp = <Ionicons name={focused ? 'briefcase' : 'briefcase-outline'} size={20} color={focused ? (isDarkMode ? theme.primaryLight : theme.primary) : color} />;
-            if (route.name === 'Profile') iconComp = <Ionicons name={focused ? 'person-circle' : 'person-circle-outline'} size={21} color={focused ? (isDarkMode ? theme.primaryLight : theme.primary) : color} />;
+            if (route.name === 'Profile') {
+              iconComp = (
+                <View style={{
+                  width: 26,
+                  height: 26,
+                  borderRadius: 13,
+                  overflow: 'hidden',
+                  backgroundColor: '#059669',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderWidth: 1.5,
+                  borderColor: focused ? '#059669' : (isDarkMode ? '#334155' : '#CBD5E1'),
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.15,
+                  shadowRadius: 3,
+                  elevation: 2
+                }}>
+                  {avatarUrl ? (
+                    <Image source={{ uri: avatarUrl }} style={{ width: 26, height: 26, borderRadius: 13 }} />
+                  ) : (
+                    <Text style={{ fontSize: 9.5, fontWeight: '800', color: '#FFFFFF' }}>{initials}</Text>
+                  )}
+                </View>
+              );
+            }
             if (route.name === 'Messages') iconComp = <Ionicons name={focused ? 'chatbubble-ellipses' : 'chatbubble-ellipses-outline'} size={20} color={focused ? (isDarkMode ? theme.primaryLight : theme.primary) : color} />;
             return (
               <View style={{
@@ -337,7 +423,19 @@ function MainTabs() {
           if (route.name === 'Engage') return <Render3DTabIcon name={focused ? 'handshake' : 'handshake-outline'} focused={focused} isDarkMode={isDarkMode} theme={theme} label="Engage" isMaterial />;
           if (route.name === 'Post') return <Render3DTabIcon focused={focused} isDarkMode={isDarkMode} theme={theme} isPost label="Post" />;
           if (route.name === 'Jobs') return <Render3DTabIcon name={focused ? 'briefcase' : 'briefcase-outline'} focused={focused} isDarkMode={isDarkMode} theme={theme} label="Jobs" />;
-          if (route.name === 'Profile') return <Render3DTabIcon name={focused ? 'person-circle' : 'person-circle-outline'} focused={focused} isDarkMode={isDarkMode} theme={theme} label="Profile" />;
+          if (route.name === 'Profile') {
+            return (
+              <Render3DTabIcon 
+                focused={focused} 
+                isDarkMode={isDarkMode} 
+                theme={theme} 
+                label="Profile" 
+                isProfile 
+                profileAvatar={avatarUrl} 
+                profileInitials={initials} 
+              />
+            );
+          }
           return null;
         },
         tabBarStyle: {

@@ -102,6 +102,7 @@ const DirectoryScreen = ({ navigation, route }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [activeTab, setActiveTab] = useState(route?.params?.tab || 'directory');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showSearch, setShowSearch] = useState(false);
   const [requests, setRequests] = useState([]);
   const [dbAlumni, setDbAlumni] = useState([]);
   const [sentConnectMap, setSentConnectMap] = useState({});
@@ -1237,46 +1238,79 @@ const DirectoryScreen = ({ navigation, route }) => {
 
         {/* ───── Header Bar ───── */}
         <View style={styles.header}>
-          <View style={styles.searchBar}>
-            <Ionicons name="search-outline" size={16} color="#94A3B8" style={{ marginRight: 8 }} />
+          {/* Brand Logo & Title on Left */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}>
+            <View style={styles.header3DLogoPod}>
+              <Ionicons name="people" size={19} color="#FFFFFF" />
+            </View>
+            <View>
+              <Text style={styles.headerBrandTitle}>DIRECTORY</Text>
+              <Text style={styles.headerBrandSub}>{currentUser?.institution || 'Alumni Network'}</Text>
+            </View>
+          </View>
+
+          {/* Right Action Pods: Search, Messages, Notifications, Support with 3D tactile look */}
+          <View style={styles.headerIcons}>
+            <TouchableOpacity 
+              style={[styles.headerIconBtn, showSearch && styles.headerIconBtnActive]} 
+              activeOpacity={0.7}
+              onPress={() => setShowSearch(prev => !prev)}
+              title="Search"
+            >
+              <Ionicons name="search-outline" size={20} color={showSearch ? '#FFFFFF' : '#059669'} />
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={styles.headerIconBtn} 
+              activeOpacity={0.7}
+              onPress={() => navigation.navigate('Messages')}
+              title="Messages"
+            >
+              <Ionicons name="chatbubble-ellipses-outline" size={20} color="#059669" />
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={styles.headerIconBtn} 
+              activeOpacity={0.7}
+              onPress={() => navigation.navigate('Notifications')}
+              title="Notifications"
+            >
+              <Ionicons name="notifications-outline" size={20} color="#059669" />
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={styles.headerIconBtn} 
+              activeOpacity={0.7}
+              onPress={() => navigation.navigate('Contribute')}
+              title="Support"
+            >
+              <MaterialCommunityIcons name="hand-heart-outline" size={20} color="#059669" />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Expandable Search Input when Search Button is Clicked */}
+        {showSearch && (
+          <View style={styles.expandedSearchBarRow}>
+            <Ionicons name="search" size={17} color="#059669" style={{ marginRight: 8 }} />
             <TextInput
-              style={styles.searchInput}
-              placeholder={`Search ${currentUser?.institution ? currentUser.institution + ' alumni' : 'directory'}...`}
+              style={styles.expandedSearchInput}
+              placeholder={`Search in ${currentUser?.institution ? currentUser.institution : 'directory'}...`}
               placeholderTextColor="#94A3B8"
               value={searchQuery}
               onChangeText={setSearchQuery}
+              autoFocus
             />
             {searchQuery.length > 0 && (
               <TouchableOpacity onPress={() => setSearchQuery('')}>
                 <Ionicons name="close-circle" size={16} color="#94A3B8" />
               </TouchableOpacity>
             )}
-          </View>
-
-          <View style={styles.headerIcons}>
-            <TouchableOpacity 
-              style={styles.headerIconBtn} 
-              activeOpacity={0.7}
-              onPress={() => navigation.navigate('Messages')}
-            >
-              <Ionicons name="chatbubble-ellipses-outline" size={22} color="#002144" />
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.headerIconBtn} 
-              activeOpacity={0.7}
-              onPress={() => navigation.navigate('Notifications')}
-            >
-              <Ionicons name="notifications-outline" size={22} color="#002144" />
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.headerIconBtn} 
-              activeOpacity={0.7}
-              onPress={() => navigation.navigate('Contribute')}
-            >
-              <MaterialCommunityIcons name="hand-heart-outline" size={21} color="#059669" />
+            <TouchableOpacity onPress={() => setShowSearch(false)} style={{ marginLeft: 8 }}>
+              <Text style={{ fontSize: 13, color: '#059669', fontWeight: '700' }}>Done</Text>
             </TouchableOpacity>
           </View>
-        </View>
+        )}
 
         {/* Admin Verification Banner */}
         {isAdminOrSuper && (
@@ -1641,43 +1675,47 @@ const getStyles = (theme) => StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: theme.card || '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: theme.border || '#E2E8F0',
-    gap: 10,
   },
-  headerAvatar: {
+  header3DLogoPod: {
     width: 38,
     height: 38,
-    borderRadius: 19,
+    borderRadius: 12,
     backgroundColor: '#059669',
+    borderWidth: 1,
+    borderTopColor: '#34D399',
+    borderLeftColor: '#10B981',
+    borderRightColor: '#047857',
+    borderBottomColor: '#064E3B',
     justifyContent: 'center',
     alignItems: 'center',
-    overflow: 'hidden',
+    shadowColor: '#059669',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.35,
+    shadowRadius: 5,
+    elevation: 5,
   },
-  searchBar: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F1F5F9',
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    height: 40,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 13,
+  headerBrandTitle: {
+    fontSize: 14.5,
+    fontWeight: '900',
     color: theme.text || '#0F172A',
-    paddingVertical: 0,
+    letterSpacing: -0.3,
+  },
+  headerBrandSub: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: theme.textMuted || '#64748B',
+    marginTop: 1,
   },
   headerIcons: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 7,
   },
   headerIconBtn: {
     width: 38,
@@ -1685,14 +1723,44 @@ const getStyles = (theme) => StyleSheet.create({
     borderRadius: 12,
     backgroundColor: theme.isDark ? '#1E293B' : '#F8FAFC',
     borderWidth: 1,
-    borderColor: theme.isDark ? '#334155' : '#E2E8F0',
+    borderTopColor: theme.isDark ? '#475569' : '#FFFFFF',
+    borderLeftColor: theme.isDark ? '#334155' : '#F1F5F9',
+    borderRightColor: theme.isDark ? '#1E293B' : '#E2E8F0',
+    borderBottomColor: theme.isDark ? '#0F172A' : '#CBD5E1',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: theme.isDark ? 0.35 : 0.12,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  headerIconBtnActive: {
+    backgroundColor: '#059669',
+    borderTopColor: '#34D399',
+    borderBottomColor: '#047857',
+    shadowColor: '#059669',
+    shadowOpacity: 0.45,
+  },
+  expandedSearchBarRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: theme.card || '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: theme.border || '#E2E8F0',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
-    shadowRadius: 3,
+    shadowRadius: 4,
     elevation: 3,
+  },
+  expandedSearchInput: {
+    flex: 1,
+    fontSize: 13.5,
+    color: theme.text || '#0F172A',
+    paddingVertical: 0,
   },
   adminBanner: {
     backgroundColor: '#F0FDF4',

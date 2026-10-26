@@ -152,6 +152,7 @@ const DashboardScreen = ({ navigation }) => {
   const [connectionsCount, setConnectionsCount] = useState(0);
   const [myEventsCount, setMyEventsCount] = useState(0);
   const [searchText, setSearchText] = useState('');
+  const [showSearch, setShowSearch] = useState(false);
   const [userInstitution, setUserInstitution] = useState('Our Network');
   const [userName, setUserName] = useState('');
   const [currentUser, setCurrentUser] = useState(null);
@@ -1239,86 +1240,7 @@ const DashboardScreen = ({ navigation }) => {
         />
       )}
 
-      {/* Bento Box Alumni Hub (Orange Health-inspired modular compartments with Sage + Warm Sand Latte) */}
-      <View style={styles.bentoSectionContainer}>
-        <View style={styles.bentoSectionHeader}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <View style={{ width: 4, height: 14, borderRadius: 2, backgroundColor: '#059669' }} />
-            <Text style={styles.bentoSectionTitle}>Alumni Hub</Text>
-          </View>
-          <View style={styles.bentoSectionBadgePod}>
-            <Text style={styles.bentoSectionBadge}>QUICK ACCESS</Text>
-          </View>
-        </View>
 
-        <BentoGrid style={{ marginTop: 2, marginBottom: 12 }}>
-          {/* 1. Mentorship Hero (Wide Sage Green) */}
-          <BentoCard
-            variant="hero"
-            title="1-on-1 Alumni Mentorship"
-            subtitle="Direct career guidance sessions with senior alumni from Google, Cisco & Boeing."
-            badge="ACTIVE SESSIONS"
-            badgeBg={isDarkMode ? '#064E3B' : '#DCFCE7'}
-            badgeTextColor={isDarkMode ? '#34D399' : '#047857'}
-            icon="sparkles"
-            iconColor="#059669"
-            iconBg={isDarkMode ? '#1E3A2B' : '#DCFCE7'}
-            onPress={() => navigation.navigate('Engage', { tab: 'directory' })}
-          />
-
-          {/* Row 2: 2 Side-by-Side Responsive Compartments */}
-          <View style={{ flexDirection: 'row', width: '100%', gap: 10 }}>
-            {/* 2. Job Referrals (Warm Sand Latte) */}
-            <View style={{ flex: 1, minWidth: 120 }}>
-              <BentoCard
-                variant="sand"
-                metric="45+ Roles"
-                title="Job Referrals"
-                subtitle="RV alumni priority hiring"
-                badge="HIRING"
-                badgeBg={isDarkMode ? '#3B2A1E' : '#F5E6D8'}
-                badgeTextColor={isDarkMode ? '#E8CAAE' : '#B88758'}
-                icon="briefcase-outline"
-                iconColor={isDarkMode ? '#E8CAAE' : '#C89565'}
-                iconBg={isDarkMode ? '#3B2A1E' : '#FAF4ED'}
-                onPress={() => navigation.navigate('Main', { screen: 'Jobs' })}
-              />
-            </View>
-
-            {/* 3. Global Chapters (Sage Community) */}
-            <View style={{ flex: 1, minWidth: 120 }}>
-              <BentoCard
-                variant="compact"
-                metric="Community Hub"
-                title="Communities"
-                subtitle="Bengaluru, US, UK & EU"
-                badge="COMMUNITY"
-                badgeBg={isDarkMode ? '#064E3B' : '#DCFCE7'}
-                badgeTextColor={isDarkMode ? '#34D399' : '#047857'}
-                icon="globe-outline"
-                iconColor="#059669"
-                iconBg={isDarkMode ? '#1E3A2B' : '#DCFCE7'}
-                onPress={() => navigation.navigate('Engage', { tab: 'community' })}
-              />
-            </View>
-          </View>
-
-          {/* 4. Campus Fast Services (Wide Warm Sand Latte) */}
-          <BentoCard
-            variant="sand"
-            style={{ width: '100%' }}
-            title="Degree Verification & Transcripts"
-            subtitle="Official exam section requests, RSST innovation grants & alumni reunions."
-            badge="RVCE SERVICES"
-            badgeBg={isDarkMode ? '#3B2A1E' : '#F5E6D8'}
-            badgeTextColor={isDarkMode ? '#E8CAAE' : '#B88758'}
-            icon="school-outline"
-            iconColor={isDarkMode ? '#E8CAAE' : '#C89565'}
-            iconBg={isDarkMode ? '#3B2A1E' : '#FAF4ED'}
-            onPress={() => handleOpenExternalUrl('https://rvce.edu.in/exam-section')}
-          />
-        </BentoGrid>
-      </View>
 
       {/* 2. Sleek, Single-Line Quick Composer */}
       <View style={styles.compactComposerCard}>
@@ -1430,20 +1352,28 @@ const DashboardScreen = ({ navigation }) => {
         
         {/* ── Main Top Bar: Search, Messages, Notifications, Support ── */}
         <View style={styles.header}>
-          {/* Search bar */}
-          <View style={styles.searchBar}>
-            <Ionicons name="search-outline" size={18} color="#94A3B8" style={{ marginRight: 6 }} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search alumni, skills, posts..."
-              placeholderTextColor="#94A3B8"
-              value={searchText}
-              onChangeText={setSearchText}
-            />
+          {/* Brand Logo & Title on Left */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}>
+            <View style={styles.header3DLogoPod}>
+              <Ionicons name="school" size={19} color="#FFFFFF" />
+            </View>
+            <View>
+              <Text style={styles.headerBrandTitle}>RV ALUMNI</Text>
+              <Text style={styles.headerBrandSub}>{userInstitution || 'Official Network'}</Text>
+            </View>
           </View>
 
-          {/* Right Action Pods: Messages, Notifications, Support with 3D tactile look */}
+          {/* Right Action Pods: Search, Messages, Notifications, Support with 3D tactile look */}
           <View style={styles.headerIcons}>
+            <TouchableOpacity
+              style={[styles.headerIconBtn, showSearch && styles.headerIconBtnActive]}
+              onPress={() => setShowSearch(prev => !prev)}
+              activeOpacity={0.75}
+              title="Search"
+            >
+              <Ionicons name="search-outline" size={20} color={showSearch ? '#FFFFFF' : theme.primary} />
+            </TouchableOpacity>
+
             <TouchableOpacity
               style={styles.headerIconBtn}
               onPress={() => { setUnreadMessages(0); navigation.navigate('Messages'); }}
@@ -1482,6 +1412,29 @@ const DashboardScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>
         </View>
+
+        {/* Expandable Search Input when Search Button is Clicked */}
+        {showSearch && (
+          <View style={styles.expandedSearchBarRow}>
+            <Ionicons name="search" size={17} color="#059669" style={{ marginRight: 8 }} />
+            <TextInput
+              style={styles.expandedSearchInput}
+              placeholder="Search alumni, skills, posts..."
+              placeholderTextColor="#94A3B8"
+              value={searchText}
+              onChangeText={setSearchText}
+              autoFocus
+            />
+            {searchText.length > 0 && (
+              <TouchableOpacity onPress={() => setSearchText('')}>
+                <Ionicons name="close-circle" size={16} color="#94A3B8" />
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity onPress={() => setShowSearch(false)} style={{ marginLeft: 8 }}>
+              <Text style={{ fontSize: 13, color: '#059669', fontWeight: '700' }}>Done</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* Admin Quick Actions Banner */}
         {isAdminOrSuper && (
@@ -2417,6 +2370,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 11,
     backgroundColor: theme.card,
@@ -2429,49 +2383,35 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     elevation: 4,
     zIndex: 10,
   },
-  headerAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: theme.primary,
+  header3DLogoPod: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: '#059669',
+    borderWidth: 1,
+    borderTopColor: '#34D399',
+    borderLeftColor: '#10B981',
+    borderRightColor: '#047857',
+    borderBottomColor: '#064E3B',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 10,
-    borderWidth: 2,
-    borderColor: theme.cardBorder || theme.border,
-    shadowColor: theme.primary,
+    shadowColor: '#059669',
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
-    elevation: 3,
+    shadowOpacity: 0.35,
+    shadowRadius: 5,
+    elevation: 5,
   },
-  headerAvatarText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  searchBar: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.surfaceDepressed || theme.inputBackground,
-    borderRadius: 24,
-    paddingHorizontal: 14,
-    height: 40,
-    marginRight: 10,
-    borderWidth: 1.5,
-    borderColor: theme.border,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 1,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 14,
+  headerBrandTitle: {
+    fontSize: 14.5,
+    fontWeight: '900',
     color: theme.text,
-    paddingVertical: 0,
+    letterSpacing: -0.3,
+  },
+  headerBrandSub: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: theme.textMuted,
+    marginTop: 1,
   },
   headerIcons: {
     flexDirection: 'row',
@@ -2486,13 +2426,43 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
-    borderWidth: 1.5,
-    borderColor: isDarkMode ? '#334155' : '#E2E8F0',
+    borderWidth: 1,
+    borderTopColor: isDarkMode ? '#475569' : '#FFFFFF',
+    borderLeftColor: isDarkMode ? '#334155' : '#F1F5F9',
+    borderRightColor: isDarkMode ? '#1E293B' : '#E2E8F0',
+    borderBottomColor: isDarkMode ? '#0F172A' : '#CBD5E1',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: isDarkMode ? 0.4 : 0.12,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  headerIconBtnActive: {
+    backgroundColor: '#059669',
+    borderTopColor: '#34D399',
+    borderBottomColor: '#047857',
+    shadowColor: '#059669',
+    shadowOpacity: 0.45,
+  },
+  expandedSearchBarRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: theme.card,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: isDarkMode ? 0.35 : 0.08,
+    shadowOpacity: 0.08,
     shadowRadius: 4,
     elevation: 3,
+  },
+  expandedSearchInput: {
+    flex: 1,
+    fontSize: 13.5,
+    color: theme.text,
+    paddingVertical: 0,
   },
   dot: {
     position: 'absolute',
@@ -2935,25 +2905,30 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 11,
+    paddingVertical: 7,
+    paddingHorizontal: 12,
+    borderRadius: 12,
     backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
-    borderWidth: 1.2,
-    borderColor: isDarkMode ? '#334155' : '#E2E8F0',
+    borderWidth: 1,
+    borderTopColor: isDarkMode ? '#475569' : '#FFFFFF',
+    borderLeftColor: isDarkMode ? '#334155' : '#F1F5F9',
+    borderRightColor: isDarkMode ? '#1E293B' : '#E2E8F0',
+    borderBottomColor: isDarkMode ? '#0F172A' : '#CBD5E1',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: isDarkMode ? 0.3 : 0.06,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: isDarkMode ? 0.35 : 0.12,
     shadowRadius: 3,
-    elevation: 2,
+    elevation: 3,
   },
   alumniActionBtnLiked: {
     backgroundColor: isDarkMode ? 'rgba(244, 63, 94, 0.2)' : '#FFE4E6',
-    borderColor: '#F43F5E',
+    borderTopColor: '#FDA4AF',
+    borderBottomColor: '#E11D48',
   },
   alumniActionBtnSaved: {
     backgroundColor: isDarkMode ? 'rgba(5, 150, 105, 0.2)' : '#DCFCE7',
-    borderColor: '#059669',
+    borderTopColor: '#6EE7B7',
+    borderBottomColor: '#047857',
   },
   alumniActionCount: {
     fontSize: 11.5,
