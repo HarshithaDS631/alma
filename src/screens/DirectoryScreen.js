@@ -19,7 +19,7 @@ import {
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useTheme } from '../theme/ThemeContext';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { getImageUrl } from '../services/uploadService';
 import { 
   getSuggestions, 
@@ -37,512 +37,16 @@ import InstagramProfileShareModal from '../components/InstagramProfileShareModal
 import Mascot from '../components/Mascot';
 import BentoGrid, { BentoCard } from '../components/BentoGrid';
 
-// ─── Exact RVCE AlmaConnect Filter Definitions & Counts ───────────────
-const ALMACONNECT_STATS = {
-  totalRvians: '9,931',
-  alumni: '9,655',
-  students: '165',
-  faculty: '110',
-  official: '1',
-  myBatch: '4'
-};
-
-const MEMBER_TYPES = [
-  { id: 'all', label: 'All', count: '9,931' },
-  { id: 'alumni', label: 'Alumni', count: '9,655' },
-  { id: 'student', label: 'Students', count: '165' },
-  { id: 'faculty', label: 'Faculty', count: '110' },
-  { id: 'my_batch', label: 'My Batch', count: '4' }
+// ─── Specialized Directory Discovery Categories ───────────────────────────
+const DEFAULT_SPECIALIZED_LISTS = [
+  { id: 'tech_mgrs', title: 'Tech & Software Leaders', icon: 'hardware-chip' },
+  { id: 'eng_non_it', title: 'Core Engineering', icon: 'construct' },
+  { id: 'sales_biz', title: 'Sales & Business', icon: 'trending-up' },
+  { id: 'data_science', title: 'Data Science & AI', icon: 'analytics' },
+  { id: 'teaching', title: 'Academics & Research', icon: 'school' },
+  { id: 'design', title: 'Product & Design', icon: 'color-palette' },
 ];
 
-const ALMACONNECT_COURSES = [
-  { id: 'all', label: 'All Course', count: '9,931' },
-  { id: 'BE', label: 'BE', count: '4,302' },
-  { id: 'B.E / B.Tech', label: 'B.E / B.Tech', count: '2,761' },
-  { id: 'M.Tech.', label: 'M.Tech.', count: '981' },
-  { id: 'Bachelor of Engineering', label: 'Bachelor of Engineering', count: '749' },
-  { id: 'MCA', label: 'MCA', count: '615' },
-  { id: 'B.Tech.', label: 'B.Tech.', count: '165' },
-  { id: 'Ph.D.', label: 'Ph.D.', count: '12' },
-  { id: 'M.Sc.', label: 'M.Sc.', count: '2' }
-];
-
-const ALMACONNECT_GRADUATION_YEARS = [
-  { id: 'all', label: 'All Graduation Year', count: '9,931' },
-  { id: '2026', label: '2026', count: '184' },
-  { id: '2025', label: '2025', count: '195' },
-  { id: '2024', label: '2024', count: '210' },
-  { id: '2023', label: '2023', count: '310' },
-  { id: '2022', label: '2022', count: '1,409' },
-  { id: '2021', label: '2021', count: '480' },
-  { id: '2020', label: '2020', count: '704' },
-  { id: '2019', label: '2019', count: '563' },
-  { id: '2018', label: '2018', count: '520' },
-  { id: '2017', label: '2017', count: '609' },
-  { id: '2016', label: '2016', count: '607' },
-  { id: '2015', label: '2015', count: '450' },
-  { id: '2012', label: '2012', count: '410' },
-  { id: '2007', label: '2007', count: '290' },
-  { id: '2006', label: '2006', count: '280' },
-  { id: '1990', label: '1990', count: '50' }
-];
-
-const ALMACONNECT_LOCATIONS = [
-  { id: 'all', label: 'All Location', count: '9,931' },
-  { id: 'Bangalore', label: 'Bangalore', count: '3,612' },
-  { id: 'Mumbai', label: 'Mumbai', count: '104' },
-  { id: 'Hyderabad', label: 'Hyderabad', count: '102' },
-  { id: 'New Delhi', label: 'New Delhi', count: '80' },
-  { id: 'Pune', label: 'Pune', count: '71' },
-  { id: 'Gurgaon', label: 'Gurgaon', count: '45' },
-  { id: 'United States', label: 'United States', count: '709' },
-  { id: 'Germany', label: 'Germany', count: '84' },
-  { id: 'Canada', label: 'Canada', count: '60' },
-  { id: 'United Kingdom', label: 'United Kingdom', count: '58' }
-];
-
-const ALMACONNECT_SPECIALIZED_LISTS = [
-  { id: 'eng_non_it', title: 'Engineering (Non-IT) Professionals', count: '549 People', icon: 'construct' },
-  { id: 'sales_biz', title: 'Sales / Business Professionals', count: '504 People', icon: 'trending-up' },
-  { id: 'tech_mgrs', title: 'Technical Managers', count: '347 People', icon: 'briefcase' },
-  { id: 'teaching', title: 'Teaching & Training Professionals', count: '241 People', icon: 'school' },
-  { id: 'it_admin', title: 'IT Admin & Support Professionals', count: '97 People', icon: 'hardware-chip' },
-  { id: 'java', title: 'Java Professionals', count: '67 People', icon: 'code-slash' },
-  { id: 'design', title: 'Designers and Artists', count: '61 People', icon: 'color-palette' },
-  { id: 'data_science', title: 'Data Science / ML Professionals', count: '46 People', icon: 'analytics' },
-  { id: 'hr_admin', title: 'HR & Admin Professionals', count: '27 People', icon: 'people' },
-  { id: 'talent_acq', title: 'Talent Acquisition Professionals', count: '10 People', icon: 'search' },
-  { id: 'mktg_mgr', title: 'Marketing Management Professionals', count: '10 People', icon: 'megaphone' }
-];
-
-// ─── Exact RVCE AlmaConnect Extracted Directory Member Profiles ───────
-const EXACT_RVCE_ALMACONNECT_MEMBERS = [
-  {
-    _id: 'alma_1',
-    id: 'alma_1',
-    name: 'Sharat Chowka',
-    batchYear: '2007',
-    batchFormatted: "BE '07",
-    degree: 'BE',
-    memberType: 'alumni',
-    role: 'Structural Engineer at ELEVATE DESIGN HOUSE',
-    company: 'ELEVATE DESIGN HOUSE',
-    designation: 'Structural Engineer',
-    location: 'Bangalore, India',
-    city: 'Bangalore',
-    avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&h=200&q=80',
-    profileSlug: '/profiles/sharat-chowka',
-    tags: ['Civil', 'Structural Engineering', 'CAD']
-  },
-  {
-    _id: 'alma_2',
-    id: 'alma_2',
-    name: 'Shreesha Kumara',
-    batchYear: '2026',
-    batchFormatted: "B.E / B.Tech '26",
-    degree: 'B.E / B.Tech',
-    memberType: 'alumni',
-    role: 'Instrumentation and Controls Trainee at SBM Offshore',
-    company: 'SBM Offshore',
-    designation: 'Instrumentation and Controls Trainee',
-    location: 'Bangalore, India',
-    city: 'Bangalore',
-    avatar_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&h=200&q=80',
-    profileSlug: '/profiles/shreesha-kumara',
-    tags: ['Instrumentation', 'Controls', 'Offshore']
-  },
-  {
-    _id: 'alma_3',
-    id: 'alma_3',
-    name: 'B P Swathi',
-    batchYear: '2026',
-    batchFormatted: "M.Tech. '26",
-    degree: 'M.Tech.',
-    memberType: 'alumni',
-    role: 'Design Engineer at onsemi',
-    company: 'onsemi',
-    designation: 'Design Engineer',
-    location: 'Bangalore, India',
-    city: 'Bangalore',
-    avatar_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&h=200&q=80',
-    profileSlug: '/profiles/b-p-swathi',
-    tags: ['Semiconductor', 'VLSI', 'Design']
-  },
-  {
-    _id: 'alma_4',
-    id: 'alma_4',
-    name: 'ANIL DARGA',
-    batchYear: '2025',
-    batchFormatted: "B.E / B.Tech '25",
-    degree: 'B.E / B.Tech',
-    memberType: 'alumni',
-    role: 'Manufacturing engineer at Ultraviolette Automative',
-    company: 'Ultraviolette Automotive',
-    designation: 'Manufacturing Engineer',
-    location: 'Bangalore, India',
-    city: 'Bangalore',
-    avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&h=200&q=80',
-    profileSlug: '/profiles/anil-darga',
-    tags: ['EV', 'Manufacturing', 'Automotive']
-  },
-  {
-    _id: 'alma_5',
-    id: 'alma_5',
-    name: 'Divyanshu Raj',
-    batchYear: '2026',
-    batchFormatted: "B.E / B.Tech '26",
-    degree: 'B.E / B.Tech',
-    memberType: 'alumni',
-    role: 'BTSA at ZS Associates',
-    company: 'ZS Associates',
-    designation: 'BTSA',
-    location: 'Gurgaon, India',
-    city: 'Gurgaon',
-    avatar_url: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=200&h=200&q=80',
-    profileSlug: '/profiles/divyanshu-raj-25',
-    tags: ['Analytics', 'Consulting', 'ZS']
-  },
-  {
-    _id: 'alma_6',
-    id: 'alma_6',
-    name: 'RISHAV KUMAR',
-    batchYear: '2026',
-    batchFormatted: "B.E / B.Tech '26",
-    degree: 'B.E / B.Tech',
-    memberType: 'student',
-    role: 'Student at RV College of Engineering',
-    company: 'RVCE',
-    designation: 'Student',
-    location: 'Bangalore, India',
-    city: 'Bangalore',
-    avatar_url: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=200&h=200&q=80',
-    profileSlug: '/profiles/rishav-kumar-205',
-    tags: ['Student', 'Engineering', 'RVCE']
-  },
-  {
-    _id: 'alma_7',
-    id: 'alma_7',
-    name: 'Jayatheertha SG',
-    batchYear: '2026',
-    batchFormatted: "B.E / B.Tech '26",
-    degree: 'B.E / B.Tech',
-    memberType: 'alumni',
-    role: 'Graduate Engineer Trainee at L&T Energy Hydrocarbon',
-    company: 'L&T Energy Hydrocarbon',
-    designation: 'Graduate Engineer Trainee',
-    location: 'Mumbai, India',
-    city: 'Mumbai',
-    avatar_url: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&h=200&q=80',
-    profileSlug: '/profiles/jayatheertha-sg',
-    tags: ['Energy', 'L&T', 'Mechanical']
-  },
-  {
-    _id: 'alma_8',
-    id: 'alma_8',
-    name: 'Pratham Pujari',
-    batchYear: '2030',
-    batchFormatted: "B.E / B.Tech '30",
-    degree: 'B.E / B.Tech',
-    memberType: 'student',
-    role: 'Student at RV College of Engineering',
-    company: 'RVCE',
-    designation: 'Student',
-    location: 'Bangalore, India',
-    city: 'Bangalore',
-    avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&h=200&q=80',
-    profileSlug: '/profiles/pratham-pujari',
-    tags: ['Student', 'Future Alum', 'RVCE']
-  },
-  {
-    _id: 'alma_9',
-    id: 'alma_9',
-    name: 'SHASHANKA H A',
-    batchYear: '2026',
-    batchFormatted: "BE '26",
-    degree: 'BE',
-    memberType: 'alumni',
-    role: 'Mechanical Engineering Graduate | Aspiring Design Engineer | CAD & Product Development',
-    company: 'Design & Engineering Innovation Hub',
-    designation: 'Design Engineer',
-    location: 'Bangalore, India',
-    city: 'Bangalore',
-    avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&h=200&q=80',
-    profileSlug: '/profiles/shashanka-h-a',
-    tags: ['CAD', 'Automotive', 'Product Innovation']
-  },
-  {
-    _id: 'alma_10',
-    id: 'alma_10',
-    name: 'Tushar Arora',
-    batchYear: '2025',
-    batchFormatted: "B.E / B.Tech '25",
-    degree: 'B.E / B.Tech',
-    memberType: 'alumni',
-    role: 'SDE-1 @ Procore | Ex-Truva | 3x ACM-ICPC Asia-West Regionalist | Knight @Leetcode | Google DSC Lead',
-    company: 'Procore Technologies',
-    designation: 'Software Development Engineer I',
-    location: 'Bangalore, India',
-    city: 'Bangalore',
-    avatar_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&h=200&q=80',
-    profileSlug: '/profiles/tushar-arora-155',
-    tags: ['Algorithms', 'SDE', 'ACM-ICPC', 'Leetcode']
-  },
-  {
-    _id: 'alma_11',
-    id: 'alma_11',
-    name: 'Ayush Ojha',
-    batchYear: '2026',
-    batchFormatted: "BE '26",
-    degree: 'BE',
-    memberType: 'alumni',
-    role: 'DevOps Engineer @ IDFC FIRST Bank | Network Automation',
-    company: 'IDFC FIRST Bank',
-    designation: 'DevOps Engineer',
-    location: 'Mumbai, India',
-    city: 'Mumbai',
-    avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&h=200&q=80',
-    profileSlug: '/profiles/ayush-ojha-11',
-    tags: ['DevOps', 'FinTech', 'Cloud']
-  },
-  {
-    _id: 'alma_12',
-    id: 'alma_12',
-    name: 'Tanisha Das',
-    batchYear: '2026',
-    batchFormatted: "B.E / B.Tech '26",
-    degree: 'B.E / B.Tech',
-    memberType: 'alumni',
-    role: 'GET–R&D at PICL Pvt. Ltd. (Amber Group)',
-    company: 'PICL Pvt. Ltd. (Amber Group)',
-    designation: 'GET - R&D',
-    location: 'New Delhi, India',
-    city: 'New Delhi',
-    avatar_url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&h=200&q=80',
-    profileSlug: '/profiles/tanisha-das-8',
-    tags: ['R&D', 'Manufacturing', 'Amber Group']
-  },
-  {
-    _id: 'alma_13',
-    id: 'alma_13',
-    name: 'Lalit Makam',
-    batchYear: '2012',
-    batchFormatted: "B.E / B.Tech '12",
-    degree: 'B.E / B.Tech',
-    memberType: 'alumni',
-    role: 'Lead Manager at Ola Electric (ANI Technologies Pvt. Ltd)',
-    company: 'Ola Electric',
-    designation: 'Lead Manager',
-    location: 'Bangalore, India',
-    city: 'Bangalore',
-    avatar_url: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=200&h=200&q=80',
-    profileSlug: '/profiles/lalit-makam-1',
-    tags: ['EV Mobility', 'Ola', 'Lead Manager']
-  },
-  {
-    _id: 'alma_14',
-    id: 'alma_14',
-    name: 'Nikhil Ranjan Sinha',
-    batchYear: '2006',
-    batchFormatted: "BE '06",
-    degree: 'BE',
-    memberType: 'alumni',
-    role: 'Assistant Consultant at Tata Consultancy Services (TCS)',
-    company: 'Tata Consultancy Services',
-    designation: 'Assistant Consultant',
-    location: 'Bangalore, India',
-    city: 'Bangalore',
-    avatar_url: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=200&h=200&q=80',
-    profileSlug: '/profiles/nikhil-ranjan-sinha-4',
-    tags: ['TCS', 'Consulting', 'Enterprise IT']
-  },
-  {
-    _id: 'alma_15',
-    id: 'alma_15',
-    name: 'Pranav Deshpande',
-    batchYear: '2026',
-    batchFormatted: "BE '26",
-    degree: 'BE',
-    memberType: 'alumni',
-    role: 'Associate Structural Engineer @ Airbus',
-    company: 'Airbus',
-    designation: 'Associate Structural Engineer',
-    location: 'Bangalore, India',
-    city: 'Bangalore',
-    avatar_url: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&h=200&q=80',
-    profileSlug: '/profiles/pranav-deshpande-69',
-    tags: ['Aerospace', 'Airbus', 'Structural Analysis']
-  },
-  {
-    _id: 'alma_16',
-    id: 'alma_16',
-    name: 'ANIRUDH R SHARMA',
-    batchYear: '2026',
-    batchFormatted: "B.E / B.Tech '26",
-    degree: 'B.E / B.Tech',
-    memberType: 'alumni',
-    role: 'Systems Engineer at Morphing Machines',
-    company: 'Morphing Machines',
-    designation: 'Systems Engineer',
-    location: 'Bangalore, India',
-    city: 'Bangalore',
-    avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&h=200&q=80',
-    profileSlug: '/profiles/anirudh-r-sharma',
-    tags: ['Processors', 'Silicon', 'Systems Engg']
-  },
-  {
-    _id: 'alma_17',
-    id: 'alma_17',
-    name: 'Akshat',
-    batchYear: '2026',
-    batchFormatted: "BE '26",
-    degree: 'BE',
-    memberType: 'alumni',
-    role: 'AI/ML Engineer | Ex-Intern @ L&T Technology Services',
-    company: 'L&T Technology Services',
-    designation: 'AI/ML Engineer',
-    location: 'Greater Noida, India',
-    city: 'Greater Noida',
-    avatar_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&h=200&q=80',
-    profileSlug: '/profiles/akshat-754',
-    tags: ['AI/ML', 'Computer Vision', 'Deep Learning']
-  },
-  {
-    _id: 'alma_18',
-    id: 'alma_18',
-    name: 'udaya lakshmi',
-    batchYear: '2017',
-    batchFormatted: "BE '17",
-    degree: 'BE',
-    memberType: 'faculty',
-    role: 'Assistant Professor at Bangalore Institute of Technology',
-    company: 'Bangalore Institute of Technology',
-    designation: 'Assistant Professor',
-    location: 'Bangalore, India',
-    city: 'Bangalore',
-    avatar_url: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=200&h=200&q=80',
-    profileSlug: '/profiles/udaya-lakshmi-14',
-    tags: ['Academia', 'Research', 'Teaching']
-  },
-  {
-    _id: 'alma_19',
-    id: 'alma_19',
-    name: 'BEHARA LALIT SAKETH',
-    batchYear: '2022',
-    batchFormatted: "BE '22",
-    degree: 'BE',
-    memberType: 'alumni',
-    role: 'Software Development Engineer @ Cisco',
-    company: 'Cisco Systems',
-    designation: 'Software Development Engineer',
-    location: 'Bangalore, India',
-    city: 'Bangalore',
-    avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&h=200&q=80',
-    profileSlug: '/profiles/behara-lalit-saketh',
-    tags: ['Networking', 'Cloud', 'Cisco']
-  },
-  {
-    _id: 'alma_20',
-    id: 'alma_20',
-    name: 'Ananth M Athreya',
-    batchYear: '2026',
-    batchFormatted: "BE '26",
-    degree: 'BE',
-    memberType: 'alumni',
-    role: 'SE-1 @ Zebra Technologies | RVCE AIML',
-    company: 'Zebra Technologies',
-    designation: 'Software Engineer I',
-    location: 'Bangalore, India',
-    city: 'Bangalore',
-    avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&h=200&q=80',
-    profileSlug: '/profiles/ananth-m-athreya',
-    tags: ['AIML', 'Zebra Tech', 'Computer Science']
-  },
-  {
-    _id: 'alma_21',
-    id: 'alma_21',
-    name: 'Sumit Kumar',
-    batchYear: '2016',
-    batchFormatted: "BE '16",
-    degree: 'BE',
-    memberType: 'alumni',
-    role: 'Manager at PwC Acceleration Center',
-    company: 'PwC Acceleration Center',
-    designation: 'Manager',
-    location: 'Bangalore, India',
-    city: 'Bangalore',
-    avatar_url: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=200&h=200&q=80',
-    profileSlug: '/profiles/sumit-kumar-3872',
-    tags: ['PwC', 'Manager', 'Financial Advisory']
-  },
-  {
-    _id: 'alma_22',
-    id: 'alma_22',
-    name: 'KUSHAL ARVIND O',
-    batchYear: '2029',
-    batchFormatted: "BE '29",
-    degree: 'BE',
-    memberType: 'student',
-    role: 'Student at RV College of Engineering',
-    company: 'RVCE',
-    designation: 'Student',
-    location: 'Bangalore, India',
-    city: 'Bangalore',
-    avatar_url: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=200&h=200&q=80',
-    profileSlug: '/profiles/kushal-arvind-o',
-    tags: ['Student', 'Engineering', 'RVCE']
-  },
-  {
-    _id: 'alma_23',
-    id: 'alma_23',
-    name: 'Srujan Kalagi',
-    batchYear: '2026',
-    batchFormatted: "B.E / B.Tech '26",
-    degree: 'B.E / B.Tech',
-    memberType: 'alumni',
-    role: 'Systems Engineer @ Boeing',
-    company: 'The Boeing Company',
-    designation: 'Systems Engineer',
-    location: 'Bangalore, India',
-    city: 'Bangalore',
-    avatar_url: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&h=200&q=80',
-    profileSlug: '/profiles/srujan-kalagi',
-    tags: ['Aerospace', 'Boeing', 'Systems']
-  },
-  {
-    _id: 'alma_24',
-    id: 'alma_24',
-    name: 'Arsh Srivastava',
-    batchYear: '2030',
-    batchFormatted: "B.E / B.Tech '30",
-    degree: 'B.E / B.Tech',
-    memberType: 'student',
-    role: 'Student at RV College of Engineering',
-    company: 'RVCE',
-    designation: 'Student',
-    location: 'Bangalore, India',
-    city: 'Bangalore',
-    avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&h=200&q=80',
-    profileSlug: '/profiles/arsh-srivastava-2',
-    tags: ['Student', 'Innovator', 'RVCE']
-  },
-  {
-    _id: 'alma_25',
-    id: 'alma_25',
-    name: 'Anil Kumble',
-    batchYear: '1990',
-    batchFormatted: "BE '90",
-    degree: 'BE',
-    memberType: 'alumni',
-    role: 'Former Captain Indian Cricket Team | Co-Founder Spektacom Technologies',
-    company: 'Spektacom Technologies',
-    designation: 'Distinguished Alumnus & Founder',
-    location: 'Bangalore, India',
-    city: 'Bangalore',
-    avatar_url: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=200&h=200&q=80',
-    profileSlug: '/profiles/anil-kumble',
-    tags: ['Sports Tech', 'Leadership', 'Hall of Fame']
-  }
-];
 
 const DEFAULT_WHATSAPP_COMMUNITIES = [
   {
@@ -755,30 +259,24 @@ const DirectoryScreen = ({ navigation, route }) => {
     }, [dbAlumni.length])
   );
 
-  // ─── Merged Directory of Exact RVCE Members + Real Registered Users ──
+  // ─── Scoped Directory to Current User's Specific Institution ──
   const unifiedDirectory = useMemo(() => {
     const list = [];
     const seen = new Set();
+    const myInstitution = (currentUser?.institution || userInstitution || '').toLowerCase().trim();
 
-    // 1. Exact RVCE AlmaConnect Directory Extracted Listings
-    EXACT_RVCE_ALMACONNECT_MEMBERS.forEach((item) => {
-      const key = item.name.toLowerCase().trim();
-      seen.add(key);
-      list.push({
-        ...item,
-        initials: getInitials(item.name),
-        institution: 'RV College of Engineering',
-        color: '#059669'
-      });
-    });
-
-    // 2. Real Registered Users from Database
     dbAlumni.forEach((u, i) => {
       const uid = String(u._id || u.id || `reg_${i}`);
       const role = (u.role || '').toLowerCase().trim();
       const isAdminRole = role.includes('admin');
       const isSelf = currentUserId && uid && String(uid) === String(currentUserId);
       if (isAdminRole || isSelf || u.is_approved === false) return;
+
+      // Filter by institution if available
+      const userInst = (u.institution || '').toLowerCase().trim();
+      if (myInstitution && userInst && !userInst.includes(myInstitution) && !myInstitution.includes(userInst)) {
+        return;
+      }
 
       const rawYear = u.batchYear || u.batch_year || u.batch || '';
       let parsedYear = '2023';
@@ -791,6 +289,7 @@ const DirectoryScreen = ({ navigation, route }) => {
       const nameKey = (u.name || '').toLowerCase().trim();
       if (!seen.has(nameKey)) {
         seen.add(nameKey);
+        const memberType = role.includes('student') ? 'student' : role.includes('faculty') ? 'faculty' : 'alumni';
         list.push({
           _id: uid,
           id: uid,
@@ -798,24 +297,79 @@ const DirectoryScreen = ({ navigation, route }) => {
           batchYear: parsedYear,
           batchFormatted: `BE '${parsedYear.slice(-2)}`,
           degree: u.degree || 'BE',
-          memberType: 'alumni',
-          role: u.designation || (u.company ? `Engineer at ${u.company}` : 'Alumni Member'),
-          company: u.company || u.organization || 'RVCE Alumni Network',
-          designation: u.designation || 'Alumni Member',
+          memberType,
+          role: u.designation || (u.company ? `Engineer at ${u.company}` : (u.role || 'Alumni Member')),
+          company: u.company || u.organization || u.institution || 'Alumni Network',
+          designation: u.designation || u.role || 'Alumni Member',
           location: u.location || u.city || 'Bangalore, India',
           city: u.city || 'Bangalore',
           avatar_url: u.avatar_url || u.profilePicture || '',
           profileSlug: `/profiles/${(u.name || 'member').toLowerCase().replace(/\s+/g, '-')}`,
           initials: getInitials(u.name || 'Alumni Member'),
-          institution: u.institution || 'RV College of Engineering',
+          institution: u.institution || currentUser?.institution || 'Institution Alumni',
           color: '#059669',
-          tags: ['RVCE Alum', 'Network']
+          tags: [u.department || u.branch || 'Alumni', 'Verified']
         });
       }
     });
 
     return list;
-  }, [dbAlumni, currentUserId]);
+  }, [dbAlumni, currentUserId, currentUser, userInstitution]);
+
+  // ─── Real Dynamic Filters Derived Strictly from Institution Members ──
+  const dynamicMemberTypes = useMemo(() => {
+    const total = unifiedDirectory.length;
+    const alumni = unifiedDirectory.filter(m => m.memberType === 'alumni').length;
+    const students = unifiedDirectory.filter(m => m.memberType === 'student').length;
+    const faculty = unifiedDirectory.filter(m => m.memberType === 'faculty').length;
+    const myYear = String(currentUser?.batchYear || currentUser?.batch_year || '');
+    const myBatch = myYear ? unifiedDirectory.filter(m => String(m.batchYear) === myYear).length : 0;
+    return [
+      { id: 'all', label: 'All', count: String(total) },
+      { id: 'alumni', label: 'Alumni', count: String(alumni) },
+      { id: 'student', label: 'Students', count: String(students) },
+      { id: 'faculty', label: 'Faculty', count: String(faculty) },
+      ...(myBatch > 0 ? [{ id: 'my_batch', label: 'My Batch', count: String(myBatch) }] : [])
+    ];
+  }, [unifiedDirectory, currentUser]);
+
+  const dynamicCourses = useMemo(() => {
+    const counts = {};
+    unifiedDirectory.forEach(m => {
+      const d = m.degree || 'BE';
+      counts[d] = (counts[d] || 0) + 1;
+    });
+    return [
+      { id: 'all', label: 'All Courses', count: String(unifiedDirectory.length) },
+      ...Object.entries(counts).map(([deg, cnt]) => ({ id: deg, label: deg, count: String(cnt) }))
+    ];
+  }, [unifiedDirectory]);
+
+  const dynamicGraduationYears = useMemo(() => {
+    const counts = {};
+    unifiedDirectory.forEach(m => {
+      if (m.batchYear) {
+        counts[m.batchYear] = (counts[m.batchYear] || 0) + 1;
+      }
+    });
+    const sortedYears = Object.keys(counts).sort((a, b) => b - a);
+    return [
+      { id: 'all', label: 'All Years', count: String(unifiedDirectory.length) },
+      ...sortedYears.map(yr => ({ id: yr, label: yr, count: String(counts[yr]) }))
+    ];
+  }, [unifiedDirectory]);
+
+  const dynamicLocations = useMemo(() => {
+    const counts = {};
+    unifiedDirectory.forEach(m => {
+      const loc = m.city || m.location || 'Bangalore';
+      counts[loc] = (counts[loc] || 0) + 1;
+    });
+    return [
+      { id: 'all', label: 'All Locations', count: String(unifiedDirectory.length) },
+      ...Object.entries(counts).map(([loc, cnt]) => ({ id: loc, label: loc, count: String(cnt) }))
+    ];
+  }, [unifiedDirectory]);
 
   // ─── Filter Logic ─────────────────────────────────────────────────────
   const filteredDirectory = useMemo(() => {
@@ -865,7 +419,7 @@ const DirectoryScreen = ({ navigation, route }) => {
 
       // 6. Specialized List Filter
       if (selectedSpecializedList) {
-        const listObj = ALMACONNECT_SPECIALIZED_LISTS.find(l => l.id === selectedSpecializedList);
+        const listObj = DEFAULT_SPECIALIZED_LISTS.find(l => l.id === selectedSpecializedList);
         if (listObj) {
           const roleLower = (member.role || '').toLowerCase();
           if (selectedSpecializedList === 'eng_non_it') {
@@ -1220,31 +774,14 @@ const DirectoryScreen = ({ navigation, route }) => {
         contentContainerStyle={styles.mainScrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* ─── Clean, Modern Directory Header Banner ─── */}
-        <View style={styles.cleanHeaderBanner}>
-          <View style={{ flex: 1 }}>
-            <View style={styles.cleanHeaderTagRow}>
-              <View style={styles.cleanHeaderTag}>
-                <Ionicons name="school" size={12} color="#059669" />
-                <Text style={styles.cleanHeaderTagText}>RVCE ALUMNI</Text>
-              </View>
-              <Text style={styles.cleanHeaderStatsText}>{ALMACONNECT_STATS.totalRvians} Members</Text>
-            </View>
-            <Text style={styles.cleanHeaderTitle}>Alumni Directory</Text>
-            <Text style={styles.cleanHeaderSub}>
-              Search and connect with verified graduates, students, and mentors worldwide.
-            </Text>
-          </View>
-        </View>
-
         {/* ─── Bento Box Directory Discovery Grid (Orange Health modular compartments) ─── */}
         <BentoGrid style={{ marginBottom: 14 }}>
           {/* 1. Global Network (Wide Hero) */}
           <BentoCard
             variant="hero"
-            metric="9,931+ Verified RVians"
-            title="Global Alumni Directory"
-            subtitle="Explore graduates, researchers and founders across 1970–2026 batches worldwide."
+            metric={`${unifiedDirectory.length} Members`}
+            title={`${currentUser?.institution || 'Institution'} Directory`}
+            subtitle="Explore verified graduates, students, researchers and faculty."
             badge="DIRECTORY"
             badgeBg="#DCFCE7"
             badgeTextColor="#047857"
@@ -1295,26 +832,12 @@ const DirectoryScreen = ({ navigation, route }) => {
             />
           </View>
 
-          {/* 4. My Batch Circle (Wide Accent) */}
-          <BentoCard
-            variant="accent"
-            metric="Batch Circle"
-            title="My Graduating Batch"
-            subtitle="Fast filter to instantly connect with your graduating class colleagues."
-            badge="REUNIONS"
-            badgeBg="#F0FDF4"
-            badgeTextColor="#047857"
-            icon="school-outline"
-            iconColor="#059669"
-            iconBg="#DCFCE7"
-            onPress={() => setSelectedMemberType('my_batch')}
-          />
-        </BentoGrid>
+          </BentoGrid>
 
         {/* ─── Member Type Filter Chips ─── */}
         <View style={styles.memberTypeRow}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingBottom: 2 }}>
-            {MEMBER_TYPES.map((type) => {
+            {dynamicMemberTypes.map((type) => {
               const isSelected = selectedMemberType === type.id;
               return (
                 <TouchableOpacity
@@ -1714,28 +1237,11 @@ const DirectoryScreen = ({ navigation, route }) => {
 
         {/* ───── Header Bar ───── */}
         <View style={styles.header}>
-          <TouchableOpacity 
-            style={styles.headerAvatar} 
-            activeOpacity={0.7}
-            onPress={() => navigation.navigate('Profile')}
-          >
-            {(currentUser?.avatar_url || currentUser?.profilePicture) ? (
-              <Image 
-                source={{ uri: getImageUrl(currentUser.avatar_url || currentUser.profilePicture) }} 
-                style={{ width: '100%', height: '100%', borderRadius: 18 }} 
-              />
-            ) : (
-              <Text style={{ fontSize: 13, fontWeight: '700', color: '#FFFFFF' }}>
-                {getInitials(currentUser?.name, 'AL')}
-              </Text>
-            )}
-          </TouchableOpacity>
-
           <View style={styles.searchBar}>
             <Ionicons name="search-outline" size={16} color="#94A3B8" style={{ marginRight: 8 }} />
             <TextInput
               style={styles.searchInput}
-              placeholder="Search in 9,931 RVians (Name, Batch, Company, Role)..."
+              placeholder={`Search ${currentUser?.institution ? currentUser.institution + ' alumni' : 'directory'}...`}
               placeholderTextColor="#94A3B8"
               value={searchQuery}
               onChangeText={setSearchQuery}
@@ -1762,6 +1268,13 @@ const DirectoryScreen = ({ navigation, route }) => {
             >
               <Ionicons name="notifications-outline" size={22} color="#002144" />
             </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.headerIconBtn} 
+              activeOpacity={0.7}
+              onPress={() => navigation.navigate('Contribute')}
+            >
+              <MaterialCommunityIcons name="hand-heart-outline" size={21} color="#059669" />
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -1781,14 +1294,14 @@ const DirectoryScreen = ({ navigation, route }) => {
             onPress={() => setActiveTab('directory')}
             activeOpacity={0.7}
           >
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <View style={styles.tabInner}>
               <Ionicons 
-                name="people" 
-                size={16} 
+                name={activeTab === 'directory' ? "people" : "people-outline"} 
+                size={18} 
                 color={activeTab === 'directory' ? '#059669' : '#64748B'} 
               />
               <Text style={[styles.tabText, activeTab === 'directory' && styles.activeTabText]}>
-                Directory (9,931)
+                Directory
               </Text>
             </View>
           </TouchableOpacity>
@@ -1798,7 +1311,12 @@ const DirectoryScreen = ({ navigation, route }) => {
             onPress={() => setActiveTab('request')}
             activeOpacity={0.7}
           >
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View style={styles.tabInner}>
+              <Ionicons 
+                name={activeTab === 'request' ? "person-add" : "person-add-outline"} 
+                size={18} 
+                color={activeTab === 'request' ? '#059669' : '#64748B'} 
+              />
               <Text style={[styles.tabText, activeTab === 'request' && styles.activeTabText]}>
                 Requests
               </Text>
@@ -1811,18 +1329,18 @@ const DirectoryScreen = ({ navigation, route }) => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.tab, activeTab === 'community' && styles.activeTab]}
+            style={[styles.tab, (activeTab === 'community' || activeTab === 'communities') && styles.activeTab]}
             onPress={() => setActiveTab('community')}
             activeOpacity={0.7}
           >
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <View style={styles.tabInner}>
               <Ionicons 
-                name="chatbubbles-outline" 
-                size={16} 
-                color={activeTab === 'community' ? '#059669' : '#64748B'} 
+                name={(activeTab === 'community' || activeTab === 'communities') ? "chatbubbles" : "chatbubbles-outline"} 
+                size={18} 
+                color={(activeTab === 'community' || activeTab === 'communities') ? '#059669' : '#64748B'} 
               />
-              <Text style={[styles.tabText, activeTab === 'community' && styles.activeTabText]}>
-                Communities
+              <Text style={[styles.tabText, (activeTab === 'community' || activeTab === 'communities') && styles.activeTabText]}>
+                Community
               </Text>
             </View>
           </TouchableOpacity>
@@ -1869,7 +1387,7 @@ const DirectoryScreen = ({ navigation, route }) => {
                 {/* Course Filter */}
                 <Text style={styles.filterSectionTitle}>COURSE</Text>
                 <View style={{ gap: 6, marginBottom: 18 }}>
-                  {ALMACONNECT_COURSES.map((c) => (
+                  {dynamicCourses.map((c) => (
                     <TouchableOpacity
                       key={c.id}
                       style={[
@@ -1892,7 +1410,7 @@ const DirectoryScreen = ({ navigation, route }) => {
                 {/* Graduation Year Filter */}
                 <Text style={styles.filterSectionTitle}>GRADUATION YEAR</Text>
                 <View style={{ gap: 6, marginBottom: 18 }}>
-                  {ALMACONNECT_GRADUATION_YEARS.map((y) => (
+                  {dynamicGraduationYears.map((y) => (
                     <TouchableOpacity
                       key={y.id}
                       style={[
@@ -1915,7 +1433,7 @@ const DirectoryScreen = ({ navigation, route }) => {
                 {/* Location Filter */}
                 <Text style={styles.filterSectionTitle}>LOCATION</Text>
                 <View style={{ gap: 6, marginBottom: 18 }}>
-                  {ALMACONNECT_LOCATIONS.map((loc) => (
+                  {dynamicLocations.map((loc) => (
                     <TouchableOpacity
                       key={loc.id}
                       style={[
@@ -1938,7 +1456,7 @@ const DirectoryScreen = ({ navigation, route }) => {
                 {/* Industry / Specialized Lists */}
                 <Text style={styles.filterSectionTitle}>INDUSTRY & DOMAIN</Text>
                 <View style={{ gap: 6, marginBottom: 18 }}>
-                  {ALMACONNECT_SPECIALIZED_LISTS.map((list) => (
+                  {DEFAULT_SPECIALIZED_LISTS.map((list) => (
                     <TouchableOpacity
                       key={list.id}
                       style={[
@@ -2164,9 +1682,17 @@ const getStyles = (theme) => StyleSheet.create({
   headerIconBtn: {
     width: 38,
     height: 38,
-    borderRadius: 19,
+    borderRadius: 12,
+    backgroundColor: theme.isDark ? '#1E293B' : '#F8FAFC',
+    borderWidth: 1,
+    borderColor: theme.isDark ? '#334155' : '#E2E8F0',
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+    elevation: 3,
   },
   adminBanner: {
     backgroundColor: '#F0FDF4',
@@ -2188,12 +1714,19 @@ const getStyles = (theme) => StyleSheet.create({
   tab: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: 13,
-    borderBottomWidth: 2.5,
+    justifyContent: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 3,
     borderBottomColor: 'transparent',
   },
   activeTab: {
     borderBottomColor: '#059669',
+  },
+  tabInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
   },
   tabText: {
     fontSize: 14,

@@ -18,6 +18,10 @@ const getGfs = () => {
     return gfsBucket;
 };
 
+const User = require('../models/User');
+const JobPreference = require('../models/JobPreference');
+const { extractKeywords } = require('../utils/keywordExtractor');
+
 // @desc    Upload file to GridFS
 // @route   POST /api/upload
 router.post('/', protect, upload.single('image'), async (req, res) => {
@@ -41,11 +45,59 @@ router.post('/', protect, upload.single('image'), async (req, res) => {
 
         uploadStream.end(req.file.buffer);
 
-        uploadStream.on('finish', () => {
+        uploadStream.on('finish', async () => {
             const fileUrl = `/api/upload/${filename}`;
+            let extractedSkills = [];
+
+            // Detect if uploaded file is a document/resume
+            const isDocOrResume = (req.file.mimetype && (
+                req.file.mimetype.includes('pdf') ||
+                req.file.mimetype.includes('document') ||
+                req.file.mimetype.includes('text') ||
+                req.file.mimetype.includes('msword')
+            )) || /\.(pdf|docx?|txt)$/i.test(req.file.originalname);
+
+            if (isDocOrResume && req.file.buffer) {
+                try {
+                    const bufferStr = req.file.buffer.toString('utf-8', 0, Math.min(req.file.buffer.length, 500000));
+                    const cleanedText = (req.file.originalname + ' ' + bufferStr).replace(/[^\x20-\x7E]/g, ' ');
+                    extractedSkills = extractKeywords('', cleanedText, []);
+                } catch (parseErr) {
+                    console.log('Error parsing resume buffer for skills:', parseErr.message);
+                }
+            }
+
+            // Sync extracted skills to User profile and JobPreference recommendation engine
+            if (req.user && req.user._id && extractedSkills.length > 0) {
+                try {
+                    await User.findByIdAndUpdate(req.user._id, {
+                        $addToSet: { skills: { $each: extractedSkills } },
+                        resumeUrl: fileUrl,
+                        resumeFileName: req.file.originalname,
+                        resumeUpdatedAt: new Date(),
+                        isJobSeeker: true
+                    });
+
+                    await JobPreference.findOneAndUpdate(
+                        { user: req.user._id },
+                        { 
+                            $addToSet: { 
+                                skills: { $each: extractedSkills },
+                                keywords: { $each: extractedSkills }
+                            },
+                            openToWork: true 
+                        },
+                        { upsert: true, new: true }
+                    );
+                } catch (dbErr) {
+                    console.log('Error syncing extracted skills to DB:', dbErr.message);
+                }
+            }
+
             res.status(201).json({
                 message: 'File uploaded successfully',
-                url: fileUrl
+                url: fileUrl,
+                extractedSkills
             });
         });
 

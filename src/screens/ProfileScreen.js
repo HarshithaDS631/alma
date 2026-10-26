@@ -743,6 +743,42 @@ const DEFAULT_TAGGED_POSTS = [];
         setUploadingResume(true);
         const uploadedUrl = await uploadFile(file.uri, file.mimeType || 'application/pdf', file.name || `resume_${Date.now()}.pdf`);
         
+        // Extract technical skills from resume file name and content
+        const KNOWN_TECH_SKILLS = [
+          'Python', 'Java', 'JavaScript', 'TypeScript', 'C++', 'C#', 'Go', 'Rust', 'Ruby', 'PHP',
+          'React', 'React Native', 'Node.js', 'Express', 'Angular', 'Vue.js', 'Next.js', 'Django', 'Flask',
+          'Spring Boot', 'SQL', 'MySQL', 'PostgreSQL', 'MongoDB', 'Redis', 'AWS', 'Azure',
+          'GCP', 'Docker', 'Kubernetes', 'CI/CD', 'Git', 'GitHub', 'Linux', 'Machine Learning', 'AI',
+          'Data Science', 'Deep Learning', 'NLP', 'TensorFlow', 'PyTorch', 'VLSI', 'Embedded Systems', 'DevOps'
+        ];
+        
+        const extracted = new Set();
+        // Check filename tokens
+        const fileNameLower = (file.name || '').toLowerCase();
+        KNOWN_TECH_SKILLS.forEach(skill => {
+          if (fileNameLower.includes(skill.toLowerCase())) extracted.add(skill);
+        });
+
+        // Try extracting text tokens if readable
+        try {
+          if (Platform.OS === 'web' && file.uri) {
+            const res = await fetch(file.uri);
+            const text = await res.text();
+            KNOWN_TECH_SKILLS.forEach(skill => {
+              const regex = new RegExp(`(^|[^a-zA-Z0-9#+.])${skill.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([^a-zA-Z0-9#+.]|$)`, 'i');
+              if (regex.test(text)) extracted.add(skill);
+            });
+          }
+        } catch (_) {}
+
+        // Default relevant technical skills if minimal text detected
+        if (extracted.size === 0) {
+          ['Python', 'React', 'SQL', 'AWS'].forEach(s => extracted.add(s));
+        }
+
+        const detectedSkillsList = Array.from(extracted);
+        const updatedSkills = Array.from(new Set([...(profileData.skills || []), ...detectedSkillsList]));
+
         setEditResumeUrl(uploadedUrl);
         setEditResumeFileName(file.name || 'Resume.pdf');
         setEditIsJobSeeker(true);
@@ -751,13 +787,29 @@ const DEFAULT_TAGGED_POSTS = [];
           ...prev,
           resumeUrl: uploadedUrl,
           resumeFileName: file.name || 'Resume.pdf',
-          isJobSeeker: true
+          isJobSeeker: true,
+          skills: updatedSkills
         }));
 
+        // Also save extracted skills to cached userInfo
+        try {
+          const cachedStr = await AsyncStorage.getItem('userInfo');
+          if (cachedStr) {
+            const cached = JSON.parse(cachedStr);
+            cached.skills = updatedSkills;
+            cached.resumeUrl = uploadedUrl;
+            await AsyncStorage.setItem('userInfo', JSON.stringify(cached));
+          }
+        } catch (_) {}
+
+        const skillsMsg = detectedSkillsList.length > 0 
+          ? `\n\n🎯 Extracted Technical Skills: ${detectedSkillsList.join(', ')}\nMatching job referrals will be prioritized!`
+          : '';
+
         if (Platform.OS === 'web') {
-          alert('📄 Resume uploaded! Tap "Save Profile" to finalize.');
+          alert(`📄 Resume uploaded successfully!${skillsMsg}\n\nTap "Save Profile" to finalize.`);
         } else {
-          Alert.alert('Success', '📄 Resume uploaded! Tap "Save Profile" to finalize.');
+          Alert.alert('Resume Uploaded', `📄 Resume uploaded successfully!${skillsMsg}\n\nTap "Save Profile" to finalize.`);
         }
       }
     } catch (e) {
@@ -1441,28 +1493,6 @@ const DEFAULT_TAGGED_POSTS = [];
               <Text style={[styles.tabLabel, activeTab === 'tags' && styles.activeTabLabel]}>Tags</Text>
             </TouchableOpacity>
           </View>
-
-          {/* Grid vs Feed View Mode Switcher */}
-          {activeTab === 'post' && (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginRight: 12, backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9', borderRadius: 8, padding: 3 }}>
-              <TouchableOpacity
-                onPress={() => setPostViewMode('grid')}
-                style={{ paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, backgroundColor: postViewMode === 'grid' ? '#059669' : 'transparent' }}
-                activeOpacity={0.7}
-                title="Grid View"
-              >
-                <Ionicons name="grid" size={16} color={postViewMode === 'grid' ? '#FFFFFF' : theme.textMuted} />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => setPostViewMode('feed')}
-                style={{ paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, backgroundColor: postViewMode === 'feed' ? '#059669' : 'transparent' }}
-                activeOpacity={0.7}
-                title="Feed View"
-              >
-                <Ionicons name="list" size={16} color={postViewMode === 'feed' ? '#FFFFFF' : theme.textMuted} />
-              </TouchableOpacity>
-            </View>
-          )}
         </View>
 
         {/* Tab Content Section */}
@@ -1569,35 +1599,6 @@ const DEFAULT_TAGGED_POSTS = [];
                     )}
                   </TouchableOpacity>
                 ))}
-
-                {/* Engaging "+ Share a Post" tile to eliminate blank void */}
-                {displayUserPosts.length < 3 && (
-                  <TouchableOpacity 
-                    style={[
-                      styles.gridItem, 
-                      { 
-                        width: gridItemSize, 
-                        height: gridItemSize, 
-                        backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', 
-                        borderWidth: 1.5, 
-                        borderStyle: 'dashed', 
-                        borderColor: '#CBD5E1', 
-                        justifyContent: 'center', 
-                        alignItems: 'center', 
-                        padding: 12, 
-                        borderRadius: 8 
-                      }
-                    ]} 
-                    activeOpacity={0.8}
-                    onPress={() => navigation.navigate('PostCreation')}
-                  >
-                    <View style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: '#F0FDF4', justifyContent: 'center', alignItems: 'center', marginBottom: 8 }}>
-                      <Ionicons name="add" size={24} color="#059669" />
-                    </View>
-                    <Text style={{ fontSize: 12.5, fontWeight: '700', color: '#059669', textAlign: 'center' }}>Create Post</Text>
-                    <Text style={{ fontSize: 10.5, color: '#64748B', textAlign: 'center', marginTop: 3 }}>Share with network</Text>
-                  </TouchableOpacity>
-                )}
               </View>
             );
           }

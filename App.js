@@ -298,7 +298,8 @@ function MainTabs() {
             if (route.name === 'Engage') iconComp = <MaterialCommunityIcons name={focused ? 'handshake' : 'handshake-outline'} size={20} color={focused ? (isDarkMode ? theme.primaryLight : theme.primary) : color} />;
             if (route.name === 'Post') iconComp = <Ionicons name={focused ? 'add-circle' : 'add-circle-outline'} size={22} color={focused ? (isDarkMode ? theme.primaryLight : theme.primary) : color} />;
             if (route.name === 'Jobs') iconComp = <Ionicons name={focused ? 'briefcase' : 'briefcase-outline'} size={20} color={focused ? (isDarkMode ? theme.primaryLight : theme.primary) : color} />;
-            if (route.name === 'Contribute') iconComp = <MaterialCommunityIcons name={focused ? 'hand-heart' : 'hand-heart-outline'} size={20} color={focused ? (isDarkMode ? theme.primaryLight : theme.primary) : color} />;
+            if (route.name === 'Profile') iconComp = <Ionicons name={focused ? 'person-circle' : 'person-circle-outline'} size={21} color={focused ? (isDarkMode ? theme.primaryLight : theme.primary) : color} />;
+            if (route.name === 'Messages') iconComp = <Ionicons name={focused ? 'chatbubble-ellipses' : 'chatbubble-ellipses-outline'} size={20} color={focused ? (isDarkMode ? theme.primaryLight : theme.primary) : color} />;
             return (
               <View style={{
                 width: 32,
@@ -318,7 +319,8 @@ function MainTabs() {
         <Drawer.Screen name="Engage" component={DirectoryScreen} options={{ drawerLabel: 'Directory' }} />
         <Drawer.Screen name="Post" component={EngageScreen} options={{ drawerLabel: 'Feed & Events' }} />
         <Drawer.Screen name="Jobs" component={JobsScreen} options={{ drawerLabel: 'Jobs' }} />
-        <Drawer.Screen name="Contribute" component={ContributeScreen} options={{ drawerLabel: 'Support' }} />
+        <Drawer.Screen name="Profile" component={ProfileScreen} options={{ drawerLabel: 'Profile' }} />
+        <Drawer.Screen name="Messages" component={MessagesScreen} options={{ drawerItemStyle: { display: 'none' } }} />
       </Drawer.Navigator>
     );
   }
@@ -335,7 +337,7 @@ function MainTabs() {
           if (route.name === 'Engage') return <Render3DTabIcon name={focused ? 'handshake' : 'handshake-outline'} focused={focused} isDarkMode={isDarkMode} theme={theme} label="Engage" isMaterial />;
           if (route.name === 'Post') return <Render3DTabIcon focused={focused} isDarkMode={isDarkMode} theme={theme} isPost label="Post" />;
           if (route.name === 'Jobs') return <Render3DTabIcon name={focused ? 'briefcase' : 'briefcase-outline'} focused={focused} isDarkMode={isDarkMode} theme={theme} label="Jobs" />;
-          if (route.name === 'Contribute') return <Render3DTabIcon name={focused ? 'hand-heart' : 'hand-heart-outline'} focused={focused} isDarkMode={isDarkMode} theme={theme} label="Support" isMaterial />;
+          if (route.name === 'Profile') return <Render3DTabIcon name={focused ? 'person-circle' : 'person-circle-outline'} focused={focused} isDarkMode={isDarkMode} theme={theme} label="Profile" />;
           return null;
         },
         tabBarStyle: {
@@ -357,7 +359,8 @@ function MainTabs() {
       <Tab.Screen name="Engage" component={DirectoryScreen} />
       <Tab.Screen name="Post" component={EngageScreen} />
       <Tab.Screen name="Jobs" component={JobsScreen} />
-      <Tab.Screen name="Contribute" component={ContributeScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="Messages" component={MessagesScreen} options={{ tabBarItemStyle: { display: 'none' } }} />
     </Tab.Navigator>
   );
 }
@@ -598,9 +601,12 @@ const linking = {
           ResumeBook: 'resume-book',
           Post: 'engage',
           Jobs: 'jobs',
-          Contribute: 'contribute',
+          Profile: 'profile',
+          Messages: 'messages',
         }
       },
+      Contribute: 'support',
+      Support: 'support',
       AdminLogin: 'admin-login',
       AdminOTP: 'admin-otp',
       AdminMain: {
@@ -639,7 +645,7 @@ const linking = {
 };
 
 function RootNavigator() {
-  const { theme, isDarkMode } = useTheme();
+  const { theme } = useTheme();
   return (
     <NavigationContainer 
       linking={linking}
@@ -684,7 +690,8 @@ function RootNavigator() {
         <Stack.Screen name="SuperAdminMain" component={SuperAdminTabs} />
 
         {/* Shared Overlay/Secondary Screens */}
-        <Stack.Screen name="Messages" component={MessagesScreen} />
+        <Stack.Screen name="Contribute" component={ContributeScreen} />
+        <Stack.Screen name="Support" component={ContributeScreen} />
         <Stack.Screen name="Chat" component={ChatScreen} />
         <Stack.Screen name="Notifications" component={NotificationsScreen} />
         <Stack.Screen name="PostCreation" component={PostCreationScreen} options={{ animation: 'slide_from_bottom' }} />

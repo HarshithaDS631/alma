@@ -19,8 +19,8 @@ import {
   useWindowDimensions,
   Linking,
 } from 'react-native';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
-import { Ionicons } from '@expo/vector-icons';
 import { getSuggestions, getPosts, getEvents, toggleFollowUser, getFollowing, getFollowers, toggleLikePost, getProfile, getUsers } from '../services/authService';
 import { getImageUrl } from '../services/uploadService';
 import { addComment, toggleSavePost, resharePost } from '../services/postService';
@@ -1129,14 +1129,16 @@ const DashboardScreen = ({ navigation }) => {
           >
             {likedPosts[post.id] ? (
               <PulseElement minScale={0.9} maxScale={1.22} duration={900}>
-                <Ionicons name="heart" size={18} color="#F43F5E" />
+                <Ionicons name="heart" size={19} color="#F43F5E" />
               </PulseElement>
             ) : (
-              <Ionicons name="heart-outline" size={18} color={theme.text} />
+              <Ionicons name="heart-outline" size={19} color={theme.text} />
             )}
-            <Text style={[styles.alumniActionLabel, likedPosts[post.id] && { color: '#F43F5E', fontWeight: '700' }]}>
-              {post.likes > 0 ? `${post.likes} Applaud` : 'Applaud'}
-            </Text>
+            {post.likes > 0 ? (
+              <Text style={[styles.alumniActionCount, likedPosts[post.id] && { color: '#F43F5E', fontWeight: '800' }]}>
+                {post.likes}
+              </Text>
+            ) : null}
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -1144,10 +1146,12 @@ const DashboardScreen = ({ navigation }) => {
             activeOpacity={0.65} 
             onPress={() => openModal('comments', post)}
           >
-            <Ionicons name="chatbubble-ellipses-outline" size={17} color={theme.text} />
-            <Text style={styles.alumniActionLabel}>
-              {post.commentsCount > 0 ? `${post.commentsCount} Discuss` : 'Discuss'}
-            </Text>
+            <Ionicons name="chatbubble-ellipses-outline" size={18} color={theme.text} />
+            {post.commentsCount > 0 ? (
+              <Text style={styles.alumniActionCount}>
+                {post.commentsCount}
+              </Text>
+            ) : null}
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -1155,10 +1159,12 @@ const DashboardScreen = ({ navigation }) => {
             activeOpacity={0.65} 
             onPress={() => openModal('reshare', post)}
           >
-            <Ionicons name="repeat-outline" size={18} color={isReshared ? '#059669' : theme.text} />
-            <Text style={[styles.alumniActionLabel, isReshared && { color: '#059669' }]}>
-              {post.resharesCount > 0 ? `${post.resharesCount} Amplify` : 'Amplify'}
-            </Text>
+            <Ionicons name="repeat-outline" size={19} color={isReshared ? '#059669' : theme.text} />
+            {post.resharesCount > 0 ? (
+              <Text style={[styles.alumniActionCount, isReshared && { color: '#059669' }]}>
+                {post.resharesCount}
+              </Text>
+            ) : null}
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -1166,8 +1172,7 @@ const DashboardScreen = ({ navigation }) => {
             onPress={() => openModal('share', post)}
             activeOpacity={0.65}
           >
-            <Ionicons name="share-social-outline" size={17} color={theme.text} />
-            <Text style={styles.alumniActionLabel}>Share</Text>
+            <Ionicons name="share-social-outline" size={18} color={theme.text} />
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -1177,7 +1182,7 @@ const DashboardScreen = ({ navigation }) => {
           >
             <Ionicons
               name={bookmarkedPosts[post.id] ? 'bookmark' : 'bookmark-outline'}
-              size={17}
+              size={18}
               color={bookmarkedPosts[post.id] ? theme.primary : theme.text}
             />
           </TouchableOpacity>
@@ -1284,8 +1289,8 @@ const DashboardScreen = ({ navigation }) => {
             <View style={{ flex: 1, minWidth: 120 }}>
               <BentoCard
                 variant="compact"
-                metric="12 Cities"
-                title="Global Chapters"
+                metric="Community Hub"
+                title="Communities"
                 subtitle="Bengaluru, US, UK & EU"
                 badge="COMMUNITY"
                 badgeBg={isDarkMode ? '#064E3B' : '#DCFCE7'}
@@ -1293,7 +1298,7 @@ const DashboardScreen = ({ navigation }) => {
                 icon="globe-outline"
                 iconColor="#059669"
                 iconBg={isDarkMode ? '#1E3A2B' : '#DCFCE7'}
-                onPress={() => navigation.navigate('Engage', { tab: 'communities' })}
+                onPress={() => navigation.navigate('Engage', { tab: 'community' })}
               />
             </View>
           </View>
@@ -1423,65 +1428,57 @@ const DashboardScreen = ({ navigation }) => {
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <View style={webContainerStyle}>
         
-        {/* ── Header ─────────────────────────────────────── */}
+        {/* ── Main Top Bar: Search, Messages, Notifications, Support ── */}
         <View style={styles.header}>
-          {/* Left – User avatar */}
-          <TouchableOpacity
-            style={[styles.headerAvatar, { width: 34, height: 34, borderRadius: 17, overflow: 'hidden', backgroundColor: '#059669', justifyContent: 'center', alignItems: 'center' }]}
-            activeOpacity={0.8}
-            onPress={() => navigation.navigate('Profile')}
-          >
-            {userAvatarUrl ? (
-              <Image source={{ uri: userAvatarUrl }} style={{ width: '100%', height: '100%', borderRadius: 17 }} />
-            ) : (
-              <Text style={{ fontSize: 13, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(userName || currentUser?.name || currentUser?.email || 'User')}</Text>
-            )}
-          </TouchableOpacity>
-
-          {/* Center – Search bar */}
+          {/* Search bar */}
           <View style={styles.searchBar}>
             <Ionicons name="search-outline" size={18} color="#94A3B8" style={{ marginRight: 6 }} />
             <TextInput
               style={styles.searchInput}
-              placeholder="Search"
+              placeholder="Search alumni, skills, posts..."
               placeholderTextColor="#94A3B8"
               value={searchText}
               onChangeText={setSearchText}
             />
           </View>
 
-          {/* Right – Icons */}
+          {/* Right Action Pods: Messages, Notifications, Support with 3D tactile look */}
           <View style={styles.headerIcons}>
-            {isDesktop && (
-              <TouchableOpacity
-                style={styles.headerIconBtn}
-                onPress={() => navigation.navigate('Main', { screen: 'Post', params: { view: 'events' } })}
-                title="Events & Meetups"
-              >
-                <Ionicons name="calendar-outline" size={22} color={theme.primary} />
-              </TouchableOpacity>
-            )}
             <TouchableOpacity
               style={styles.headerIconBtn}
               onPress={() => { setUnreadMessages(0); navigation.navigate('Messages'); }}
+              activeOpacity={0.75}
+              title="Messages"
             >
-              <Ionicons name="chatbubble-ellipses-outline" size={22} color={theme.primary} />
+              <Ionicons name="chatbubble-ellipses-outline" size={20} color={theme.primary} />
               {unreadMessages > 0 && (
-                <PulseElement minScale={0.8} maxScale={1.3} duration={1400} style={{ position: 'absolute', top: 5, right: 5 }}>
+                <PulseElement minScale={0.8} maxScale={1.3} duration={1400} style={{ position: 'absolute', top: 3, right: 3 }}>
                   <View style={[styles.dot, { position: 'relative', top: 0, right: 0 }]} />
                 </PulseElement>
               )}
             </TouchableOpacity>
+
             <TouchableOpacity
               style={styles.headerIconBtn}
               onPress={() => { setUnreadNotifications(0); navigation.navigate('Notifications'); }}
+              activeOpacity={0.75}
+              title="Notifications"
             >
-              <Ionicons name="notifications-outline" size={22} color={theme.primary} />
+              <Ionicons name="notifications-outline" size={20} color={theme.primary} />
               {unreadNotifications > 0 && (
-                <PulseElement minScale={0.8} maxScale={1.3} duration={1400} style={{ position: 'absolute', top: 5, right: 5 }}>
+                <PulseElement minScale={0.8} maxScale={1.3} duration={1400} style={{ position: 'absolute', top: 3, right: 3 }}>
                   <View style={[styles.dot, { position: 'relative', top: 0, right: 0 }]} />
                 </PulseElement>
               )}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.headerIconBtn}
+              onPress={() => navigation.navigate('Contribute')}
+              activeOpacity={0.75}
+              title="Support"
+            >
+              <MaterialCommunityIcons name="hand-heart-outline" size={20} color={theme.primary} />
             </TouchableOpacity>
           </View>
         </View>
@@ -2483,15 +2480,24 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   },
   headerIconBtn: {
     position: 'relative',
-    width: 36,
-    height: 36,
+    width: 38,
+    height: 38,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+    borderWidth: 1.5,
+    borderColor: isDarkMode ? '#334155' : '#E2E8F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: isDarkMode ? 0.35 : 0.08,
+    shadowRadius: 4,
+    elevation: 3,
   },
   dot: {
     position: 'absolute',
-    top: 5,
-    right: 5,
+    top: 3,
+    right: 3,
     width: 8,
     height: 8,
     borderRadius: 4,
@@ -2929,15 +2935,30 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    paddingVertical: 5,
-    paddingHorizontal: 8,
-    borderRadius: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 11,
+    backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+    borderWidth: 1.2,
+    borderColor: isDarkMode ? '#334155' : '#E2E8F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: isDarkMode ? 0.3 : 0.06,
+    shadowRadius: 3,
+    elevation: 2,
   },
   alumniActionBtnLiked: {
-    backgroundColor: isDarkMode ? 'rgba(244, 63, 94, 0.16)' : '#FFE4E6',
+    backgroundColor: isDarkMode ? 'rgba(244, 63, 94, 0.2)' : '#FFE4E6',
+    borderColor: '#F43F5E',
   },
   alumniActionBtnSaved: {
-    backgroundColor: isDarkMode ? 'rgba(2, 132, 199, 0.16)' : '#DCFCE7',
+    backgroundColor: isDarkMode ? 'rgba(5, 150, 105, 0.2)' : '#DCFCE7',
+    borderColor: '#059669',
+  },
+  alumniActionCount: {
+    fontSize: 11.5,
+    fontWeight: '700',
+    color: theme.text,
   },
   alumniActionLabel: {
     fontSize: 11.5,
