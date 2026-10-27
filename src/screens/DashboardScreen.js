@@ -1340,7 +1340,7 @@ const DashboardScreen = ({ navigation }) => {
 
         <TouchableOpacity
           style={styles.quickActionCard}
-          onPress={() => navigation.navigate('Mentorship')}
+          onPress={() => navigation.navigate('Contribute', { tab: 'mentorship' })}
           activeOpacity={0.75}
         >
           <Ionicons name="school-outline" size={24} color={theme.text} />
@@ -1545,7 +1545,7 @@ const DashboardScreen = ({ navigation }) => {
                 {/* 1. Mentorship Connect */}
                 <TouchableOpacity 
                   style={styles.sidebarHubItem}
-                  onPress={() => navigation.navigate('Main', { screen: 'Engage', params: { tab: 'directory' } })}
+                  onPress={() => navigation.navigate('Contribute', { tab: 'mentorship' })}
                   activeOpacity={0.7}
                 >
                   <FloatingElement distance={1.8} duration={2400}>

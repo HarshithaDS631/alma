@@ -9,7 +9,7 @@ import useUserRole from '../hooks/useUserRole';
 import getInitials from '../lib/getInitials';
 import AppHeader from '../components/AppHeader';
 
-const ContributeScreen = ({ navigation }) => {
+const ContributeScreen = ({ navigation, route }) => {
   const { theme, isDarkMode } = useTheme();
   const styles = getStyles(theme, isDarkMode);
   const { isAdminOrSuper, userRole } = useUserRole();
@@ -95,22 +95,34 @@ const ContributeScreen = ({ navigation }) => {
     } catch (_e) {}
   };
 
+  // Admin/Super Admin: 'review' | 'mentorship' | 'support'; Alumni: 'mentorship' | 'support'
+  const [activeTab, setActiveTab] = useState(route?.params?.tab || 'mentorship');
+  // Alumni defaults to 'mentor' sub-tab
+  const [mentorshipTab, setMentorshipTab] = useState(route?.params?.subTab || 'mentor');
+
   useEffect(() => {
     loadUser();
     loadApplications();
-  }, []);
+    if (route?.params?.tab) {
+      setActiveTab(route.params.tab);
+    }
+    if (route?.params?.subTab) {
+      setMentorshipTab(route.params.subTab);
+    }
+  }, [route?.params?.tab, route?.params?.subTab]);
 
   useFocusEffect(
     useCallback(() => {
       loadUser();
       loadApplications();
-    }, [])
+      if (route?.params?.tab) {
+        setActiveTab(route.params.tab);
+      }
+      if (route?.params?.subTab) {
+        setMentorshipTab(route.params.subTab);
+      }
+    }, [route?.params?.tab, route?.params?.subTab])
   );
-
-  // Admin/Super Admin: 'review' | 'support'; Alumni: 'mentorship' | 'support'
-  const [activeTab, setActiveTab] = useState('mentorship');
-  // Alumni defaults to 'mentor' sub-tab
-  const [mentorshipTab, setMentorshipTab] = useState('mentor');
 
   const [showMenteeForm, setShowMenteeForm] = useState(false);
   const [showMentorForm, setShowMentorForm] = useState(false);

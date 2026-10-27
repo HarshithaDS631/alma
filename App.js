@@ -59,7 +59,6 @@ import PostCreationScreen from './src/screens/PostCreationScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import LegalScreen from './src/screens/LegalScreen';
 import CareerInsightsScreen from './src/screens/CareerInsightsScreen';
-import MentorshipScreen from './src/screens/MentorshipScreen';
 import ResumeBookScreen from './src/screens/ResumeBookScreen';
 
 // Admin Flow Screens
@@ -840,7 +839,7 @@ function RootNavigator() {
         <Stack.Screen name="TermsOfService" component={LegalScreen} initialParams={{ tab: 'terms' }} />
         <Stack.Screen name="Terms" component={LegalScreen} initialParams={{ tab: 'terms' }} />
         <Stack.Screen name="CareerInsights" component={CareerInsightsScreen} />
-        <Stack.Screen name="Mentorship" component={MentorshipScreen} />
+        <Stack.Screen name="Mentorship" component={ContributeScreen} initialParams={{ tab: 'mentorship' }} />
         <Stack.Screen name="ResumeBook" component={ResumeBookScreen} />
       </Stack.Navigator>
     </NavigationContainer>
