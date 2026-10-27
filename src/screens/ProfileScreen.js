@@ -14,6 +14,7 @@ import { institutionDepartments, defaultDepartments } from '../constants/institu
 import getInitials from '../lib/getInitials';
 import InstagramProfileShareModal from '../components/InstagramProfileShareModal';
 import { validatePassword, PASSWORD_CRITERIA_LIST } from '../lib/passwordValidator';
+import AppHeader from '../components/AppHeader';
 
 const BRANCHES_LIST = [
   'Computer Science & Engineering',
@@ -1195,71 +1196,35 @@ const DEFAULT_TAGGED_POSTS = [];
       <View style={webContainerStyle}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       
-      {/* Modern Tactile Header Bar (Unified across all pages) */}
-      <View style={styles.header}>
-        {/* Left: On desktop show section context without duplicate RV ALUMNI logo pod */}
-        {isDesktop ? (
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <View style={styles.desktopSectionBadge}>
-              <Ionicons name="person" size={17} color="#059669" />
-              <Text style={styles.desktopSectionTitle}>My Profile</Text>
-            </View>
-            <View style={styles.desktopCampusBadge}>
-              <View style={styles.desktopCampusDot} />
-              <Text style={styles.desktopCampusBadgeText}>{profileData?.institution || 'RV College of Engineering'}</Text>
-            </View>
-          </View>
-        ) : (
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}>
-            <View style={styles.header3DLogoPod}>
-              <Ionicons name="school" size={19} color="#FFFFFF" />
-            </View>
-            <View>
-              <Text style={styles.headerBrandTitle}>RV ALUMNI</Text>
-              <Text style={styles.headerBrandSub}>{profileData?.name || 'My Profile'}</Text>
-            </View>
-          </View>
-        )}
-
-        {/* Right Action Pods: Settings, Messages, Notifications, Support with genuine 3D tactile look */}
-        <View style={styles.headerIcons}>
+      {/* ───── Universal App Header ───── */}
+      <AppHeader
+        navigation={navigation}
+        currentRoute="Profile"
+        desktopTitle="My Profile"
+        desktopSubtitle={profileData?.institution || 'RV College of Engineering'}
+        rightExtraAction={
           <TouchableOpacity
-            style={styles.headerIconBtn}
+            style={[
+              styles.headerIconBtn,
+              {
+                backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+                borderColor: isDarkMode ? '#334155' : '#E2E8F0',
+                borderWidth: 1,
+                width: 38,
+                height: 38,
+                borderRadius: 19,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }
+            ]}
             onPress={handleSettings}
             activeOpacity={0.75}
-            title="Settings"
+            accessibilityLabel="Settings"
           >
-            <Ionicons name="settings" size={20} color="#059669" style={styles.icon3DGlyph} />
+            <Ionicons name="settings-outline" size={20} color={isDarkMode ? '#CBD5E1' : '#475569'} />
           </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.headerIconBtn}
-            onPress={() => navigation.navigate('Messages')}
-            activeOpacity={0.75}
-            title="Messages"
-          >
-            <Ionicons name="chatbubbles" size={20} color="#059669" style={styles.icon3DGlyph} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.headerIconBtn}
-            onPress={() => navigation.navigate('Notifications')}
-            activeOpacity={0.75}
-            title="Notifications"
-          >
-            <Ionicons name="notifications" size={20} color="#D97706" style={styles.icon3DGlyph} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.headerIconBtn}
-            onPress={() => navigation.navigate('Contribute')}
-            activeOpacity={0.75}
-            title="Support"
-          >
-            <MaterialCommunityIcons name="hand-heart" size={21} color="#E11D48" style={styles.icon3DGlyph} />
-          </TouchableOpacity>
-        </View>
-      </View>
+        }
+      />
 
       <ScrollView ref={profileScrollViewRef} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 110 }}>
         {/* Profile Identity & Showcase Container */}

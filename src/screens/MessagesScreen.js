@@ -5,6 +5,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { getSuggestions } from '../services/authService';
 import { getChatHistory } from '../services/messageService';
 import { useFocusEffect } from '@react-navigation/native';
+import AppHeader from '../components/AppHeader';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -135,124 +136,52 @@ const MessagesScreen = ({ navigation }) => {
       <View style={webContainerStyle}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       
-      {/* Modern Tactile Header Bar (Unified across all pages) */}
-      <View style={styles.header}>
-        {/* Left: On desktop show section context without duplicate RV ALUMNI logo pod */}
-        {isDesktop ? (
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <View style={styles.desktopSectionBadge}>
-              <Ionicons name="chatbubbles" size={17} color="#059669" />
-              <Text style={styles.desktopSectionTitle}>Direct Messages</Text>
-            </View>
-            <View style={styles.desktopCampusBadge}>
-              <View style={styles.desktopCampusDot} />
-              <Text style={styles.desktopCampusBadgeText}>Alumni Conversations</Text>
-            </View>
-          </View>
-        ) : (
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}>
-            <View style={styles.header3DLogoPod}>
-              <Ionicons name="school" size={19} color="#FFFFFF" />
-            </View>
-            <View>
-              <Text style={styles.headerBrandTitle}>RV ALUMNI</Text>
-              <Text style={styles.headerBrandSub}>Direct Messages</Text>
-            </View>
-          </View>
-        )}
-
-        {/* Center: On desktop, integrated user-friendly real-time search bar */}
-        {isDesktop && (
-          <View style={styles.desktopSearchBox}>
-            <Ionicons name="search" size={17} color="#059669" style={{ marginRight: 8 }} />
-            <TextInput
-              style={styles.desktopSearchInput}
-              placeholder="Search conversations, names, messages..."
-              placeholderTextColor="#94A3B8"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-            />
-            {searchQuery.length > 0 && (
-              <TouchableOpacity onPress={() => setSearchQuery('')}>
-                <Ionicons name="close-circle" size={16} color="#94A3B8" />
-              </TouchableOpacity>
-            )}
-          </View>
-        )}
-
-        {/* Right Action Pods: Compose, Search, Messages (Active), Notifications, Support with genuine 3D tactile look */}
-        <View style={styles.headerIcons}>
+      {/* ───── Universal App Header ───── */}
+      <AppHeader
+        navigation={navigation}
+        currentRoute="Messages"
+        desktopTitle="Direct Messages"
+        desktopSubtitle="Alumni Conversations"
+        rightExtraAction={
           <TouchableOpacity
-            style={styles.headerIconBtn}
+            style={[
+              styles.headerIconBtn,
+              {
+                backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+                borderColor: isDarkMode ? '#334155' : '#E2E8F0',
+                borderWidth: 1,
+                width: 38,
+                height: 38,
+                borderRadius: 19,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }
+            ]}
             onPress={() => setComposeModalVisible(true)}
             activeOpacity={0.75}
-            title="Compose New Message"
+            accessibilityLabel="Compose New Message"
           >
-            <Ionicons name="create" size={20} color="#059669" style={styles.icon3DGlyph} />
+            <Ionicons name="create-outline" size={20} color={isDarkMode ? '#CBD5E1' : '#475569'} />
           </TouchableOpacity>
+        }
+      />
 
-          {!isDesktop && (
-            <TouchableOpacity
-              style={[styles.headerIconBtn, showSearch && styles.headerIconBtnActive]}
-              onPress={() => setShowSearch(prev => !prev)}
-              activeOpacity={0.75}
-              title="Search"
-            >
-              <Ionicons name="search" size={20} color={showSearch ? '#FFFFFF' : '#059669'} style={styles.icon3DGlyph} />
-            </TouchableOpacity>
-          )}
-
-          <TouchableOpacity
-            style={[styles.headerIconBtn, styles.headerIconBtnActive]}
-            onPress={() => {}}
-            activeOpacity={0.75}
-            title="Messages"
-          >
-            <Ionicons name="chatbubbles" size={20} color="#FFFFFF" style={styles.icon3DGlyph} />
+      {/* Messages Search Bar */}
+      <View style={styles.expandedSearchBarRow}>
+        <Ionicons name="search" size={17} color="#059669" style={{ marginRight: 8 }} />
+        <TextInput
+          style={styles.expandedSearchInput}
+          placeholder="Search contacts, degrees, or message text..."
+          placeholderTextColor="#94A3B8"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+        {searchQuery.length > 0 && (
+          <TouchableOpacity onPress={() => setSearchQuery('')}>
+            <Ionicons name="close-circle" size={16} color="#94A3B8" />
           </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.headerIconBtn}
-            onPress={() => navigation.navigate('Notifications')}
-            activeOpacity={0.75}
-            title="Notifications"
-          >
-            <Ionicons name="notifications" size={20} color="#D97706" style={styles.icon3DGlyph} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.headerIconBtn}
-            onPress={() => navigation.navigate('Contribute')}
-            activeOpacity={0.75}
-            title="Support"
-          >
-            <MaterialCommunityIcons name="hand-heart" size={21} color="#E11D48" style={styles.icon3DGlyph} />
-          </TouchableOpacity>
-        </View>
+        )}
       </View>
-
-      {/* Expandable Search Input when Search Button is Clicked */}
-      {showSearch && (
-        <View style={styles.expandedSearchBarRow}>
-          <Ionicons name="search" size={17} color="#059669" style={{ marginRight: 8 }} />
-          <TextInput
-            style={styles.expandedSearchInput}
-            placeholder="Search contacts, degrees, or message text..."
-            placeholderTextColor="#94A3B8"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            autoFocus
-          />
-          {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <Ionicons name="close-circle" size={16} color="#94A3B8" />
-            </TouchableOpacity>
-          )}
-          <TouchableOpacity onPress={() => setShowSearch(false)} style={{ marginLeft: 8 }}>
-            <Text style={{ fontSize: 13, color: '#059669', fontWeight: '700' }}>Done</Text>
-          </TouchableOpacity>
-        </View>
-      )}
 
       {filteredChats.length === 0 ? (
         <View style={styles.emptyState}>

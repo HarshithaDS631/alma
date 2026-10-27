@@ -7,6 +7,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { getImageUrl } from '../services/uploadService';
 import useUserRole from '../hooks/useUserRole';
 import getInitials from '../lib/getInitials';
+import AppHeader from '../components/AppHeader';
 
 const ContributeScreen = ({ navigation }) => {
   const { theme, isDarkMode } = useTheme();
@@ -710,92 +711,13 @@ const ContributeScreen = ({ navigation }) => {
       <View style={webContainerStyle}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       
-      {/* Modern Tactile Header Bar (Unified across all pages) */}
-      <View style={styles.header}>
-        {/* Left: On desktop show section context without duplicate RV ALUMNI logo pod */}
-        {isDesktop ? (
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <View style={styles.desktopSectionBadge}>
-              <MaterialCommunityIcons name="hand-heart" size={17} color="#059669" />
-              <Text style={styles.desktopSectionTitle}>Support & Community</Text>
-            </View>
-            <View style={styles.desktopCampusBadge}>
-              <View style={styles.desktopCampusDot} />
-              <Text style={styles.desktopCampusBadgeText}>{currentUser?.institution || 'RV Educational Institutions'}</Text>
-            </View>
-          </View>
-        ) : (
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}>
-            <View style={styles.header3DLogoPod}>
-              <Ionicons name="school" size={19} color="#FFFFFF" />
-            </View>
-            <View>
-              <Text style={styles.headerBrandTitle}>RV ALUMNI</Text>
-              <Text style={styles.headerBrandSub}>{currentUser?.institution || 'Official Network'}</Text>
-            </View>
-          </View>
-        )}
-
-        {/* Center: On desktop, integrated user-friendly real-time search bar */}
-        {isDesktop && (
-          <View style={styles.desktopSearchBox}>
-            <Ionicons name="search" size={17} color="#059669" style={{ marginRight: 8 }} />
-            <TextInput
-              style={styles.desktopSearchInput}
-              placeholder="Search campaigns, mentorship initiatives, causes..."
-              placeholderTextColor="#94A3B8"
-              value={adminSearch}
-              onChangeText={setAdminSearch}
-            />
-            {adminSearch.length > 0 && (
-              <TouchableOpacity onPress={() => setAdminSearch('')}>
-                <Ionicons name="close-circle" size={16} color="#94A3B8" />
-              </TouchableOpacity>
-            )}
-          </View>
-        )}
-
-        {/* Right Action Pods: Search, Messages, Notifications, Support with genuine 3D tactile look */}
-        <View style={styles.headerIcons}>
-          {!isDesktop && (
-            <TouchableOpacity
-              style={[styles.headerIconBtn, showSearch && styles.headerIconBtnActive]}
-              onPress={() => setShowSearch(prev => !prev)}
-              activeOpacity={0.75}
-              title="Search"
-            >
-              <Ionicons name="search" size={20} color={showSearch ? '#FFFFFF' : '#059669'} style={styles.icon3DGlyph} />
-            </TouchableOpacity>
-          )}
-
-          <TouchableOpacity
-            style={styles.headerIconBtn}
-            onPress={() => navigation.navigate('Messages')}
-            activeOpacity={0.75}
-            title="Messages"
-          >
-            <Ionicons name="chatbubbles" size={20} color="#059669" style={styles.icon3DGlyph} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.headerIconBtn}
-            onPress={() => navigation.navigate('Notifications')}
-            activeOpacity={0.75}
-            title="Notifications"
-          >
-            <Ionicons name="notifications" size={20} color="#D97706" style={styles.icon3DGlyph} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.headerIconBtn, styles.headerIconBtnActive]}
-            onPress={() => {}}
-            activeOpacity={0.75}
-            title="Support"
-          >
-            <MaterialCommunityIcons name="hand-heart" size={21} color="#FFFFFF" style={styles.icon3DGlyph} />
-          </TouchableOpacity>
-        </View>
-      </View>
+      {/* ───── Universal App Header ───── */}
+      <AppHeader
+        navigation={navigation}
+        currentRoute="Support"
+        desktopTitle="Support & Community"
+        desktopSubtitle={currentUser?.institution || 'RV Educational Institutions'}
+      />
 
       {/* Expandable Search Input when Search Button is Clicked */}
       {showSearch && (

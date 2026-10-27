@@ -35,6 +35,7 @@ import useUserRole from '../hooks/useUserRole';
 import getInitials from '../lib/getInitials';
 import InstagramProfileShareModal from '../components/InstagramProfileShareModal';
 import Mascot from '../components/Mascot';
+import AppHeader from '../components/AppHeader';
 
 // ─── Specialized Directory Discovery Categories ───────────────────────────
 const DEFAULT_SPECIALIZED_LISTS = [
@@ -1176,115 +1177,30 @@ const DirectoryScreen = ({ navigation, route }) => {
       <View style={webContainerStyle}>
         <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor="#FFFFFF" />
 
-        {/* ───── Header Bar ───── */}
-        <View style={styles.header}>
-          {/* Left: On desktop show section context without duplicate RV ALUMNI logo pod */}
-          {isDesktop ? (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <View style={styles.desktopSectionBadge}>
-                <Ionicons name="people" size={17} color="#059669" />
-                <Text style={styles.desktopSectionTitle}>Alumni Directory</Text>
-              </View>
-              <View style={styles.desktopCampusBadge}>
-                <View style={styles.desktopCampusDot} />
-                <Text style={styles.desktopCampusBadgeText}>{currentUser?.institution || userInstitution || 'RV College of Engineering'}</Text>
-              </View>
-            </View>
-          ) : (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}>
-              <View style={styles.header3DLogoPod}>
-                <Ionicons name="people" size={19} color="#FFFFFF" />
-              </View>
-              <View>
-                <Text style={styles.headerBrandTitle}>DIRECTORY</Text>
-                <Text style={styles.headerBrandSub}>{currentUser?.institution || 'Alumni Network'}</Text>
-              </View>
-            </View>
+        {/* ───── Universal App Header ───── */}
+        <AppHeader
+          navigation={navigation}
+          currentRoute="Alumni"
+          desktopTitle="Alumni Directory"
+          desktopSubtitle={currentUser?.institution || userInstitution || 'RV College of Engineering'}
+        />
+
+        {/* Directory Search Bar */}
+        <View style={styles.expandedSearchBarRow}>
+          <Ionicons name="search" size={17} color="#059669" style={{ marginRight: 8 }} />
+          <TextInput
+            style={styles.expandedSearchInput}
+            placeholder={`Search in ${currentUser?.institution ? currentUser.institution : 'directory'}...`}
+            placeholderTextColor="#94A3B8"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchQuery('')}>
+              <Ionicons name="close-circle" size={16} color="#94A3B8" />
+            </TouchableOpacity>
           )}
-
-          {/* Center: On desktop, integrated user-friendly real-time search bar */}
-          {isDesktop && (
-            <View style={styles.desktopSearchBox}>
-              <Ionicons name="search" size={17} color="#059669" style={{ marginRight: 8 }} />
-              <TextInput
-                style={styles.desktopSearchInput}
-                placeholder="Search alumni by name, branch, batch, company..."
-                placeholderTextColor="#94A3B8"
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-              />
-              {searchQuery.length > 0 && (
-                <TouchableOpacity onPress={() => setSearchQuery('')}>
-                  <Ionicons name="close-circle" size={16} color="#94A3B8" />
-                </TouchableOpacity>
-              )}
-            </View>
-          )}
-
-          {/* Right Action Pods: Search, Messages, Notifications, Support with genuine 3D tactile look */}
-          <View style={styles.headerIcons}>
-            {!isDesktop && (
-              <TouchableOpacity 
-                style={[styles.headerIconBtn, showSearch && styles.headerIconBtnActive]} 
-                activeOpacity={0.7}
-                onPress={() => setShowSearch(prev => !prev)}
-                title="Search"
-              >
-                <Ionicons name="search" size={20} color={showSearch ? '#FFFFFF' : '#059669'} style={styles.icon3DGlyph} />
-              </TouchableOpacity>
-            )}
-
-            <TouchableOpacity 
-              style={styles.headerIconBtn} 
-              activeOpacity={0.7}
-              onPress={() => navigation.navigate('Messages')}
-              title="Messages"
-            >
-              <Ionicons name="chatbubbles" size={20} color="#059669" style={styles.icon3DGlyph} />
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={styles.headerIconBtn} 
-              activeOpacity={0.7}
-              onPress={() => navigation.navigate('Notifications')}
-              title="Notifications"
-            >
-              <Ionicons name="notifications" size={20} color="#D97706" style={styles.icon3DGlyph} />
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={styles.headerIconBtn} 
-              activeOpacity={0.7}
-              onPress={() => navigation.navigate('Contribute')}
-              title="Support"
-            >
-              <MaterialCommunityIcons name="hand-heart" size={21} color="#E11D48" style={styles.icon3DGlyph} />
-            </TouchableOpacity>
-          </View>
         </View>
-
-        {/* Expandable Search Input when Search Button is Clicked */}
-        {showSearch && (
-          <View style={styles.expandedSearchBarRow}>
-            <Ionicons name="search" size={17} color="#059669" style={{ marginRight: 8 }} />
-            <TextInput
-              style={styles.expandedSearchInput}
-              placeholder={`Search in ${currentUser?.institution ? currentUser.institution : 'directory'}...`}
-              placeholderTextColor="#94A3B8"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              autoFocus
-            />
-            {searchQuery.length > 0 && (
-              <TouchableOpacity onPress={() => setSearchQuery('')}>
-                <Ionicons name="close-circle" size={16} color="#94A3B8" />
-              </TouchableOpacity>
-            )}
-            <TouchableOpacity onPress={() => setShowSearch(false)} style={{ marginLeft: 8 }}>
-              <Text style={{ fontSize: 13, color: '#059669', fontWeight: '700' }}>Done</Text>
-            </TouchableOpacity>
-          </View>
-        )}
 
         {/* Admin Verification Banner */}
         {isAdminOrSuper && (

@@ -32,6 +32,7 @@ import getInitials from '../lib/getInitials';
 import Mascot from '../components/Mascot';
 import BentoGrid, { BentoCard } from '../components/BentoGrid';
 import { FloatingElement, PulseElement } from '../components/MotionGraphic';
+import AppHeader from '../components/AppHeader';
 
 
 // Pool of all known posts across all users — used as offline fallback
@@ -1399,63 +1400,15 @@ const DashboardScreen = ({ navigation }) => {
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <View style={webContainerStyle}>
         
-        {/* ── Main Top Bar: RV ALUMNI Brand, Notifications, Profile Avatar ── */}
-        <View style={styles.header}>
-          {/* Left: RV ALUMNI Brand */}
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={{ fontSize: 22, fontWeight: '900', color: '#059669', letterSpacing: -0.3 }}>RV </Text>
-            <Text style={{ fontSize: 22, fontWeight: '900', color: theme.text, letterSpacing: -0.3 }}>ALUMNI</Text>
-          </View>
-
-          {/* Center: On desktop, integrated user-friendly real-time search bar */}
-          {isDesktop && (
-            <View style={styles.desktopSearchBox}>
-              <Ionicons name="search" size={17} color="#059669" style={{ marginRight: 8 }} />
-              <TextInput
-                style={styles.desktopSearchInput}
-                placeholder="Search alumni, skills, posts, batches..."
-                placeholderTextColor="#94A3B8"
-                value={searchText}
-                onChangeText={setSearchText}
-              />
-              {searchText.length > 0 && (
-                <TouchableOpacity onPress={() => setSearchText('')}>
-                  <Ionicons name="close-circle" size={16} color="#94A3B8" />
-                </TouchableOpacity>
-              )}
-            </View>
-          )}
-
-          {/* Right Action Icons: Notifications & Profile Avatar */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-            <TouchableOpacity
-              style={styles.headerNotificationBtn}
-              onPress={() => { setUnreadNotifications(0); navigation.navigate('Notifications'); }}
-              activeOpacity={0.75}
-              accessibilityLabel="Notifications"
-            >
-              <Ionicons name="notifications-outline" size={24} color={theme.text} />
-              {unreadNotifications > 0 && (
-                <View style={styles.headerNotificationBadge} />
-              )}
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.headerAvatarWrap}
-              onPress={() => navigation.navigate('Profile')}
-              activeOpacity={0.8}
-              accessibilityLabel="Profile"
-            >
-              {userAvatarUrl ? (
-                <Image source={{ uri: userAvatarUrl }} style={{ width: 34, height: 34, borderRadius: 17 }} />
-              ) : (
-                <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: '#059669', justifyContent: 'center', alignItems: 'center' }}>
-                  <Text style={{ fontSize: 13, fontWeight: '800', color: '#FFFFFF' }}>{getInitials(userName || currentUser?.name, 'AL')}</Text>
-                </View>
-              )}
-            </TouchableOpacity>
-          </View>
-        </View>
+        {/* ── Main Top Bar: RV ALUMNI Brand, Messages, Notifications, Support ── */}
+        <AppHeader
+          navigation={navigation}
+          currentRoute="Home"
+          unreadMessagesCount={unreadMessages}
+          unreadNotificationsCount={unreadNotifications}
+          desktopTitle="Campus Feed"
+          desktopSubtitle={userInstitution || 'RV College of Engineering'}
+        />
 
         {/* Admin Quick Actions Banner */}
         {isAdminOrSuper && (

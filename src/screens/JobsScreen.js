@@ -21,6 +21,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import useUserRole from '../hooks/useUserRole';
 import { FloatingElement, PulseElement } from '../components/MotionGraphic';
+import AppHeader from '../components/AppHeader';
 import {
   fetchJobs,
   createJobPosting,
@@ -384,71 +385,13 @@ const JobsScreen = ({ navigation, route }) => {
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
 
-      {/* Modern Tactile Header Bar (Unified across all pages) */}
-      <View style={styles.topHeader}>
-        {/* Left: On desktop show section context without duplicate RV ALUMNI logo pod */}
-        {isDesktop ? (
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <View style={styles.desktopSectionBadge}>
-              <Ionicons name="briefcase" size={17} color="#059669" />
-              <Text style={styles.desktopSectionTitle}>Career & Job Hub</Text>
-            </View>
-            <View style={styles.desktopCampusBadge}>
-              <View style={styles.desktopCampusDot} />
-              <Text style={styles.desktopCampusBadgeText}>Alumni Hiring & Opportunities</Text>
-            </View>
-          </View>
-        ) : (
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}>
-            <View style={styles.header3DLogoPod}>
-              <Ionicons name="school" size={19} color="#FFFFFF" />
-            </View>
-            <View>
-              <Text style={styles.headerBrandTitle}>RV ALUMNI</Text>
-              <Text style={styles.headerBrandSub}>Career & Job Hub</Text>
-            </View>
-          </View>
-        )}
-
-        {/* Right Action Pods: Search, Messages, Notifications, Support with genuine 3D tactile look */}
-        <View style={styles.headerIcons}>
-          <TouchableOpacity
-            style={[styles.headerIconBtn, activeTab === 'search' && styles.headerIconBtnActive]}
-            onPress={() => setActiveTab('search')}
-            activeOpacity={0.75}
-            title="Search Jobs"
-          >
-            <Ionicons name="search" size={20} color={activeTab === 'search' ? '#FFFFFF' : '#059669'} style={styles.icon3DGlyph} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.headerIconBtn}
-            onPress={() => navigation.navigate('Messages')}
-            activeOpacity={0.75}
-            title="Messages"
-          >
-            <Ionicons name="chatbubbles" size={20} color="#059669" style={styles.icon3DGlyph} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.headerIconBtn}
-            onPress={() => navigation.navigate('Notifications')}
-            activeOpacity={0.75}
-            title="Notifications"
-          >
-            <Ionicons name="notifications" size={20} color="#D97706" style={styles.icon3DGlyph} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.headerIconBtn}
-            onPress={() => navigation.navigate('Contribute')}
-            activeOpacity={0.75}
-            title="Support"
-          >
-            <MaterialCommunityIcons name="hand-heart" size={21} color="#E11D48" style={styles.icon3DGlyph} />
-          </TouchableOpacity>
-        </View>
-      </View>
+      {/* ───── Universal App Header ───── */}
+      <AppHeader
+        navigation={navigation}
+        currentRoute="Jobs"
+        desktopTitle="Career & Job Hub"
+        desktopSubtitle="Alumni Hiring & Opportunities"
+      />
 
       {/* LinkedIn Jobs Navigation Header */}
       <View style={styles.headerContainer}>
