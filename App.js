@@ -87,12 +87,12 @@ const AdminDrawer = createDrawerNavigator();
 const SuperAdminDrawer = createDrawerNavigator();
 
 // ===== 3D TACTILE ICON POD HELPER WITH MICRO-MOTION GRAPHICS =====
-function Render3DTabIcon({ name, focused, isDarkMode, theme, isPost, label, isMaterial, isProfile, profileAvatar, profileInitials }) {
-  const scaleAnim = React.useRef(new Animated.Value(focused ? 1.08 : 1)).current;
+function Render3DTabIcon({ name, focused, isDarkMode, theme, isPost, label, isMaterial, isProfile, profileAvatar, profileInitials, showTopIndicator }) {
+  const scaleAnim = React.useRef(new Animated.Value(focused ? 1.05 : 1)).current;
 
   React.useEffect(() => {
     Animated.spring(scaleAnim, {
-      toValue: focused ? 1.1 : 1,
+      toValue: focused ? 1.05 : 1,
       friction: 6,
       tension: 140,
       useNativeDriver: Platform.OS !== 'web',
@@ -101,35 +101,33 @@ function Render3DTabIcon({ name, focused, isDarkMode, theme, isPost, label, isMa
 
   if (isPost) {
     return (
-      <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: -14 }}>
-        <PulseElement minScale={0.97} maxScale={1.06} duration={2400}>
+      <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+        <PulseElement minScale={0.98} maxScale={1.04} duration={2400}>
           <View style={{
-            width: 48,
-            height: 48,
-            borderRadius: 24,
-            backgroundColor: theme.primary,
-            justifyContent: 'center',
+            paddingHorizontal: 16,
+            height: 38,
+            borderRadius: 19,
+            backgroundColor: theme.primary || '#059669',
+            flexDirection: 'row',
             alignItems: 'center',
-            shadowColor: theme.primary,
-            shadowOffset: { width: 0, height: 6 },
-            shadowOpacity: isDarkMode ? 0.55 : 0.35,
-            shadowRadius: 10,
-            elevation: 9,
-            borderWidth: 2,
-            borderColor: isDarkMode ? theme.primaryLight : '#A7F3D0'
+            justifyContent: 'center',
+            shadowColor: theme.primary || '#059669',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: isDarkMode ? 0.5 : 0.28,
+            shadowRadius: 8,
+            elevation: 7,
           }}>
-            <Ionicons name="add" size={26} color="#FFFFFF" />
+            <Ionicons name="add" size={18} color="#FFFFFF" style={{ marginRight: 2 }} />
+            <Text style={{
+              color: '#FFFFFF',
+              fontSize: 13,
+              fontWeight: '800',
+              letterSpacing: -0.2
+            }}>
+              Post
+            </Text>
           </View>
         </PulseElement>
-        <Text style={{
-          color: focused ? theme.primary : theme.textMuted,
-          fontSize: 10,
-          fontWeight: '800',
-          marginTop: 4,
-          letterSpacing: -0.2
-        }}>
-          {label}
-        </Text>
       </View>
     );
   }
@@ -138,38 +136,32 @@ function Render3DTabIcon({ name, focused, isDarkMode, theme, isPost, label, isMa
     return (
       <Animated.View style={{ alignItems: 'center', justifyContent: 'center', transform: [{ scale: scaleAnim }] }}>
         <View style={{
-          padding: 2,
-          borderRadius: 16,
-          backgroundColor: focused ? (theme.primary || '#059669') : 'transparent',
+          width: 26,
+          height: 26,
+          borderRadius: 13,
+          overflow: 'hidden',
+          backgroundColor: '#059669',
+          justifyContent: 'center',
+          alignItems: 'center',
+          borderWidth: 1.5,
+          borderColor: focused ? (theme.primary || '#059669') : (isDarkMode ? '#334155' : '#CBD5E1'),
           shadowColor: '#000',
-          shadowOffset: { width: 0, height: 3 },
-          shadowOpacity: focused ? 0.35 : 0.12,
-          shadowRadius: 5,
-          elevation: focused ? 5 : 2,
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: focused ? 0.25 : 0.08,
+          shadowRadius: 3,
+          elevation: focused ? 3 : 1,
         }}>
-          <View style={{
-            width: 28,
-            height: 28,
-            borderRadius: 14,
-            overflow: 'hidden',
-            backgroundColor: '#059669',
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderWidth: 1.5,
-            borderColor: focused ? '#FFFFFF' : (isDarkMode ? '#334155' : '#CBD5E1'),
-          }}>
-            {profileAvatar ? (
-              <Image source={{ uri: profileAvatar }} style={{ width: 28, height: 28, borderRadius: 14 }} />
-            ) : (
-              <Text style={{ fontSize: 10, fontWeight: '800', color: '#FFFFFF' }}>{profileInitials || 'AL'}</Text>
-            )}
-          </View>
+          {profileAvatar ? (
+            <Image source={{ uri: profileAvatar }} style={{ width: 26, height: 26, borderRadius: 13 }} />
+          ) : (
+            <Text style={{ fontSize: 9.5, fontWeight: '800', color: '#FFFFFF' }}>{profileInitials || 'AL'}</Text>
+          )}
         </View>
         <Text style={{
-          color: focused ? theme.primary : theme.textMuted,
-          fontSize: 10,
+          color: focused ? theme.primary : (isDarkMode ? '#94A3B8' : '#64748B'),
+          fontSize: 10.5,
           fontWeight: focused ? '800' : '600',
-          marginTop: 2,
+          marginTop: 3,
           letterSpacing: -0.2
         }}>
           {label}
@@ -180,37 +172,32 @@ function Render3DTabIcon({ name, focused, isDarkMode, theme, isPost, label, isMa
 
   return (
     <Animated.View style={{ alignItems: 'center', justifyContent: 'center', transform: [{ scale: scaleAnim }] }}>
+      {showTopIndicator && focused && (
+        <View style={{
+          position: 'absolute',
+          top: -10,
+          width: 32,
+          height: 3,
+          borderRadius: 1.5,
+          backgroundColor: theme.primary || '#059669',
+        }} />
+      )}
       <View style={{
-        paddingHorizontal: focused ? 14 : 11,
-        paddingVertical: 5,
-        borderRadius: 13,
-        backgroundColor: focused 
-          ? (isDarkMode ? '#1E293B' : '#ECFDF5') 
-          : (isDarkMode ? 'rgba(30, 41, 59, 0.4)' : '#F8FAFC'),
-        borderWidth: 1,
-        borderTopColor: isDarkMode ? '#475569' : '#FFFFFF',
-        borderLeftColor: isDarkMode ? '#334155' : '#F1F5F9',
-        borderRightColor: isDarkMode ? '#1E293B' : '#E2E8F0',
-        borderBottomColor: isDarkMode ? '#0F172A' : (focused ? '#059669' : '#CBD5E1'),
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: focused ? 3 : 2 },
-        shadowOpacity: isDarkMode ? 0.45 : 0.12,
-        shadowRadius: focused ? 5 : 3,
-        elevation: focused ? 5 : 2,
+        height: 26,
         alignItems: 'center',
         justifyContent: 'center'
       }}>
         {isMaterial ? (
-          <MaterialCommunityIcons name={name} size={21} color={focused ? theme.primary : (isDarkMode ? '#94A3B8' : '#64748B')} />
+          <MaterialCommunityIcons name={name} size={22} color={focused ? theme.primary : (isDarkMode ? '#94A3B8' : '#64748B')} />
         ) : (
-          <Ionicons name={name} size={21} color={focused ? theme.primary : (isDarkMode ? '#94A3B8' : '#64748B')} />
+          <Ionicons name={name} size={22} color={focused ? theme.primary : (isDarkMode ? '#94A3B8' : '#64748B')} />
         )}
       </View>
       <Text style={{
-        color: focused ? theme.primary : theme.textMuted,
-        fontSize: 10,
+        color: focused ? theme.primary : (isDarkMode ? '#94A3B8' : '#64748B'),
+        fontSize: 10.5,
         fontWeight: focused ? '800' : '600',
-        marginTop: 2,
+        marginTop: 3,
         letterSpacing: -0.2
       }}>
         {label}
@@ -422,13 +409,55 @@ function MainTabs() {
         tabBarActiveTintColor: theme.primary,
         tabBarInactiveTintColor: theme.textMuted,
         tabBarIcon: ({ focused }) => {
-          if (route.name === 'Home') return <Render3DTabIcon name={focused ? 'home' : 'home-outline'} focused={focused} isDarkMode={isDarkMode} theme={theme} label="Home" />;
-          if (route.name === 'Engage') return <Render3DTabIcon name={focused ? 'handshake' : 'handshake-outline'} focused={focused} isDarkMode={isDarkMode} theme={theme} label="Engage" isMaterial />;
-          if (route.name === 'Post') return <Render3DTabIcon focused={focused} isDarkMode={isDarkMode} theme={theme} isPost label="Post" />;
-          if (route.name === 'Jobs') return <Render3DTabIcon name={focused ? 'briefcase' : 'briefcase-outline'} focused={focused} isDarkMode={isDarkMode} theme={theme} label="Jobs" />;
+          if (route.name === 'Home') {
+            return (
+              <Render3DTabIcon 
+                name={focused ? 'home' : 'home-outline'} 
+                focused={focused} 
+                isDarkMode={isDarkMode} 
+                theme={theme} 
+                label="Home" 
+                showTopIndicator 
+              />
+            );
+          }
+          if (route.name === 'Engage') {
+            return (
+              <Render3DTabIcon 
+                name={focused ? 'people' : 'people-outline'} 
+                focused={focused} 
+                isDarkMode={isDarkMode} 
+                theme={theme} 
+                label="Alumni" 
+              />
+            );
+          }
+          if (route.name === 'Post') {
+            return (
+              <Render3DTabIcon 
+                focused={focused} 
+                isDarkMode={isDarkMode} 
+                theme={theme} 
+                isPost 
+                label="Post" 
+              />
+            );
+          }
+          if (route.name === 'Jobs') {
+            return (
+              <Render3DTabIcon 
+                name={focused ? 'briefcase' : 'briefcase-outline'} 
+                focused={focused} 
+                isDarkMode={isDarkMode} 
+                theme={theme} 
+                label="Jobs" 
+              />
+            );
+          }
           if (route.name === 'Profile') {
             return (
               <Render3DTabIcon 
+                name={focused ? 'person' : 'person-outline'}
                 focused={focused} 
                 isDarkMode={isDarkMode} 
                 theme={theme} 
@@ -442,23 +471,32 @@ function MainTabs() {
           return null;
         },
         tabBarStyle: {
-          borderTopWidth: 1.5,
-          borderTopColor: theme.tabBarBorder || theme.border,
+          borderTopWidth: 1,
+          borderTopColor: isDarkMode ? '#1E293B' : '#E2E8F0',
           paddingBottom: bottomPadding,
           paddingTop: 8,
-          height: 62 + bottomPadding,
-          backgroundColor: theme.tabBarBg || theme.card,
+          height: 60 + bottomPadding,
+          backgroundColor: isDarkMode ? '#0F172A' : '#FFFFFF',
           shadowColor: '#000',
-          shadowOffset: { width: 0, height: -4 },
-          shadowOpacity: isDarkMode ? 0.45 : 0.07,
-          shadowRadius: 14,
-          elevation: 12
+          shadowOffset: { width: 0, height: -3 },
+          shadowOpacity: isDarkMode ? 0.35 : 0.06,
+          shadowRadius: 10,
+          elevation: 10
         },
       })}
     >
       <Tab.Screen name="Home" component={DashboardScreen} />
       <Tab.Screen name="Engage" component={DirectoryScreen} />
-      <Tab.Screen name="Post" component={EngageScreen} />
+      <Tab.Screen 
+        name="Post" 
+        component={EngageScreen} 
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            e.preventDefault();
+            navigation.navigate('PostCreation');
+          },
+        })}
+      />
       <Tab.Screen name="Jobs" component={JobsScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
       <Tab.Screen name="Messages" component={MessagesScreen} options={{ tabBarItemStyle: { display: 'none' } }} />

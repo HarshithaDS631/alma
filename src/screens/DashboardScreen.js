@@ -160,6 +160,8 @@ const DashboardScreen = ({ navigation }) => {
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [dismissMascotBanner, setDismissMascotBanner] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [showSpotlightModal, setShowSpotlightModal] = useState(false);
 
   // Modal States
   const [activeModal, setActiveModal] = useState(null);
@@ -1212,108 +1214,182 @@ const DashboardScreen = ({ navigation }) => {
 
   const renderFeedHeader = () => (
     <View style={styles.feedHeaderContainer}>
-      {/* 1. Concise, collegiate title header */}
-      <View style={styles.feedTitleRow}>
-        <View style={{ flex: 1 }}>
-          <View style={styles.feedInstitutionTag}>
-            <FloatingElement distance={1.2} duration={2000}>
-              <Ionicons name="shield-checkmark" size={12} color={isDarkMode ? '#D4A373' : '#C89565'} />
-            </FloatingElement>
-            <Text style={styles.feedInstitutionText}>RVCE ALUMNI NETWORK</Text>
-          </View>
-          <Text style={styles.feedMainTitle}>Alumni Updates & Feed</Text>
+      {/* 1. Prominent Search Bar & Filter Button */}
+      <View style={styles.searchBarRow}>
+        <View style={styles.searchInputContainer}>
+          <Ionicons name="search-outline" size={19} color="#64748B" style={{ marginRight: 8 }} />
+          <TextInput
+            style={styles.searchTextInput}
+            placeholder="Search alumni by name, batch, industry or company..."
+            placeholderTextColor="#94A3B8"
+            value={searchText}
+            onChangeText={setSearchText}
+          />
+          {searchText.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchText('')}>
+              <Ionicons name="close-circle" size={18} color="#94A3B8" />
+            </TouchableOpacity>
+          )}
         </View>
+
         <TouchableOpacity 
-          style={styles.feedDirectoryShortcut}
-          onPress={() => navigation.navigate('Engage', { tab: 'directory' })}
+          style={[styles.filterToggleBtn, showFilters && styles.filterToggleBtnActive]}
+          onPress={() => setShowFilters(prev => !prev)}
           activeOpacity={0.75}
+          accessibilityLabel="Filter Options"
         >
-          <Ionicons name="people-outline" size={13} color="#059669" />
-          <Text style={styles.feedDirectoryShortcutText}>Find Alumni</Text>
+          <Ionicons name="options-outline" size={20} color={showFilters ? '#FFFFFF' : '#059669'} />
         </TouchableOpacity>
       </View>
 
-      {/* Mascot Welcome Pride Banner (Dismissible) */}
-      {!dismissMascotBanner && (
-        <Mascot
-          variant="banner"
-          title="Welcome home, RVian!"
-          subtitle="Stay connected with batchmates, discover campus milestones, and explore job referrals."
-          actionText="Find Alumni"
-          onActionPress={() => navigation.navigate('Engage', { tab: 'directory' })}
-          onDismiss={() => setDismissMascotBanner(true)}
-          style={{ marginHorizontal: 0, marginBottom: 12 }}
-        />
+      {/* Category Filter Pills (when toggled or active) */}
+      {showFilters && (
+        <View style={styles.feedFilterBar}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.feedFilterScroll}>
+            {[
+              { id: 'all', label: 'All Updates', icon: 'layers-outline' },
+              { id: 'jobs', label: 'Careers & Referrals', icon: 'briefcase-outline' },
+              { id: 'campus', label: 'Campus & Notices', icon: 'school-outline' },
+              { id: 'network', label: 'Following', icon: 'people-outline' },
+            ].map(tab => {
+              const isActive = feedFilter === tab.id;
+              const count = tab.id === 'all' 
+                ? posts.length 
+                : tab.id === 'jobs' 
+                ? posts.filter(p => getPostCategory(p).id === 'job').length
+                : tab.id === 'campus'
+                ? posts.filter(p => getPostCategory(p).id === 'campus').length
+                : filteredPosts.length;
+
+              return (
+                <TouchableOpacity
+                  key={tab.id}
+                  style={[styles.filterPill, isActive && styles.filterPillActive]}
+                  onPress={() => setFeedFilter(tab.id)}
+                  activeOpacity={0.75}
+                >
+                  <Ionicons 
+                    name={tab.icon} 
+                    size={14} 
+                    color={isActive ? '#FFFFFF' : theme.textSecondary} 
+                    style={{ marginRight: 4 }} 
+                  />
+                  <Text style={[styles.filterPillText, isActive && styles.filterPillTextActive]}>
+                    {tab.label}
+                  </Text>
+                  {count > 0 && (
+                    <View style={[styles.filterCountBadge, isActive && styles.filterCountBadgeActive]}>
+                      <Text style={[styles.filterCountText, isActive && styles.filterCountTextActive]}>{count}</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        </View>
       )}
 
+      {/* 2. Hero Mascot & Campus Banner */}
+      <View style={styles.heroBannerCard}>
+        <Image 
+          source={require('../../assets/images/hero-campus-mascot.jpg')} 
+          style={styles.heroBannerImage} 
+        />
+        <View style={styles.heroBannerFadeOverlay} />
 
-
-
-      {/* 3. Intuitive Category Filter Bar with counts */}
-      <View style={styles.feedFilterBar}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.feedFilterScroll}>
-          {[
-            { id: 'all', label: 'All Updates', icon: 'layers-outline' },
-            { id: 'jobs', label: 'Careers & Referrals', icon: 'briefcase-outline' },
-            { id: 'campus', label: 'Campus & Notices', icon: 'school-outline' },
-            { id: 'network', label: 'Following', icon: 'people-outline' },
-          ].map(tab => {
-            const isActive = feedFilter === tab.id;
-            const count = tab.id === 'all' 
-              ? posts.length 
-              : tab.id === 'jobs' 
-              ? posts.filter(p => getPostCategory(p).id === 'job').length
-              : tab.id === 'campus'
-              ? posts.filter(p => getPostCategory(p).id === 'campus').length
-              : filteredPosts.length;
-
-            return (
-              <TouchableOpacity
-                key={tab.id}
-                style={[styles.filterPill, isActive && styles.filterPillActive]}
-                onPress={() => setFeedFilter(tab.id)}
-                activeOpacity={0.75}
-              >
-                <Ionicons 
-                  name={tab.icon} 
-                  size={14} 
-                  color={isActive ? '#FFFFFF' : theme.textSecondary} 
-                  style={{ marginRight: 4 }} 
-                />
-                <Text style={[styles.filterPillText, isActive && styles.filterPillTextActive]}>
-                  {tab.label}
-                </Text>
-                {count > 0 && (
-                  <View style={[styles.filterCountBadge, isActive && styles.filterCountBadgeActive]}>
-                    <Text style={[styles.filterCountText, isActive && styles.filterCountTextActive]}>{count}</Text>
-                  </View>
-                )}
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
+        <View style={styles.heroBannerContent}>
+          <Text style={styles.heroBannerTitle}>Welcome back, RVian!</Text>
+          <Text style={styles.heroBannerSubtitle}>Revisit. Reconnect. Rise Together.</Text>
+          <TouchableOpacity
+            style={styles.heroBannerBtn}
+            onPress={() => navigation.navigate('Engage', { tab: 'directory' })}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.heroBannerBtnText}>Find alumni →</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
-      {/* 4. Information Context Bar: Explicitly tells user what they are seeing */}
-      <View style={styles.infoContextBar}>
-        <Ionicons 
-          name={
-            feedFilter === 'jobs' ? 'briefcase' : 
-            feedFilter === 'campus' ? 'school' : 
-            feedFilter === 'network' ? 'people' : 'information-circle'
-          } 
-          size={14} 
-          color={isDarkMode ? '#34D399' : '#059669'} 
+      {/* Carousel Dots */}
+      <View style={styles.carouselDotsRow}>
+        <View style={[styles.carouselDot, styles.carouselDotActive]} />
+        <View style={styles.carouselDot} />
+        <View style={styles.carouselDot} />
+      </View>
+
+      {/* 3. 4 Quick Action Cards (Alumni, Jobs, Mentorship, Events) */}
+      <View style={styles.quickActionsRow}>
+        <TouchableOpacity
+          style={styles.quickActionCard}
+          onPress={() => navigation.navigate('Engage', { tab: 'directory' })}
+          activeOpacity={0.75}
+        >
+          <Ionicons name="people-outline" size={24} color={theme.text} />
+          <Text style={styles.quickActionText}>Alumni</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.quickActionCard, styles.quickActionCardHighlight]}
+          onPress={() => navigation.navigate('Jobs')}
+          activeOpacity={0.75}
+        >
+          <Ionicons name="briefcase" size={24} color="#059669" />
+          <Text style={[styles.quickActionText, styles.quickActionTextHighlight]}>Jobs</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.quickActionCard}
+          onPress={() => navigation.navigate('Mentorship')}
+          activeOpacity={0.75}
+        >
+          <Ionicons name="school-outline" size={24} color={theme.text} />
+          <Text style={styles.quickActionText}>Mentorship</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.quickActionCard}
+          onPress={() => navigation.navigate('Main', { screen: 'Post', params: { view: 'events' } })}
+          activeOpacity={0.75}
+        >
+          <Ionicons name="calendar-outline" size={24} color={theme.text} />
+          <Text style={styles.quickActionText}>Events</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* 4. Alumni Spotlight Section */}
+      <View style={styles.sectionHeadingRow}>
+        <Text style={styles.sectionHeadingTitle}>Alumni spotlight</Text>
+        <TouchableOpacity onPress={() => setShowSpotlightModal(true)} activeOpacity={0.7}>
+          <Text style={styles.sectionHeadingLink}>View all →</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.spotlightCard}>
+        <Image 
+          source={require('../../assets/images/spotlight-graduates.jpg')} 
+          style={styles.spotlightCardImage} 
         />
-        <Text style={styles.infoContextText}>
-          {feedFilter === 'jobs' 
-            ? 'Career opportunities, alumni job openings & priority hiring referrals'
-            : feedFilter === 'campus'
-            ? 'Official campus notifications, department announcements & reunions'
-            : feedFilter === 'network'
-            ? 'Activity and discussions from alumni members you follow'
-            : 'Live alumni feed across all batches, branches, and chapters'}
-        </Text>
+        <View style={styles.spotlightCardBody}>
+          <Text style={styles.spotlightCardTitle} numberOfLines={2}>From RV to a Greener Tomorrow</Text>
+          <Text style={styles.spotlightCardDesc} numberOfLines={2}>
+            Sharing alumni products and engineering college in sami.
+          </Text>
+          <TouchableOpacity
+            style={styles.spotlightStoryBtn}
+            onPress={() => setShowSpotlightModal(true)}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.spotlightStoryBtnText}>Read their story →</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* 5. Community Feed Section Heading */}
+      <View style={styles.sectionHeadingRow}>
+        <Text style={styles.sectionHeadingTitle}>Community feed</Text>
+        <TouchableOpacity onPress={() => setFeedFilter('all')} activeOpacity={0.7}>
+          <Text style={styles.sectionHeadingLink}>View all →</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -1323,31 +1399,13 @@ const DashboardScreen = ({ navigation }) => {
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <View style={webContainerStyle}>
         
-        {/* ── Main Top Bar: Search, Messages, Notifications, Support ── */}
+        {/* ── Main Top Bar: RV ALUMNI Brand, Notifications, Profile Avatar ── */}
         <View style={styles.header}>
-          {/* Left: On desktop show clean page context without duplicate RV ALUMNI logo pod */}
-          {isDesktop ? (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <View style={styles.desktopSectionBadge}>
-                <Ionicons name="newspaper" size={17} color="#059669" />
-                <Text style={styles.desktopSectionTitle}>Campus Feed</Text>
-              </View>
-              <View style={styles.desktopCampusBadge}>
-                <View style={styles.desktopCampusDot} />
-                <Text style={styles.desktopCampusBadgeText}>{userInstitution || 'RV College of Engineering'}</Text>
-              </View>
-            </View>
-          ) : (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}>
-              <View style={styles.header3DLogoPod}>
-                <Ionicons name="school" size={19} color="#FFFFFF" />
-              </View>
-              <View>
-                <Text style={styles.headerBrandTitle}>RV ALUMNI</Text>
-                <Text style={styles.headerBrandSub}>{userInstitution || 'Official Network'}</Text>
-              </View>
-            </View>
-          )}
+          {/* Left: RV ALUMNI Brand */}
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Text style={{ fontSize: 22, fontWeight: '900', color: '#059669', letterSpacing: -0.3 }}>RV </Text>
+            <Text style={{ fontSize: 22, fontWeight: '900', color: theme.text, letterSpacing: -0.3 }}>ALUMNI</Text>
+          </View>
 
           {/* Center: On desktop, integrated user-friendly real-time search bar */}
           {isDesktop && (
@@ -1368,80 +1426,36 @@ const DashboardScreen = ({ navigation }) => {
             </View>
           )}
 
-          {/* Right Action Pods: Search, Messages, Notifications, Support with genuine 3D tactile look */}
-          <View style={styles.headerIcons}>
-            {!isDesktop && (
-              <TouchableOpacity
-                style={[styles.headerIconBtn, showSearch && styles.headerIconBtnActive]}
-                onPress={() => setShowSearch(prev => !prev)}
-                activeOpacity={0.75}
-                title="Search"
-              >
-                <Ionicons name="search" size={20} color={showSearch ? '#FFFFFF' : '#059669'} style={styles.icon3DGlyph} />
-              </TouchableOpacity>
-            )}
-
+          {/* Right Action Icons: Notifications & Profile Avatar */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
             <TouchableOpacity
-              style={styles.headerIconBtn}
-              onPress={() => { setUnreadMessages(0); navigation.navigate('Messages'); }}
-              activeOpacity={0.75}
-              title="Messages"
-            >
-              <Ionicons name="chatbubbles" size={20} color="#059669" style={styles.icon3DGlyph} />
-              {unreadMessages > 0 && (
-                <PulseElement minScale={0.8} maxScale={1.3} duration={1400} style={{ position: 'absolute', top: 3, right: 3 }}>
-                  <View style={[styles.dot, { position: 'relative', top: 0, right: 0 }]} />
-                </PulseElement>
-              )}
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.headerIconBtn}
+              style={styles.headerNotificationBtn}
               onPress={() => { setUnreadNotifications(0); navigation.navigate('Notifications'); }}
               activeOpacity={0.75}
-              title="Notifications"
+              accessibilityLabel="Notifications"
             >
-              <Ionicons name="notifications" size={20} color="#D97706" style={styles.icon3DGlyph} />
+              <Ionicons name="notifications-outline" size={24} color={theme.text} />
               {unreadNotifications > 0 && (
-                <PulseElement minScale={0.8} maxScale={1.3} duration={1400} style={{ position: 'absolute', top: 3, right: 3 }}>
-                  <View style={[styles.dot, { position: 'relative', top: 0, right: 0 }]} />
-                </PulseElement>
+                <View style={styles.headerNotificationBadge} />
               )}
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.headerIconBtn}
-              onPress={() => navigation.navigate('Contribute')}
-              activeOpacity={0.75}
-              title="Support"
+              style={styles.headerAvatarWrap}
+              onPress={() => navigation.navigate('Profile')}
+              activeOpacity={0.8}
+              accessibilityLabel="Profile"
             >
-              <MaterialCommunityIcons name="hand-heart" size={21} color="#E11D48" style={styles.icon3DGlyph} />
+              {userAvatarUrl ? (
+                <Image source={{ uri: userAvatarUrl }} style={{ width: 34, height: 34, borderRadius: 17 }} />
+              ) : (
+                <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: '#059669', justifyContent: 'center', alignItems: 'center' }}>
+                  <Text style={{ fontSize: 13, fontWeight: '800', color: '#FFFFFF' }}>{getInitials(userName || currentUser?.name, 'AL')}</Text>
+                </View>
+              )}
             </TouchableOpacity>
           </View>
         </View>
-
-        {/* Expandable Search Input when Search Button is Clicked */}
-        {showSearch && (
-          <View style={styles.expandedSearchBarRow}>
-            <Ionicons name="search" size={17} color="#059669" style={{ marginRight: 8 }} />
-            <TextInput
-              style={styles.expandedSearchInput}
-              placeholder="Search alumni, skills, posts..."
-              placeholderTextColor="#94A3B8"
-              value={searchText}
-              onChangeText={setSearchText}
-              autoFocus
-            />
-            {searchText.length > 0 && (
-              <TouchableOpacity onPress={() => setSearchText('')}>
-                <Ionicons name="close-circle" size={16} color="#94A3B8" />
-              </TouchableOpacity>
-            )}
-            <TouchableOpacity onPress={() => setShowSearch(false)} style={{ marginLeft: 8 }}>
-              <Text style={{ fontSize: 13, color: '#059669', fontWeight: '700' }}>Done</Text>
-            </TouchableOpacity>
-          </View>
-        )}
 
         {/* Admin Quick Actions Banner */}
         {isAdminOrSuper && (
@@ -2359,6 +2373,75 @@ const DashboardScreen = ({ navigation }) => {
         </TouchableOpacity>
       </Modal>
 
+      {/* ── Alumni Spotlight Detail Modal ── */}
+      <Modal visible={showSpotlightModal} animationType="slide" transparent onRequestClose={() => setShowSpotlightModal(false)}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.spotlightModalOverlay}>
+          <View style={styles.spotlightModalContainer}>
+            {/* Modal Header */}
+            <View style={styles.spotlightModalHeader}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#059669' }} />
+                <Text style={styles.spotlightModalHeaderTitle}>Alumni Spotlight</Text>
+              </View>
+              <TouchableOpacity onPress={() => setShowSpotlightModal(false)} style={styles.spotlightModalCloseBtn}>
+                <Ionicons name="close" size={20} color={theme.text} />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 18 }}>
+              {/* Featured Cover Image */}
+              <Image 
+                source={require('../../assets/images/spotlight-graduates.jpg')} 
+                style={styles.spotlightModalHeroImage} 
+              />
+
+              <View style={styles.spotlightModalTag}>
+                <Ionicons name="sparkles" size={13} color="#059669" />
+                <Text style={styles.spotlightModalTagText}>BATCH OF 2019 • CLEANTECH INNOVATION</Text>
+              </View>
+
+              <Text style={styles.spotlightModalStoryTitle}>From RV to a Greener Tomorrow</Text>
+              <Text style={styles.spotlightModalStoryMeta}>RV College of Engineering • Dept of Mechanical & Electrical</Text>
+
+              <Text style={styles.spotlightModalStoryBody}>
+                Founded by four RVCE alumni, EcoGrid Solutions is pioneering AI-driven microgrid automation for sustainable campus energy. Starting from the RVCE incubation lab, their technology now powers over 40 industrial facilities across South India, reducing carbon emissions by 35%.
+              </Text>
+
+              <View style={styles.spotlightModalQuoteCard}>
+                <Ionicons name="quote" size={20} color="#059669" style={{ marginBottom: 6 }} />
+                <Text style={styles.spotlightModalQuoteText}>
+                  {'“Our foundations in engineering problem-solving and sustainable thinking were shaped directly by RVCE’s faculty and supportive alumni network.”'}
+                </Text>
+                <Text style={styles.spotlightModalQuoteAuthor}>{"— RVCE Alumni Founders Team ('19)"}</Text>
+              </View>
+
+              {/* Action Buttons */}
+              <View style={{ flexDirection: 'row', gap: 10, marginTop: 16 }}>
+                <TouchableOpacity 
+                  style={styles.spotlightModalPrimaryBtn}
+                  onPress={() => {
+                    setShowSpotlightModal(false);
+                    navigation.navigate('Engage', { tab: 'directory' });
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="people" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
+                  <Text style={styles.spotlightModalPrimaryBtnText}>Explore Alumni Directory</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={styles.spotlightModalSecondaryBtn}
+                  onPress={() => setShowSpotlightModal(false)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.spotlightModalSecondaryBtnText}>Close</Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
+
     </SafeAreaView>
   );
 };
@@ -2546,6 +2629,32 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     color: theme.text,
     paddingVertical: 0,
   },
+  headerNotificationBtn: {
+    position: 'relative',
+    padding: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerNotificationBadge: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#EF4444',
+  },
+  headerAvatarWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 1.5,
+    borderColor: '#059669',
+    overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#059669',
+  },
   dot: {
     position: 'absolute',
     top: 3,
@@ -2558,58 +2667,379 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     borderColor: theme.card,
   },
 
-  /* ── Clean Alumni Feed Header & Info Context ───────── */
+  /* ── Clean Alumni Feed Header & Structure ───────────── */
   feedHeaderContainer: {
-    paddingHorizontal: 14,
-    paddingTop: 10,
+    paddingHorizontal: 16,
+    paddingTop: 14,
     paddingBottom: 4,
   },
-  feedTitleRow: {
+
+  /* 1. Search Bar & Filter Button */
+  searchBarRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    gap: 10,
+  },
+  searchInputContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+    borderWidth: 1,
+    borderColor: isDarkMode ? '#334155' : '#E2E8F0',
+    paddingHorizontal: 14,
+  },
+  searchTextInput: {
+    flex: 1,
+    fontSize: 13,
+    color: theme.text,
+    paddingVertical: 0,
+  },
+  filterToggleBtn: {
+    width: 46,
+    height: 46,
+    borderRadius: 14,
+    backgroundColor: isDarkMode ? '#1E293B' : '#F0FDF4',
+    borderWidth: 1.5,
+    borderColor: isDarkMode ? '#065F46' : '#A7F3D0',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  filterToggleBtnActive: {
+    backgroundColor: '#059669',
+    borderColor: '#059669',
+  },
+
+  /* 2. Hero Mascot & Campus Banner */
+  heroBannerCard: {
+    height: 155,
+    borderRadius: 20,
+    backgroundColor: isDarkMode ? '#064E3B' : '#ECFDF5',
+    borderWidth: 1.5,
+    borderColor: isDarkMode ? '#047857' : '#A7F3D0',
+    overflow: 'hidden',
+    position: 'relative',
+    marginBottom: 6,
+    shadowColor: '#059669',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  heroBannerImage: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    bottom: 0,
+    width: '66%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  heroBannerFadeOverlay: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: '58%',
+    backgroundColor: isDarkMode ? '#064E3B' : '#ECFDF5',
+  },
+  heroBannerContent: {
+    padding: 16,
+    width: '62%',
+    height: '100%',
+    justifyContent: 'center',
+  },
+  heroBannerTitle: {
+    fontSize: 19,
+    fontWeight: '800',
+    color: isDarkMode ? '#ECFDF5' : '#0F172A',
+    letterSpacing: -0.3,
+  },
+  heroBannerSubtitle: {
+    fontSize: 12,
+    color: isDarkMode ? '#A7F3D0' : '#475569',
+    marginTop: 4,
+    marginBottom: 12,
+    lineHeight: 16,
+  },
+  heroBannerBtn: {
+    backgroundColor: '#059669',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    shadowColor: '#059669',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  heroBannerBtnText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 12.5,
+  },
+
+  /* Carousel Dots */
+  carouselDotsRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 8,
+    marginBottom: 18,
+  },
+  carouselDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: isDarkMode ? '#334155' : '#CBD5E1',
+  },
+  carouselDotActive: {
+    width: 16,
+    backgroundColor: '#059669',
+  },
+
+  /* 3. 4 Quick Action Cards */
+  quickActionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 8,
+    marginBottom: 22,
+  },
+  quickActionCard: {
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: isDarkMode ? '#1E293B' : '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: isDarkMode ? '#334155' : '#E2E8F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  quickActionCardHighlight: {
+    backgroundColor: isDarkMode ? 'rgba(5, 150, 105, 0.2)' : '#ECFDF5',
+    borderColor: '#10B981',
+  },
+  quickActionText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: theme.text,
+    marginTop: 6,
+  },
+  quickActionTextHighlight: {
+    color: '#059669',
+    fontWeight: '800',
+  },
+
+  /* 4. Section Headings */
+  sectionHeadingRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 12,
+    marginTop: 4,
   },
-  feedInstitutionTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: isDarkMode ? '#241B15' : '#FAF4ED',
-    alignSelf: 'flex-start',
-    paddingHorizontal: 7,
-    paddingVertical: 2.5,
-    borderRadius: 6,
-    gap: 4,
-    marginBottom: 4,
-    borderWidth: 1,
-    borderColor: isDarkMode ? 'rgba(212, 163, 115, 0.35)' : '#E8D4C1',
-  },
-  feedInstitutionText: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: isDarkMode ? '#D4A373' : '#B88758',
-    letterSpacing: 0.5,
-  },
-  feedMainTitle: {
+  sectionHeadingTitle: {
     fontSize: 18,
     fontWeight: '800',
     color: theme.text,
-    letterSpacing: -0.3,
+    letterSpacing: -0.2,
   },
-  feedDirectoryShortcut: {
+  sectionHeadingLink: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: theme.text,
+  },
+
+  /* 5. Spotlight Card */
+  spotlightCard: {
+    backgroundColor: isDarkMode ? '#1E293B' : '#FFFFFF',
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: isDarkMode ? '#334155' : '#E2E8F0',
+    padding: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: isDarkMode ? '#1E293B' : '#F0FDF4',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: isDarkMode ? '#334155' : '#A7F3D0',
+    marginBottom: 22,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 5,
+    elevation: 2,
   },
-  feedDirectoryShortcutText: {
+  spotlightCardImage: {
+    width: 120,
+    height: 95,
+    borderRadius: 12,
+    resizeMode: 'cover',
+  },
+  spotlightCardBody: {
+    flex: 1,
+    paddingLeft: 12,
+    justifyContent: 'center',
+  },
+  spotlightCardTitle: {
+    fontSize: 14.5,
+    fontWeight: '800',
+    color: theme.text,
+    lineHeight: 19,
+  },
+  spotlightCardDesc: {
+    fontSize: 11.5,
+    color: theme.textSecondary,
+    marginTop: 4,
+    lineHeight: 16,
+  },
+  spotlightStoryBtn: {
+    marginTop: 9,
+    alignSelf: 'flex-start',
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: isDarkMode ? '#475569' : '#0F172A',
+  },
+  spotlightStoryBtnText: {
     fontSize: 11.5,
     fontWeight: '700',
+    color: theme.text,
+  },
+
+  /* 6. Spotlight Detail Modal */
+  spotlightModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(15, 23, 42, 0.75)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+  },
+  spotlightModalContainer: {
+    width: '100%',
+    maxWidth: 480,
+    maxHeight: '85%',
+    backgroundColor: theme.card,
+    borderRadius: 20,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: theme.border,
+  },
+  spotlightModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.border,
+  },
+  spotlightModalHeaderTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: theme.text,
+  },
+  spotlightModalCloseBtn: {
+    padding: 4,
+  },
+  spotlightModalHeroImage: {
+    width: '100%',
+    height: 180,
+    borderRadius: 14,
+    resizeMode: 'cover',
+    marginBottom: 14,
+  },
+  spotlightModalTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: isDarkMode ? '#064E3B' : '#ECFDF5',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    marginBottom: 8,
+  },
+  spotlightModalTagText: {
+    fontSize: 10,
+    fontWeight: '800',
     color: '#059669',
+    letterSpacing: 0.5,
+  },
+  spotlightModalStoryTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: theme.text,
+    marginBottom: 4,
+  },
+  spotlightModalStoryMeta: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: theme.textSecondary,
+    marginBottom: 12,
+  },
+  spotlightModalStoryBody: {
+    fontSize: 13.5,
+    color: theme.text,
+    lineHeight: 20,
+    marginBottom: 14,
+  },
+  spotlightModalQuoteCard: {
+    backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+    borderLeftWidth: 3.5,
+    borderLeftColor: '#059669',
+    padding: 12,
+    borderRadius: 8,
+    marginVertical: 10,
+  },
+  spotlightModalQuoteText: {
+    fontSize: 12.5,
+    fontStyle: 'italic',
+    color: theme.text,
+    lineHeight: 18,
+  },
+  spotlightModalQuoteAuthor: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#059669',
+    marginTop: 6,
+  },
+  spotlightModalPrimaryBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#059669',
+    paddingVertical: 12,
+    borderRadius: 12,
+  },
+  spotlightModalPrimaryBtnText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 13,
+  },
+  spotlightModalSecondaryBtn: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: theme.border,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  spotlightModalSecondaryBtnText: {
+    color: theme.text,
+    fontWeight: '600',
+    fontSize: 13,
   },
 
   /* ── Bento Box Alumni Hub ────────────────────────────── */
