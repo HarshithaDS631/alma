@@ -291,6 +291,7 @@ const DirectoryScreen = ({ navigation, route }) => {
       if (!seen.has(nameKey)) {
         seen.add(nameKey);
         const memberType = role.includes('student') ? 'student' : role.includes('faculty') ? 'faculty' : 'alumni';
+        const isOpen = Boolean(u.openToWork || u.isOpenToWork || u.isJobSeeker);
         list.push({
           _id: uid,
           id: uid,
@@ -309,7 +310,12 @@ const DirectoryScreen = ({ navigation, route }) => {
           initials: getInitials(u.name || 'Alumni Member'),
           institution: u.institution || currentUser?.institution || 'Institution Alumni',
           color: '#059669',
-          tags: [u.department || u.branch || 'Alumni', 'Verified']
+          tags: [u.department || u.branch || 'Alumni', 'Verified'],
+          openToWork: isOpen,
+          isOpenToWork: isOpen,
+          isJobSeeker: isOpen,
+          openToWorkRoles: u.openToWorkRoles || '',
+          openToWorkLocations: u.openToWorkLocations || ''
         });
       }
     });
@@ -323,6 +329,7 @@ const DirectoryScreen = ({ navigation, route }) => {
     const alumni = unifiedDirectory.filter(m => m.memberType === 'alumni').length;
     const students = unifiedDirectory.filter(m => m.memberType === 'student').length;
     const faculty = unifiedDirectory.filter(m => m.memberType === 'faculty').length;
+    const openToWorkCount = unifiedDirectory.filter(m => m.openToWork).length;
     const myYear = String(currentUser?.batchYear || currentUser?.batch_year || '');
     const myBatch = myYear ? unifiedDirectory.filter(m => String(m.batchYear) === myYear).length : 0;
     return [
@@ -330,6 +337,7 @@ const DirectoryScreen = ({ navigation, route }) => {
       { id: 'alumni', label: 'Alumni', count: String(alumni) },
       { id: 'student', label: 'Students', count: String(students) },
       { id: 'faculty', label: 'Faculty', count: String(faculty) },
+      ...(openToWorkCount > 0 ? [{ id: 'open_to_work', label: '#OpenToWork', count: String(openToWorkCount) }] : []),
       ...(myBatch > 0 ? [{ id: 'my_batch', label: 'My Batch', count: String(myBatch) }] : [])
     ];
   }, [unifiedDirectory, currentUser]);
@@ -391,7 +399,9 @@ const DirectoryScreen = ({ navigation, route }) => {
 
       // 2. Member Type Filter
       if (selectedMemberType !== 'all') {
-        if (selectedMemberType === 'my_batch') {
+        if (selectedMemberType === 'open_to_work') {
+          if (!member.openToWork) return false;
+        } else if (selectedMemberType === 'my_batch') {
           const myYear = currentUser?.batchYear || currentUser?.batch_year || '2023';
           if (String(member.batchYear) !== String(myYear)) return false;
         } else if (member.memberType !== selectedMemberType) {
@@ -656,12 +666,33 @@ const DirectoryScreen = ({ navigation, route }) => {
       >
         {/* Profile Main: Avatar + Name + Batch */}
         <View style={styles.almaProfileSection}>
-          <View style={styles.almaAvatarWrapper}>
+          <View style={[
+            styles.almaAvatarWrapper,
+            item.openToWork && { borderColor: '#057642', borderWidth: 2.5 }
+          ]}>
             {item.avatar_url ? (
               <Image source={{ uri: item.avatar_url }} style={styles.almaAvatarImage} />
             ) : (
               <View style={[styles.almaAvatarFallback, { backgroundColor: item.color || '#059669' }]}>
                 <Text style={styles.almaAvatarInitials}>{item.initials}</Text>
+              </View>
+            )}
+
+            {/* LinkedIn-style curved photo ribbon */}
+            {item.openToWork && (
+              <View style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                backgroundColor: '#057642',
+                paddingVertical: 1,
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <Text style={{ color: '#FFFFFF', fontSize: 7, fontWeight: '900', letterSpacing: -0.2 }}>
+                  #OPEN
+                </Text>
               </View>
             )}
           </View>
@@ -685,6 +716,27 @@ const DirectoryScreen = ({ navigation, route }) => {
             <Text style={styles.almaMemberRole} numberOfLines={2}>
               {item.role || `${item.designation || 'Alumni Member'} • ${item.company || 'RVCE'}`}
             </Text>
+
+            {item.openToWork && (
+              <View style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 4,
+                backgroundColor: '#DCFCE7',
+                alignSelf: 'flex-start',
+                paddingHorizontal: 6,
+                paddingVertical: 2,
+                borderRadius: 4,
+                marginTop: 4,
+                borderWidth: 0.5,
+                borderColor: '#86EFAC'
+              }}>
+                <View style={{ width: 5, height: 5, borderRadius: 2.5, backgroundColor: '#057642' }} />
+                <Text style={{ fontSize: 10, fontWeight: '800', color: '#047857' }} numberOfLines={1}>
+                  #OpenToWork{item.openToWorkRoles ? ` • ${Array.isArray(item.openToWorkRoles) ? item.openToWorkRoles[0] : item.openToWorkRoles.split(',')[0].trim()}` : ''}
+                </Text>
+              </View>
+            )}
 
             {item.location ? (
               <View style={styles.almaLocationRow}>

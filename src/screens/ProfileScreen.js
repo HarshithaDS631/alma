@@ -118,7 +118,7 @@ const formatHeadlineDomain = (domain, branch) => {
   return 'Computer Science & Engineering';
 };
 
-const ProfileScreen = ({ navigation }) => {
+const ProfileScreen = ({ navigation, route }) => {
   const { theme, isDarkMode } = useTheme();
   const styles = getStyles(theme, isDarkMode);
 
@@ -953,7 +953,7 @@ const DEFAULT_TAGGED_POSTS = [];
     setSettingsVisible(true);
   };
 
-  const handleOpenOpenToWork = () => {
+  const handleOpenOpenToWork = useCallback(() => {
     setEditOTWActive(profileData.isOpenToWork ?? true);
     setEditOTWRoles(
       Array.isArray(profileData.openToWorkRoles) 
@@ -964,7 +964,19 @@ const DEFAULT_TAGGED_POSTS = [];
     setEditOTWTypes(profileData.openToWorkTypes || 'Full-time, Internship');
     setEditOTWWorkplace(profileData.openToWorkWorkplace || 'Remote, Hybrid');
     setOpenToWorkModalVisible(true);
-  };
+  }, [profileData.isOpenToWork, profileData.openToWorkRoles, profileData.openToWorkLocations, profileData.openToWorkTypes, profileData.openToWorkWorkplace]);
+
+  // Auto-open LinkedIn #OpenToWork preferences modal when routed from Jobs / Directory
+  useFocusEffect(
+    useCallback(() => {
+      if (route?.params?.openToWorkModal) {
+        handleOpenOpenToWork();
+        if (navigation?.setParams) {
+          navigation.setParams({ openToWorkModal: undefined });
+        }
+      }
+    }, [route?.params?.openToWorkModal, handleOpenOpenToWork, navigation])
+  );
 
   const handleSaveOpenToWork = async () => {
     setOpenToWorkSaving(true);

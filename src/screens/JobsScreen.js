@@ -220,6 +220,16 @@ const JobsScreen = ({ navigation, route }) => {
       // Always save locally immediately so preferences are never lost
       try {
         await AsyncStorage.setItem('cached_job_preferences', JSON.stringify(payload));
+        const userStr = await AsyncStorage.getItem('userInfo');
+        if (userStr) {
+          const userObj = JSON.parse(userStr);
+          userObj.isOpenToWork = openToWork;
+          userObj.openToWork = openToWork;
+          userObj.isJobSeeker = openToWork;
+          if (targetTitles) userObj.openToWorkRoles = targetTitles;
+          if (targetLocations) userObj.openToWorkLocations = targetLocations;
+          await AsyncStorage.setItem('userInfo', JSON.stringify(userObj));
+        }
       } catch (err) {}
 
       await updateJobPreferences(payload);
@@ -575,17 +585,58 @@ const JobsScreen = ({ navigation, route }) => {
             <View style={styles.openToWorkCard}>
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                 <View style={{ flex: 1, marginRight: 12 }}>
-                  <Text style={{ fontSize: 17, fontWeight: '700', color: isDarkMode ? '#059669' : '#047857' }}>#OpenToWork</Text>
-                  <Text style={{ fontSize: 13, color: isDarkMode ? '#9CA3AF' : '#047857', marginTop: 3, lineHeight: 18 }}>
-                    Signal to recruiters, companies, and alumni that you are open to career opportunities.
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 3 }}>
+                    <Text style={{ fontSize: 17, fontWeight: '800', color: isDarkMode ? '#34D399' : '#047857' }}>#OpenToWork</Text>
+                    {openToWork && (
+                      <View style={{ backgroundColor: '#DCFCE7', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 }}>
+                        <Text style={{ fontSize: 10, fontWeight: '800', color: '#15803D' }}>ACTIVE</Text>
+                      </View>
+                    )}
+                  </View>
+                  <Text style={{ fontSize: 13, color: isDarkMode ? '#9CA3AF' : '#047857', marginTop: 2, lineHeight: 18 }}>
+                    Signal to recruiters, companies, and alumni that you are open to career opportunities. Shows the LinkedIn #OpenToWork photo ribbon on your profile.
                   </Text>
                 </View>
                 <Switch
                   value={openToWork}
-                  onValueChange={setOpenToWork}
+                  onValueChange={async (val) => {
+                    setOpenToWork(val);
+                    try {
+                      const userStr = await AsyncStorage.getItem('userInfo');
+                      if (userStr) {
+                        const userObj = JSON.parse(userStr);
+                        userObj.isOpenToWork = val;
+                        userObj.openToWork = val;
+                        userObj.isJobSeeker = val;
+                        await AsyncStorage.setItem('userInfo', JSON.stringify(userObj));
+                      }
+                    } catch (e) {}
+                  }}
                   trackColor={{ false: isDarkMode ? '#2D3139' : '#CBD5E1', true: '#059669' }}
                 />
               </View>
+
+              <TouchableOpacity
+                style={{
+                  marginTop: 14,
+                  paddingTop: 10,
+                  borderTopWidth: 1,
+                  borderTopColor: isDarkMode ? '#1B4D36' : '#A7F3D0',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
+                }}
+                onPress={() => navigation.navigate('Profile', { openToWorkModal: true })}
+                activeOpacity={0.7}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Ionicons name="options-outline" size={15} color={isDarkMode ? '#34D399' : '#057642'} />
+                  <Text style={{ fontSize: 13, fontWeight: '700', color: isDarkMode ? '#34D399' : '#057642' }}>
+                    Customize LinkedIn #OpenToWork Roles & Preferences
+                  </Text>
+                </View>
+                <Ionicons name="arrow-forward" size={15} color={isDarkMode ? '#34D399' : '#057642'} />
+              </TouchableOpacity>
             </View>
 
             {/* Keyword Recommendation Banner */}
