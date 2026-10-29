@@ -85,7 +85,10 @@ const getTimeAgo = (dateString) => {
   if (diffHours < 24) return `${diffHours}h ago`;
   const diffDays = Math.floor(diffHours / 24);
   if (diffDays < 7) return `${diffDays}d ago`;
-  return date.toLocaleDateString();
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const monthName = months[date.getMonth()];
+  const isCurrentYear = date.getFullYear() === now.getFullYear();
+  return isCurrentYear ? `${monthName} ${date.getDate()}` : `${monthName} ${date.getDate()}, ${date.getFullYear()}`;
 };
 
 const formatPostObject = (p, myUserId) => {
@@ -1039,8 +1042,8 @@ const DashboardScreen = ({ navigation }) => {
           </View>
         </View>
 
-        {/* Thoughtful Content Body (Rendered FIRST, above media) */}
-        {!isReshared && post.content ? (
+        {/* Content Body (Rendered FIRST for text-only posts; for image posts, rendered as Instagram caption below) */}
+        {!isReshared && post.content && !post.image ? (
           <View style={styles.postBodyContainer}>
             <Text style={styles.postContentText}>
               {post.content}
@@ -1127,87 +1130,123 @@ const DashboardScreen = ({ navigation }) => {
           </TouchableOpacity>
         ) : null}
 
-        {/* Alumni Engagement Action Bar */}
-        <View style={styles.alumniActionBar}>
-          <TouchableOpacity 
-            style={[
-              styles.alumniActionBtn, 
-              likedPosts[post.id] && styles.alumniActionBtnLiked
-            ]} 
-            onPress={() => toggleLike(post.id)} 
-            activeOpacity={0.65}
-          >
-            {likedPosts[post.id] ? (
-              <PulseElement minScale={0.9} maxScale={1.22} duration={900}>
-                <Ionicons name="heart" size={19} color="#F43F5E" />
-              </PulseElement>
-            ) : (
-              <Ionicons name="heart-outline" size={19} color={theme.text} />
-            )}
-            {post.likes > 0 ? (
-              <Text style={[styles.alumniActionCount, likedPosts[post.id] && { color: '#F43F5E', fontWeight: '800' }]}>
-                {post.likes}
-              </Text>
-            ) : null}
-          </TouchableOpacity>
+        {/* Authentic Instagram-Style Action Bar */}
+        <View style={styles.instagramActionBar}>
+          <View style={styles.instagramLeftActions}>
+            {/* Heart / Like Button */}
+            <TouchableOpacity 
+              onPress={() => toggleLike(post.id)} 
+              activeOpacity={0.6}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              {likedPosts[post.id] ? (
+                <PulseElement minScale={0.9} maxScale={1.22} duration={600}>
+                  <Ionicons name="heart" size={26} color="#FF3040" />
+                </PulseElement>
+              ) : (
+                <Ionicons name="heart-outline" size={26} color={theme.text} />
+              )}
+            </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.alumniActionBtn} 
-            activeOpacity={0.65} 
-            onPress={() => openModal('comments', post)}
-          >
-            <Ionicons name="chatbubble-ellipses-outline" size={18} color={theme.text} />
-            {post.commentsCount > 0 ? (
-              <Text style={styles.alumniActionCount}>
-                {post.commentsCount}
-              </Text>
-            ) : null}
-          </TouchableOpacity>
+            {/* Comment Button */}
+            <TouchableOpacity 
+              activeOpacity={0.6} 
+              onPress={() => openModal('comments', post)}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Ionicons name="chatbubble-outline" size={24} color={theme.text} />
+            </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.alumniActionBtn} 
-            activeOpacity={0.65} 
-            onPress={() => openModal('reshare', post)}
-          >
-            <Ionicons name="repeat-outline" size={19} color={isReshared ? '#059669' : theme.text} />
-            {post.resharesCount > 0 ? (
-              <Text style={[styles.alumniActionCount, isReshared && { color: '#059669' }]}>
-                {post.resharesCount}
-              </Text>
-            ) : null}
-          </TouchableOpacity>
+            {/* Reshare / Repost Button */}
+            <TouchableOpacity 
+              activeOpacity={0.6} 
+              onPress={() => openModal('reshare', post)}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Ionicons name="repeat-outline" size={25} color={isReshared ? '#059669' : theme.text} />
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.alumniActionBtn}
-            onPress={() => openModal('share', post)}
-            activeOpacity={0.65}
-          >
-            <Ionicons name="share-social-outline" size={18} color={theme.text} />
-          </TouchableOpacity>
+            {/* Direct / Share Paper Plane */}
+            <TouchableOpacity
+              onPress={() => openModal('share', post)}
+              activeOpacity={0.6}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Ionicons name="paper-plane-outline" size={24} color={theme.text} />
+            </TouchableOpacity>
+          </View>
 
+          {/* Bookmark / Save on Far Right */}
           <TouchableOpacity 
-            style={[styles.alumniActionBtn, bookmarkedPosts[post.id] && styles.alumniActionBtnSaved]} 
             onPress={() => toggleBookmark(post.id)} 
-            activeOpacity={0.65}
+            activeOpacity={0.6}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
             <Ionicons
               name={bookmarkedPosts[post.id] ? 'bookmark' : 'bookmark-outline'}
-              size={18}
-              color={bookmarkedPosts[post.id] ? theme.primary : theme.text}
+              size={24}
+              color={bookmarkedPosts[post.id] ? (isDarkMode ? '#FFFFFF' : '#1C1E21') : theme.text}
             />
           </TouchableOpacity>
         </View>
 
-        {/* Footer info: Comments teaser & Time */}
-        <View style={styles.postFooterBar}>
-          {post.commentsCount > 0 && (
-            <TouchableOpacity onPress={() => openModal('comments', post)} activeOpacity={0.7}>
-              <Text style={styles.viewCommentsLink}>
-                View all {post.commentsCount} comments & insights
-              </Text>
-            </TouchableOpacity>
-          )}
-          <Text style={styles.postTimestampText}>{post.time}</Text>
+        {/* Instagram Likes Count */}
+        {post.likes > 0 ? (
+          <TouchableOpacity 
+            activeOpacity={0.7} 
+            onPress={() => openModal('comments', post)}
+            style={styles.instagramLikesRow}
+          >
+            <Text style={styles.instagramLikesText}>
+              {post.likes.toLocaleString()} {post.likes === 1 ? 'like' : 'likes'}
+            </Text>
+          </TouchableOpacity>
+        ) : null}
+
+        {/* Instagram Caption (Shown below action bar & likes for image posts, exactly like Instagram) */}
+        {!isReshared && post.content && post.image ? (
+          <View style={styles.instagramCaptionRow}>
+            <Text style={styles.instagramCaptionText} numberOfLines={4}>
+              <Text style={styles.instagramCaptionUser}>{post.user} </Text>
+              {post.content}
+            </Text>
+          </View>
+        ) : null}
+
+        {/* Instagram View Comments */}
+        {post.commentsCount > 0 ? (
+          <TouchableOpacity 
+            onPress={() => openModal('comments', post)} 
+            activeOpacity={0.7}
+            style={styles.instagramCommentsRow}
+          >
+            <Text style={styles.instagramViewCommentsText}>
+              View all {post.commentsCount} {post.commentsCount === 1 ? 'comment' : 'comments'}
+            </Text>
+          </TouchableOpacity>
+        ) : null}
+
+        {/* Instagram Quick Add Comment Teaser */}
+        <TouchableOpacity 
+          style={styles.instagramAddCommentRow}
+          activeOpacity={0.7}
+          onPress={() => openModal('comments', post)}
+        >
+          <View style={styles.instagramMiniAvatar}>
+            {userAvatarUrl ? (
+              <Image source={{ uri: userAvatarUrl }} style={{ width: 20, height: 20, borderRadius: 10 }} />
+            ) : (
+              <Text style={styles.instagramMiniAvatarText}>{getInitials(userName || 'Me')}</Text>
+            )}
+          </View>
+          <Text style={styles.instagramAddCommentPlaceholder}>Add a comment...</Text>
+        </TouchableOpacity>
+
+        {/* Instagram Subtle Timestamp */}
+        <View style={styles.instagramTimeRow}>
+          <Text style={styles.instagramTimeText}>
+            {post.time ? String(post.time).toUpperCase() : 'JUST NOW'}
+          </Text>
         </View>
       </View>
     );
@@ -3357,68 +3396,117 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.25)',
     zIndex: 10,
   },
+  /* ── Authentic Instagram Action Bar & Post Footer ───────────────── */
+  instagramActionBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 14,
+    paddingTop: 10,
+    paddingBottom: 6,
+  },
+  instagramLeftActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  instagramLikesRow: {
+    paddingHorizontal: 14,
+    marginBottom: 4,
+  },
+  instagramLikesText: {
+    fontSize: 13.5,
+    fontWeight: '700',
+    color: theme.text,
+  },
+  instagramCaptionRow: {
+    paddingHorizontal: 14,
+    marginBottom: 4,
+  },
+  instagramCaptionText: {
+    fontSize: 13.5,
+    color: theme.text,
+    lineHeight: 18,
+  },
+  instagramCaptionUser: {
+    fontWeight: '700',
+    color: theme.text,
+  },
+  instagramCommentsRow: {
+    paddingHorizontal: 14,
+    marginBottom: 4,
+  },
+  instagramViewCommentsText: {
+    fontSize: 13.5,
+    color: isDarkMode ? '#A8A8A8' : '#737373',
+    fontWeight: '400',
+  },
+  instagramAddCommentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 14,
+    marginTop: 2,
+    marginBottom: 6,
+    gap: 8,
+  },
+  instagramMiniAvatar: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#059669',
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  instagramMiniAvatarText: {
+    color: '#FFFFFF',
+    fontSize: 9,
+    fontWeight: '700',
+  },
+  instagramAddCommentPlaceholder: {
+    fontSize: 12.5,
+    color: isDarkMode ? '#71717A' : '#8E8E8E',
+  },
+  instagramTimeRow: {
+    paddingHorizontal: 14,
+    paddingBottom: 12,
+  },
+  instagramTimeText: {
+    fontSize: 10.5,
+    color: isDarkMode ? '#71717A' : '#8E8E8E',
+    letterSpacing: 0.3,
+    textTransform: 'uppercase',
+    fontWeight: '500',
+  },
+  // Compatibility aliases
   alumniActionBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderTopWidth: 1,
-    borderTopColor: isDarkMode ? '#1E293B' : '#F1F5F9',
+    paddingTop: 10,
+    paddingBottom: 6,
   },
   alumniActionBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
-    paddingVertical: 7,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
-    borderWidth: 1,
-    borderTopColor: isDarkMode ? '#475569' : '#FFFFFF',
-    borderLeftColor: isDarkMode ? '#334155' : '#F1F5F9',
-    borderRightColor: isDarkMode ? '#1E293B' : '#E2E8F0',
-    borderBottomColor: isDarkMode ? '#0F172A' : '#CBD5E1',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: isDarkMode ? 0.35 : 0.12,
-    shadowRadius: 3,
-    elevation: 3,
   },
-  alumniActionBtnLiked: {
-    backgroundColor: isDarkMode ? 'rgba(244, 63, 94, 0.2)' : '#FFE4E6',
-    borderTopColor: '#FDA4AF',
-    borderBottomColor: '#E11D48',
-  },
-  alumniActionBtnSaved: {
-    backgroundColor: isDarkMode ? 'rgba(5, 150, 105, 0.2)' : '#DCFCE7',
-    borderTopColor: '#6EE7B7',
-    borderBottomColor: '#047857',
-  },
+  alumniActionBtnLiked: {},
+  alumniActionBtnSaved: {},
   alumniActionCount: {
-    fontSize: 11.5,
-    fontWeight: '700',
-    color: theme.text,
+    display: 'none',
   },
-  alumniActionLabel: {
-    fontSize: 11.5,
-    fontWeight: '600',
-    color: theme.text,
-  },
+  alumniActionLabel: {},
   postFooterBar: {
     paddingHorizontal: 14,
     paddingBottom: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
   },
   viewCommentsLink: {
-    fontSize: 11.5,
-    color: theme.primary,
-    fontWeight: '600',
+    fontSize: 13.5,
+    color: isDarkMode ? '#A8A8A8' : '#737373',
   },
   postTimestampText: {
-    fontSize: 11,
+    fontSize: 10.5,
     color: theme.textMuted,
   },
 
