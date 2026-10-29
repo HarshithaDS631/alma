@@ -47,9 +47,9 @@ const Mascot = ({
     }
   }
 
-  // Aspect ratio is roughly 1:1.25 (tall standing mascot)
+  // Aspect ratio is roughly 1:1.85 (official standing RV Garuda mascot from rvinstitutions.com)
   const mascotWidth = dimension;
-  const mascotHeight = dimension * 1.25;
+  const mascotHeight = dimension * 1.85;
 
   if (variant === 'badge') {
     return (
@@ -69,7 +69,7 @@ const Mascot = ({
           <FloatingElement distance={4} duration={3000}>
             <Image 
               source={mascotSource} 
-              style={{ width: 110, height: 138, resizeMode: 'contain' }} 
+              style={{ width: 90, height: 165, resizeMode: 'contain' }} 
             />
           </FloatingElement>
           {speechText && (
@@ -121,7 +121,7 @@ const Mascot = ({
             <FloatingElement distance={3.5} duration={2600}>
               <Image 
                 source={mascotSource} 
-                style={{ width: 100, height: 125, resizeMode: 'contain' }} 
+                style={{ width: 85, height: 155, resizeMode: 'contain' }} 
               />
             </FloatingElement>
           </View>

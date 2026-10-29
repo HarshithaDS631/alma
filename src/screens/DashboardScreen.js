@@ -43,10 +43,18 @@ const ALL_KNOWN_POSTS = [];
  */
 const COLLEGE_BANNERS = [
   {
+    id: 'RVEI',
+    name: 'RV Educational Institutions',
+    tagline: 'Go, Change the World',
+    subtitle: 'Rashtreeya Sikshana Samithi Trust • Estd 1940',
+    image: require('../../assets/images/hero-campus-rvei.jpg'),
+    badge: 'RSST Central Campus'
+  },
+  {
     id: 'RVCE',
     name: 'RV College of Engineering',
     tagline: 'Engineering & Technology',
-    subtitle: 'Revisit. Reconnect. Rise Together.',
+    subtitle: 'Autonomous Institute affiliated to VTU • Mysore Road',
     image: require('../../assets/images/hero-campus-mascot.jpg'),
     badge: 'RVCE Flagship Campus'
   },
@@ -72,17 +80,19 @@ const COLLEGE_BANNERS = [
     tagline: 'Designing Tomorrow',
     subtitle: 'Creative minds shaping spaces and modern design.',
     image: require('../../assets/images/hero-campus-rvca.jpg'),
-    badge: 'RV Architecture & Tech'
+    badge: 'RV Architecture & Design'
   }
 ];
 
 const getCollegeBannerIndexForInstitution = (inst) => {
-  if (!inst || typeof inst !== 'string') return 0;
+  if (!inst || typeof inst !== 'string') return 1;
   const lower = inst.toLowerCase();
-  if (lower.includes('university') || lower.includes('rvu')) return 1;
-  if (lower.includes('management') || lower.includes('rvim') || lower.includes('nmkrv') || lower.includes('ssmrv') || lower.includes('commerce')) return 2;
-  if (lower.includes('architecture') || lower.includes('rvca') || lower.includes('rvitm') || lower.includes('technology and management')) return 3;
-  return 0; // Default RVCE
+  if (lower.includes('engineering') || lower.includes('rvce')) return 1;
+  if (lower.includes('university') || lower.includes('rvu')) return 2;
+  if (lower.includes('management') || lower.includes('rvim') || lower.includes('nmkrv') || lower.includes('ssmrv') || lower.includes('commerce')) return 3;
+  if (lower.includes('architecture') || lower.includes('rvca') || lower.includes('rvitm') || lower.includes('design')) return 4;
+  if (lower.includes('trust') || lower.includes('rsst') || lower.includes('rvei') || lower.includes('institutions')) return 0;
+  return 1; // Default RVCE
 };
 
 /**
@@ -1383,7 +1393,7 @@ const DashboardScreen = ({ navigation }) => {
 
       {/* 2. Hero Mascot & Respective College Campus Banner */}
       {(() => {
-        const activeBanner = COLLEGE_BANNERS[activeBannerIndex] || COLLEGE_BANNERS[0];
+        const activeBanner = COLLEGE_BANNERS[activeBannerIndex] || COLLEGE_BANNERS[1] || COLLEGE_BANNERS[0];
         const firstName = userName ? userName.split(' ')[0] : 'RVian';
         return (
           <View style={styles.heroBannerCard}>
@@ -1407,6 +1417,14 @@ const DashboardScreen = ({ navigation }) => {
               >
                 <Text style={styles.heroBannerBtnText}>Find alumni →</Text>
               </TouchableOpacity>
+            </View>
+
+            {/* Official RV Garuda Mascot Overlay */}
+            <View style={styles.heroBannerMascotWrap} pointerEvents="none">
+              <Image 
+                source={require('../../assets/images/mascot.png')}
+                style={styles.heroBannerMascotImg}
+              />
             </View>
           </View>
         );
@@ -2806,14 +2824,14 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     left: 0,
     top: 0,
     bottom: 0,
-    width: '58%',
-    backgroundColor: isDarkMode ? 'rgba(6, 46, 36, 0.88)' : 'rgba(255, 255, 255, 0.90)',
+    width: '56%',
+    backgroundColor: isDarkMode ? 'rgba(6, 46, 36, 0.88)' : 'rgba(255, 255, 255, 0.92)',
     borderTopRightRadius: 28,
     borderBottomRightRadius: 28,
   },
   heroBannerContent: {
     padding: 14,
-    width: '60%',
+    width: '56%',
     height: '100%',
     justifyContent: 'center',
     zIndex: 2,
@@ -2865,6 +2883,21 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '700',
     fontSize: 12,
+  },
+  heroBannerMascotWrap: {
+    position: 'absolute',
+    right: 8,
+    bottom: 0,
+    width: 78,
+    height: 146,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    zIndex: 3,
+  },
+  heroBannerMascotImg: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
   },
 
   /* Carousel Dots */
