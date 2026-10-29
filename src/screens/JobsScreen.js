@@ -1664,13 +1664,6 @@ const JobsScreen = ({ navigation, route }) => {
                           />
                         </View>
 
-                        {/* LinkedIn Privacy Tip */}
-                        <View style={styles.privacyBanner}>
-                          <Ionicons name="lock-closed" size={15} color="#059669" style={{ marginRight: 6 }} />
-                          <Text style={styles.privacyBannerText}>
-                            LinkedIn Easy Apply: Your phone and email are securely provided directly to {selectedJob.company}’s hiring team.
-                          </Text>
-                        </View>
                         <View style={{ height: 30 }} />
                       </ScrollView>
 
