@@ -39,6 +39,53 @@ import AppHeader from '../components/AppHeader';
 const ALL_KNOWN_POSTS = [];
 
 /**
+ * Respective college campus photos with official RV Alumni Garuda mascot
+ */
+const COLLEGE_BANNERS = [
+  {
+    id: 'RVCE',
+    name: 'RV College of Engineering',
+    tagline: 'Engineering & Technology',
+    subtitle: 'Revisit. Reconnect. Rise Together.',
+    image: require('../../assets/images/hero-campus-mascot.jpg'),
+    badge: 'RVCE Flagship Campus'
+  },
+  {
+    id: 'RVU',
+    name: 'RV University',
+    tagline: 'Go, Change the World',
+    subtitle: 'Liberal arts, design, tech & global impact.',
+    image: require('../../assets/images/hero-campus-rvu.jpg'),
+    badge: 'RV University Campus'
+  },
+  {
+    id: 'RVIM',
+    name: 'RV Institute of Management',
+    tagline: 'Leadership & Business Excellence',
+    subtitle: 'Connecting business leaders and innovators.',
+    image: require('../../assets/images/hero-campus-rvim.jpg'),
+    badge: 'RV Management & Commerce'
+  },
+  {
+    id: 'RVCA',
+    name: 'RV College of Architecture',
+    tagline: 'Designing Tomorrow',
+    subtitle: 'Creative minds shaping spaces and modern design.',
+    image: require('../../assets/images/hero-campus-rvca.jpg'),
+    badge: 'RV Architecture & Tech'
+  }
+];
+
+const getCollegeBannerIndexForInstitution = (inst) => {
+  if (!inst || typeof inst !== 'string') return 0;
+  const lower = inst.toLowerCase();
+  if (lower.includes('university') || lower.includes('rvu')) return 1;
+  if (lower.includes('management') || lower.includes('rvim') || lower.includes('nmkrv') || lower.includes('ssmrv') || lower.includes('commerce')) return 2;
+  if (lower.includes('architecture') || lower.includes('rvca') || lower.includes('rvitm') || lower.includes('technology and management')) return 3;
+  return 0; // Default RVCE
+};
+
+/**
  * Returns ONLY posts from followed users + own posts.
  * Instagram-style: you only see posts from people you follow.
  */
@@ -160,6 +207,7 @@ const DashboardScreen = ({ navigation }) => {
   const [userInstitution, setUserInstitution] = useState('Our Network');
   const [userName, setUserName] = useState('');
   const [currentUser, setCurrentUser] = useState(null);
+  const [activeBannerIndex, setActiveBannerIndex] = useState(0);
   const [feedFilter, setFeedFilter] = useState('all');
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
@@ -482,6 +530,7 @@ const DashboardScreen = ({ navigation }) => {
         setCurrentUser(userInfo);
         if (userInfo.institution) {
           setUserInstitution(userInfo.institution);
+          setActiveBannerIndex(getCollegeBannerIndexForInstitution(userInfo.institution));
         }
         if (userInfo.name) {
           setUserName(userInfo.name);
@@ -605,7 +654,10 @@ const DashboardScreen = ({ navigation }) => {
             const freshUser = profileRes.value;
             setCurrentUser(freshUser);
             if (freshUser.name) setUserName(freshUser.name);
-            if (freshUser.institution) setUserInstitution(freshUser.institution);
+            if (freshUser.institution) {
+              setUserInstitution(freshUser.institution);
+              setActiveBannerIndex(getCollegeBannerIndexForInstitution(freshUser.institution));
+            }
             AsyncStorage.setItem('userInfo', JSON.stringify(freshUser)).catch(() => {});
           }
 
@@ -1329,32 +1381,51 @@ const DashboardScreen = ({ navigation }) => {
         </View>
       )}
 
-      {/* 2. Hero Mascot & Campus Banner */}
-      <View style={styles.heroBannerCard}>
-        <Image 
-          source={require('../../assets/images/hero-campus-mascot.jpg')} 
-          style={styles.heroBannerImage} 
-        />
-        <View style={styles.heroBannerFadeOverlay} />
+      {/* 2. Hero Mascot & Respective College Campus Banner */}
+      {(() => {
+        const activeBanner = COLLEGE_BANNERS[activeBannerIndex] || COLLEGE_BANNERS[0];
+        const firstName = userName ? userName.split(' ')[0] : 'RVian';
+        return (
+          <View style={styles.heroBannerCard}>
+            <Image 
+              source={activeBanner.image} 
+              style={styles.heroBannerImage} 
+            />
+            <View style={styles.heroBannerFadeOverlay} />
 
-        <View style={styles.heroBannerContent}>
-          <Text style={styles.heroBannerTitle}>Welcome back, RVian!</Text>
-          <Text style={styles.heroBannerSubtitle}>Revisit. Reconnect. Rise Together.</Text>
-          <TouchableOpacity
-            style={styles.heroBannerBtn}
-            onPress={() => navigation.navigate('Engage', { tab: 'directory' })}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.heroBannerBtnText}>Find alumni →</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+            <View style={styles.heroBannerContent}>
+              <View style={styles.heroBannerBadgePill}>
+                <Ionicons name="school" size={11} color={isDarkMode ? '#6EE7B7' : '#047857'} style={{ marginRight: 4 }} />
+                <Text style={styles.heroBannerBadgeText}>{activeBanner.badge}</Text>
+              </View>
+              <Text style={styles.heroBannerTitle} numberOfLines={1}>Welcome back, {firstName}!</Text>
+              <Text style={styles.heroBannerSubtitle} numberOfLines={2}>{activeBanner.subtitle}</Text>
+              <TouchableOpacity
+                style={styles.heroBannerBtn}
+                onPress={() => navigation.navigate('Engage', { tab: 'directory' })}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.heroBannerBtnText}>Find alumni →</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        );
+      })()}
 
-      {/* Carousel Dots */}
+      {/* Carousel Dots for Respective Colleges */}
       <View style={styles.carouselDotsRow}>
-        <View style={[styles.carouselDot, styles.carouselDotActive]} />
-        <View style={styles.carouselDot} />
-        <View style={styles.carouselDot} />
+        {COLLEGE_BANNERS.map((banner, idx) => (
+          <TouchableOpacity
+            key={banner.id}
+            onPress={() => setActiveBannerIndex(idx)}
+            activeOpacity={0.7}
+            hitSlop={{ top: 10, bottom: 10, left: 6, right: 6 }}
+            style={[
+              styles.carouselDot,
+              activeBannerIndex === idx && styles.carouselDotActive
+            ]}
+          />
+        ))}
       </View>
 
       {/* 3. 4 Quick Action Cards (Alumni, Jobs, Mentorship, Events) */}
@@ -2707,7 +2778,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
 
   /* 2. Hero Mascot & Campus Banner */
   heroBannerCard: {
-    height: 155,
+    height: 165,
     borderRadius: 20,
     backgroundColor: isDarkMode ? '#064E3B' : '#ECFDF5',
     borderWidth: 1.5,
@@ -2726,7 +2797,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     right: 0,
     top: 0,
     bottom: 0,
-    width: '66%',
+    width: '100%',
     height: '100%',
     resizeMode: 'cover',
   },
@@ -2736,31 +2807,50 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     top: 0,
     bottom: 0,
     width: '58%',
-    backgroundColor: isDarkMode ? '#064E3B' : '#ECFDF5',
+    backgroundColor: isDarkMode ? 'rgba(6, 46, 36, 0.88)' : 'rgba(255, 255, 255, 0.90)',
+    borderTopRightRadius: 28,
+    borderBottomRightRadius: 28,
   },
   heroBannerContent: {
-    padding: 16,
-    width: '62%',
+    padding: 14,
+    width: '60%',
     height: '100%',
     justifyContent: 'center',
+    zIndex: 2,
+  },
+  heroBannerBadgePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    backgroundColor: isDarkMode ? 'rgba(5, 150, 105, 0.25)' : '#DCFCE7',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
+    marginBottom: 6,
+  },
+  heroBannerBadgeText: {
+    fontSize: 10.5,
+    fontWeight: '700',
+    color: isDarkMode ? '#A7F3D0' : '#047857',
+    letterSpacing: 0.2,
   },
   heroBannerTitle: {
-    fontSize: 19,
+    fontSize: 18,
     fontWeight: '800',
     color: isDarkMode ? '#ECFDF5' : '#0F172A',
     letterSpacing: -0.3,
   },
   heroBannerSubtitle: {
-    fontSize: 12,
+    fontSize: 11.5,
     color: isDarkMode ? '#A7F3D0' : '#475569',
-    marginTop: 4,
-    marginBottom: 12,
-    lineHeight: 16,
+    marginTop: 3,
+    marginBottom: 10,
+    lineHeight: 15,
   },
   heroBannerBtn: {
     backgroundColor: '#059669',
     paddingHorizontal: 14,
-    paddingVertical: 8,
+    paddingVertical: 7,
     borderRadius: 20,
     flexDirection: 'row',
     alignItems: 'center',
@@ -2774,7 +2864,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   heroBannerBtnText: {
     color: '#FFFFFF',
     fontWeight: '700',
-    fontSize: 12.5,
+    fontSize: 12,
   },
 
   /* Carousel Dots */
