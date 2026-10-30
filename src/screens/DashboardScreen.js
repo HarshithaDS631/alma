@@ -1395,6 +1395,10 @@ const DashboardScreen = ({ navigation }) => {
       {(() => {
         const activeBanner = COLLEGE_BANNERS[activeBannerIndex] || COLLEGE_BANNERS[1] || COLLEGE_BANNERS[0];
         const firstName = userName ? userName.split(' ')[0] : 'RVian';
+        const userInstIndex = getCollegeBannerIndexForInstitution(userInstitution);
+        const collegeDisplayName = (activeBannerIndex === userInstIndex && userInstitution && userInstitution !== 'Our Network')
+          ? userInstitution
+          : activeBanner.name;
         return (
           <View style={styles.heroBannerCard}>
             <Image 
@@ -1408,7 +1412,8 @@ const DashboardScreen = ({ navigation }) => {
                 <Ionicons name="school" size={11} color={isDarkMode ? '#6EE7B7' : '#047857'} style={{ marginRight: 4 }} />
                 <Text style={styles.heroBannerBadgeText}>{activeBanner.badge}</Text>
               </View>
-              <Text style={styles.heroBannerTitle} numberOfLines={1}>Welcome back, {firstName}!</Text>
+              <Text style={styles.heroBannerCollegeName} numberOfLines={2}>{collegeDisplayName}</Text>
+              <Text style={styles.heroBannerGreeting} numberOfLines={1}>Welcome back, {firstName}!</Text>
               <Text style={styles.heroBannerSubtitle} numberOfLines={2}>{activeBanner.subtitle}</Text>
               <TouchableOpacity
                 style={styles.heroBannerBtn}
@@ -2796,7 +2801,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
 
   /* 2. Hero Mascot & Campus Banner */
   heroBannerCard: {
-    height: 165,
+    height: 180,
     borderRadius: 20,
     backgroundColor: isDarkMode ? '#064E3B' : '#ECFDF5',
     borderWidth: 1.5,
@@ -2824,14 +2829,15 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     left: 0,
     top: 0,
     bottom: 0,
-    width: '56%',
-    backgroundColor: isDarkMode ? 'rgba(6, 46, 36, 0.88)' : 'rgba(255, 255, 255, 0.92)',
-    borderTopRightRadius: 28,
-    borderBottomRightRadius: 28,
+    width: '63%',
+    backgroundColor: isDarkMode ? 'rgba(6, 46, 36, 0.92)' : 'rgba(255, 255, 255, 0.95)',
+    borderTopRightRadius: 30,
+    borderBottomRightRadius: 30,
   },
   heroBannerContent: {
-    padding: 14,
-    width: '56%',
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    width: '63%',
     height: '100%',
     justifyContent: 'center',
     zIndex: 2,
@@ -2844,7 +2850,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 12,
-    marginBottom: 6,
+    marginBottom: 4,
   },
   heroBannerBadgeText: {
     fontSize: 10.5,
@@ -2852,23 +2858,37 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     color: isDarkMode ? '#A7F3D0' : '#047857',
     letterSpacing: 0.2,
   },
+  heroBannerCollegeName: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: isDarkMode ? '#ECFDF5' : '#0F172A',
+    letterSpacing: -0.3,
+    lineHeight: 19,
+    marginBottom: 2,
+  },
+  heroBannerGreeting: {
+    fontSize: 12.5,
+    fontWeight: '600',
+    color: isDarkMode ? '#6EE7B7' : '#047857',
+    marginBottom: 2,
+  },
   heroBannerTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '800',
     color: isDarkMode ? '#ECFDF5' : '#0F172A',
     letterSpacing: -0.3,
   },
   heroBannerSubtitle: {
-    fontSize: 11.5,
+    fontSize: 11,
     color: isDarkMode ? '#A7F3D0' : '#475569',
-    marginTop: 3,
-    marginBottom: 10,
-    lineHeight: 15,
+    marginTop: 1,
+    marginBottom: 8,
+    lineHeight: 14,
   },
   heroBannerBtn: {
     backgroundColor: '#059669',
-    paddingHorizontal: 14,
-    paddingVertical: 7,
+    paddingHorizontal: 13,
+    paddingVertical: 6,
     borderRadius: 20,
     flexDirection: 'row',
     alignItems: 'center',
@@ -2882,14 +2902,14 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   heroBannerBtnText: {
     color: '#FFFFFF',
     fontWeight: '700',
-    fontSize: 12,
+    fontSize: 11.5,
   },
   heroBannerMascotWrap: {
     position: 'absolute',
     right: 8,
     bottom: 0,
     width: 78,
-    height: 146,
+    height: 158,
     justifyContent: 'flex-end',
     alignItems: 'center',
     zIndex: 3,
