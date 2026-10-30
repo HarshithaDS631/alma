@@ -217,7 +217,6 @@ const DashboardScreen = ({ navigation }) => {
   const [userInstitution, setUserInstitution] = useState('Our Network');
   const [userName, setUserName] = useState('');
   const [currentUser, setCurrentUser] = useState(null);
-  const [activeBannerIndex, setActiveBannerIndex] = useState(0);
   const [feedFilter, setFeedFilter] = useState('all');
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
@@ -540,7 +539,6 @@ const DashboardScreen = ({ navigation }) => {
         setCurrentUser(userInfo);
         if (userInfo.institution) {
           setUserInstitution(userInfo.institution);
-          setActiveBannerIndex(getCollegeBannerIndexForInstitution(userInfo.institution));
         }
         if (userInfo.name) {
           setUserName(userInfo.name);
@@ -666,7 +664,6 @@ const DashboardScreen = ({ navigation }) => {
             if (freshUser.name) setUserName(freshUser.name);
             if (freshUser.institution) {
               setUserInstitution(freshUser.institution);
-              setActiveBannerIndex(getCollegeBannerIndexForInstitution(freshUser.institution));
             }
             AsyncStorage.setItem('userInfo', JSON.stringify(freshUser)).catch(() => {});
           }
@@ -1391,18 +1388,18 @@ const DashboardScreen = ({ navigation }) => {
         </View>
       )}
 
-      {/* 2. Hero Mascot & Respective College Campus Banner */}
+      {/* 2. Hero Mascot & Dedicated College Campus Banner */}
       {(() => {
-        const activeBanner = COLLEGE_BANNERS[activeBannerIndex] || COLLEGE_BANNERS[1] || COLLEGE_BANNERS[0];
+        const bannerIndex = getCollegeBannerIndexForInstitution(userInstitution);
+        const banner = COLLEGE_BANNERS[bannerIndex] || COLLEGE_BANNERS[1] || COLLEGE_BANNERS[0];
         const firstName = userName ? userName.split(' ')[0] : 'RVian';
-        const userInstIndex = getCollegeBannerIndexForInstitution(userInstitution);
-        const collegeDisplayName = (activeBannerIndex === userInstIndex && userInstitution && userInstitution !== 'Our Network')
+        const collegeDisplayName = (userInstitution && userInstitution !== 'Our Network')
           ? userInstitution
-          : activeBanner.name;
+          : banner.name;
         return (
           <View style={styles.heroBannerCard}>
             <Image 
-              source={activeBanner.image} 
+              source={banner.image} 
               style={styles.heroBannerImage} 
             />
             <View style={styles.heroBannerFadeOverlay} />
@@ -1410,11 +1407,11 @@ const DashboardScreen = ({ navigation }) => {
             <View style={styles.heroBannerContent}>
               <View style={styles.heroBannerBadgePill}>
                 <Ionicons name="school" size={11} color={isDarkMode ? '#6EE7B7' : '#047857'} style={{ marginRight: 4 }} />
-                <Text style={styles.heroBannerBadgeText}>{activeBanner.badge}</Text>
+                <Text style={styles.heroBannerBadgeText}>{banner.badge}</Text>
               </View>
               <Text style={styles.heroBannerCollegeName} numberOfLines={2}>{collegeDisplayName}</Text>
               <Text style={styles.heroBannerGreeting} numberOfLines={1}>Welcome back, {firstName}!</Text>
-              <Text style={styles.heroBannerSubtitle} numberOfLines={2}>{activeBanner.subtitle}</Text>
+              <Text style={styles.heroBannerSubtitle} numberOfLines={2}>{banner.subtitle}</Text>
               <TouchableOpacity
                 style={styles.heroBannerBtn}
                 onPress={() => navigation.navigate('Engage', { tab: 'directory' })}
@@ -1434,22 +1431,6 @@ const DashboardScreen = ({ navigation }) => {
           </View>
         );
       })()}
-
-      {/* Carousel Dots for Respective Colleges */}
-      <View style={styles.carouselDotsRow}>
-        {COLLEGE_BANNERS.map((banner, idx) => (
-          <TouchableOpacity
-            key={banner.id}
-            onPress={() => setActiveBannerIndex(idx)}
-            activeOpacity={0.7}
-            hitSlop={{ top: 10, bottom: 10, left: 6, right: 6 }}
-            style={[
-              styles.carouselDot,
-              activeBannerIndex === idx && styles.carouselDotActive
-            ]}
-          />
-        ))}
-      </View>
 
       {/* 3. 4 Quick Action Cards (Alumni, Jobs, Mentorship, Events) */}
       <View style={styles.quickActionsRow}>
@@ -2808,7 +2789,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     borderColor: isDarkMode ? '#047857' : '#A7F3D0',
     overflow: 'hidden',
     position: 'relative',
-    marginBottom: 6,
+    marginBottom: 16,
     shadowColor: '#059669',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.12,
