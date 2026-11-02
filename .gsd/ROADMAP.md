@@ -104,3 +104,16 @@ updated: 2026-11-02T10:50:00+05:30
 **Plans:**
 - [x] Plan 7.1: Distributed Upstash Redis Rate Limiting with Fallback
 - [x] Plan 7.2: High-Performance Directory & Recommendation Caching Layer
+
+---
+
+### Phase 8: High-Engagement Ecosystem & Student-Alumni Acceleration
+**Status:** 🔄 Planned
+**Objective:** Transform platform engagement with high-conversion product features: Digital Event Passes with QR Gate Scanner, Employee Referral Request Hub ("Ask an RVite for Referral"), and 1-on-1 Mentorship Booking with Calendar Sync.
+**Depends on:** Phase 7
+**Requirements:** Event QR pass issuance & scan validation, internal job referral request workflow, mentor availability slot booking.
+
+**Plans:**
+- [ ] Plan 8.1: Digital Event Pass with Dynamic QR Code & Gate Scanner Check-in
+- [ ] Plan 8.2: Alumni Employee Referral Request Hub ("Refer an RVite")
+- [ ] Plan 8.3: 1-on-1 Mentorship Slot Booking with Calendar Invite Sync
