@@ -92,3 +92,15 @@ updated: 2026-11-02T10:50:00+05:30
 **Plans:**
 - [x] Plan 6.1: Automated 20-Point Security Test Suite Execution
 - [x] Plan 6.2: Full Production Web Export, Android APK Build & Deployment
+
+---
+
+### Phase 7: Distributed Rate Limiting & Enterprise Cloud Scaling (Upstash Redis)
+**Status:** 🔄 Planned
+**Objective:** Upgrade in-memory rate limiting to distributed Upstash Redis across serverless instances with zero-downtime memory fallback, and introduce high-performance cache invalidation for alumni directory queries.
+**Depends on:** Phase 6
+**Requirements:** Distributed anti-abuse protection, Upstash Redis connection pooling, sub-50ms cache hits for alumni directory.
+
+**Plans:**
+- [ ] Plan 7.1: Distributed Upstash Redis Rate Limiting with Fallback
+- [ ] Plan 7.2: High-Performance Directory & Recommendation Caching Layer
