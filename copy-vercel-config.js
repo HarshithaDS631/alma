@@ -55,18 +55,41 @@ if (!fs.existsSync(distDir)) {
 fs.writeFileSync(distVercelFile, JSON.stringify(vercelJsonConfig, null, 2), 'utf8');
 console.log('Successfully wrote vercel.json to dist/vercel.json');
 
-// 2. Clean .vercel directory so Vercel uses standard deployment mode (detecting api/index.js as Serverless Function)
-const vercelDir = path.join(__dirname, '.vercel');
-if (fs.existsSync(vercelDir)) {
-  try {
-    fs.rmSync(vercelDir, { recursive: true, force: true });
-    console.log('Cleaned .vercel directory to ensure standard Vercel serverless function detection.');
-  } catch (err) {
-    console.warn('Warning cleaning .vercel directory:', err.message);
+// 2. Write to .vercel/output/config.json (for Build Output API v3)
+const vercelOutputDir = path.join(__dirname, '.vercel', 'output');
+const configJsonFile = path.join(vercelOutputDir, 'config.json');
+
+const buildOutputConfig = {
+  version: 3,
+  routes: [
+    { handle: "filesystem" },
+    { src: "^/api(/.*)?$", dest: "/api" },
+    { src: "/(.*)", dest: "/index.html" }
+  ]
+};
+
+if (!fs.existsSync(vercelOutputDir)) {
+  fs.mkdirSync(vercelOutputDir, { recursive: true });
+}
+fs.writeFileSync(configJsonFile, JSON.stringify(buildOutputConfig, null, 2), 'utf8');
+console.log('Successfully wrote config.json to .vercel/output/config.json');
+
+// 3. Copy dist contents to .vercel/output/static (for Build Output API v3)
+const vercelStaticDir = path.join(vercelOutputDir, 'static');
+console.log('Copying build output from dist/ to .vercel/output/static for Build Output API...');
+try {
+  if (fs.existsSync(vercelStaticDir)) {
+    fs.rmSync(vercelStaticDir, { recursive: true, force: true });
   }
+  if (fs.existsSync(distDir)) {
+    copyDirRecursive(distDir, vercelStaticDir);
+    console.log('Successfully copied all dist files to .vercel/output/static.');
+  }
+} catch (error) {
+  console.error('Error copying to .vercel/output/static:', error);
 }
 
-// 3. Copy dist contents to the project root directory and sync index.html
+// 4. Copy dist contents to the project root directory and sync index.html
 console.log('Copying build output from dist/ to project root...');
 try {
   if (fs.existsSync(distDir)) {
@@ -78,6 +101,10 @@ try {
 
     const files = fs.readdirSync(distDir);
     for (const file of files) {
+      if (file === 'assets' || file === 'images') {
+        // Source assets in root must not be overwritten or nested by build outputs
+        continue;
+      }
       const srcPath = path.join(distDir, file);
       const destPath = path.join(__dirname, file);
       

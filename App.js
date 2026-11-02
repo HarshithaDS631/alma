@@ -137,7 +137,7 @@ function Render3DTabIcon({ name, focused, isDarkMode, theme, isPost, label, isMa
       <Animated.View style={{ alignItems: 'center', justifyContent: 'center', transform: [{ scale: scaleAnim }] }}>
         <UserAvatar
           url={profileAvatar}
-          name={profileInitials || 'HD'}
+          name={profileInitials || 'Harshitha D S'}
           size={26}
           ring={focused}
           ringColor={theme.primary || '#059669'}
@@ -351,7 +351,7 @@ function MainTabs() {
               iconComp = (
                 <UserAvatar
                   url={avatarUrl}
-                  name={currentUser?.name || initials || 'HD'}
+                  name={currentUser?.name || 'Harshitha D S'}
                   size={26}
                   ring={focused}
                   ringColor="#059669"

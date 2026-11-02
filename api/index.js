@@ -11,10 +11,17 @@ try {
 module.exports = (req, res) => {
   if (initError) {
     console.error('[SERVERLESS INVOCATION ERROR - INIT FAILURE]:', initError);
-    return res.status(500).json({
+    if (res.status && typeof res.status === 'function') {
+      return res.status(500).json({
+        error: 'Backend Initialization Failure',
+        message: initError.message
+      });
+    }
+    res.writeHead(500, { 'Content-Type': 'application/json' });
+    return res.end(JSON.stringify({
       error: 'Backend Initialization Failure',
       message: initError.message
-    });
+    }));
   }
 
   // Ensure request socket/connection objects are safely initialized for reverse proxies
@@ -25,9 +32,16 @@ module.exports = (req, res) => {
     return app(req, res);
   } catch (err) {
     console.error('[SERVERLESS UNHANDLED ERROR]:', err);
-    return res.status(500).json({
+    if (res.status && typeof res.status === 'function') {
+      return res.status(500).json({
+        error: 'Serverless Execution Error',
+        message: err.message
+      });
+    }
+    res.writeHead(500, { 'Content-Type': 'application/json' });
+    return res.end(JSON.stringify({
       error: 'Serverless Execution Error',
       message: err.message
-    });
+    }));
   }
 };
