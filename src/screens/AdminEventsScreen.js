@@ -5,7 +5,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { getImageUrl } from '../services/uploadService';
-import { getEvents } from '../services/authService';
+import { getEvents, checkInAttendeeApi, getEventAttendanceApi, getEventPassApi } from '../services/authService';
+import EventPassModal from '../components/EventPassModal';
 import getInitials from '../lib/getInitials';
 
 const AdminEventsScreen = ({ navigation, route }) => {
@@ -34,6 +35,15 @@ const AdminEventsScreen = ({ navigation, route }) => {
 
   const [eventList, setEventList] = useState([]);
   const [registeredEventIds, setRegisteredEventIds] = useState(new Set());
+  const [scannerModalVisible, setScannerModalVisible] = useState(false);
+  const [scanningEvent, setScanningEvent] = useState(null);
+  const [passInput, setPassInput] = useState('');
+  const [scanResult, setScanResult] = useState(null);
+  const [scanLoading, setScanLoading] = useState(false);
+  const [attendanceData, setAttendanceData] = useState(null);
+  const [attendanceLoading, setAttendanceLoading] = useState(false);
+  const [myPassModalVisible, setMyPassModalVisible] = useState(false);
+  const [selectedPassData, setSelectedPassData] = useState(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -239,6 +249,60 @@ const AdminEventsScreen = ({ navigation, route }) => {
     setNewComment('');
   };
 
+
+  const handleOpenScanner = async (event) => {
+    setScanningEvent(event);
+    setPassInput('');
+    setScanResult(null);
+    setAttendanceData(null);
+    setScannerModalVisible(true);
+    try {
+      setAttendanceLoading(true);
+      const data = await getEventAttendanceApi(event.id);
+      setAttendanceData(data);
+    } catch (_) {}
+    finally {
+      setAttendanceLoading(false);
+    }
+  };
+
+  const handleVerifyPass = async () => {
+    if (!passInput.trim() || !scanningEvent) return;
+    try {
+      setScanLoading(true);
+      setScanResult(null);
+      const res = await checkInAttendeeApi(scanningEvent.id, passInput.trim());
+      setScanResult({ success: true, message: res.message || 'Check-in verified!', attendee: res.attendee });
+      setPassInput('');
+      getEventAttendanceApi(scanningEvent.id).then(data => setAttendanceData(data)).catch(() => {});
+    } catch (err) {
+      setScanResult({ success: false, message: err.response?.data?.message || err.message || 'Verification failed' });
+    } finally {
+      setScanLoading(false);
+    }
+  };
+
+  const handleViewMyPass = async (event) => {
+    try {
+      let passRes = null;
+      try {
+        passRes = await getEventPassApi(event.id);
+      } catch (_) {}
+      setSelectedPassData({
+        eventTitle: passRes?.eventTitle || event.title,
+        eventDate: passRes?.eventDate || event.date,
+        eventLocation: passRes?.eventLocation || event.location,
+        attendeeName: passRes?.attendee?.name || userName || 'Verified Alumni',
+        attendeeDept: passRes?.attendee?.department || 'Alumni Member',
+        attendeeBatch: passRes?.attendee?.batch || 'RVCE',
+        passToken: passRes?.passToken || ('RV-' + event.id.slice(-4).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase()),
+        qrCode: passRes?.qrCode || null,
+        checkedIn: passRes?.checkedIn || false
+      });
+      setMyPassModalVisible(true);
+    } catch (_) {}
+  };
+
   const handlePostEvent = () => {
     if (!eventTitle.trim() || !eventDate.trim()) {
       Alert.alert('Required', 'Please fill in at least the title and date.');
@@ -427,9 +491,49 @@ const AdminEventsScreen = ({ navigation, route }) => {
                     activeOpacity={0.8}
                   >
                     <Ionicons name="calendar-outline" size={16} color={theme.primary} />
-                    <Text style={{ fontSize: 13, fontWeight: '700', color: theme.primary }}>Add to Calendar</Text>
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: theme.primary }}>Calendar</Text>
                   </TouchableOpacity>
                 </View>
+                {isSelectedRsvpd && (
+                  <TouchableOpacity
+                    style={{
+                      backgroundColor: '#059669',
+                      marginTop: 10,
+                      paddingVertical: 12,
+                      borderRadius: 10,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexDirection: 'row',
+                      gap: 8
+                    }}
+                    onPress={() => handleViewMyPass(selectedEvent)}
+                    activeOpacity={0.85}
+                  >
+                    <Ionicons name="qr-code-outline" size={18} color="#FFFFFF" />
+                    <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '700' }}>View My Digital Event Pass</Text>
+                  </TouchableOpacity>
+                )}
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: isDarkMode ? '#334155' : '#F1F5F9',
+                    marginTop: 10,
+                    paddingVertical: 11,
+                    borderRadius: 10,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexDirection: 'row',
+                    gap: 8,
+                    borderWidth: 1,
+                    borderColor: isDarkMode ? '#475569' : '#CBD5E1'
+                  }}
+                  onPress={() => handleOpenScanner(selectedEvent)}
+                  activeOpacity={0.85}
+                >
+                  <Ionicons name="scan-circle" size={20} color="#059669" />
+                  <Text style={{ color: isDarkMode ? '#F8FAFC' : '#0F172A', fontSize: 13, fontWeight: '700' }}>
+                    Organizer Gate Scanner & Check-in
+                  </Text>
+                </TouchableOpacity>
               </View>
             );
           })()}

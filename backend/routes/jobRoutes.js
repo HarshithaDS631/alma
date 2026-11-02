@@ -11,9 +11,20 @@ const {
     updatePreferences,
     getRecommendedJobs,
     getResumeBook,
-    shareResumeViaEmail
+    shareResumeViaEmail,
+    requestReferral,
+    getIncomingReferralRequests,
+    getMySentReferralRequests,
+    updateReferralStatus
 } = require('../controllers/jobController');
 
+// Employee Referral Hub ("Refer an RVite")
+router.get('/referrals/incoming', protect, getIncomingReferralRequests);
+router.get('/referrals/my-requests', protect, getMySentReferralRequests);
+router.post('/:id/referrals', protect, requestReferral);
+router.patch('/:id/referrals/:referralId', protect, updateReferralStatus);
+
+// Core Job Endpoints
 router.get('/', protect, getJobs);
 router.post('/', protect, createJob);
 router.post('/:id/save', protect, toggleSaveJob);

@@ -32,6 +32,19 @@ const jobSchema = new mongoose.Schema({
         resumeUrl: { type: String, default: '' },
         coverNote: { type: String, default: '' }
     }],
+    referralRequests: [{
+        candidate: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+        pitch: { type: String, required: true },
+        resumeUrl: { type: String, default: '' },
+        status: { 
+            type: String, 
+            enum: ['Pending', 'Endorsed', 'Needs Info', 'Declined'], 
+            default: 'Pending' 
+        },
+        reviewedAt: { type: Date },
+        feedback: { type: String, default: '' },
+        createdAt: { type: Date, default: Date.now }
+    }],
     savedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     viewsCount: { type: Number, default: 0 },
     isActive: { type: Boolean, default: true }
@@ -40,6 +53,6 @@ const jobSchema = new mongoose.Schema({
 jobSchema.index({ institution: 1, createdAt: -1 });
 jobSchema.index({ title: 'text', company: 'text', location: 'text' });
 jobSchema.index({ createdAt: -1 });
+jobSchema.index({ 'referralRequests.candidate': 1 });
 
 module.exports = mongoose.model('Job', jobSchema);
-

@@ -418,3 +418,188 @@ exports.shareResumeViaEmail = async (req, res) => {
         res.status(500).json({ message: error.message || 'Failed to share candidate resume' });
     }
 };
+
+// @desc    Request internal employee referral from alumnus poster ("Refer an RVite")
+// @route   POST /api/jobs/:id/referrals
+exports.requestReferral = async (req, res) => {
+    try {
+        await connectDB();
+        const { pitch, resumeUrl } = req.body;
+
+        if (!pitch || !pitch.trim()) {
+            return res.status(400).json({ message: 'A short pitch highlighting why you are a great fit is required' });
+        }
+
+        const job = await Job.findById(req.params.id).populate('postedBy', 'name email');
+        if (!job) {
+            return res.status(404).json({ message: 'Job listing not found' });
+        }
+
+        // Prevent self-referral
+        if (job.postedBy && job.postedBy._id.toString() === req.user._id.toString()) {
+            return res.status(400).json({ message: 'You cannot request a referral for a job you posted' });
+        }
+
+        job.referralRequests = job.referralRequests || [];
+
+        // Check if candidate already has a pending referral request
+        const existing = job.referralRequests.find(r => r.candidate.toString() === req.user._id.toString());
+        if (existing && existing.status === 'Pending') {
+            return res.status(400).json({ message: 'You already have a pending referral request for this position' });
+        }
+
+        // Get user resume if not provided
+        let finalResumeUrl = resumeUrl;
+        if (!finalResumeUrl) {
+            const user = await User.findById(req.user._id).select('resumeUrl');
+            finalResumeUrl = user?.resumeUrl || '';
+        }
+
+        const newRequest = {
+            candidate: req.user._id,
+            pitch: pitch.trim(),
+            resumeUrl: finalResumeUrl,
+            status: 'Pending',
+            createdAt: new Date()
+        };
+
+        job.referralRequests.push(newRequest);
+        await job.save();
+
+        res.status(201).json({
+            success: true,
+            message: `Referral request submitted to ${job.postedBy?.name || 'the job poster'}!`,
+            referral: newRequest
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Get incoming referral requests for jobs posted by the user
+// @route   GET /api/jobs/referrals/incoming
+exports.getIncomingReferralRequests = async (req, res) => {
+    try {
+        await connectDB();
+        const jobs = await Job.find({
+            postedBy: req.user._id,
+            'referralRequests.0': { $exists: true }
+        })
+        .select('title company location referralRequests')
+        .populate('referralRequests.candidate', 'name email department branch batch graduationYear company designation avatar avatar_url profilePicture resumeUrl')
+        .sort({ updatedAt: -1 })
+        .lean();
+
+        const requests = [];
+        jobs.forEach(job => {
+            (job.referralRequests || []).forEach(r => {
+                requests.push({
+                    _id: r._id,
+                    jobId: job._id,
+                    jobTitle: job.title,
+                    jobCompany: job.company,
+                    jobLocation: job.location,
+                    candidate: r.candidate,
+                    pitch: r.pitch,
+                    resumeUrl: r.resumeUrl || r.candidate?.resumeUrl,
+                    status: r.status,
+                    reviewedAt: r.reviewedAt,
+                    feedback: r.feedback,
+                    createdAt: r.createdAt
+                });
+            });
+        });
+
+        requests.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        res.json(requests);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Get referral requests sent by current user
+// @route   GET /api/jobs/referrals/my-requests
+exports.getMySentReferralRequests = async (req, res) => {
+    try {
+        await connectDB();
+        const jobs = await Job.find({
+            'referralRequests.candidate': req.user._id
+        })
+        .select('title company location postedBy referralRequests')
+        .populate('postedBy', 'name company designation avatar avatar_url profilePicture')
+        .sort({ updatedAt: -1 })
+        .lean();
+
+        const requests = [];
+        jobs.forEach(job => {
+            const myReq = (job.referralRequests || []).find(r => r.candidate.toString() === req.user._id.toString());
+            if (myReq) {
+                requests.push({
+                    _id: myReq._id,
+                    jobId: job._id,
+                    jobTitle: job.title,
+                    jobCompany: job.company,
+                    jobLocation: job.location,
+                    poster: job.postedBy,
+                    pitch: myReq.pitch,
+                    resumeUrl: myReq.resumeUrl,
+                    status: myReq.status,
+                    reviewedAt: myReq.reviewedAt,
+                    feedback: myReq.feedback,
+                    createdAt: myReq.createdAt
+                });
+            }
+        });
+
+        requests.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        res.json(requests);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Update candidate referral request status (Endorsed, Needs Info, Declined)
+// @route   PATCH /api/jobs/:id/referrals/:referralId
+exports.updateReferralStatus = async (req, res) => {
+    try {
+        await connectDB();
+        const { status, feedback } = req.body;
+        const validStatuses = ['Pending', 'Endorsed', 'Needs Info', 'Declined'];
+
+        if (!status || !validStatuses.includes(status)) {
+            return res.status(400).json({ message: `Invalid status. Must be one of: ${validStatuses.join(', ')}` });
+        }
+
+        const job = await Job.findById(req.params.id);
+        if (!job) {
+            return res.status(404).json({ message: 'Job not found' });
+        }
+
+        // Only the poster or admin can update status
+        if (job.postedBy.toString() !== req.user._id.toString() && req.user.role !== 'Admin' && req.user.role !== 'Super Admin') {
+            return res.status(403).json({ message: 'Only the alumni job poster can update referral status' });
+        }
+
+        job.referralRequests = job.referralRequests || [];
+        const referral = job.referralRequests.id(req.params.referralId);
+        if (!referral) {
+            return res.status(404).json({ message: 'Referral request not found' });
+        }
+
+        referral.status = status;
+        referral.feedback = feedback || referral.feedback || '';
+        referral.reviewedAt = new Date();
+
+        await job.save();
+
+        res.json({
+            success: true,
+            message: `Referral status updated to ${status}!`,
+            referral
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

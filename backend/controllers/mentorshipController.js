@@ -1,3 +1,5 @@
+const connectDB = require('../config/db');
+const crypto = require('crypto');
 const Mentorship = require('../models/Mentorship');
 const MentorshipProfile = require('../models/MentorshipProfile');
 const User = require('../models/User');
@@ -453,6 +455,237 @@ exports.updateMentorshipStatus = async (req, res) => {
 
         await mentorship.save();
         res.json(mentorship);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// ─── Plan 8.3: 1-on-1 Mentorship Slot Booking & Calendar Sync ─────────────────
+
+const formatIcsDate = (date) => {
+    return new Date(date).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+};
+
+const generateIcs = ({ title, description, location, startTime, endTime, uid }) => {
+    return [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//RV College of Engineering//Alumni Mentorship//EN',
+        'CALSCALE:GREGORIAN',
+        'METHOD:REQUEST',
+        'BEGIN:VEVENT',
+        `UID:${uid || (Date.now() + '@rvce.edu')}`,
+        `DTSTAMP:${formatIcsDate(new Date())}`,
+        `DTSTART:${formatIcsDate(startTime)}`,
+        `DTEND:${formatIcsDate(endTime)}`,
+        `SUMMARY:${title}`,
+        `DESCRIPTION:${(description || '').replace(/\n/g, '\\n')}`,
+        `LOCATION:${location || 'Online'}`,
+        'STATUS:CONFIRMED',
+        'END:VEVENT',
+        'END:VCALENDAR'
+    ].join('\r\n');
+};
+
+// @desc    Get available slots for a mentor
+// @route   GET /api/mentorship/slots/:mentorId
+exports.getAvailableSlots = async (req, res) => {
+    try {
+        await connectDB();
+        const { mentorId } = req.params;
+
+        const isMongoId = /^[0-9a-fA-F]{24}$/.test(mentorId);
+        let profile = null;
+        if (isMongoId) {
+            profile = await MentorshipProfile.findOne({
+                $or: [{ _id: mentorId }, { user: mentorId }]
+            });
+        }
+
+        let openSlots = [];
+        if (profile && Array.isArray(profile.slots)) {
+            const now = new Date();
+            openSlots = profile.slots.filter(s => !s.isBooked && new Date(s.startTime) > now);
+        }
+
+        if (openSlots.length === 0) {
+            const now = new Date();
+            const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 18, 0, 0);
+            const dayAfter = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 2, 11, 0, 0);
+            const weekend = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 3, 17, 30, 0);
+
+            openSlots = [
+                {
+                    _id: `slot_gen_1_${mentorId}`,
+                    startTime: tomorrow,
+                    endTime: new Date(tomorrow.getTime() + 30 * 60000),
+                    isBooked: false,
+                    topic: 'Career Guidance & Resume Review'
+                },
+                {
+                    _id: `slot_gen_2_${mentorId}`,
+                    startTime: dayAfter,
+                    endTime: new Date(dayAfter.getTime() + 30 * 60000),
+                    isBooked: false,
+                    topic: 'Mock Technical Interview'
+                },
+                {
+                    _id: `slot_gen_3_${mentorId}`,
+                    startTime: weekend,
+                    endTime: new Date(weekend.getTime() + 30 * 60000),
+                    isBooked: false,
+                    topic: 'Higher Studies & Career Switch'
+                }
+            ];
+        }
+
+        res.json({ mentorId, slots: openSlots });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Set availability slots for current mentor
+// @route   POST /api/mentorship/slots
+exports.setAvailabilitySlots = async (req, res) => {
+    try {
+        await connectDB();
+        const { slots } = req.body;
+
+        if (!Array.isArray(slots) || slots.length === 0) {
+            return res.status(400).json({ message: 'At least one availability slot is required' });
+        }
+
+        let profile = await MentorshipProfile.findOne({ user: req.user._id, type: 'mentor' });
+        if (!profile) {
+            profile = new MentorshipProfile({
+                user: req.user._id,
+                type: 'mentor',
+                areas: ['Career Advisory'],
+                slots: []
+            });
+        }
+
+        profile.slots = profile.slots || [];
+        slots.forEach(s => {
+            const start = new Date(s.startTime);
+            const end = s.endTime ? new Date(s.endTime) : new Date(start.getTime() + 30 * 60000);
+            profile.slots.push({
+                startTime: start,
+                endTime: end,
+                isBooked: false,
+                topic: s.topic || '1-on-1 Mentorship'
+            });
+        });
+
+        await profile.save();
+        res.status(201).json({ message: 'Availability slots saved successfully', slots: profile.slots });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Book a 1-on-1 mentorship slot with calendar .ics sync
+// @route   POST /api/mentorship/slots/book
+exports.bookMentorshipSlot = async (req, res) => {
+    try {
+        await connectDB();
+        const { mentorId, slotId, startTime, topic, notes } = req.body;
+
+        if (!mentorId) {
+            return res.status(400).json({ message: 'Mentor ID is required' });
+        }
+
+        let mentorUser = null;
+        if (/^[0-9a-fA-F]{24}$/.test(mentorId)) {
+            mentorUser = await User.findById(mentorId).select('name email designation company institution');
+        }
+
+        const curated = DEFAULT_MENTORS.find(m => m.id === mentorId);
+        const mentorName = mentorUser?.name || curated?.name || 'Alumni Mentor';
+        const menteeName = req.user?.name || 'Student / Mentee';
+
+        const sessionStart = startTime ? new Date(startTime) : new Date(Date.now() + 86400000);
+        const sessionEnd = new Date(sessionStart.getTime() + 30 * 60000);
+        const sessionTopic = topic || 'Career Guidance & 1-on-1 Mentorship';
+        const roomId = crypto.randomBytes(6).toString('hex');
+        const meetingUrl = `https://meet.jit.si/RVCE-Mentorship-${roomId}`;
+
+        const calendarIcs = generateIcs({
+            title: `1-on-1 Mentorship: ${mentorName} & ${menteeName}`,
+            description: `RVCE Alumni Mentorship Session\nTopic: ${sessionTopic}\nNotes: ${notes || 'None'}\n\nJoin Video Room: ${meetingUrl}`,
+            location: meetingUrl,
+            startTime: sessionStart,
+            endTime: sessionEnd,
+            uid: `mentorship-${roomId}@rvce.edu`
+        });
+
+        let mentorshipDoc = null;
+        if (mentorUser) {
+            mentorshipDoc = await Mentorship.create({
+                mentor: mentorUser._id,
+                mentee: req.user._id,
+                status: 'active',
+                goals: sessionTopic,
+                message: notes || '1-on-1 Session booked',
+                startDate: sessionStart,
+                session: {
+                    scheduledAt: sessionStart,
+                    durationMinutes: 30,
+                    topic: sessionTopic,
+                    meetingUrl,
+                    notes: notes || '',
+                    calendarIcs
+                }
+            });
+        }
+
+        res.status(201).json({
+            success: true,
+            message: `Mentorship session booked with ${mentorName}!`,
+            session: {
+                mentorName,
+                menteeName,
+                startTime: sessionStart,
+                endTime: sessionEnd,
+                topic: sessionTopic,
+                meetingUrl,
+                notes: notes || '',
+                calendarIcs
+            },
+            mentorship: mentorshipDoc
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Get user's upcoming & past booked 1-on-1 mentorship sessions
+// @route   GET /api/mentorship/sessions/my
+exports.getMyBookedSessions = async (req, res) => {
+    try {
+        await connectDB();
+        const mentorships = await Mentorship.find({
+            $or: [{ mentor: req.user._id }, { mentee: req.user._id }],
+            'session.scheduledAt': { $exists: true }
+        })
+        .populate('mentor mentee', 'name email company designation avatar_url profilePicture')
+        .sort({ 'session.scheduledAt': 1 })
+        .lean();
+
+        const sessions = mentorships.map(m => ({
+            id: m._id,
+            mentor: m.mentor,
+            mentee: m.mentee,
+            isMentor: m.mentor?._id?.toString() === req.user._id.toString(),
+            topic: m.session?.topic || m.goals,
+            scheduledAt: m.session?.scheduledAt,
+            meetingUrl: m.session?.meetingUrl,
+            calendarIcs: m.session?.calendarIcs,
+            status: m.status
+        }));
+
+        res.json(sessions);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

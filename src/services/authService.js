@@ -141,6 +141,26 @@ export const createEventApi = async (eventData) => {
     return data;
 };
 
+export const registerForEventApi = async (eventId) => {
+    const { data } = await api.post('/events/' + eventId + '/register');
+    return data;
+};
+
+export const getEventPassApi = async (eventId) => {
+    const { data } = await api.get('/events/' + eventId + '/pass');
+    return data;
+};
+
+export const checkInAttendeeApi = async (eventId, passToken) => {
+    const { data } = await api.post('/events/' + eventId + '/check-in', { passToken });
+    return data;
+};
+
+export const getEventAttendanceApi = async (eventId) => {
+    const { data } = await api.get('/events/' + eventId + '/attendance');
+    return data;
+};
+
 export const logout = async () => {
     const { data } = await api.post('/auth/logout');
     return data;

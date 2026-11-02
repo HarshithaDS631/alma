@@ -51,3 +51,4 @@ Enable students and young alumni to request internal employee referrals from ver
 - [ ] Candidates can submit targeted referral requests on alumni-posted job listings.
 - [ ] Alumni posters can manage and review incoming requests with instant status feedback.
 - [ ] All inputs are sanitized and protected against abuse.
+

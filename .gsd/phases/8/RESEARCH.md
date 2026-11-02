@@ -61,3 +61,4 @@ To convert passive alumni into active contributors and provide students with car
 - **QR Code Verification**: Cryptographic HMAC signature ensuring passes cannot be forged or duplicated.
 - **Calendar Invite Generation**: Standard RFC 5545 iCalendar (`.ics`) data generation for cross-platform calendar synchronization (Google Calendar, Outlook, Apple Calendar).
 - **Zero-Breaking-Change Guarantee**: 100% additive features utilizing existing MongoDB models with backward compatibility.
+

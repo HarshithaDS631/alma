@@ -75,3 +75,33 @@ export const shareCandidateResume = async (payload) => {
     return data;
 };
 
+// ─── Plan 8.2: Alumni Employee Referral Hub ──────────────────────────────
+export const requestJobReferral = async (jobId, payload) => {
+    const { data } = await api.post(`/jobs/${jobId}/referrals`, payload);
+    return data;
+};
+
+export const fetchIncomingReferrals = async () => {
+    try {
+        const { data } = await api.get('/jobs/referrals/incoming');
+        return data;
+    } catch (e) {
+        console.log('fetchIncomingReferrals error:', e);
+        return [];
+    }
+};
+
+export const fetchMySentReferrals = async () => {
+    try {
+        const { data } = await api.get('/jobs/referrals/my-requests');
+        return data;
+    } catch (e) {
+        console.log('fetchMySentReferrals error:', e);
+        return [];
+    }
+};
+
+export const updateReferralStatus = async (jobId, referralId, payload) => {
+    const { data } = await api.patch(`/jobs/${jobId}/referrals/${referralId}`, payload);
+    return data;
+};

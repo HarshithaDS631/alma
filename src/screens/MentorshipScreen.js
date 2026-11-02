@@ -10,6 +10,8 @@ import { useTheme } from '../theme/ThemeContext';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import getInitials from '../lib/getInitials';
 import { API_URL } from '../services/api';
+import MentorshipBookingModal from '../components/MentorshipBookingModal';
+import { fetchMyBookedSessions } from '../services/mentorshipService';
 
 const API_BASE = API_URL;
 
@@ -299,6 +301,16 @@ const MentorshipScreen = ({ navigation }) => {
       setLoading(false);
     }
   }, [mentors.length]);
+
+
+  const loadBookedSessions = useCallback(async () => {
+    try {
+      const list = await fetchMyBookedSessions();
+      if (Array.isArray(list)) {
+        setBookedSessions(list);
+      }
+    } catch (_) {}
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -668,7 +680,18 @@ const MentorshipScreen = ({ navigation }) => {
 
         <View style={styles.cardActionsRow}>
           <TouchableOpacity
-            style={[styles.primaryActionBtn, isRequested && styles.requestedActionBtn]}
+            style={[styles.primaryActionBtn, { backgroundColor: '#059669', marginRight: 6 }]}
+            onPress={() => {
+              setBookingTarget(m);
+              setShowBookingModal(true);
+            }}
+          >
+            <Ionicons name="calendar-sharp" size={14} color="#FFF" />
+            <Text style={styles.primaryActionText}>Book 1-on-1</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.secondaryActionBtn, isRequested && styles.requestedActionBtn, { borderColor: isRequested ? '#16A34A' : (isDarkMode ? '#334155' : '#E2E8F0') }]}
             onPress={() => {
               if (isRequested) {
                 Alert.alert('Already Requested', `You already sent a request to ${m.name}.`);
@@ -1297,6 +1320,83 @@ const MentorshipScreen = ({ navigation }) => {
               {renderHero()}
               {renderFilters()}
 
+              
+              {/* ─── UPCOMING 1-ON-1 SESSIONS ─── */}
+              {bookedSessions.length > 0 && (
+                <View style={{ paddingHorizontal: 16, marginTop: 14 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+                    <Ionicons name="videocam" size={18} color="#059669" />
+                    <Text style={[styles.sectionTitle, { color: theme.text, marginBottom: 0 }]}>
+                      My Upcoming 1-on-1 Sessions ({bookedSessions.length})
+                    </Text>
+                  </View>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
+                    {bookedSessions.map((session, sIdx) => {
+                      const dateObj = new Date(session.scheduledAt);
+                      const otherUser = session.isMentor ? session.mentee : session.mentor;
+                      const dateStr = dateObj.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+                      const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                      return (
+                        <View
+                          key={session.id || sIdx}
+                          style={{
+                            width: 280,
+                            backgroundColor: isDarkMode ? '#1E293B' : '#FFFFFF',
+                            borderRadius: 14,
+                            padding: 14,
+                            borderWidth: 1,
+                            borderColor: 'rgba(5, 150, 105, 0.25)',
+                            shadowColor: '#000',
+                            shadowOffset: { width: 0, height: 2 },
+                            shadowOpacity: 0.08,
+                            shadowRadius: 6,
+                            elevation: 2
+                          }}
+                        >
+                          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                            <Text style={{ fontSize: 13, fontWeight: '800', color: theme.text }}>
+                              {session.isMentor ? 'Mentoring ' + (otherUser?.name || 'Student') : 'With ' + (otherUser?.name || 'Mentor')}
+                            </Text>
+                            <View style={{ backgroundColor: 'rgba(5, 150, 105, 0.12)', paddingHorizontal: 7, paddingVertical: 2, borderRadius: 6 }}>
+                              <Text style={{ fontSize: 9.5, fontWeight: '800', color: '#059669' }}>CONFIRMED</Text>
+                            </View>
+                          </View>
+                          <Text style={{ fontSize: 11.5, color: '#64748B', marginBottom: 8 }} numberOfLines={1}>
+                            {session.topic || 'General Mentorship'}
+                          </Text>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+                            <Ionicons name="calendar-outline" size={13} color="#059669" />
+                            <Text style={{ fontSize: 11.5, fontWeight: '700', color: theme.text }}>
+                              {dateStr} • {timeStr}
+                            </Text>
+                          </View>
+                          {session.meetingUrl ? (
+                            <TouchableOpacity
+                              style={{
+                                backgroundColor: '#059669',
+                                paddingVertical: 8,
+                                borderRadius: 8,
+                                alignItems: 'center',
+                                flexDirection: 'row',
+                                justifyContent: 'center',
+                                gap: 6
+                              }}
+                              onPress={() => {
+                                if (Platform.OS === 'web') window.open(session.meetingUrl, '_blank');
+                                else Alert.alert('Meeting Room', session.meetingUrl);
+                              }}
+                            >
+                              <Ionicons name="call" size={13} color="#FFF" />
+                              <Text style={{ color: '#FFF', fontSize: 11.5, fontWeight: '700' }}>Join Video Room</Text>
+                            </TouchableOpacity>
+                          ) : null}
+                        </View>
+                      );
+                    })}
+                  </ScrollView>
+                </View>
+              )}
+
               <View style={{ paddingHorizontal: 16, marginTop: 16 }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                   <Text style={[styles.sectionTitle, { color: theme.text }]}>
@@ -1371,6 +1471,12 @@ const MentorshipScreen = ({ navigation }) => {
       {renderApplyModal()}
       {renderRequestModal()}
       {renderSampleModal()}
+      <MentorshipBookingModal
+        visible={showBookingModal}
+        onClose={() => setShowBookingModal(false)}
+        mentor={bookingTarget}
+        onSessionBooked={loadBookedSessions}
+      />
     </SafeAreaView>
   );
 };

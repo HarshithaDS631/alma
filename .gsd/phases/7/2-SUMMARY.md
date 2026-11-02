@@ -6,3 +6,4 @@
 - `backend/routes/eventRoutes.js`: Attached 60-second TTL cache to `GET /`.
 - `backend/controllers/eventController.js`: Added cache invalidation trigger on `createEvent`.
 - Verified: `securityAuditTest.js` passed 19/19 tests (100% pass rate).
+

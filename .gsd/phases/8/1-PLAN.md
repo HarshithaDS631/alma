@@ -51,3 +51,4 @@ Implement digital event ticketing with signed QR passes for attendees and an in-
 - [ ] Registered attendees can open and view their secure Digital Event Pass with dynamic QR code.
 - [ ] Organizers can verify and check in attendees in real time.
 - [ ] 0 regressions in event registration or permissions.
+

@@ -32,8 +32,12 @@ import {
   fetchJobTracker,
   fetchJobPreferences,
   updateJobPreferences,
-  fetchRecommendedJobs
+  fetchRecommendedJobs,
+  fetchIncomingReferrals,
+  fetchMySentReferrals,
+  updateReferralStatus
 } from '../services/jobService';
+import ReferralModal from '../components/ReferralModal';
 
 const WORKPLACE_TYPES = ['All', 'On-site', 'Hybrid', 'Remote'];
 const JOB_TYPES = ['All', 'Full-time', 'Part-time', 'Contract', 'Internship'];
@@ -266,7 +270,13 @@ const JobsScreen = ({ navigation, route }) => {
   const [fabMenuVisible, setFabMenuVisible] = useState(false);
 
   // LinkedIn Navigation Tabs
-  const [activeTab, setActiveTab] = useState('search'); // 'search' | 'tracker' | 'preferences' | 'recommended' | 'post'
+  const [activeTab, setActiveTab] = useState('search'); // 'search' | 'tracker' | 'preferences' | 'recommended' | 'post' | 'referrals'
+  const [referralModalVisible, setReferralModalVisible] = useState(false);
+  const [selectedJobForReferral, setSelectedJobForReferral] = useState(null);
+  const [incomingReferrals, setIncomingReferrals] = useState([]);
+  const [mySentReferrals, setMySentReferrals] = useState([]);
+  const [referralSubTab, setReferralSubTab] = useState('incoming');
+  const [loadingReferrals, setLoadingReferrals] = useState(false);
   const [trackerSubTab, setTrackerSubTab] = useState('saved'); // 'saved' | 'applied'
 
   // Data States
@@ -446,6 +456,8 @@ const JobsScreen = ({ navigation, route }) => {
           });
           setRecommendedJobs(computed.length > 0 ? computed : DEFAULT_ALUMNI_JOBS.slice(0, 3));
         }
+      } else if (activeTab === 'referrals') {
+        loadReferralData();
       } else if (activeTab === 'preferences') {
         try {
           const cachedStr = await AsyncStorage.getItem('cached_job_preferences');
@@ -738,6 +750,41 @@ const JobsScreen = ({ navigation, route }) => {
     return true;
   });
 
+
+  const loadReferralData = async () => {
+    try {
+      setLoadingReferrals(true);
+      const [inc, sent] = await Promise.all([
+        fetchIncomingReferrals(),
+        fetchMySentReferrals()
+      ]);
+      setIncomingReferrals(Array.isArray(inc) ? inc : []);
+      setMySentReferrals(Array.isArray(sent) ? sent : []);
+    } catch (e) {
+      console.log('loadReferralData error:', e.message);
+    } finally {
+      setLoadingReferrals(false);
+    }
+  };
+
+  const handleOpenReferral = (job) => {
+    setSelectedJobForReferral(job);
+    setReferralModalVisible(true);
+  };
+
+  const handleUpdateReferral = async (jobId, referralId, newStatus) => {
+    try {
+      await updateReferralStatus(jobId, referralId, { status: newStatus });
+      if (Platform.OS === 'web') window.alert(`Status updated to ${newStatus}!`);
+      else Alert.alert('Updated', `Status updated to ${newStatus}!`);
+      loadReferralData();
+    } catch (e) {
+      const msg = e.response?.data?.message || e.message;
+      if (Platform.OS === 'web') window.alert(msg);
+      else Alert.alert('Error', msg);
+    }
+  };
+
   const renderJobCard = (job, isAppliedTab = false) => {
     const isSaved = (job.savedBy || []).includes('current_user') || savedJobs.some(s => (s._id || s.id) === (job._id || job.id));
     const skillMatch = calculateSkillMatch(job);
@@ -831,6 +878,15 @@ const JobsScreen = ({ navigation, route }) => {
                 <Ionicons name="flash" size={14} color="#FFFFFF" style={{ marginRight: 5 }} />
               </PulseElement>
               <Text style={styles.easyApplyText}>Easy Apply</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.detailsBtn, { backgroundColor: isDarkMode ? '#1E293B' : '#ECFDF5', borderColor: '#059669', borderWidth: 1 }]}
+              onPress={() => handleOpenReferral(job)}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="people" size={13} color="#059669" style={{ marginRight: 4 }} />
+              <Text style={[styles.detailsText, { color: '#059669' }]}>Ask Referral</Text>
             </TouchableOpacity>
 
             <TouchableOpacity 
@@ -1032,6 +1088,148 @@ const JobsScreen = ({ navigation, route }) => {
         )}
 
         {/* TAB 2: JOB TRACKER (SAVED & APPLIED) */}
+        
+        {/* ─── REFERRALS HUB VIEW ─── */}
+        {activeTab === 'referrals' && (
+          <View style={{ paddingHorizontal: 16, paddingBottom: 60 }}>
+            {/* Sub-tab pills */}
+            <View style={{ flexDirection: 'row', gap: 10, marginVertical: 14 }}>
+              <TouchableOpacity
+                onPress={() => setReferralSubTab('incoming')}
+                style={{
+                  flex: 1,
+                  paddingVertical: 10,
+                  borderRadius: 12,
+                  backgroundColor: referralSubTab === 'incoming' ? '#059669' : (isDarkMode ? '#1E293B' : '#F1F5F9'),
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexDirection: 'row',
+                  gap: 6
+                }}
+              >
+                <Ionicons name="mail-unread" size={16} color={referralSubTab === 'incoming' ? '#FFFFFF' : '#64748B'} />
+                <Text style={{ fontSize: 13, fontWeight: '700', color: referralSubTab === 'incoming' ? '#FFFFFF' : theme.textSecondary }}>
+                  Incoming ({incomingReferrals.length})
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => setReferralSubTab('sent')}
+                style={{
+                  flex: 1,
+                  paddingVertical: 10,
+                  borderRadius: 12,
+                  backgroundColor: referralSubTab === 'sent' ? '#059669' : (isDarkMode ? '#1E293B' : '#F1F5F9'),
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexDirection: 'row',
+                  gap: 6
+                }}
+              >
+                <Ionicons name="paper-plane" size={16} color={referralSubTab === 'sent' ? '#FFFFFF' : '#64748B'} />
+                <Text style={{ fontSize: 13, fontWeight: '700', color: referralSubTab === 'sent' ? '#FFFFFF' : theme.textSecondary }}>
+                  Sent by Me ({mySentReferrals.length})
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {loadingReferrals && (
+              <ActivityIndicator size="small" color="#059669" style={{ marginVertical: 20 }} />
+            )}
+
+            {/* Sub-tab: Incoming Requests for Alumnus Posters */}
+            {referralSubTab === 'incoming' && (
+              incomingReferrals.length === 0 ? (
+                <View style={{ padding: 32, alignItems: 'center', backgroundColor: isDarkMode ? '#1E293B' : '#FFFFFF', borderRadius: 16, marginTop: 10 }}>
+                  <Ionicons name="people-outline" size={48} color="#94A3B8" />
+                  <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text, marginTop: 12 }}>No Referral Requests Yet</Text>
+                  <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: 'center', marginTop: 4, maxWidth: 280 }}>
+                    When students and alumni ask for referrals on jobs you posted, they will appear here with candidate pitches and resumes.
+                  </Text>
+                </View>
+              ) : (
+                incomingReferrals.map((req, idx) => {
+                  const statusColors = {
+                    Pending: '#F59E0B',
+                    Endorsed: '#10B981',
+                    'Needs Info': '#3B82F6',
+                    Declined: '#EF4444'
+                  };
+                  return (
+                    <View key={req._id || idx} style={[styles.card, { marginTop: 10, padding: 16 }]}>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                        <Text style={{ fontSize: 15, fontWeight: '800', color: theme.text }}>{req.candidate?.name || 'Candidate'}</Text>
+                        <View style={{ backgroundColor: (statusColors[req.status] || '#64748B') + '20', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
+                          <Text style={{ fontSize: 11, fontWeight: '800', color: statusColors[req.status] || '#64748B' }}>{req.status}</Text>
+                        </View>
+                      </View>
+                      <Text style={{ fontSize: 12, color: '#059669', fontWeight: '700' }}>For: {req.jobTitle} @ {req.jobCompany}</Text>
+                      <Text style={{ fontSize: 12, color: theme.textSecondary, marginTop: 4 }}>
+                        {req.candidate?.department} • Class of {req.candidate?.graduationYear || req.candidate?.batch || 'RVCE'}
+                      </Text>
+                      <View style={{ backgroundColor: isDarkMode ? '#0F172A' : '#F8FAFC', borderRadius: 10, padding: 10, marginVertical: 10 }}>
+                        <Text style={{ fontSize: 11, fontWeight: '700', color: '#64748B', marginBottom: 2 }}>PITCH:</Text>
+                        <Text style={{ fontSize: 12.5, color: theme.text, lineHeight: 18 }}>{req.pitch}</Text>
+                      </View>
+                      <View style={{ flexDirection: 'row', gap: 8 }}>
+                        <TouchableOpacity
+                          style={{ flex: 1, backgroundColor: '#059669', paddingVertical: 8, borderRadius: 8, alignItems: 'center' }}
+                          onPress={() => handleUpdateReferral(req.jobId, req._id, 'Endorsed')}
+                        >
+                          <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 12 }}>✓ Endorse</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={{ flex: 1, backgroundColor: isDarkMode ? '#334155' : '#E2E8F0', paddingVertical: 8, borderRadius: 8, alignItems: 'center' }}
+                          onPress={() => handleUpdateReferral(req.jobId, req._id, 'Needs Info')}
+                        >
+                          <Text style={{ color: theme.text, fontWeight: '700', fontSize: 12 }}>Needs Info</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  );
+                })
+              )
+            )}
+
+            {/* Sub-tab: Sent by Candidate */}
+            {referralSubTab === 'sent' && (
+              mySentReferrals.length === 0 ? (
+                <View style={{ padding: 32, alignItems: 'center', backgroundColor: isDarkMode ? '#1E293B' : '#FFFFFF', borderRadius: 16, marginTop: 10 }}>
+                  <Ionicons name="paper-plane-outline" size={48} color="#94A3B8" />
+                  <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text, marginTop: 12 }}>No Referral Requests Sent</Text>
+                  <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: 'center', marginTop: 4, maxWidth: 280 }}>
+                    Browse alumni jobs and tap "Ask Referral" to connect directly with senior alumni working at top companies.
+                  </Text>
+                </View>
+              ) : (
+                mySentReferrals.map((req, idx) => {
+                  const statusColors = {
+                    Pending: '#F59E0B',
+                    Endorsed: '#10B981',
+                    'Needs Info': '#3B82F6',
+                    Declined: '#EF4444'
+                  };
+                  return (
+                    <View key={req._id || idx} style={[styles.card, { marginTop: 10, padding: 16 }]}>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Text style={{ fontSize: 14.5, fontWeight: '800', color: theme.text }}>{req.jobTitle}</Text>
+                        <View style={{ backgroundColor: (statusColors[req.status] || '#64748B') + '20', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
+                          <Text style={{ fontSize: 11, fontWeight: '800', color: statusColors[req.status] || '#64748B' }}>{req.status}</Text>
+                        </View>
+                      </View>
+                      <Text style={{ fontSize: 12, color: '#059669', fontWeight: '700', marginTop: 2 }}>{req.jobCompany} • {req.jobLocation}</Text>
+                      <Text style={{ fontSize: 11, color: theme.textSecondary, marginTop: 2 }}>Referrer: {req.poster?.name || 'Alumni Member'}</Text>
+                      <View style={{ backgroundColor: isDarkMode ? '#0F172A' : '#F8FAFC', borderRadius: 8, padding: 8, marginTop: 8 }}>
+                        <Text style={{ fontSize: 12, color: theme.text }}>{req.pitch}</Text>
+                      </View>
+                    </View>
+                  );
+                })
+              )
+            )}
+          </View>
+        )}
+
         {activeTab === 'tracker' && (
           <View style={{ flex: 1, padding: 16 }}>
             <View style={styles.subTabBar}>
@@ -2353,6 +2551,13 @@ const JobsScreen = ({ navigation, route }) => {
           )}
         </TouchableOpacity>
       </Modal>
+      <ReferralModal
+        visible={referralModalVisible}
+        onClose={() => setReferralModalVisible(false)}
+        job={selectedJobForReferral}
+        currentUser={null}
+        onReferralSubmitted={loadReferralData}
+      />
     </SafeAreaView>
   );
 };

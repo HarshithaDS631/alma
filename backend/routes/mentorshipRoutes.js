@@ -6,11 +6,21 @@ const {
     getMyMentorshipProfile,
     requestMentorship,
     getMyMentorships,
-    updateMentorshipStatus
+    updateMentorshipStatus,
+    getAvailableSlots,
+    setAvailabilitySlots,
+    bookMentorshipSlot,
+    getMyBookedSessions
 } = require('../controllers/mentorshipController');
-const { protect } = require('../middleware/authMiddleware');
+const { protect, optionalProtect } = require('../middleware/authMiddleware');
 
 const router = express.Router();
+
+// 1-on-1 Availability Slots & Calendar Sync (Plan 8.3)
+router.get('/slots/:mentorId', optionalProtect, getAvailableSlots);
+router.post('/slots', protect, setAvailabilitySlots);
+router.post('/slots/book', protect, bookMentorshipSlot);
+router.get('/sessions/my', protect, getMyBookedSessions);
 
 // Public / Authenticated directory listings
 router.get('/mentors', getMentors);

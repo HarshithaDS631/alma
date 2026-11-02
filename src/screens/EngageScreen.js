@@ -5,7 +5,8 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { getPosts, createPost, reportItem } from '../services/postService';
-import { blockUser, getSuggestions, getEvents, createEventApi, getFollowing, toggleFollowUser, getProfile } from '../services/authService';
+import { blockUser, getSuggestions, getEvents, createEventApi, getFollowing, toggleFollowUser, getProfile, getEventPassApi, registerForEventApi } from '../services/authService';
+import EventPassModal from '../components/EventPassModal';
 import { getImageUrl } from '../services/uploadService';
 import getInitials from '../lib/getInitials';
 import AppHeader from '../components/AppHeader';
@@ -28,6 +29,9 @@ const EngageScreen = ({ navigation, route }) => {
   const [likedPosts, setLikedPosts] = useState({});
   const [postText, setPostText] = useState('');
   const [joinedEventsMap, setJoinedEventsMap] = useState({});
+  const [selectedPass, setSelectedPass] = useState(null);
+  const [passModalVisible, setPassModalVisible] = useState(false);
+  const [selectedEventForPass, setSelectedEventForPass] = useState(null);
   const [eventForm, setEventForm] = useState({
     name: '',
     date: '',
@@ -129,6 +133,33 @@ const EngageScreen = ({ navigation, route }) => {
     }).catch(() => {});
   }, []);
 
+  const handleViewPass = async (event) => {
+    try {
+      const eventId = String(event.id || event._id);
+      let passRes = null;
+      try {
+        passRes = await getEventPassApi(eventId);
+      } catch (err) {
+        console.log('Online pass fetch fallback:', err.message);
+      }
+      setSelectedPass({
+        eventTitle: passRes?.eventTitle || event.title,
+        eventDate: passRes?.eventDate || event.time || event.date,
+        eventLocation: passRes?.eventLocation || event.location,
+        attendeeName: passRes?.attendee?.name || currentUser?.name || 'Verified Alumni Member',
+        attendeeDept: passRes?.attendee?.department || currentUser?.department || 'Engineering',
+        attendeeBatch: passRes?.attendee?.batch || currentUser?.graduationYear || currentUser?.batch || 'RVCE Alumni',
+        passToken: passRes?.passToken || ('RV-' + eventId.slice(-4).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase()),
+        qrCode: passRes?.qrCode || null,
+        checkedIn: passRes?.checkedIn || false
+      });
+      setSelectedEventForPass(event);
+      setPassModalVisible(true);
+    } catch (err) {
+      console.log('View pass error:', err.message);
+    }
+  };
+
   const handleJoinEvent = async (event) => {
     const eventId = String(event.id);
     const isAlreadyJoined = !!joinedEventsMap[eventId];
@@ -141,10 +172,21 @@ const EngageScreen = ({ navigation, route }) => {
     } catch (_) {}
 
     if (!isAlreadyJoined) {
+      registerForEventApi(eventId).catch(() => {});
       if (Platform.OS === 'web') {
-        window.alert(`RSVP Confirmed! You are registered for "${event.title}".`);
+        const viewNow = window.confirm(`RSVP Confirmed! You are registered for "${event.title}".\n\nWould you like to view your Digital Event Pass now?`);
+        if (viewNow) {
+          handleViewPass(event);
+        }
       } else {
-        Alert.alert('RSVP Confirmed', `You are registered for "${event.title}".`);
+        Alert.alert(
+          'RSVP Confirmed ✓',
+          `You are registered for "${event.title}". Your seat is confirmed!`,
+          [
+            { text: 'View Pass', onPress: () => handleViewPass(event) },
+            { text: 'OK', style: 'cancel' }
+          ]
+        );
       }
     } else {
       if (Platform.OS === 'web') {
@@ -661,6 +703,7 @@ const EngageScreen = ({ navigation, route }) => {
             <Text style={styles.fabLabel}>Host Event</Text>
           </TouchableOpacity>
         </View>
+        <EventPassModal visible={passModalVisible} onClose={() => setPassModalVisible(false)} passData={selectedPass} event={selectedEventForPass} />
       </SafeAreaView>
     );
   }

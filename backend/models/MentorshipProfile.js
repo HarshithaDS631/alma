@@ -60,10 +60,22 @@ const mentorshipProfileSchema = new mongoose.Schema({
         type: String,
         enum: ['pending', 'approved', 'rejected'],
         default: 'pending'
-    }
+    },
+    // 1-on-1 Availability Slots
+    slots: [{
+        startTime: { type: Date, required: true },
+        endTime: { type: Date, required: true },
+        isBooked: { type: Boolean, default: false },
+        bookedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        topic: { type: String, default: 'General Career Mentorship' },
+        meetingUrl: { type: String, default: '' },
+        notes: { type: String, default: '' },
+        bookedAt: { type: Date }
+    }]
 }, { timestamps: true });
 
 mentorshipProfileSchema.index({ user: 1, type: 1 }, { unique: true });
 mentorshipProfileSchema.index({ type: 1, isActive: 1 });
+mentorshipProfileSchema.index({ 'slots.startTime': 1 });
 
 module.exports = mongoose.model('MentorshipProfile', mentorshipProfileSchema);
