@@ -27,3 +27,4 @@
   - `GET /api/recommendations/jobs` (300s TTL)
   - `GET /api/events` (60s TTL)
 - Add cache-busting hook on new user registration or event creation.
+

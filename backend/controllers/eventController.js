@@ -1,6 +1,7 @@
 const Event = require('../models/Event');
 const User = require('../models/User');
 const connectDB = require('../config/db');
+const { invalidateCache } = require('../middleware/cacheMiddleware');
 
 // @desc    Get all events
 // @route   GET /api/events
@@ -52,6 +53,11 @@ exports.createEvent = async (req, res) => {
             price,
             organizer: req.user._id
         });
+
+        invalidateCache([
+            'events:list:global:',
+            `events:list:${eventInstitution}:`
+        ]);
 
         res.status(201).json(event);
     } catch (error) {

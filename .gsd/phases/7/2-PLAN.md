@@ -46,3 +46,4 @@ Implement an optional Redis-backed caching middleware with TTL and cache-busting
 - [ ] Read-heavy endpoints serve cached responses when Redis is active.
 - [ ] Safe bypass occurs seamlessly when Redis is unconfigured.
 - [ ] Cache invalidation triggers automatically on mutation.
+

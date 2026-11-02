@@ -48,3 +48,4 @@ Implement distributed rate limiting across Vercel serverless function instances 
 - [ ] Distributed Redis client initialized when credentials exist.
 - [ ] In-memory fallback handles local/test environments with zero configuration.
 - [ ] All security tests pass with 0 regressions.
+

@@ -1,8 +1,6 @@
-# GSD Pending Todos
+# GSD Completed Todos: Security Fortification & Scalability
 
-- [ ] Capture future enhancement items (e.g., Upstash Redis rate limiting) `medium` — 2026-11-02
-
-# GSD Completed Todos: Security Fortification (20/20 Checkpoints)
+- [x] Capture future enhancement items (e.g., Upstash Redis rate limiting) `medium` — 2026-11-02
 
 - [x] Hide my API keys: eliminate hardcoded JWT secret fallbacks across backend `high` — 2026-11-02
 - [x] Check my env variables: add startup environment validation `high` — 2026-11-02
