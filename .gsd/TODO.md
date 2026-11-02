@@ -1,0 +1,22 @@
+# GSD Pending Todos
+
+- [ ] Hide my API keys: eliminate hardcoded JWT secret fallbacks across backend `high` — 2026-11-02
+- [ ] Check my env variables: add startup environment validation `high` — 2026-11-02
+- [ ] Protect my admin routes: lock /api/activity and /api/admin/backup `high` — 2026-11-02
+- [ ] Add proper authentication: fix verifyToken multiple secrets & protect /endorse `high` — 2026-11-02
+- [ ] Check user access: enforce IDOR prevention and multi-tenant isolation `high` — 2026-11-02
+- [ ] Sanitize my forms: enforce NoSQL and XSS recursive input sanitization `high` — 2026-11-02
+- [ ] Protect against XSS: sanitize file upload types and SVG inline execution `high` — 2026-11-02
+- [ ] Add rate limiting: remove Vercel skip and cover OAuth / refresh token endpoints `high` — 2026-11-02
+- [ ] Secure my API endpoints: add standard error masking & route validation `medium` — 2026-11-02
+- [ ] Check my CORS settings: fix contradictory wildcard credentials in vercel.json `high` — 2026-11-02
+- [ ] Add security headers: inject HSTS, CSP, X-Frame-Options, nosniff in vercel.json `high` — 2026-11-02
+- [ ] Turn off debug mode: remove express header banner and mask stack traces `medium` — 2026-11-02
+- [ ] Update my dependencies: run npm audit on frontend and backend `medium` — 2026-11-02
+- [ ] Remove unused packages: clean obsolete and vulnerable dependencies `medium` — 2026-11-02
+- [ ] Check for exposed files: block static access to .env, .git, .sql dumps `high` — 2026-11-02
+- [ ] Secure my database: enforce TLS 1.3 and safe pool limits on MongoDB Atlas `high` — 2026-11-02
+- [ ] Hash passwords properly: standardize bcrypt with 12 salt rounds & 5-password history `high` — 2026-11-02
+- [ ] Check git for leaked secrets: audit git history and ensure .gitignore integrity `high` — 2026-11-02
+- [ ] Run a full security audit: automated verification of all 20 checkpoints `high` — 2026-11-02
+- [ ] Make no mistakes: zero regressions, full build verification & APK generation `critical` — 2026-11-02

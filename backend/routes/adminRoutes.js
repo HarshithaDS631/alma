@@ -27,7 +27,7 @@ router.get('/email-stats', getEmailStats);
 router.post('/broadcast', sendBroadcast);
 router.get('/pending-users', getPendingUsers);
 router.get('/messages', getAllMessages);
-router.get('/backup', downloadFullDatabaseBackup);
+router.get('/backup', superAdminOnly, downloadFullDatabaseBackup);
 router.get('/sessions', getAllSessions);
 router.put('/users/:id/approve', approveUser);
 router.delete('/users/:id/reject', rejectUser);

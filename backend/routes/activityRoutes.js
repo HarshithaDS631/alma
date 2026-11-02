@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { protect } = require('../middleware/authMiddleware');
+const { protect, adminOnly } = require('../middleware/authMiddleware');
 const ActivityLog = require('../models/ActivityLog');
 
 // @route   POST /api/activity/track
@@ -29,9 +29,9 @@ router.post('/track', protect, async (req, res) => {
 });
 
 // @route   GET /api/activity
-// @desc    Get real-time system activity logs from MongoDB Atlas
-// @access  Private
-router.get('/', protect, async (req, res) => {
+// @desc    Get real-time system activity logs from MongoDB Atlas (Admin only)
+// @access  Private/Admin
+router.get('/', protect, adminOnly, async (req, res) => {
     try {
         const { limit = 100, search } = req.query;
 

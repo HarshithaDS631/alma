@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const { verifyToken } = require('../config/jwt');
 const ActivityLog = require('../models/ActivityLog');
 
 /**
@@ -16,7 +17,7 @@ const activityLogger = (req, res, next) => {
     if (!userId && req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
         try {
             const token = req.headers.authorization.split(' ')[1];
-            const decoded = jwt.verify(token, process.env.JWT_SECRET || 'super_secret_jwt_key_rvce_alumni_2026_xyz');
+            const decoded = verifyToken(token);
             if (decoded && (decoded.id || decoded._id)) {
                 userId = decoded.id || decoded._id;
             }

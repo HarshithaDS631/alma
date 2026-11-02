@@ -438,7 +438,18 @@ exports.downloadFullDatabaseBackup = async (req, res) => {
 
         for (let col of collections) {
             const docs = await db.collection(col.name).find({}).toArray();
-            backupData.collections[col.name] = docs;
+            if (['users', 'adminusers', 'superadminusers'].includes(col.name.toLowerCase())) {
+                backupData.collections[col.name] = docs.map(doc => {
+                    const sanitized = { ...doc };
+                    delete sanitized.password;
+                    delete sanitized.twoFactorSecret;
+                    delete sanitized.resetPasswordToken;
+                    delete sanitized.passwordHistory;
+                    return sanitized;
+                });
+            } else {
+                backupData.collections[col.name] = docs;
+            }
         }
 
         const timestampStr = new Date().toISOString().replace(/[:.]/g, '-');

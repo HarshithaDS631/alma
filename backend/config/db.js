@@ -17,7 +17,10 @@ if (process.env.MONGO_URI && !process.env.MONGO_URI.includes('alumni_db')) {
 }
 
 const connectDB = async () => {
-    const mongoUri = process.env.MONGO_URI || 'mongodb+srv://rveducational_db_user:knXULQe7XH5VDK9r@cluster0.xk6n9j6.mongodb.net/alumni_db?retryWrites=true&w=majority';
+    const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
+    if (!mongoUri) {
+        throw new Error('MONGO_URI environment variable is missing. Set it in .env or server environment.');
+    }
 
     if (mongoose.connection.readyState === 1) {
         return mongoose.connection;
@@ -30,7 +33,8 @@ const connectDB = async () => {
             connectTimeoutMS: 15000,
             socketTimeoutMS: 45000,
             maxPoolSize: 10,
-            autoIndex: false
+            autoIndex: false,
+            tls: true
         }).catch((err) => {
             connectionPromise = null;
             throw err;

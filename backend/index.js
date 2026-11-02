@@ -34,6 +34,9 @@ const sqlAndNoSqlInjectionGuard = require('./middleware/sqlAndNoSqlInjectionGuar
 const { getHealth, getPing } = require('./controllers/healthController');
 
 dotenv.config();
+const validateEnv = require('./config/validateEnv');
+validateEnv();
+const { verifyToken } = require('./config/jwt');
 
 if (require.main === module && !process.env.VERCEL) {
     initScheduler();
@@ -42,7 +45,21 @@ if (require.main === module && !process.env.VERCEL) {
 console.log(`[ENV CONFIG] SMTP Host: ${process.env.SMTP_HOST || 'Not Set'} | SMTP User: ${process.env.SMTP_USER || 'Not Set'}`);
 
 const app = express();
+app.disable('x-powered-by');
 app.set('trust proxy', 1);
+
+// Security Headers Middleware (OWASP recommended defense-in-depth)
+app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    if (process.env.NODE_ENV === 'production') {
+        res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+    }
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(self)');
+    next();
+});
 
 // Cluster Load Balancer Telemetry & Anti-Bot Shield
 app.use((req, res, next) => {
@@ -151,7 +168,7 @@ io.use((socket, next) => {
         return next(); // Allow guest/anonymous for public notifications, room joins enforce auth
     }
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'super_secret_jwt_key_rvce_alumni_2026_xyz');
+        const decoded = verifyToken(token);
         socket.user = decoded;
         next();
     } catch (err) {
@@ -309,8 +326,12 @@ app.get('/', (req, res) => {
 // ─── Error Handler ──────────────────────────────────────────────
 app.use((err, req, res, next) => {
     console.error('[EXPRESS SERVER ERROR]:', err);
-    const message = err.message || 'Internal server error';
-    res.status(err.status || 500).json({ message });
+    const status = err.status || (err.name === 'ValidationError' ? 400 : 500);
+    const isProduction = process.env.NODE_ENV === 'production';
+    const message = (isProduction && status >= 500)
+        ? 'An unexpected server error occurred. Please try again later.'
+        : (err.message || 'Internal server error');
+    res.status(status).json({ message });
 });
 
 if (require.main === module && !process.env.VERCEL) {

@@ -4,6 +4,7 @@ const AlumniVerification = require('../models/AlumniVerification');
 const sapService = require('../services/sapService');
 const connectDB = require('../config/db');
 const jwt = require('jsonwebtoken');
+const { signToken, verifyToken, getJwtSecret } = require('../config/jwt');
 const axios = require('axios');
 const { sendWelcomeEmail, sendOtpEmail, sendPasswordResetEmail } = require('../utils/sendEmail');
 const { validateEmailFull } = require('../utils/emailValidator');
@@ -50,7 +51,7 @@ const sendPushToUser = async (recipientId, title, body, dataPayload = {}) => {
 };
 
 const generateToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET || 'super_secret_jwt_key_rvce_alumni_2026_xyz', { expiresIn: '7d' });
+    return signToken({ id }, { expiresIn: '7d' });
 };
 
 // Generate Refresh Token & save to DB
@@ -487,11 +488,7 @@ exports.loginUser = async (req, res) => {
             // Check if user has 2FA enabled
             if (user.twoFactorEnabled) {
                 // Issue a short-lived temporary 2FA token (valid for 5 minutes)
-                const twoFactorToken = jwt.sign(
-                    { id: user._id, is2FATemp: true },
-                    process.env.JWT_SECRET || 'super_secret_jwt_key_rvce_alumni_2026_xyz',
-                    { expiresIn: '5m' }
-                );
+                const twoFactorToken = signToken({ id: user._id, is2FATemp: true }, { expiresIn: '5m' });
                 return res.json({
                     requires2FA: true,
                     twoFactorToken,
@@ -1630,11 +1627,7 @@ exports.googleAuth = async (req, res) => {
 
         // Check if 2FA is required for Google user
         if (user && user.twoFactorEnabled) {
-            const twoFactorToken = jwt.sign(
-                { id: user._id, is2FATemp: true },
-                process.env.JWT_SECRET || 'super_secret_jwt_key_rvce_alumni_2026_xyz',
-                { expiresIn: '5m' }
-            );
+            const twoFactorToken = signToken({ id: user._id, is2FATemp: true }, { expiresIn: '5m' });
             return res.json({
                 requires2FA: true,
                 twoFactorToken,
@@ -2153,7 +2146,7 @@ exports.loginVerify2FA = async (req, res) => {
 
         let decoded;
         try {
-            decoded = jwt.verify(twoFactorToken, process.env.JWT_SECRET || 'super_secret_jwt_key_rvce_alumni_2026_xyz');
+            decoded = verifyToken(twoFactorToken);
         } catch (e) {
             return res.status(401).json({ message: '2FA session expired. Please log in again.' });
         }

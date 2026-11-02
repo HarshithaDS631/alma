@@ -36,11 +36,20 @@ router.post('/', protect, upload.single('image'), async (req, res) => {
             return res.status(500).json({ message: 'GridFS not initialized' });
         }
 
-        const ext = path.extname(req.file.originalname);
+        const ext = path.extname(req.file.originalname).toLowerCase();
+        const isSvg = ext === '.svg' || req.file.mimetype === 'image/svg+xml';
+        if (isSvg && req.file.buffer) {
+            const svgContent = req.file.buffer.toString('utf8');
+            const dangerousPattern = /<script|javascript:|data:\s*text\/html|onload\s*=|onerror\s*=|onclick\s*=|onmouseover\s*=/i;
+            if (dangerousPattern.test(svgContent)) {
+                return res.status(400).json({ message: 'SVG contains disallowed active scripts or event handlers' });
+            }
+        }
+
         const filename = `${crypto.randomBytes(16).toString('hex')}${ext}`;
 
         const uploadStream = gfs.openUploadStream(filename, {
-            contentType: req.file.mimetype
+            contentType: isSvg ? 'image/svg+xml' : req.file.mimetype
         });
 
         uploadStream.end(req.file.buffer);
@@ -144,6 +153,10 @@ router.get('/:filename', async (req, res) => {
         res.set('Content-Type', mimeType);
         res.set('Cache-Control', 'public, max-age=86400');
         res.set('X-Content-Type-Options', 'nosniff');
+        if (mimeType === 'image/svg+xml' || fn.endsWith('.svg')) {
+            res.set('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'");
+            res.set('Content-Disposition', 'inline; filename="asset.svg"');
+        }
 
         // Read from GridFS
         const readStream = gfs.openDownloadStreamByName(sanitizedFilename);

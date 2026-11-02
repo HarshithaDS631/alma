@@ -3,24 +3,7 @@ const User = require('../models/User');
 const TokenBlacklist = require('../models/TokenBlacklist');
 const connectDB = require('../config/db');
 
-const verifyToken = (token) => {
-    const secrets = [
-        process.env.JWT_SECRET,
-        'super_secret_jwt_key_rvce_alumni_2026_xyz'
-    ].filter(Boolean);
-    
-    let decoded = null;
-    let lastError = null;
-    for (const sec of secrets) {
-        try {
-            decoded = jwt.verify(token, sec);
-            if (decoded) return decoded;
-        } catch (err) {
-            lastError = err;
-        }
-    }
-    throw lastError || new Error('Invalid token');
-};
+const { verifyToken } = require('../config/jwt');
 
 const protect = async (req, res, next) => {
     let token;

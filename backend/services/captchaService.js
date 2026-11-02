@@ -1,7 +1,8 @@
 const crypto = require('crypto');
+const { getJwtSecret } = require('../config/jwt');
 
 // Secret key for signing CAPTCHA challenges
-const CAPTCHA_SECRET = process.env.CAPTCHA_SECRET || process.env.JWT_SECRET || 'alumni_platform_secure_captcha_secret_2026';
+const CAPTCHA_SECRET = process.env.CAPTCHA_SECRET || getJwtSecret();
 
 // Replay attack prevention: stores used captcha IDs for 10 minutes
 const usedCaptchaIds = new Map();

@@ -1,6 +1,7 @@
 const axios = require('axios');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const { signToken } = require('../config/jwt');
 
 const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY || process.env.FCM_SERVER_KEY || 'AIzaSyBeYSmgQ3zbqVl__gEszJpaPausQt2_Fc0';
 
@@ -58,7 +59,7 @@ exports.verifyFirebaseToken = async (req, res) => {
         }
 
         // Generate JWT Session Token
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'super_secret_jwt_key_rvce_alumni_2026_xyz', { expiresIn: '7d' });
+        const token = signToken({ id: user._id }, { expiresIn: '7d' });
 
         res.status(200).json({
             success: true,

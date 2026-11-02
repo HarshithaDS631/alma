@@ -159,6 +159,10 @@ exports.endorseSkill = async (req, res) => {
             return res.status(400).json({ message: 'targetUserId and skillName are required' });
         }
 
+        if (req.user && req.user._id && req.user._id.toString() === targetUserId.toString()) {
+            return res.status(400).json({ message: 'You cannot endorse your own skills' });
+        }
+
         const user = await User.findById(targetUserId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
