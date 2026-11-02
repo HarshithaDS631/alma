@@ -7,6 +7,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { getPosts, createPost, reportItem } from '../services/postService';
 import { blockUser, getSuggestions, getEvents, createEventApi, getFollowing, toggleFollowUser, getProfile, getEventPassApi, registerForEventApi } from '../services/authService';
 import EventPassModal from '../components/EventPassModal';
+import UserAvatar from '../components/UserAvatar';
 import { getImageUrl } from '../services/uploadService';
 import getInitials from '../lib/getInitials';
 import AppHeader from '../components/AppHeader';
@@ -284,6 +285,7 @@ const EngageScreen = ({ navigation, route }) => {
           user: p.user.name || 'Unknown User',
           subtitle: p.user.institution || 'Institution',
           avatar: getInitials(p.user.name, 'AL'),
+          avatar_url: p.user.avatar_url || p.user.profilePicture || '',
           image: p.image_url,
           likes: 0,
           time: new Date(p.created_at).toLocaleDateString(),
@@ -298,6 +300,7 @@ const EngageScreen = ({ navigation, route }) => {
           id: s._id,
           name: s.name,
           avatar: getInitials(s.name, 'AL'),
+          avatar_url: s.avatar_url || s.profilePicture || '',
           subtitle: s.company ? `${s.designation || ''} @ ${s.company}`.trim() : `Batch of ${s.batchYear || ''} • ${s.department || s.institution || ''}`.trim(),
         }));
         setSuggestions(formatted);
@@ -495,7 +498,7 @@ const EngageScreen = ({ navigation, route }) => {
 
             {/* Organizer Row */}
             <View style={styles.hostRow}>
-              <View style={styles.hostAvatar}><Text style={styles.hostAvatarText}>{getInitials(currentUser?.name, 'AL')}</Text></View>
+              <UserAvatar url={currentUser?.avatar_url || currentUser?.profilePicture} name={currentUser?.name} size={42} style={{ marginRight: 12 }} />
               <View style={{ flex: 1 }}>
                 <Text style={styles.hostName}>{currentUser?.name || 'Verified Alumni Member'}</Text>
                 <Text style={{ fontSize: 11.5, color: '#64748B' }}>Event Organizer & Host</Text>
@@ -723,9 +726,7 @@ const EngageScreen = ({ navigation, route }) => {
         {/* Post Creator UI for Feed */}
         <View style={{ backgroundColor: '#FFFFFF', padding: 16, marginBottom: 12, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#059669', justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
-              <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>{getInitials(currentUser?.name, 'AL')}</Text>
-            </View>
+            <UserAvatar url={currentUser?.avatar_url || currentUser?.profilePicture} name={currentUser?.name} size={40} style={{ marginRight: 12 }} />
             <TouchableOpacity style={{ flex: 1, height: 44, borderRadius: 22, backgroundColor: '#F8FAFC', borderWidth: 1, borderColor: '#E2E8F0', paddingHorizontal: 16, justifyContent: 'center' }} onPress={() => navigation.navigate('PostCreation')}>
               <Text style={{ color: '#94A3B8', fontSize: 14.5 }}>Share an update, milestone, or question...</Text>
             </TouchableOpacity>
@@ -751,7 +752,7 @@ const EngageScreen = ({ navigation, route }) => {
           <React.Fragment key={post.id}>
             <View style={styles.postCard}>
               <View style={styles.postHeader}>
-                <View style={styles.postAvatar}><Text style={styles.postAvatarText}>{post.avatar}</Text></View>
+                <UserAvatar url={post.avatar_url} name={post.user} size={42} style={{ marginRight: 12 }} />
                 <View style={[styles.postInfo, { flex: 1 }]}>
                   <Text style={styles.postUserName}>
                     {post.user}
@@ -815,7 +816,7 @@ const EngageScreen = ({ navigation, route }) => {
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.suggestionsScroll}>
                   {suggestions.map(s => (
                     <View key={s.id} style={styles.suggestionCard}>
-                      <View style={styles.suggestionAvatar}><Text style={styles.suggestionAvatarText}>{s.avatar}</Text></View>
+                      <UserAvatar url={s.avatar_url} name={s.name} size={46} style={{ marginBottom: 8 }} />
                       <Text style={styles.suggestionName}>{s.name}</Text>
                       <TouchableOpacity 
                         style={[styles.followSmallBtn, followedSuggestions[s.id] && styles.followedBtn]}
@@ -843,7 +844,7 @@ const EngageScreen = ({ navigation, route }) => {
         </View>
         {suggestions.map(s => (
           <View key={s.id} style={[styles.suggestionCard, { width: '100%', flexDirection: 'row', alignItems: 'center', marginBottom: 12, backgroundColor: 'transparent', padding: 0, borderWidth: 0 }]}>
-            <View style={[styles.suggestionAvatar, { width: 40, height: 40, borderRadius: 20, marginBottom: 0, marginRight: 12 }]}><Text style={styles.suggestionAvatarText}>{s.avatar}</Text></View>
+            <UserAvatar url={s.avatar_url} name={s.name} size={40} style={{ marginRight: 12 }} />
             <Text style={[styles.suggestionName, { flex: 1, textAlign: 'left', marginBottom: 0 }]}>{s.name}</Text>
             <TouchableOpacity 
               style={[styles.followSmallBtn, followedSuggestions[s.id] && styles.followedBtn]}
@@ -984,7 +985,7 @@ const EngageScreen = ({ navigation, route }) => {
             {postsList.slice(0, 2).map(post => (
               <View key={post.id} style={styles.reshareRow}>
                 <View style={styles.resharePostPreview}>
-                  <View style={styles.smallAvatar}><Text style={styles.smallAvatarText}>{post.avatar}</Text></View>
+                  <UserAvatar url={post.avatar_url} name={post.user} size={32} style={{ marginRight: 8 }} />
                   <View style={{ flex: 1 }}>
                     <Text style={styles.reshareUser}>{post.user}</Text>
                     <Text style={styles.reshareContent} numberOfLines={1}>{post.content}</Text>
@@ -1001,7 +1002,7 @@ const EngageScreen = ({ navigation, route }) => {
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.dmScroll}>
               {[{id: 's1', name: 'Alok Nath', avatar: 'AN'}, {id: 's2', name: 'Shruti V', avatar: 'SV'}, {id: 's3', name: 'Ritika M', avatar: 'RM'}].map(s => (
                 <View key={s.id} style={styles.dmCard}>
-                  <View style={styles.suggestionAvatar}><Text style={styles.suggestionAvatarText}>{s.avatar}</Text></View>
+                  <UserAvatar url={s.avatar_url} name={s.name} size={46} style={{ marginBottom: 8 }} />
                   <Text style={styles.dmName} numberOfLines={1}>{s.name}</Text>
                 </View>
               ))}

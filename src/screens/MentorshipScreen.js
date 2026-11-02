@@ -11,6 +11,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import getInitials from '../lib/getInitials';
 import { API_URL } from '../services/api';
 import MentorshipBookingModal from '../components/MentorshipBookingModal';
+import UserAvatar from '../components/UserAvatar';
 import { fetchMyBookedSessions } from '../services/mentorshipService';
 
 const API_BASE = API_URL;
@@ -638,13 +639,7 @@ const MentorshipScreen = ({ navigation }) => {
         style={[styles.mentorCard, isWide && { width: '48.5%' }]}
       >
         <View style={styles.cardHeaderRow}>
-          {m.avatar_url ? (
-            <Image source={{ uri: m.avatar_url }} style={styles.avatarImg} />
-          ) : (
-            <View style={[styles.avatarPlaceholder, { backgroundColor: '#059669' }]}>
-              <Text style={styles.avatarInitials}>{getInitials(m.name)}</Text>
-            </View>
-          )}
+          <UserAvatar url={m.avatar_url} name={m.name} size={48} borderRadius={14} />
           <View style={{ flex: 1, marginLeft: 12 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={[styles.cardTitle, { color: theme.text }]} numberOfLines={1}>{m.name}</Text>
@@ -732,13 +727,7 @@ const MentorshipScreen = ({ navigation }) => {
     return (
       <View key={mentee.id} style={styles.menteeCard}>
         <View style={styles.cardHeaderRow}>
-          {mentee.avatar_url ? (
-            <Image source={{ uri: mentee.avatar_url }} style={styles.avatarImg} />
-          ) : (
-            <View style={[styles.avatarPlaceholder, { backgroundColor: '#059669' }]}>
-              <Text style={styles.avatarInitials}>{getInitials(mentee.name)}</Text>
-            </View>
-          )}
+          <UserAvatar url={mentee.avatar_url} name={mentee.name} size={48} borderRadius={14} />
           <View style={{ flex: 1, marginLeft: 12 }}>
             <Text style={[styles.cardTitle, { color: theme.text }]}>{mentee.name}</Text>
             <Text style={[styles.cardSubTitle, { color: theme.textSecondary || '#64748B' }]}>
@@ -863,13 +852,7 @@ const MentorshipScreen = ({ navigation }) => {
         myConnections.map(conn => (
           <View key={conn.id} style={[styles.connectionCard, { backgroundColor: isDarkMode ? '#1E293B' : '#FFF', borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              {conn.avatar ? (
-                <Image source={{ uri: conn.avatar }} style={styles.myMentorAvatar} />
-              ) : (
-                <View style={[styles.avatarPlaceholder, { width: 44, height: 44, backgroundColor: '#059669' }]}>
-                  <Text style={styles.avatarInitials}>{getInitials(conn.name)}</Text>
-                </View>
-              )}
+              <UserAvatar url={conn.avatar} name={conn.name} size={44} borderRadius={12} />
               <View style={{ flex: 1, marginLeft: 12 }}>
                 <Text style={[styles.myMentorName, { color: theme.text }]}>{conn.name}</Text>
                 <Text style={{ fontSize: 12, color: isDarkMode ? '#94A3B8' : '#64748B' }}>

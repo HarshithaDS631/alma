@@ -21,6 +21,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { getImageUrl } from '../services/uploadService';
+import UserAvatar from '../components/UserAvatar';
 import { 
   getSuggestions, 
   getUsers, 
@@ -670,13 +671,7 @@ const DirectoryScreen = ({ navigation, route }) => {
             styles.almaAvatarWrapper,
             item.openToWork && { borderColor: '#057642', borderWidth: 2.5 }
           ]}>
-            {item.avatar_url ? (
-              <Image source={{ uri: item.avatar_url }} style={styles.almaAvatarImage} />
-            ) : (
-              <View style={[styles.almaAvatarFallback, { backgroundColor: item.color || '#059669' }]}>
-                <Text style={styles.almaAvatarInitials}>{item.initials}</Text>
-              </View>
-            )}
+            <UserAvatar url={item.avatar_url} name={item.name} size={56} openToWork={Boolean(item.openToWork)} />
 
             {/* LinkedIn-style curved photo ribbon */}
             {item.openToWork && (

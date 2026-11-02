@@ -14,3 +14,4 @@
 ## Zero Regressions
 - No existing data models broken; all schemas maintain backward compatibility.
 - All newly added endpoints enforce authentication and strict parameter validation.
+

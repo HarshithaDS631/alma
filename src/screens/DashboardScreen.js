@@ -23,6 +23,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
 import { getSuggestions, getPosts, getEvents, toggleFollowUser, getFollowing, getFollowers, toggleLikePost, getProfile, getUsers } from '../services/authService';
 import { getImageUrl } from '../services/uploadService';
+import UserAvatar from '../components/UserAvatar';
 import { addComment, toggleSavePost, resharePost } from '../services/postService';
 import { sendMessage } from '../services/messageService';
 import { fetchJobs } from '../services/jobService';
@@ -1046,11 +1047,7 @@ const DashboardScreen = ({ navigation }) => {
               }
             }}
           >
-            {post.isAvatarUrl ? (
-              <Image source={{ uri: post.avatar }} style={{ width: '100%', height: '100%', borderRadius: 21 }} />
-            ) : (
-              <Text style={styles.avatarText}>{post.avatar || getInitials(post.user)}</Text>
-            )}
+            <UserAvatar url={post.avatar} name={post.user} size={42} />
           </TouchableOpacity>
 
           <View style={styles.postUserInfo}>
@@ -1292,11 +1289,7 @@ const DashboardScreen = ({ navigation }) => {
           onPress={() => openModal('comments', post)}
         >
           <View style={styles.instagramMiniAvatar}>
-            {userAvatarUrl ? (
-              <Image source={{ uri: userAvatarUrl }} style={{ width: 20, height: 20, borderRadius: 10 }} />
-            ) : (
-              <Text style={styles.instagramMiniAvatarText}>{getInitials(userName || 'Me')}</Text>
-            )}
+            <UserAvatar url={userAvatarUrl} name={userName || 'Me'} size={22} />
           </View>
           <Text style={styles.instagramAddCommentPlaceholder}>Add a comment...</Text>
         </TouchableOpacity>
@@ -1594,13 +1587,7 @@ const DashboardScreen = ({ navigation }) => {
                     onPress={() => navigation.navigate('Profile')}
                     activeOpacity={0.8}
                   >
-                    {userAvatarUrl ? (
-                      <Image source={{ uri: userAvatarUrl }} style={{ width: '100%', height: '100%' }} />
-                    ) : (
-                      <Text style={{ fontSize: 24, fontWeight: '700', color: '#FFFFFF' }}>
-                        {getInitials(userName || currentUser?.name || currentUser?.email || 'User')}
-                      </Text>
-                    )}
+                    <UserAvatar url={userAvatarUrl} name={userName || currentUser?.name || 'User'} size={72} ring ringColor="#059669" />
                   </TouchableOpacity>
 
                   <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10, gap: 5 }}>
@@ -1762,13 +1749,7 @@ const DashboardScreen = ({ navigation }) => {
                   suggestions.slice(0, 4).map(s => (
                     <View key={s.id} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
                       <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 8 }}>
-                        <View style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: '#059669', justifyContent: 'center', alignItems: 'center', marginRight: 10, overflow: 'hidden' }}>
-                          {s.isAvatarUrl ? (
-                            <Image source={{ uri: s.avatar }} style={{ width: 38, height: 38, borderRadius: 19 }} />
-                          ) : (
-                            <Text style={{ fontWeight: '700', color: '#FFFFFF', fontSize: 12 }}>{s.avatar || getInitials(s.name)}</Text>
-                          )}
-                        </View>
+                        <UserAvatar url={s.avatar} name={s.name} size={38} style={{ marginRight: 10 }} />
                         <View style={{ flex: 1 }}>
                           <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }} numberOfLines={1}>{s.name}</Text>
                           <Text style={{ fontSize: 11, color: theme.textSecondary }} numberOfLines={1}>

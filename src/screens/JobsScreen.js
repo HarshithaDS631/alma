@@ -38,6 +38,7 @@ import {
   updateReferralStatus
 } from '../services/jobService';
 import ReferralModal from '../components/ReferralModal';
+import UserAvatar from '../components/UserAvatar';
 
 const WORKPLACE_TYPES = ['All', 'On-site', 'Hybrid', 'Remote'];
 const JOB_TYPES = ['All', 'Full-time', 'Part-time', 'Contract', 'Internship'];
@@ -1618,18 +1619,7 @@ const JobsScreen = ({ navigation, route }) => {
                       </View>
 
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                        {selectedJob.alumniRecruiter?.avatar ? (
-                          <Image 
-                            source={{ uri: selectedJob.alumniRecruiter.avatar }} 
-                            style={styles.recruiterAvatar} 
-                          />
-                        ) : (
-                          <View style={styles.recruiterAvatarFallback}>
-                            <Text style={styles.recruiterAvatarText}>
-                              {selectedJob.alumniRecruiter?.name ? selectedJob.alumniRecruiter.name.slice(0, 2).toUpperCase() : 'RV'}
-                            </Text>
-                          </View>
-                        )}
+                        <UserAvatar url={selectedJob.alumniRecruiter?.avatar} name={selectedJob.alumniRecruiter?.name || 'RV'} size={48} style={{ marginRight: 12 }} />
                         <View style={{ flex: 1 }}>
                           <Text style={styles.recruiterName}>
                             {selectedJob.alumniRecruiter?.name || 'Aditya Rao'}

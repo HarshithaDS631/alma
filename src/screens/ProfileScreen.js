@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getProfile, updateProfile, changePassword, deleteAccount, getPosts, getFollowers, getFollowing, toggleFollowUser, logout, setup2FA, verify2FA, disable2FA, getActiveSessions, revokeSession, getLoginHistory, toggleLikePost } from '../services/authService';
 import { getChatHistory, sendMessage } from '../services/messageService';
 import { uploadFile, getImageUrl } from '../services/uploadService';
+import UserAvatar from '../components/UserAvatar';
 import { addComment, deletePost, toggleSavePost, updatePostSettings, editPost, getSavedPosts, getUserPosts } from '../services/postService';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
@@ -144,6 +145,7 @@ const DEFAULT_CONNECTIONS = [];
   const [modalSearchQuery, setModalSearchQuery] = useState('');
   const [unfollowTarget, setUnfollowTarget] = useState(null);
 
+  const [avatarLoadError, setAvatarLoadError] = useState(false);
   const [profileData, setProfileData] = useState({
     username: '',
     name: '',
@@ -193,8 +195,10 @@ const DEFAULT_CONNECTIONS = [];
           const safeEmail = (cached.email && typeof cached.email === 'string') ? cached.email : '';
           const isHarshitha = safeEmail.toLowerCase() === 'harshithads2001@gmail.com';
           let rawAvatar = cached.avatar_url || cached.profilePicture;
-          if (!rawAvatar && isHarshitha) {
-            rawAvatar = 'https://alma-orpin-delta.vercel.app/api/upload/6a0a8e156693c176e3d31931af9df3f5.jpg';
+          if (!rawAvatar || rawAvatar.includes('6a0a8e156693c176e3d31931af9df3f5')) {
+            if (isHarshitha) {
+              rawAvatar = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&h=400&q=80';
+            }
           }
           const uName = cached.name || (safeEmail ? safeEmail.split('@')[0] : 'Alumni Member');
           const uHandle = cached.username || (cached.name ? cached.name.toLowerCase().replace(/\s+/g, '_') : (safeEmail ? safeEmail.split('@')[0] : 'alumni'));
@@ -410,8 +414,10 @@ const DEFAULT_TAGGED_POSTS = [];
             } catch (e) {}
 
             let rawAvatar = activeUser.avatar_url || activeUser.profilePicture;
-            if (!rawAvatar && isHarshitha) {
-              rawAvatar = 'https://alma-orpin-delta.vercel.app/api/upload/6a0a8e156693c176e3d31931af9df3f5.jpg';
+            if (!rawAvatar || rawAvatar.includes('6a0a8e156693c176e3d31931af9df3f5')) {
+              if (isHarshitha) {
+                rawAvatar = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&h=400&q=80';
+              }
             }
             const fullAvatarUrl = rawAvatar ? getImageUrl(rawAvatar) : '';
             const uName = activeUser.name || (safeEmail ? safeEmail.split('@')[0] : 'Alumni Member');
@@ -892,6 +898,7 @@ const DEFAULT_TAGGED_POSTS = [];
           avatar_url: uploadedUrl
         }));
         setEditAvatarUrl(uploadedUrl);
+        setAvatarLoadError(false);
 
         try {
           await updateProfile({ avatar_url: uploadedUrl, profilePicture: uploadedUrl });
@@ -1253,12 +1260,12 @@ const DEFAULT_TAGGED_POSTS = [];
                 ]}
               >
                 <View style={styles.avatar}>
-                  {profileData.avatar_url ? (
+                  {Boolean(profileData.avatar_url) && !avatarLoadError ? (
                     <Image 
                       source={{ uri: profileData.avatar_url }} 
                       style={styles.avatarImg} 
                       resizeMode="cover"
-                      onError={(e) => console.warn('[AVATAR LOAD ERROR]:', e?.nativeEvent?.error || e)}
+                      onError={() => setAvatarLoadError(true)}
                     />
                   ) : (
                     <Text style={styles.avatarText}>
@@ -1550,13 +1557,7 @@ const DEFAULT_TAGGED_POSTS = [];
                   {displayUserPosts.map((post) => (
                     <View key={post._id || post.id} style={{ backgroundColor: theme.card, borderRadius: 16, borderWidth: 1, borderColor: theme.border, overflow: 'hidden', padding: 18, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 1 }}>
                       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-                        <View style={[styles.avatar, { width: 42, height: 42, borderRadius: 21, marginRight: 12 }]}>
-                          {profileData.avatar_url ? (
-                            <Image source={{ uri: profileData.avatar_url }} style={{ width: 42, height: 42, borderRadius: 21 }} />
-                          ) : (
-                            <Text style={{ fontSize: 14, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(profileData.name || 'User')}</Text>
-                          )}
-                        </View>
+                        <UserAvatar url={profileData.avatar_url} name={profileData.name} size={42} style={{ marginRight: 12 }} />
                         <View style={{ flex: 1 }}>
                           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                             <Text style={{ fontSize: 15, fontWeight: '800', color: theme.text }}>{profileData.name || 'Alumni Member'}</Text>
@@ -4391,13 +4392,7 @@ const DEFAULT_TAGGED_POSTS = [];
               
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 8 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center', overflow: 'hidden', marginRight: 12 }}>
-                    {profileData.avatar_url ? (
-                      <Image source={{ uri: profileData.avatar_url }} style={{ width: 44, height: 44, borderRadius: 22 }} />
-                    ) : (
-                      <Text style={{ color: '#FFF', fontWeight: '700' }}>{profileData.avatar || 'AL'}</Text>
-                    )}
-                  </View>
+                  <UserAvatar url={profileData.avatar_url} name={profileData.name} size={44} style={{ marginRight: 12 }} />
                   <View>
                     <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>{profileData.username}</Text>
                     <Text style={{ fontSize: 12, color: theme.textSecondary }}>{profileData.name} • {profileData.branch || 'Alumni'}</Text>

@@ -39,3 +39,4 @@ export const setAvailabilitySlots = async (slots) => {
     const { data } = await api.post('/mentorship/slots', { slots });
     return data;
 };
+

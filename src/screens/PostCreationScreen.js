@@ -8,6 +8,7 @@ import { uploadFile, getImageUrl } from '../services/uploadService';
 import { createPost } from '../services/postService';
 import { getFollowers, getFollowing } from '../services/authService';
 import getInitials from '../lib/getInitials';
+import UserAvatar from '../components/UserAvatar';
 
 const hashtags = ['#Institution', '#AlumniMeet', '#Mentorship', '#TechTalk', '#Careers', '#ClassOf2024'];
 
@@ -233,16 +234,7 @@ const PostCreationScreen = ({ navigation }) => {
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
               {/* User Header */}
               <View style={styles.userSection}>
-                <View style={[styles.avatar, { overflow: 'hidden', justifyContent: 'center', alignItems: 'center' }]}>
-                  {(currentUser?.avatar_url || currentUser?.profilePicture) ? (
-                    <Image 
-                      source={{ uri: getImageUrl(currentUser.avatar_url || currentUser.profilePicture) }} 
-                      style={{ width: '100%', height: '100%', borderRadius: 20 }} 
-                    />
-                  ) : (
-                    <Text style={styles.avatarText}>{getInitials(currentUser?.name)}</Text>
-                  )}
-                </View>
+                <UserAvatar url={currentUser?.avatar_url || currentUser?.profilePicture} name={currentUser?.name} size={42} style={{ marginRight: 12 }} />
                 <View>
                   <Text style={styles.userName}>{currentUser?.name || 'User'}</Text>
                 </View>
@@ -364,13 +356,7 @@ const PostCreationScreen = ({ navigation }) => {
                       }
                     }}
                   >
-                    <View style={{width: 40, height: 40, borderRadius: 20, backgroundColor: '#E2E8F0', justifyContent: 'center', alignItems: 'center', marginRight: 12, overflow: 'hidden'}}>
-                      {item.avatar_url ? (
-                        <Image source={{uri: item.avatar_url}} style={{width: '100%', height: '100%'}} />
-                      ) : (
-                        <Text style={{color: '#64748B', fontWeight: 'bold'}}>{getInitials(item.name)}</Text>
-                      )}
-                    </View>
+                    <UserAvatar url={item.avatar_url} name={item.name} size={40} style={{ marginRight: 12 }} />
                     <Text style={{flex: 1, fontSize: 16, color: '#1E293B', fontWeight: '500'}}>{item.name}</Text>
                     <View style={{width: 24, height: 24, borderRadius: 12, borderWidth: 2, borderColor: isSelected ? theme.primary : '#CBD5E1', backgroundColor: isSelected ? theme.primary : 'transparent', justifyContent: 'center', alignItems: 'center'}}>
                       {isSelected && <Ionicons name="checkmark" size={16} color="white" />}

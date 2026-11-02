@@ -10,6 +10,8 @@ import {
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
 import { getSocket } from '../services/socketService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import UserAvatar from './UserAvatar';
 
 /**
  * Standard Universal App Header across all screens
@@ -34,6 +36,15 @@ const AppHeader = ({
 
   const [unreadMessages, setUnreadMessages] = useState(unreadMessagesCount || 0);
   const [unreadNotifications, setUnreadNotifications] = useState(unreadNotificationsCount || 0);
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    AsyncStorage.getItem('userInfo').then(str => {
+      if (str) {
+        try { setCurrentUser(JSON.parse(str)); } catch (_) {}
+      }
+    }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (typeof unreadMessagesCount === 'number') {
@@ -88,11 +99,15 @@ const AppHeader = ({
         <TouchableOpacity
           onPress={() => navigation?.navigate?.('Home')}
           activeOpacity={0.8}
-          style={{ flexDirection: 'row', alignItems: 'center' }}
+          style={{ flexDirection: 'row', alignItems: 'center', gap: 7 }}
           accessibilityLabel="Home"
         >
-          <Text style={{ fontSize: 22, fontWeight: '900', color: '#059669', letterSpacing: -0.3 }}>RV </Text>
-          <Text style={{ fontSize: 22, fontWeight: '900', color: theme.text || '#0F172A', letterSpacing: -0.3 }}>ALUMNI</Text>
+          <View style={styles.brandCrest}>
+            <Text style={styles.brandCrestText}>RV</Text>
+          </View>
+          <Text style={{ fontSize: 20, fontWeight: '900', color: theme.text || '#0F172A', letterSpacing: -0.3 }}>
+            ALUMNI
+          </Text>
         </TouchableOpacity>
 
         {/* Desktop Context Badge if available */}
@@ -231,6 +246,25 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '800',
     letterSpacing: -0.2,
+  },
+  brandCrest: {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    backgroundColor: '#059669',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#059669',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  brandCrestText: {
+    color: '#FFFFFF',
+    fontWeight: '900',
+    fontSize: 12,
+    letterSpacing: 0.5,
   },
   headerIconsRow: {
     flexDirection: 'row',

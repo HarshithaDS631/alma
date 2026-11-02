@@ -159,7 +159,13 @@ router.get('/:filename', async (req, res) => {
         }
 
         // Read from GridFS
+        // Read from GridFS with error protection
         const readStream = gfs.openDownloadStreamByName(sanitizedFilename);
+        readStream.on('error', (streamErr) => {
+            if (!res.headersSent) {
+                res.status(404).json({ message: 'File not found or unreadable' });
+            }
+        });
         readStream.pipe(res);
     } catch (error) {
         res.status(500).json({ message: error.message });
