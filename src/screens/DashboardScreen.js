@@ -37,7 +37,62 @@ import AppHeader from '../components/AppHeader';
 
 
 // Pool of all known posts across all users — used as offline fallback
-const ALL_KNOWN_POSTS = [];
+const ALL_KNOWN_POSTS = [
+  {
+    id: 'seed-post-1',
+    _id: 'seed-post-1',
+    user: 'RVCE Alumni Relations',
+    authorId: 'rv-admin-official',
+    role: 'Official Institution Announcement • RSST',
+    avatar: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=200',
+    avatar_url: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=200',
+    isAvatarUrl: true,
+    content: '🎓 Welcome to the Official RV Alumni Community Portal! Discover batchmates, find career referral opportunities, and book 1-on-1 mentorship sessions with global leaders across engineering, tech, and business.',
+    image: null,
+    likes: 24,
+    comments: [],
+    commentsCount: 3,
+    time: 'Today',
+    isAdmin: true,
+    isOfficial: true
+  },
+  {
+    id: 'seed-post-2',
+    _id: 'seed-post-2',
+    user: 'Aditya Rao',
+    authorId: 'aditya-rao-2016',
+    role: 'Staff Engineering Lead (RVCE CSE 2016) • Google',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200',
+    avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200',
+    isAvatarUrl: true,
+    content: '🚀 Hiring for Distributed Systems & ML Infrastructure engineers! We have multiple openings open for RV alumni. Check the Jobs tab to request an expedited employee referral.',
+    image: null,
+    likes: 18,
+    comments: [],
+    commentsCount: 5,
+    time: '1 day ago',
+    isAdmin: false,
+    isOfficial: false
+  },
+  {
+    id: 'seed-post-3',
+    _id: 'seed-post-3',
+    user: 'Dr. K. S. Geetha',
+    authorId: 'faculty-mentor-rvce',
+    role: 'Dean of Alumni Relations & Academic Affairs • RVCE',
+    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200',
+    avatar_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200',
+    isAvatarUrl: true,
+    content: '✨ The RVCE Annual Alumni Leadership Summit 2026 registration is officially live! Keynotes by distinguished founders, networking dinners, and digital QR event passes available in the Events section.',
+    image: null,
+    likes: 35,
+    comments: [],
+    commentsCount: 8,
+    time: '2 days ago',
+    isAdmin: true,
+    isOfficial: true
+  }
+];
 
 /**
  * Respective college campus photos with official RV Alumni Garuda mascot
@@ -106,7 +161,7 @@ const getDefaultPostsForUser = (currentUserId, currentUserName, followingIds = [
   const followingSet = new Set(followingIds.map(id => id.toString().toLowerCase()));
 
   return ALL_KNOWN_POSTS.filter(post => {
-    // Skip reshared posts from feed — reshares go in Profile Reshares tab
+    // Skip reshared posts from feed
     if (post.content && /reshared\s+from/i.test(post.content)) return false;
 
     // Always show own posts
@@ -114,11 +169,12 @@ const getDefaultPostsForUser = (currentUserId, currentUserName, followingIds = [
       (userNameStr && (post.user || '').toLowerCase().includes(userNameStr));
     if (isOwnPost) return true;
 
-    // Show posts from followed users only (Instagram style)
+    // Always show official announcement / admin posts
+    if (post.isAdmin || post.isOfficial) return true;
+
+    // Show posts from followed users if followed list exists
     if (followingSet.size > 0) {
-      // Match by authorId
       if (followingSet.has((post.authorId || '').toString().toLowerCase())) return true;
-      // Match by author name (for fallback/default users)
       const postUserName = (post.user || '').toLowerCase();
       for (const id of followingSet) {
         if (id === postUserName) return true;
@@ -126,8 +182,8 @@ const getDefaultPostsForUser = (currentUserId, currentUserName, followingIds = [
       return false;
     }
 
-    // No following list yet (fresh account) — show only admin posts
-    return Boolean(post.isAdmin);
+    // Default to showing community seed posts so the feed is never blank
+    return true;
   });
 };
 
@@ -713,7 +769,6 @@ const DashboardScreen = ({ navigation }) => {
 
             const dbFormatted = allDbPosts
               .filter(p => {
-                // Never show reshares in the main feed (they have originalPost set)
                 if (p.originalPost || p.isReshare) return false;
 
                 const authorId = (p.user?._id || p.user?.id || '').toString();
@@ -723,6 +778,9 @@ const DashboardScreen = ({ navigation }) => {
                 if (myUserId && authorId === myUserId) return true;
                 if (myUserName && authorName === myUserName) return true;
 
+                // Always show official / admin posts
+                if (p.user?.role === 'Admin' || p.user?.role === 'Super Admin' || p.isAdmin || p.isOfficial) return true;
+
                 // Show posts from followed users
                 if (followedUserIds.size > 0 || followedUserNames.size > 0) {
                   if (followedUserIds.has(authorId)) return true;
@@ -730,8 +788,8 @@ const DashboardScreen = ({ navigation }) => {
                   return false;
                 }
 
-                // No following list yet — show only own posts (very new account)
-                return false;
+                // If user doesn't follow anyone yet, show active community posts
+                return true;
               })
               .map(p => formatPostObject(p, myUserId))
               .filter(Boolean);

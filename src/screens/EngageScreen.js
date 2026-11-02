@@ -276,24 +276,56 @@ const EngageScreen = ({ navigation, route }) => {
         getFollowing()
       ]);
       
-      if (postsRes.status === 'fulfilled' && postsRes.value) {
-        const formatted = postsRes.value
+      let formatted = [];
+      if (postsRes.status === 'fulfilled' && Array.isArray(postsRes.value) && postsRes.value.length > 0) {
+        formatted = postsRes.value
           .filter(p => p.user && !blockedUsers.has(p.user._id))
           .map(p => ({
-          id: p._id,
-          user_id: p.user._id,
-          user: p.user.name || 'Unknown User',
-          subtitle: p.user.institution || 'Institution',
-          avatar: getInitials(p.user.name, 'AL'),
-          avatar_url: p.user.avatar_url || p.user.profilePicture || '',
-          image: p.image_url,
-          likes: 0,
-          time: new Date(p.created_at).toLocaleDateString(),
-          content: p.content,
-          tags: p.tags || []
-        }));
-        setPostsList(formatted);
+            id: p._id,
+            user_id: p.user._id,
+            user: p.user.name || 'Unknown User',
+            subtitle: p.user.institution || p.user.department || 'RV Alumni Member',
+            avatar: getInitials(p.user.name, 'AL'),
+            avatar_url: p.user.avatar_url || p.user.profilePicture || '',
+            image: p.image_url,
+            likes: p.likes?.length || 0,
+            time: p.created_at ? new Date(p.created_at).toLocaleDateString() : 'Recent',
+            content: p.content,
+            tags: p.tags || []
+          }));
       }
+
+      if (formatted.length === 0) {
+        formatted = [
+          {
+            id: 'engage-seed-1',
+            user_id: 'rv-admin',
+            user: 'RV Alumni Relations',
+            subtitle: 'RSST Official Announcement',
+            avatar: 'RV',
+            avatar_url: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=200',
+            image: null,
+            likes: 15,
+            time: 'Today',
+            content: '🎓 Welcome to the RV Alumni Feed & Events Hub! Connect with alumni across disciplines, RSVP to institutional meets, and download your digital QR entry pass.',
+            tags: ['#RVCE', '#AlumniMeet', '#Official']
+          },
+          {
+            id: 'engage-seed-2',
+            user_id: 'mentor-seed',
+            user: 'Aditya Rao',
+            subtitle: 'Staff Engineering Lead (RVCE CSE 2016)',
+            avatar: 'AR',
+            avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200',
+            image: null,
+            likes: 9,
+            time: 'Yesterday',
+            content: 'Excited to host an interactive System Design & Career Masterclass for final-year students and young alumni next weekend! Check the Events tab to register.',
+            tags: ['#Mentorship', '#TechTalk', '#Careers']
+          }
+        ];
+      }
+      setPostsList(formatted);
 
       if (suggRes.status === 'fulfilled' && suggRes.value) {
         const formatted = suggRes.value.map(s => ({

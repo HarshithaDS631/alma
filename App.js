@@ -11,6 +11,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import getInitials from './src/lib/getInitials';
+import UserAvatar from './src/components/UserAvatar';
 import { PulseElement } from './src/components/MotionGraphic';
 
 // Polyfill Alert for web to prevent crashes and ensure button interactivity
@@ -134,28 +135,13 @@ function Render3DTabIcon({ name, focused, isDarkMode, theme, isPost, label, isMa
   if (isProfile) {
     return (
       <Animated.View style={{ alignItems: 'center', justifyContent: 'center', transform: [{ scale: scaleAnim }] }}>
-        <View style={{
-          width: 26,
-          height: 26,
-          borderRadius: 13,
-          overflow: 'hidden',
-          backgroundColor: '#059669',
-          justifyContent: 'center',
-          alignItems: 'center',
-          borderWidth: 1.5,
-          borderColor: focused ? (theme.primary || '#059669') : (isDarkMode ? '#334155' : '#CBD5E1'),
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: focused ? 0.25 : 0.08,
-          shadowRadius: 3,
-          elevation: focused ? 3 : 1,
-        }}>
-          {profileAvatar ? (
-            <Image source={{ uri: profileAvatar }} style={{ width: 26, height: 26, borderRadius: 13 }} />
-          ) : (
-            <Text style={{ fontSize: 9.5, fontWeight: '800', color: '#FFFFFF' }}>{profileInitials || 'AL'}</Text>
-          )}
-        </View>
+        <UserAvatar
+          url={profileAvatar}
+          name={profileInitials || 'HD'}
+          size={26}
+          ring={focused}
+          ringColor={theme.primary || '#059669'}
+        />
         <Text style={{
           color: focused ? theme.primary : (isDarkMode ? '#94A3B8' : '#64748B'),
           fontSize: 10.5,
@@ -212,7 +198,21 @@ function CustomDrawerContent(props) {
 
   React.useEffect(() => {
     AsyncStorage.getItem('userInfo').then(str => {
-      if (str) setCurrentUser(JSON.parse(str));
+      if (str) {
+        try {
+          const parsed = JSON.parse(str);
+          if (parsed) {
+            const isHarshitha = (parsed.email && parsed.email.toLowerCase() === 'harshithads2001@gmail.com') ||
+                                (parsed.name && parsed.name.toLowerCase().includes('harshitha'));
+            if ((!parsed.avatar_url && !parsed.profilePicture) || (parsed.avatar_url && parsed.avatar_url.includes('6a0a8e156693c176e3d31931af9df3f5'))) {
+              if (isHarshitha) {
+                parsed.avatar_url = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&h=400&q=80';
+              }
+            }
+            setCurrentUser(parsed);
+          }
+        } catch (_) {}
+      }
     }).catch(() => {});
   }, []);
 
@@ -266,22 +266,12 @@ function CustomDrawerContent(props) {
             borderColor: theme.border
           }}
         >
-          <View style={{
-            width: 36,
-            height: 36,
-            borderRadius: 18,
-            backgroundColor: '#059669',
-            justifyContent: 'center',
-            alignItems: 'center',
-            overflow: 'hidden',
-            marginRight: 10
-          }}>
-            {(currentUser?.avatar_url || currentUser?.profilePicture) ? (
-              <Image source={{ uri: currentUser.avatar_url || currentUser.profilePicture }} style={{ width: 36, height: 36, borderRadius: 18 }} />
-            ) : (
-              <Text style={{ fontSize: 13, fontWeight: '700', color: '#FFFFFF' }}>{getInitials(currentUser?.name, 'AL')}</Text>
-            )}
-          </View>
+          <UserAvatar
+            url={currentUser?.avatar_url || currentUser?.profilePicture}
+            name={currentUser?.name || 'Harshitha D S'}
+            size={38}
+            style={{ marginRight: 10 }}
+          />
           <View style={{ flex: 1 }}>
             <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }} numberOfLines={1}>
               {currentUser?.name || 'Alumni Member'}
@@ -309,7 +299,19 @@ function MainTabs() {
   React.useEffect(() => {
     AsyncStorage.getItem('userInfo').then(str => {
       if (str) {
-        try { setCurrentUser(JSON.parse(str)); } catch (_) {}
+        try {
+          const parsed = JSON.parse(str);
+          if (parsed) {
+            const isHarshitha = (parsed.email && parsed.email.toLowerCase() === 'harshithads2001@gmail.com') ||
+                                (parsed.name && parsed.name.toLowerCase().includes('harshitha'));
+            if ((!parsed.avatar_url && !parsed.profilePicture) || (parsed.avatar_url && parsed.avatar_url.includes('6a0a8e156693c176e3d31931af9df3f5'))) {
+              if (isHarshitha) {
+                parsed.avatar_url = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&h=400&q=80';
+              }
+            }
+            setCurrentUser(parsed);
+          }
+        } catch (_) {}
       }
     }).catch(() => {});
   }, []);
@@ -347,28 +349,13 @@ function MainTabs() {
             if (route.name === 'Jobs') iconComp = <Ionicons name={focused ? 'briefcase' : 'briefcase-outline'} size={20} color={focused ? (isDarkMode ? theme.primaryLight : theme.primary) : color} />;
             if (route.name === 'Profile') {
               iconComp = (
-                <View style={{
-                  width: 26,
-                  height: 26,
-                  borderRadius: 13,
-                  overflow: 'hidden',
-                  backgroundColor: '#059669',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  borderWidth: 1.5,
-                  borderColor: focused ? '#059669' : (isDarkMode ? '#334155' : '#CBD5E1'),
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.15,
-                  shadowRadius: 3,
-                  elevation: 2
-                }}>
-                  {avatarUrl ? (
-                    <Image source={{ uri: avatarUrl }} style={{ width: 26, height: 26, borderRadius: 13 }} />
-                  ) : (
-                    <Text style={{ fontSize: 9.5, fontWeight: '800', color: '#FFFFFF' }}>{initials}</Text>
-                  )}
-                </View>
+                <UserAvatar
+                  url={avatarUrl}
+                  name={currentUser?.name || initials || 'HD'}
+                  size={26}
+                  ring={focused}
+                  ringColor="#059669"
+                />
               );
             }
             if (route.name === 'Messages') iconComp = <Ionicons name={focused ? 'chatbubble-ellipses' : 'chatbubble-ellipses-outline'} size={20} color={focused ? (isDarkMode ? theme.primaryLight : theme.primary) : color} />;

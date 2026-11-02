@@ -14,7 +14,10 @@ const AUTOMATED_SCRAPER_REGEX = /(python-requests|aiohttp|urllib|curl\/|wget\/|g
  */
 function botProtectionMiddleware(req, res, next) {
     const userAgent = req.get('user-agent') || '';
-    const ip = req.ip || req.connection?.remoteAddress || 'unknown';
+    const ip = (req.headers && (req.headers['x-forwarded-for'] || req.headers['x-real-ip'])) ||
+               (req.socket && req.socket.remoteAddress) ||
+               (req.connection && req.connection.remoteAddress) ||
+               '127.0.0.1';
 
     // 1. Immediately drop known exploit / penetration testing bots
     if (MALICIOUS_BOT_REGEX.test(userAgent)) {

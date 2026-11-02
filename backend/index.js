@@ -33,7 +33,10 @@ const botProtectionMiddleware = require('./middleware/botProtection');
 const sqlAndNoSqlInjectionGuard = require('./middleware/sqlAndNoSqlInjectionGuard');
 const { getHealth, getPing } = require('./controllers/healthController');
 
+const path = require('path');
 dotenv.config();
+dotenv.config({ path: path.join(__dirname, '.env') });
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
 const validateEnv = require('./config/validateEnv');
 validateEnv();
 const { verifyToken } = require('./config/jwt');
@@ -47,6 +50,13 @@ console.log(`[ENV CONFIG] SMTP Host: ${process.env.SMTP_HOST || 'Not Set'} | SMT
 const app = express();
 app.disable('x-powered-by');
 app.set('trust proxy', 1);
+
+// Ensure request socket/connection objects are safely initialized for reverse proxies / serverless
+app.use((req, res, next) => {
+    if (!req.socket) req.socket = { remoteAddress: '127.0.0.1' };
+    if (!req.connection) req.connection = req.socket;
+    next();
+});
 
 // Security Headers Middleware (OWASP recommended defense-in-depth)
 app.use((req, res, next) => {
@@ -312,6 +322,8 @@ const handleSystemStatus = async (req, res) => {
 app.get('/health', getHealth);
 app.get('/healthz', getHealth);
 app.get('/ping', getPing);
+app.get('/api', (req, res) => res.json({ status: 'online', service: 'RV Alumni Enterprise API', time: new Date().toISOString() }));
+app.get('/api/v1', (req, res) => res.json({ status: 'online', service: 'RV Alumni Enterprise API v1', time: new Date().toISOString() }));
 app.get('/api/health', getHealth);
 app.get('/api/v1/health', getHealth);
 app.get('/api/status', getHealth);

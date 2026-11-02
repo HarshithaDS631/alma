@@ -22,6 +22,11 @@ export const getImageUrl = (url) => {
     return null;
   }
 
+  // Handle stale seed photo hashes
+  if (cleanUrl.includes('6a0a8e156693c176e3d31931af9df3f5')) {
+    return 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&h=400&q=80';
+  }
+
   // If URL references local dev ports, map to production cloud server so media loads reliably
   if (
     cleanUrl.includes('localhost:5000') ||

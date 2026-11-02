@@ -7,7 +7,7 @@ const getClientIp = (req) => {
     if (forwarded && typeof forwarded === 'string') {
         return forwarded.split(',')[0].trim();
     }
-    return req.ip || (req.connection && req.connection.remoteAddress) || '127.0.0.1';
+    return (req.socket && req.socket.remoteAddress) || (req.connection && req.connection.remoteAddress) || '127.0.0.1';
 };
 
 /**
