@@ -361,7 +361,7 @@ function MainTabs() {
             let iconComp = null;
             if (route.name === 'Home') iconComp = <Ionicons name={focused ? 'home' : 'home-outline'} size={20} color={focused ? activeColor : color} />;
             if (route.name === 'Engage') iconComp = <Ionicons name={focused ? 'people' : 'people-outline'} size={20} color={focused ? activeColor : color} />;
-            if (route.name === 'Post') iconComp = <Ionicons name={focused ? 'calendar' : 'calendar-outline'} size={20} color={focused ? activeColor : color} />;
+            if (route.name === 'Post') iconComp = <Ionicons name={focused ? 'create' : 'create-outline'} size={20} color={focused ? activeColor : color} />;
             if (route.name === 'Jobs') iconComp = <Ionicons name={focused ? 'briefcase' : 'briefcase-outline'} size={20} color={focused ? activeColor : color} />;
             if (route.name === 'Profile') {
               iconComp = (
@@ -392,7 +392,7 @@ function MainTabs() {
       >
         <Drawer.Screen name="Home" component={DashboardScreen} options={{ drawerLabel: 'Dashboard Feed' }} />
         <Drawer.Screen name="Engage" component={DirectoryScreen} options={{ drawerLabel: 'Directory' }} />
-        <Drawer.Screen name="Post" component={EngageScreen} initialParams={{ view: 'events' }} options={{ drawerLabel: 'Events & QR Pass' }} />
+        <Drawer.Screen name="Post" component={EngageScreen} options={{ drawerLabel: 'Post' }} />
         <Drawer.Screen name="Jobs" component={JobsScreen} options={{ drawerLabel: 'Jobs' }} />
         <Drawer.Screen name="Profile" component={ProfileScreen} options={{ drawerLabel: 'Profile', drawerItemStyle: { display: 'none' } }} />
         <Drawer.Screen name="Messages" component={MessagesScreen} options={{ drawerItemStyle: { display: 'none' } }} />

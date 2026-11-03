@@ -20,7 +20,13 @@ const EngageScreen = ({ navigation, route }) => {
   const isWeb = Platform.OS === 'web';
   const isDesktop = isWeb && width >= 1024;
   const webContainerStyle = isWeb ? { alignSelf: 'center', width: '100%', maxWidth: isDesktop ? 1200 : 800, flex: 1 } : { flex: 1 };
-  const [currentView, setCurrentView] = useState(route?.params?.view === 'feed' ? 'feed' : 'joinEvent');
+  const [currentView, setCurrentView] = useState(route?.params?.view === 'events' || route?.params?.view === 'joinEvent' ? 'joinEvent' : 'feed');
+  const [calendarModalVisible, setCalendarModalVisible] = useState(false);
+  const [clockModalTarget, setClockModalTarget] = useState(null); // 'start' | 'end' | null
+  const [calendarMonth, setCalendarMonth] = useState(new Date());
+  const [clockHour, setClockHour] = useState('10');
+  const [clockMinute, setClockMinute] = useState('00');
+  const [clockPeriod, setClockPeriod] = useState('AM');
   const [showSearch, setShowSearch] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [actionSheetVisible, setActionSheetVisible] = useState(false);
@@ -108,17 +114,16 @@ const EngageScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     if (route?.params?.view) {
-      if (route.params.view === 'feed') {
-        setCurrentView('feed');
+      if (route.params.view === 'events' || route.params.view === 'joinEvent') {
+        setCurrentView('joinEvent');
+        fetchEventsFast();
       } else if (route.params.view === 'createEvent') {
         setCurrentView('createEvent');
       } else {
-        setCurrentView('joinEvent');
-        fetchEventsFast();
+        setCurrentView('feed');
       }
     } else {
-      setCurrentView('joinEvent');
-      fetchEventsFast();
+      setCurrentView('feed');
     }
   }, [route?.params?.view, fetchEventsFast]);
 
@@ -363,16 +368,16 @@ const EngageScreen = ({ navigation, route }) => {
 
     const unsubscribe = navigation.addListener('focus', () => {
       const incoming = route?.params?.view;
-      if (incoming === 'feed') {
-        setCurrentView('feed');
+      if (incoming === 'events' || incoming === 'joinEvent') {
+        setCurrentView('joinEvent');
         setActionSheetVisible(false);
+        fetchEventsFast();
       } else if (incoming === 'createEvent') {
         setCurrentView('createEvent');
         setActionSheetVisible(false);
       } else {
-        setCurrentView('joinEvent');
+        setCurrentView('feed');
         setActionSheetVisible(false);
-        fetchEventsFast();
       }
       init();
     });
@@ -423,7 +428,85 @@ const EngageScreen = ({ navigation, route }) => {
 
   const toggleLike = (id) => setLikedPosts(prev => ({ ...prev, [id]: !prev[id] }));
 
+  // Helper: Visual Calendar Grid Generator
+  const renderCalendarDays = () => {
+    const year = calendarMonth.getFullYear();
+    const month = calendarMonth.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const firstDayIndex = new Date(year, month, 1).getDay();
 
+    const cells = [];
+    for (let i = 0; i < firstDayIndex; i++) {
+      cells.push(<View key={`empty-${i}`} style={{ width: 38, height: 38, margin: 2 }} />);
+    }
+
+    const today = new Date();
+    const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const currentSelectedStr = eventForm.date;
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dayDateStr = `${day} ${months[month]} ${year}`;
+      const isSelected = currentSelectedStr === dayDateStr || currentSelectedStr === `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const isToday = isCurrentMonth && today.getDate() === day;
+
+      cells.push(
+        <TouchableOpacity
+          key={`day-${day}`}
+          onPress={() => {
+            setEventForm(prev => ({ ...prev, date: dayDateStr }));
+            setCalendarModalVisible(false);
+          }}
+          style={{
+            width: 38,
+            height: 38,
+            margin: 2,
+            borderRadius: 19,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: isSelected ? '#0F2C59' : (isToday ? 'rgba(212, 175, 55, 0.15)' : 'transparent'),
+            borderWidth: isSelected ? 2 : (isToday ? 1 : 0),
+            borderColor: isSelected ? '#D4AF37' : (isToday ? '#D4AF37' : 'transparent'),
+          }}
+        >
+          <Text style={{
+            fontSize: 13,
+            fontWeight: isSelected || isToday ? '800' : '500',
+            color: isSelected ? '#FFFFFF' : (isToday ? '#D4AF37' : (isDarkMode ? '#FFFFFF' : '#0F172A'))
+          }}>
+            {day}
+          </Text>
+        </TouchableOpacity>
+      );
+    }
+    return cells;
+  };
+
+  const openClockModal = (target) => {
+    const existing = target === 'start' ? eventForm.startTime : eventForm.endTime;
+    if (existing && existing.includes(':')) {
+      const parts = existing.trim().split(' ');
+      const timeParts = parts[0].split(':');
+      if (timeParts.length === 2) {
+        setClockHour(timeParts[0].padStart(2, '0'));
+        setClockMinute(timeParts[1]);
+      }
+      if (parts[1]) {
+        setClockPeriod(parts[1].toUpperCase());
+      }
+    } else {
+      if (target === 'start') {
+        setClockHour('10');
+        setClockMinute('00');
+        setClockPeriod('AM');
+      } else {
+        setClockHour('01');
+        setClockMinute('00');
+        setClockPeriod('PM');
+      }
+    }
+    setClockModalTarget(target);
+  };
 
   // ===== CREATE EVENT VIEW =====
   if (currentView === 'createEvent') {
@@ -449,43 +532,197 @@ const EngageScreen = ({ navigation, route }) => {
               onChangeText={t => setEventForm({ ...eventForm, name: t })} 
             />
 
-            {/* Event Date */}
-            <Text style={styles.fieldLabel}>Event Date</Text>
-            <View style={styles.inputWithIconRow}>
-              <Ionicons name="calendar-outline" size={19} color="#D4AF37" style={{ marginRight: 10 }} />
-              <TextInput 
-                style={styles.fieldInputEmbedded} 
-                placeholder="e.g. 28 Oct 2026 or Next Saturday" 
-                placeholderTextColor="#94A3B8" 
-                value={eventForm.date} 
-                onChangeText={t => setEventForm({ ...eventForm, date: t })} 
-              />
+            {/* Event Date with Calendar Selector */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 14, marginBottom: 4 }}>
+              <Text style={[styles.fieldLabel, { marginTop: 0, marginBottom: 0 }]}>Event Date</Text>
+              <TouchableOpacity
+                onPress={() => setCalendarModalVisible(true)}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
+              >
+                <Ionicons name="calendar" size={14} color="#D4AF37" />
+                <Text style={{ fontSize: 12, fontWeight: '700', color: '#D4AF37' }}>Choose from Calendar</Text>
+              </TouchableOpacity>
             </View>
 
-            {/* Event Timing */}
-            <Text style={styles.fieldLabel}>Event Timing</Text>
+            <View style={styles.inputWithIconRow}>
+              <TouchableOpacity onPress={() => setCalendarModalVisible(true)}>
+                <Ionicons name="calendar-sharp" size={19} color="#D4AF37" style={{ marginRight: 10 }} />
+              </TouchableOpacity>
+              {Platform.OS === 'web' ? (
+                <input 
+                  type="date"
+                  value={eventForm.date && eventForm.date.includes('-') ? eventForm.date : ''}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (!val) return;
+                    const parts = val.split('-');
+                    if (parts.length === 3) {
+                      const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+                      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                      setEventForm(prev => ({ ...prev, date: `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}` }));
+                    }
+                  }}
+                  min={new Date().toISOString().split('T')[0]}
+                  style={{
+                    flex: 1,
+                    height: 38,
+                    border: 'none',
+                    outline: 'none',
+                    background: 'transparent',
+                    color: theme.text,
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    fontFamily: 'inherit',
+                    cursor: 'pointer',
+                  }}
+                />
+              ) : (
+                <TouchableOpacity 
+                  style={{ flex: 1, height: 38, justifyContent: 'center' }}
+                  onPress={() => setCalendarModalVisible(true)}
+                >
+                  <Text style={[styles.fieldInputEmbedded, !eventForm.date && { color: '#94A3B8' }]}>
+                    {eventForm.date || 'Tap to select event date'}
+                  </Text>
+                </TouchableOpacity>
+              )}
+              {eventForm.date ? (
+                <TouchableOpacity onPress={() => setEventForm(prev => ({ ...prev, date: '' }))} style={{ padding: 4 }}>
+                  <Ionicons name="close-circle" size={16} color="#94A3B8" />
+                </TouchableOpacity>
+              ) : null}
+            </View>
+
+            {/* Quick Date Shortcuts */}
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 6, marginBottom: 8 }}>
+              {[
+                { label: 'Tomorrow', days: 1 },
+                { label: 'This Sat', days: ((6 - new Date().getDay() + 7) % 7) || 7 },
+                { label: 'Next Sat', days: (((6 - new Date().getDay() + 7) % 7) || 7) + 7 },
+                { label: '+1 Month', days: 30 }
+              ].map(shortcut => (
+                <TouchableOpacity
+                  key={shortcut.label}
+                  onPress={() => {
+                    const d = new Date();
+                    d.setDate(d.getDate() + shortcut.days);
+                    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    setEventForm(prev => ({ ...prev, date: `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}` }));
+                  }}
+                  style={{
+                    paddingHorizontal: 9,
+                    paddingVertical: 4,
+                    borderRadius: 14,
+                    backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9',
+                    borderWidth: 1,
+                    borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.3)' : '#E2E8F0'
+                  }}
+                >
+                  <Text style={{ fontSize: 11, fontWeight: '700', color: isDarkMode ? '#FDE68A' : '#0F2C59' }}>{shortcut.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {/* Event Timing with Clock Selector */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10, marginBottom: 4 }}>
+              <Text style={[styles.fieldLabel, { marginTop: 0, marginBottom: 0 }]}>Event Timing</Text>
+              <TouchableOpacity 
+                onPress={() => openClockModal('start')}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
+              >
+                <Ionicons name="time" size={14} color="#D4AF37" />
+                <Text style={{ fontSize: 12, fontWeight: '700', color: '#D4AF37' }}>Choose from Clock ⏰</Text>
+              </TouchableOpacity>
+            </View>
+
             <View style={styles.timeRow}>
-              <View style={styles.timeField}>
-                <Ionicons name="time-outline" size={18} color="#D4AF37" />
-                <TextInput 
-                  style={styles.fieldInputEmbedded} 
-                  placeholder="Start (10:00 AM)" 
-                  placeholderTextColor="#94A3B8" 
-                  value={eventForm.startTime} 
-                  onChangeText={t => setEventForm({ ...eventForm, startTime: t })} 
-                />
-              </View>
+              {/* Start Time */}
+              <TouchableOpacity 
+                style={styles.timeField}
+                onPress={() => openClockModal('start')}
+                activeOpacity={0.85}
+              >
+                <Ionicons name="time" size={18} color="#D4AF37" style={{ marginRight: 6 }} />
+                {Platform.OS === 'web' ? (
+                  <input 
+                    type="time"
+                    value={eventForm.startTime && eventForm.startTime.includes(':') && !eventForm.startTime.includes(' ') ? eventForm.startTime : ''}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val) {
+                        const [hStr, mStr] = val.split(':');
+                        let h = parseInt(hStr, 10);
+                        const ampm = h >= 12 ? 'PM' : 'AM';
+                        h = h % 12 || 12;
+                        const formatted = `${h < 10 ? '0' + h : h}:${mStr} ${ampm}`;
+                        setEventForm(prev => ({ ...prev, startTime: formatted }));
+                      }
+                    }}
+                    style={{
+                      flex: 1,
+                      height: 36,
+                      border: 'none',
+                      outline: 'none',
+                      background: 'transparent',
+                      color: theme.text,
+                      fontSize: '13px',
+                      fontWeight: '600',
+                      fontFamily: 'inherit',
+                      cursor: 'pointer',
+                    }}
+                  />
+                ) : (
+                  <Text style={{ fontSize: 13, color: eventForm.startTime ? theme.text : '#94A3B8', fontWeight: '600', flex: 1 }}>
+                    {eventForm.startTime || 'Start Time'}
+                  </Text>
+                )}
+                <Ionicons name="chevron-down" size={14} color="#D4AF37" />
+              </TouchableOpacity>
+
               <Ionicons name="arrow-forward" size={16} color="#94A3B8" />
-              <View style={styles.timeField}>
-                <Ionicons name="time-outline" size={18} color="#D4AF37" />
-                <TextInput 
-                  style={styles.fieldInputEmbedded} 
-                  placeholder="End (01:00 PM)" 
-                  placeholderTextColor="#94A3B8" 
-                  value={eventForm.endTime} 
-                  onChangeText={t => setEventForm({ ...eventForm, endTime: t })} 
-                />
-              </View>
+
+              {/* End Time */}
+              <TouchableOpacity 
+                style={styles.timeField}
+                onPress={() => openClockModal('end')}
+                activeOpacity={0.85}
+              >
+                <Ionicons name="time" size={18} color="#D4AF37" style={{ marginRight: 6 }} />
+                {Platform.OS === 'web' ? (
+                  <input 
+                    type="time"
+                    value={eventForm.endTime && eventForm.endTime.includes(':') && !eventForm.endTime.includes(' ') ? eventForm.endTime : ''}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val) {
+                        const [hStr, mStr] = val.split(':');
+                        let h = parseInt(hStr, 10);
+                        const ampm = h >= 12 ? 'PM' : 'AM';
+                        h = h % 12 || 12;
+                        const formatted = `${h < 10 ? '0' + h : h}:${mStr} ${ampm}`;
+                        setEventForm(prev => ({ ...prev, endTime: formatted }));
+                      }
+                    }}
+                    style={{
+                      flex: 1,
+                      height: 36,
+                      border: 'none',
+                      outline: 'none',
+                      background: 'transparent',
+                      color: theme.text,
+                      fontSize: '13px',
+                      fontWeight: '600',
+                      fontFamily: 'inherit',
+                      cursor: 'pointer',
+                    }}
+                  />
+                ) : (
+                  <Text style={{ fontSize: 13, color: eventForm.endTime ? theme.text : '#94A3B8', fontWeight: '600', flex: 1 }}>
+                    {eventForm.endTime || 'End Time'}
+                  </Text>
+                )}
+                <Ionicons name="chevron-down" size={14} color="#D4AF37" />
+              </TouchableOpacity>
             </View>
 
             {/* Venue / Location */}
@@ -600,6 +837,361 @@ const EngageScreen = ({ navigation, route }) => {
             </TouchableOpacity>
           </ScrollView>
         </View>
+
+        {/* CALENDAR SELECTION MODAL */}
+        <Modal
+          visible={calendarModalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setCalendarModalVisible(false)}
+        >
+          <View style={{
+            flex: 1,
+            backgroundColor: 'rgba(5, 12, 28, 0.72)',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: 20
+          }}>
+            <TouchableOpacity 
+              style={StyleSheet.absoluteFillObject} 
+              activeOpacity={1} 
+              onPress={() => setCalendarModalVisible(false)} 
+            />
+            <View style={{
+              width: '100%',
+              maxWidth: 380,
+              backgroundColor: isDarkMode ? '#0F1D38' : '#FFFFFF',
+              borderRadius: 24,
+              borderWidth: 1.5,
+              borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#E2E8F0',
+              padding: 20,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 12 },
+              shadowOpacity: 0.35,
+              shadowRadius: 20,
+              elevation: 15,
+              zIndex: 1000
+            }}>
+              {/* Header */}
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: isDarkMode ? '#1E293B' : '#FAF5EB', justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name="calendar" size={20} color="#D4AF37" />
+                  </View>
+                  <View>
+                    <Text style={{ fontSize: 16, fontWeight: '800', color: isDarkMode ? '#FFFFFF' : '#0F2C59' }}>
+                      Select Event Date
+                    </Text>
+                    <Text style={{ fontSize: 12, color: isDarkMode ? '#94A3B8' : '#64748B' }}>
+                      {calendarMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                    </Text>
+                  </View>
+                </View>
+                <TouchableOpacity onPress={() => setCalendarModalVisible(false)} style={{ padding: 6 }}>
+                  <Ionicons name="close-circle" size={24} color={isDarkMode ? '#94A3B8' : '#64748B'} />
+                </TouchableOpacity>
+              </View>
+
+              {/* Month Navigation */}
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, paddingHorizontal: 6 }}>
+                <TouchableOpacity 
+                  onPress={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1))}
+                  style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9', justifyContent: 'center', alignItems: 'center' }}
+                >
+                  <Ionicons name="chevron-back" size={18} color="#D4AF37" />
+                </TouchableOpacity>
+
+                <Text style={{ fontSize: 15, fontWeight: '700', color: isDarkMode ? '#F8FAFC' : '#0F2C59' }}>
+                  {calendarMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                </Text>
+
+                <TouchableOpacity 
+                  onPress={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1))}
+                  style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9', justifyContent: 'center', alignItems: 'center' }}
+                >
+                  <Ionicons name="chevron-forward" size={18} color="#D4AF37" />
+                </TouchableOpacity>
+              </View>
+
+              {/* Day Name Headers */}
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8, paddingHorizontal: 2 }}>
+                {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((d, i) => (
+                  <View key={d + i} style={{ width: 38, alignItems: 'center' }}>
+                    <Text style={{ fontSize: 11, fontWeight: '700', color: i === 0 || i === 6 ? '#D4AF37' : '#94A3B8' }}>{d}</Text>
+                  </View>
+                ))}
+              </View>
+
+              {/* Grid of Days */}
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-start', minHeight: 220 }}>
+                {renderCalendarDays()}
+              </View>
+
+              {/* Quick Select Buttons */}
+              <View style={{ flexDirection: 'row', gap: 8, marginTop: 14, paddingTop: 12, borderTopWidth: 1, borderTopColor: isDarkMode ? 'rgba(212, 175, 55, 0.2)' : '#E2E8F0' }}>
+                <TouchableOpacity
+                  onPress={() => {
+                    const today = new Date();
+                    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    setEventForm(prev => ({ ...prev, date: `${today.getDate()} ${months[today.getMonth()]} ${today.getFullYear()}` }));
+                    setCalendarModalVisible(false);
+                  }}
+                  style={{ flex: 1, paddingVertical: 8, borderRadius: 10, backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9', alignItems: 'center' }}
+                >
+                  <Text style={{ fontSize: 12, fontWeight: '700', color: theme.text }}>Today</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    const d = new Date();
+                    d.setDate(d.getDate() + 1);
+                    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    setEventForm(prev => ({ ...prev, date: `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}` }));
+                    setCalendarModalVisible(false);
+                  }}
+                  style={{ flex: 1, paddingVertical: 8, borderRadius: 10, backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9', alignItems: 'center' }}
+                >
+                  <Text style={{ fontSize: 12, fontWeight: '700', color: theme.text }}>Tomorrow</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setCalendarModalVisible(false)}
+                  style={{ flex: 1, paddingVertical: 8, borderRadius: 10, backgroundColor: '#0F2C59', alignItems: 'center', borderWidth: 1, borderColor: '#D4AF37' }}
+                >
+                  <Text style={{ fontSize: 12, fontWeight: '700', color: '#FFFFFF' }}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        {/* CLOCK / TIME PICKER MODAL */}
+        <Modal
+          visible={!!clockModalTarget}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setClockModalTarget(null)}
+        >
+          <View style={{
+            flex: 1,
+            backgroundColor: 'rgba(5, 12, 28, 0.72)',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: 20
+          }}>
+            <TouchableOpacity 
+              style={StyleSheet.absoluteFillObject} 
+              activeOpacity={1} 
+              onPress={() => setClockModalTarget(null)} 
+            />
+            <View style={{
+              width: '100%',
+              maxWidth: 400,
+              backgroundColor: isDarkMode ? '#0F1D38' : '#FFFFFF',
+              borderRadius: 24,
+              borderWidth: 1.5,
+              borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#E2E8F0',
+              padding: 20,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 12 },
+              shadowOpacity: 0.35,
+              shadowRadius: 20,
+              elevation: 15,
+              zIndex: 1000
+            }}>
+              {/* Header */}
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: isDarkMode ? '#1E293B' : '#FAF5EB', justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name="time" size={20} color="#D4AF37" />
+                  </View>
+                  <View>
+                    <Text style={{ fontSize: 16, fontWeight: '800', color: isDarkMode ? '#FFFFFF' : '#0F2C59' }}>
+                      {clockModalTarget === 'start' ? 'Select Start Time' : 'Select End Time'}
+                    </Text>
+                    <Text style={{ fontSize: 12, color: isDarkMode ? '#94A3B8' : '#64748B' }}>
+                      Pick from popular slots or dial custom time
+                    </Text>
+                  </View>
+                </View>
+                <TouchableOpacity onPress={() => setClockModalTarget(null)} style={{ padding: 6 }}>
+                  <Ionicons name="close-circle" size={24} color={isDarkMode ? '#94A3B8' : '#64748B'} />
+                </TouchableOpacity>
+              </View>
+
+              {/* Time Display Badge */}
+              <View style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingVertical: 14,
+                backgroundColor: isDarkMode ? '#0A1428' : '#FAF5EB',
+                borderRadius: 16,
+                borderWidth: 1,
+                borderColor: '#D4AF37',
+                marginBottom: 16
+              }}>
+                <Text style={{ fontSize: 11, fontWeight: '700', letterSpacing: 1, color: '#D4AF37', textTransform: 'uppercase', marginBottom: 4 }}>
+                  Selected Time
+                </Text>
+                <Text style={{ fontSize: 32, fontWeight: '900', color: isDarkMode ? '#FFFFFF' : '#0F2C59', letterSpacing: 0.5 }}>
+                  {clockHour}:{clockMinute} {clockPeriod}
+                </Text>
+              </View>
+
+              {/* Interactive Hour Selector */}
+              <Text style={{ fontSize: 12, fontWeight: '700', color: isDarkMode ? '#94A3B8' : '#64748B', marginBottom: 6 }}>
+                Hour (1 - 12)
+              </Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
+                {['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'].map(h => {
+                  const isSel = clockHour === h || clockHour === String(parseInt(h, 10));
+                  return (
+                    <TouchableOpacity
+                      key={h}
+                      onPress={() => setClockHour(h)}
+                      style={{
+                        width: 40,
+                        height: 34,
+                        borderRadius: 8,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        backgroundColor: isSel ? '#0F2C59' : (isDarkMode ? '#1E293B' : '#F1F5F9'),
+                        borderWidth: isSel ? 1.5 : 1,
+                        borderColor: isSel ? '#D4AF37' : 'transparent'
+                      }}
+                    >
+                      <Text style={{ fontSize: 13, fontWeight: isSel ? '800' : '600', color: isSel ? '#FFFFFF' : (isDarkMode ? '#E2E8F0' : '#334155') }}>
+                        {parseInt(h, 10)}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+
+              {/* Interactive Minute & AM/PM Row */}
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                <View style={{ flex: 1, marginRight: 12 }}>
+                  <Text style={{ fontSize: 12, fontWeight: '700', color: isDarkMode ? '#94A3B8' : '#64748B', marginBottom: 6 }}>
+                    Minute
+                  </Text>
+                  <View style={{ flexDirection: 'row', gap: 6 }}>
+                    {['00', '15', '30', '45'].map(m => {
+                      const isSel = clockMinute === m;
+                      return (
+                        <TouchableOpacity
+                          key={m}
+                          onPress={() => setClockMinute(m)}
+                          style={{
+                            flex: 1,
+                            height: 34,
+                            borderRadius: 8,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            backgroundColor: isSel ? '#0F2C59' : (isDarkMode ? '#1E293B' : '#F1F5F9'),
+                            borderWidth: isSel ? 1.5 : 1,
+                            borderColor: isSel ? '#D4AF37' : 'transparent'
+                          }}
+                        >
+                          <Text style={{ fontSize: 13, fontWeight: isSel ? '800' : '600', color: isSel ? '#FFFFFF' : (isDarkMode ? '#E2E8F0' : '#334155') }}>
+                            :{m}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                </View>
+
+                {/* AM / PM Toggle */}
+                <View>
+                  <Text style={{ fontSize: 12, fontWeight: '700', color: isDarkMode ? '#94A3B8' : '#64748B', marginBottom: 6 }}>
+                    Period
+                  </Text>
+                  <View style={{ flexDirection: 'row', gap: 6 }}>
+                    {['AM', 'PM'].map(p => {
+                      const isSel = clockPeriod === p;
+                      return (
+                        <TouchableOpacity
+                          key={p}
+                          onPress={() => setClockPeriod(p)}
+                          style={{
+                            paddingHorizontal: 14,
+                            height: 34,
+                            borderRadius: 8,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            backgroundColor: isSel ? '#D4AF37' : (isDarkMode ? '#1E293B' : '#F1F5F9'),
+                            borderWidth: isSel ? 1.5 : 1,
+                            borderColor: isSel ? '#0F2C59' : 'transparent'
+                          }}
+                        >
+                          <Text style={{ fontSize: 12, fontWeight: '800', color: isSel ? '#0A192F' : (isDarkMode ? '#E2E8F0' : '#334155') }}>
+                            {p}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                </View>
+              </View>
+
+              {/* Quick Slots */}
+              <Text style={{ fontSize: 12, fontWeight: '700', color: isDarkMode ? '#94A3B8' : '#64748B', marginBottom: 6 }}>
+                Popular Event Slots
+              </Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 16 }}>
+                {[
+                  '09:00 AM', '10:00 AM', '11:00 AM', '01:00 PM', '02:30 PM', '04:00 PM', '06:00 PM', '07:30 PM'
+                ].map(slot => (
+                  <TouchableOpacity
+                    key={slot}
+                    onPress={() => {
+                      if (clockModalTarget === 'start') {
+                        setEventForm(prev => ({ ...prev, startTime: slot }));
+                      } else if (clockModalTarget === 'end') {
+                        setEventForm(prev => ({ ...prev, endTime: slot }));
+                      }
+                      setClockModalTarget(null);
+                    }}
+                    style={{
+                      paddingHorizontal: 9,
+                      paddingVertical: 5,
+                      borderRadius: 8,
+                      backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+                      borderWidth: 1,
+                      borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.25)' : '#E2E8F0'
+                    }}
+                  >
+                    <Text style={{ fontSize: 11, fontWeight: '700', color: isDarkMode ? '#FDE68A' : '#0F2C59' }}>{slot}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              {/* Apply / Confirm Button */}
+              <TouchableOpacity
+                onPress={() => {
+                  const formatted = `${clockHour}:${clockMinute} ${clockPeriod}`;
+                  if (clockModalTarget === 'start') {
+                    setEventForm(prev => ({ ...prev, startTime: formatted }));
+                  } else if (clockModalTarget === 'end') {
+                    setEventForm(prev => ({ ...prev, endTime: formatted }));
+                  }
+                  setClockModalTarget(null);
+                }}
+                style={{
+                  backgroundColor: '#0F2C59',
+                  borderRadius: 14,
+                  paddingVertical: 12,
+                  alignItems: 'center',
+                  borderWidth: 1.5,
+                  borderColor: '#D4AF37'
+                }}
+                activeOpacity={0.85}
+              >
+                <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '800', letterSpacing: 0.3 }}>
+                  Confirm {clockModalTarget === 'start' ? 'Start' : 'End'} Time ({clockHour}:{clockMinute} {clockPeriod})
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </SafeAreaView>
     );
   }
