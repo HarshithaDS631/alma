@@ -473,8 +473,8 @@ const AdminUsersScreen = ({ navigation, route }) => {
               const isVerified = matches.some(m => m.confidence === 'HIGH');
               const boxStyle = isVerified
                 ? { backgroundColor: '#DEF7EC', borderColor: '#31C48D' }
-                : { backgroundColor: '#FEF3C7', borderColor: '#F59E0B' };
-              const textColor = isVerified ? '#03543F' : '#92400E';
+                : { backgroundColor: '#FEF3C7', borderColor: '#D4AF37' };
+              const textColor = isVerified ? '#03543F' : '#C5A059';
               return (
                 <View style={{ padding: 8, borderRadius: 8, marginTop: 4, borderWidth: 1, ...boxStyle }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2, gap: 4 }}>

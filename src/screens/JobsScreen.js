@@ -1152,7 +1152,7 @@ const JobsScreen = ({ navigation, route }) => {
               ) : (
                 incomingReferrals.map((req, idx) => {
                   const statusColors = {
-                    Pending: '#F59E0B',
+                    Pending: '#D4AF37',
                     Endorsed: '#10B981',
                     'Needs Info': '#3B82F6',
                     Declined: '#EF4444'
@@ -1206,7 +1206,7 @@ const JobsScreen = ({ navigation, route }) => {
               ) : (
                 mySentReferrals.map((req, idx) => {
                   const statusColors = {
-                    Pending: '#F59E0B',
+                    Pending: '#D4AF37',
                     Endorsed: '#10B981',
                     'Needs Info': '#3B82F6',
                     Declined: '#EF4444'
@@ -1290,14 +1290,14 @@ const JobsScreen = ({ navigation, route }) => {
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                 <View style={{ flex: 1, marginRight: 12 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 3 }}>
-                    <Text style={{ fontSize: 17, fontWeight: '800', color: isDarkMode ? '#D4AF37' : '#B45309' }}>#OpenToWork</Text>
+                    <Text style={{ fontSize: 17, fontWeight: '800', color: '#D4AF37' }}>#OpenToWork</Text>
                     {openToWork && (
                       <View style={{ backgroundColor: '#FDF6E2', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 }}>
                         <Text style={{ fontSize: 10, fontWeight: '800', color: '#D4AF37' }}>ACTIVE</Text>
                       </View>
                     )}
                   </View>
-                  <Text style={{ fontSize: 13, color: isDarkMode ? '#9CA3AF' : '#B45309', marginTop: 2, lineHeight: 18 }}>
+                  <Text style={{ fontSize: 13, color: isDarkMode ? '#9CA3AF' : '#D4AF37', marginTop: 2, lineHeight: 18 }}>
                     Signal to recruiters, companies, and alumni that you are open to career opportunities. Shows the LinkedIn #OpenToWork photo ribbon on your profile.
                   </Text>
                 </View>
@@ -1354,7 +1354,7 @@ const JobsScreen = ({ navigation, route }) => {
             }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
                 <Ionicons name="bulb-outline" size={18} color={isDarkMode ? '#D4AF37' : '#0F2C59'} style={{ marginRight: 8 }} />
-                <Text style={{ fontSize: 14, fontWeight: '700', color: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#B45309' }}>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#D4AF37' }}>
                   Smart Keyword Recommendation Engine
                 </Text>
               </View>
@@ -1591,7 +1591,7 @@ const JobsScreen = ({ navigation, route }) => {
                       </View>
                       <View style={[styles.detailsMetricPill, { backgroundColor: isDarkMode ? '#132A1E' : '#FAF5EB' }]}>
                         <Ionicons name="flash" size={14} color="#D4AF37" style={{ marginRight: 5 }} />
-                        <Text style={[styles.detailsMetricPillText, { color: isDarkMode ? '#D4AF37' : '#B45309' }]}>Easy Apply</Text>
+                        <Text style={[styles.detailsMetricPillText, { color: '#D4AF37' }]}>Easy Apply</Text>
                       </View>
                       <View style={styles.detailsMetricPill}>
                         <Ionicons name="time-outline" size={14} color={theme.textMuted} style={{ marginRight: 5 }} />
@@ -2621,7 +2621,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     borderWidth: 1,
     borderTopColor: '#D4AF37',
     borderLeftColor: '#10B981',
-    borderRightColor: '#B45309',
+    borderRightColor: '#D4AF37',
     borderBottomColor: '#064E3B',
     justifyContent: 'center',
     alignItems: 'center',
@@ -2672,7 +2672,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     backgroundColor: '#0F2C59',
     borderTopColor: '#D4AF37',
     borderLeftColor: '#10B981',
-    borderRightColor: '#B45309',
+    borderRightColor: '#D4AF37',
     borderBottomColor: '#064E3B',
     borderBottomWidth: 3.5,
     shadowColor: '#0A192F',
@@ -2721,7 +2721,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     marginLeft: 6,
   },
   tabTextActive: { 
-    color: isDarkMode ? '#D4AF37' : '#B45309', 
+    color: '#D4AF37', 
     fontWeight: '700',
   },
   filterSection: { 
@@ -2817,7 +2817,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   tagText: { 
     fontSize: 11.5, 
     fontWeight: '600', 
-    color: isDarkMode ? '#D4AF37' : '#B45309',
+    color: '#D4AF37',
   },
   cardActionRow: { 
     flexDirection: 'row', 
@@ -2885,7 +2885,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     color: theme.textMuted,
   },
   subTabTextActive: { 
-    color: isDarkMode ? '#D4AF37' : '#B45309', 
+    color: '#D4AF37', 
     fontWeight: '700',
   },
   emptyBox: { 
@@ -3052,7 +3052,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   recruiterCardHeading: {
     fontSize: 13,
     fontWeight: '800',
-    color: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#B45309',
+    color: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#D4AF37',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
@@ -3097,7 +3097,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   recruiterRole: {
     fontSize: 12,
     fontWeight: '600',
-    color: isDarkMode ? '#D4AF37' : '#B45309',
+    color: '#D4AF37',
     marginTop: 1,
   },
   recruiterSub: {
@@ -3145,7 +3145,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   matchPercentBadgeText: {
     fontSize: 11.5,
     fontWeight: '800',
-    color: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#B45309',
+    color: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#D4AF37',
   },
   matchCardSubtitle: {
     fontSize: 12,
@@ -3331,7 +3331,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   privacyBannerText: {
     flex: 1,
     fontSize: 11.5,
-    color: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#B45309',
+    color: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#D4AF37',
     lineHeight: 16,
     fontWeight: '600',
   },
@@ -3501,7 +3501,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   keywordFitNoticeTitle: {
     fontSize: 14,
     fontWeight: '800',
-    color: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#B45309',
+    color: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#D4AF37',
   },
   keywordFitNoticeCount: {
     fontSize: 12,
@@ -3690,7 +3690,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   successRecruiterName: {
     fontSize: 13.5,
     fontWeight: '800',
-    color: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#B45309',
+    color: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#D4AF37',
   },
   successRecruiterRole: {
     fontSize: 11.5,
@@ -3780,7 +3780,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   alumniBadgeText: {
     fontSize: 11,
     fontWeight: '700',
-    color: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#B45309',
+    color: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#D4AF37',
   },
   easyApplyTagPill: {
     flexDirection: 'row',
@@ -3812,7 +3812,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   matchScoreText: {
     fontSize: 11.5, 
     fontWeight: '700', 
-    color: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#B45309',
+    color: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#D4AF37',
   },
   keywordFilterChip: {
     paddingVertical: 6, 
@@ -3891,7 +3891,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: isDarkMode ? '#064E3B' : '#B45309',
+    backgroundColor: isDarkMode ? '#064E3B' : '#D4AF37',
   },
   showcaseIconPod: {
     width: 36,
@@ -3955,7 +3955,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   showcasePillText: {
     fontSize: 10,
     fontWeight: '800',
-    color: isDarkMode ? '#D4AF37' : '#B45309',
+    color: '#D4AF37',
   },
   showcaseStatText: {
     fontSize: 11,
@@ -3992,7 +3992,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   showcaseMetricValue: {
     fontSize: 14,
     fontWeight: '900',
-    color: isDarkMode ? '#D4AF37' : '#B45309',
+    color: '#D4AF37',
   },
   showcaseMetricLabel: {
     fontSize: 10,

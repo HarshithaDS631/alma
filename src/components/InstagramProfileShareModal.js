@@ -26,7 +26,7 @@ const CARD_THEMES = [
     name: 'RVCE Royal',
     bg: '#002147',
     gradient: ['#001428', '#002B5B', '#0F4C81'],
-    accent: '#F59E0B',
+    accent: '#D4AF37',
     accentLight: '#DCFCE7',
     badgeText: '🏛️ RVCE ALUMNI',
     cardBorder: 'rgba(5, 150, 105, 0.4)'
@@ -245,7 +245,7 @@ export default function InstagramProfileShareModal({
             </View>
 
             <TouchableOpacity onPress={cycleTheme} style={styles.iconCircleButton} activeOpacity={0.7}>
-              <Ionicons name="color-palette-outline" size={20} color="#F59E0B" />
+              <Ionicons name="color-palette-outline" size={20} color="#D4AF37" />
             </TouchableOpacity>
           </View>
 
@@ -401,7 +401,7 @@ export default function InstagramProfileShareModal({
                   activeOpacity={0.7}
                 >
                   <View style={[styles.quickActionIconCircle, { backgroundColor: 'rgba(5, 150, 105, 0.2)', borderColor: 'rgba(5, 150, 105, 0.4)' }]}>
-                    <Ionicons name="color-palette-outline" size={20} color="#F59E0B" />
+                    <Ionicons name="color-palette-outline" size={20} color="#D4AF37" />
                   </View>
                   <Text style={styles.quickActionLabel}>Change Color</Text>
                 </TouchableOpacity>

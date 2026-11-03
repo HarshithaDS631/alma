@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: 9.5,
     fontWeight: '800',
-    color: '#B45309',
+    color: '#D4AF37',
     letterSpacing: 0.4
   },
   referrerRow: {

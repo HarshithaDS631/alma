@@ -115,8 +115,8 @@ export function BentoCard({
                   styles.badgeText,
                   { 
                     color: badgeTextColor || (isSand 
-                      ? (isDarkMode ? '#FDE68A' : '#B45309') 
-                      : (isDarkMode ? '#FDE68A' : '#B45309')) 
+                      ? (isDarkMode ? '#FDE68A' : '#D4AF37') 
+                      : (isDarkMode ? '#FDE68A' : '#D4AF37')) 
                   },
                 ]}
               >

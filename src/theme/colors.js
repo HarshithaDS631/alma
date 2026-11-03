@@ -1,90 +1,93 @@
+// Strictly 2 Colors: Royal Midnight Navy Blue & Warm Imperial Gold
+// Executive institutional luxury aesthetic - zero orange/amber, zero white-blank voids
+
 export const lightTheme = {
-  // Base Surfaces (Crisp neutral porcelain canvas & pure elevated white cards)
-  background: '#F8FAFC',        // Crisp refined slate porcelain canvas
-  card: '#FFFFFF',              // Pure elevated white card
-  cardSecondary: '#F1F5F9',     // Subtle tactile slate container
-  surfaceElevated: '#FFFFFF',   // 3D elevated floating tile
-  surfaceDepressed: '#E2E8F0',  // Soft recessed container
+  // Base Surfaces (Signature Deep Royal Navy Canvas)
+  background: '#070D1E',        // Deep Obsidian Navy (no white blank page!)
+  card: '#0D1B3A',              // Elevated Royal Navy card
+  cardSecondary: '#13234A',     // Tactile navy container
+  surfaceElevated: '#172B5C',   // 3D raised glowing card
+  surfaceDepressed: '#050A18',  // Recessed field
   
-  // Typography (Ultra-sharp high-contrast deep navy slate & readable charcoal)
-  text: '#0A192F',              // Deep Midnight Navy black (maximum visibility & contrast)
-  textSecondary: '#334155',     // Crisp readable slate charcoal
-  textMuted: '#64748B',         // Medium guide slate
-  textGold: '#B45309',          // Rich readable amber-gold text
-  textWhite: '#FFFFFF',         // Pure white for dark pill buttons
+  // Typography (Ultra-sharp high-contrast luminous white & radiant imperial gold)
+  text: '#FFFFFF',              // Pure crisp white (maximum readability)
+  textSecondary: '#E2E8F0',     // High-contrast ice slate
+  textMuted: '#94A3B8',         // Clear secondary gray
+  textGold: '#D4AF37',          // Pure Imperial Gold (NO orange)
+  textWhite: '#FFFFFF',         // Pure white
   
   // Primary: Royal Midnight Navy
   primary: '#0F2C59',           // Formal Royal Deep Navy
   primaryDark: '#0A192F',       // Midnight Navy
   primaryLight: '#1E3A8A',      // Royal Azure Blue
   primaryLighter: '#3B82F6',    // Electric Royal Accent
-  primaryMuted: '#EFF6FF',      // Soft luminous icy navy wash
-  primarySoft: '#F0F4FA',       // Clean soft navy tint
-  primaryBorder: '#CBD5E1',     // Delicate high-contrast border
+  primaryMuted: '#102247',      // Luminous deep navy wash
+  primarySoft: '#0A192F',       // Midnight navy tint
+  primaryBorder: 'rgba(59, 130, 246, 0.4)',
   
-  // Secondary: Warm Imperial Gold (The prestigious academic accent)
-  secondary: '#D4AF37',         // Warm Imperial Gold
+  // Secondary: Pure Imperial Gold (The single prestige accent color - NO orange)
+  secondary: '#D4AF37',         // Pure Imperial Gold
   gold: '#D4AF37',              // Imperial Gold
-  goldDark: '#B45309',          // Deep Burnished Gold (ultra-readable on light)
-  goldLight: '#FDF6E2',         // Soft Champagne Cream
-  goldLighter: '#FEF9C3',       // Delicate butter champagne
-  goldPod: '#FAF5EB',           // Creamy warm gold pod
-  goldBorder: 'rgba(212, 175, 55, 0.45)', // Refined gold hairline border
+  goldDark: '#C5A059',          // Deep Antique Gold (NO orange)
+  goldLight: 'rgba(212, 175, 55, 0.2)', // Soft gold glow wash
+  goldLighter: '#FDE68A',       // Luminous Champagne Gold
+  goldPod: '#16130B',           // Dark gold pod
+  goldBorder: 'rgba(212, 175, 55, 0.5)', // Pure gold hairline border
   accent: '#D4AF37',            // Imperial Gold accent
   
   // Backward-compatibility mappings
   sand: '#D4AF37',
-  sandDark: '#B45309',
-  sandLight: '#FDF6E2',
-  sandLighter: '#FEF9C3',
-  sandPod: '#FAF5EB',
-  sandBorder: 'rgba(212, 175, 55, 0.45)',
-  emeraldSoft: '#EFF6FF',
-  emeraldBorder: 'rgba(30, 58, 138, 0.25)',
+  sandDark: '#C5A059',
+  sandLight: '#FDE68A',
+  sandLighter: '#16130B',
+  sandPod: '#16130B',
+  sandBorder: 'rgba(212, 175, 55, 0.5)',
+  emeraldSoft: '#102247',
+  emeraldBorder: 'rgba(59, 130, 246, 0.35)',
   
-  // Gradients (Royal Midnight + Warm Imperial Gold Pairings)
-  gradientPrimary: ['#0A192F', '#0F2C59', '#1E3A8A'],       // Royal Midnight gradient
+  // Gradients (Strictly Blue & Gold - Zero Orange)
+  gradientPrimary: ['#0A192F', '#0F2C59', '#1E3A8A'],       // Royal Midnight Blue gradient
   gradientPrimaryLight: ['#1E3A8A', '#3B82F6'],             // Luminous Royal Azure
-  gradientSecondary: ['#F59E0B', '#D4AF37', '#C5A059'],     // Warm Imperial Gold gradient
-  gradientGold: ['#F59E0B', '#D4AF37', '#C5A059'],          // Radiant gold
-  gradientSand: ['#F59E0B', '#D4AF37'],
-  gradientLight: ['#F0F4FA', '#EFF6FF'],                    // Subtle navy pod wash
+  gradientSecondary: ['#C5A059', '#D4AF37', '#FFD700'],     // Pure Imperial Gold gradient (NO orange)
+  gradientGold: ['#C5A059', '#D4AF37', '#FFD700'],          // Radiant gold shimmer
+  gradientSand: ['#C5A059', '#D4AF37'],                     // Pure gold
+  gradientLight: ['#0D1B3A', '#070D1E'],                    // Deep blue pod wash
   gradientBanner: ['#0A192F', '#0F2C59', '#1E3A8A'],        // Executive banner gradient
-  gradientBadge: ['#FAF5EB', '#FDF6E2'],                    // Champagne pill badge gradient
+  gradientBadge: ['#16130B', '#261F0E'],                    // Champagne gold pill badge gradient
   gradientEmerald: ['#0A192F', '#1E3A8A'],
-  gradientEmeraldLight: ['#F0F4FA', '#EFF6FF'],
+  gradientEmeraldLight: ['#102247', '#0A192F'],
   
   // 3D & Glassmorphic Tokens
-  border: '#E2E8F0',                                        // Clean crisp border
-  cardBorder: 'rgba(212, 175, 55, 0.22)',                   // Subtle gold foil border
-  cardShadow: 'rgba(10, 25, 47, 0.08)',                     // Subtle deep navy shadow
-  glassBackground: 'rgba(255, 255, 255, 0.96)',
-  glassBorder: 'rgba(212, 175, 55, 0.28)',
-  glowPrimary: 'rgba(15, 44, 89, 0.18)',
-  glowAccent: 'rgba(212, 175, 55, 0.25)',
-  glowGold: 'rgba(212, 175, 55, 0.28)',
+  border: 'rgba(226, 232, 240, 0.15)',                     // Clean subtle border
+  cardBorder: 'rgba(212, 175, 55, 0.35)',                   // Luxury gold foil border
+  cardShadow: 'rgba(0, 0, 0, 0.75)',                       // Deep shadow
+  glassBackground: 'rgba(13, 27, 58, 0.95)',
+  glassBorder: 'rgba(212, 175, 55, 0.35)',
+  glowPrimary: 'rgba(59, 130, 246, 0.35)',
+  glowAccent: 'rgba(212, 175, 55, 0.35)',
+  glowGold: 'rgba(212, 175, 55, 0.4)',
   
   // 3D Icon Pods
-  icon: '#334155',
-  iconActive: '#0F2C59',
-  iconPodBg: '#F1F5F9',
-  iconPodActiveBg: '#F0F4FA',
-  iconPodBorder: 'rgba(212, 175, 55, 0.4)',
-  icon3DGlow: 'rgba(15, 44, 89, 0.16)',
+  icon: '#CBD5E1',
+  iconActive: '#D4AF37',
+  iconPodBg: '#13234A',
+  iconPodActiveBg: 'rgba(212, 175, 55, 0.2)',
+  iconPodBorder: 'rgba(212, 175, 55, 0.45)',
+  icon3DGlow: 'rgba(212, 175, 55, 0.3)',
   
   // Inputs & Interactive Buttons
-  inputBackground: '#FFFFFF',
+  inputBackground: '#0D172E',
   buttonBackground: '#0F2C59',
   buttonGradient: ['#0A192F', '#0F2C59', '#1E3A8A'],
   buttonText: '#FFFFFF',
   buttonGold: '#D4AF37',
-  tabBarBg: 'rgba(255, 255, 255, 0.98)',
-  tabBarBorder: 'rgba(212, 175, 55, 0.25)',
+  tabBarBg: 'rgba(7, 13, 30, 0.98)',
+  tabBarBorder: 'rgba(212, 175, 55, 0.28)',
 
-  // Feedback Colors
+  // Feedback Colors (Strictly Blue, Gold, Green for success, Red for danger)
   success: '#10B981',
   danger: '#EF4444',
-  warning: '#F59E0B',
+  warning: '#D4AF37', // Pure Gold (NO orange)
 };
 
 export const darkTheme = {
@@ -99,7 +102,7 @@ export const darkTheme = {
   text: '#FFFFFF',              // Pure luminous white (maximum visibility)
   textSecondary: '#E2E8F0',     // High-contrast soft pearl slate (ultra readable)
   textMuted: '#94A3B8',         // Clear secondary gray
-  textGold: '#FDE68A',          // Radiant champagne gold for accents
+  textGold: '#D4AF37',          // Pure Imperial Gold (NO orange)
   textWhite: '#FFFFFF',
   
   // Brand & Accents (Luminous Azure & Warm Imperial Gold)
@@ -111,10 +114,10 @@ export const darkTheme = {
   primarySoft: '#0A192F',       // Midnight navy pod tint
   primaryBorder: 'rgba(59, 130, 246, 0.4)',
   
-  // Secondary: Warm Imperial Gold in Dark Mode
+  // Secondary: Warm Imperial Gold in Dark Mode (NO orange)
   secondary: '#D4AF37',         // Warm Imperial Gold
   gold: '#D4AF37',              // Imperial Gold
-  goldDark: '#C5A059',          // Warm Antique Gold
+  goldDark: '#C5A059',          // Warm Antique Gold (NO orange)
   goldLight: 'rgba(212, 175, 55, 0.2)', // Soft gold glow wash
   goldLighter: '#FDE68A',       // Luminous Champagne
   goldPod: '#1A150A',           // Deep dark gold pod
@@ -131,12 +134,12 @@ export const darkTheme = {
   emeraldSoft: '#0E1F3D',
   emeraldBorder: 'rgba(59, 130, 246, 0.35)',
   
-  // Gradients
+  // Gradients (Strictly Blue & Gold - Zero Orange)
   gradientPrimary: ['#0A192F', '#0F2C59', '#1E3A8A'],
   gradientPrimaryLight: ['#1E3A8A', '#3B82F6'],
-  gradientSecondary: ['#F59E0B', '#D4AF37', '#C5A059'],
-  gradientGold: ['#F59E0B', '#D4AF37', '#C5A059'],
-  gradientSand: ['#F59E0B', '#D4AF37'],
+  gradientSecondary: ['#C5A059', '#D4AF37', '#FFD700'], // Pure gold (NO orange)
+  gradientGold: ['#C5A059', '#D4AF37', '#FFD700'],      // Pure gold (NO orange)
+  gradientSand: ['#C5A059', '#D4AF37'],
   gradientLight: ['#131D38', '#0A1224'],
   gradientBanner: ['#0A192F', '#0F2C59', '#1E3A8A'],
   gradientBadge: ['#1A150A', '#2D220B'],
@@ -155,7 +158,7 @@ export const darkTheme = {
   
   // 3D Icon Pods
   icon: '#CBD5E1',
-  iconActive: '#FDE68A',
+  iconActive: '#D4AF37',
   iconPodBg: '#131D38',
   iconPodActiveBg: 'rgba(212, 175, 55, 0.18)',
   iconPodBorder: 'rgba(212, 175, 55, 0.45)',
@@ -173,5 +176,5 @@ export const darkTheme = {
   // Feedback Colors
   success: '#10B981',
   danger: '#F43F5E',
-  warning: '#F59E0B',
+  warning: '#D4AF37', // Pure Gold (NO orange)
 };

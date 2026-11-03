@@ -769,7 +769,7 @@ const EngageScreen = ({ navigation, route }) => {
               <Text style={{ color: '#475569', fontSize: 13, fontWeight: '600' }}>Media</Text>
             </TouchableOpacity>
             <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} onPress={() => setCurrentView('joinEvent')}>
-              <Ionicons name="calendar" size={20} color="#F59E0B" />
+              <Ionicons name="calendar" size={20} color="#D4AF37" />
               <Text style={{ color: '#475569', fontSize: 13, fontWeight: '600' }}>Event</Text>
             </TouchableOpacity>
             <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} onPress={() => navigation.navigate('PostCreation')}>

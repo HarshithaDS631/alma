@@ -88,8 +88,8 @@ const AppHeader = ({
     <View style={[
       styles.header, 
       { 
-        backgroundColor: theme.card || '#FFFFFF',
-        borderBottomColor: isDarkMode ? '#1E293B' : '#E2E8F0',
+        backgroundColor: '#070D1E',
+        borderBottomColor: 'rgba(212, 175, 55, 0.3)',
       },
       style
     ]}>
@@ -99,14 +99,14 @@ const AppHeader = ({
         <TouchableOpacity
           onPress={() => navigation?.navigate?.('Home')}
           activeOpacity={0.8}
-          style={{ flexDirection: 'row', alignItems: 'center', gap: 7 }}
+          style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
           accessibilityLabel="Home"
         >
           <View style={styles.brandCrest}>
             <Text style={styles.brandCrestText}>RV</Text>
           </View>
-          <Text style={{ fontSize: 20, fontWeight: '900', color: theme.text || '#0F172A', letterSpacing: -0.3 }}>
-            ALUMNI
+          <Text style={{ fontSize: 18, fontWeight: '900', color: '#FFFFFF', letterSpacing: 0.5 }}>
+            ALUMNI <Text style={{ color: '#D4AF37' }}>•</Text>
           </Text>
         </TouchableOpacity>
 
@@ -119,7 +119,7 @@ const AppHeader = ({
               borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#E6CA85',
             }
           ]}>
-            <Text style={[styles.desktopBadgeText, { color: isDarkMode ? '#FDE68A' : '#B45309' }]}>
+            <Text style={[styles.desktopBadgeText, { color: isDarkMode ? '#FDE68A' : '#D4AF37' }]}>
               {desktopTitle}
             </Text>
             {desktopSubtitle && (
@@ -174,7 +174,7 @@ const AppHeader = ({
                 ? (isDarkMode ? 'rgba(217, 119, 6, 0.2)' : '#FEF3C7') 
                 : (isDarkMode ? '#1E293B' : '#F8FAFC'),
               borderColor: isNotificationsActive 
-                ? (isDarkMode ? '#D97706' : '#FDE68A') 
+                ? (isDarkMode ? '#D4AF37' : '#FDE68A') 
                 : (isDarkMode ? '#334155' : '#E2E8F0'),
             }
           ]}
@@ -188,7 +188,7 @@ const AppHeader = ({
           <Ionicons
             name={isNotificationsActive ? 'notifications' : 'notifications-outline'}
             size={20}
-            color={isNotificationsActive ? '#D97706' : (isDarkMode ? '#CBD5E1' : '#475569')}
+            color={isNotificationsActive ? '#D4AF37' : (isDarkMode ? '#CBD5E1' : '#475569')}
           />
           {unreadNotifications > 0 && (
             <View style={styles.badgeDot} />
@@ -251,19 +251,17 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 8,
-    backgroundColor: '#0F2C59',
-    borderWidth: 1,
-    borderColor: '#D4AF37',
+    backgroundColor: '#D4AF37',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#0A192F',
+    shadowColor: '#D4AF37',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3,
-    elevation: 2,
+    shadowOpacity: 0.35,
+    shadowRadius: 4,
+    elevation: 3,
   },
   brandCrestText: {
-    color: '#D4AF37',
+    color: '#0A192F',
     fontWeight: '900',
     fontSize: 12,
     letterSpacing: 0.5,

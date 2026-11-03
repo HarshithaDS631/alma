@@ -700,7 +700,7 @@ const DirectoryScreen = ({ navigation, route }) => {
                 borderColor: '#86EFAC'
               }}>
                 <View style={{ width: 5, height: 5, borderRadius: 2.5, backgroundColor: '#057642' }} />
-                <Text style={{ fontSize: 10, fontWeight: '800', color: '#B45309' }} numberOfLines={1}>
+                <Text style={{ fontSize: 10, fontWeight: '800', color: '#D4AF37' }} numberOfLines={1}>
                   #OpenToWork{item.openToWorkRoles ? ` • ${Array.isArray(item.openToWorkRoles) ? item.openToWorkRoles[0] : item.openToWorkRoles.split(',')[0].trim()}` : ''}
                 </Text>
               </View>
@@ -1791,7 +1791,7 @@ const getStyles = (theme) => StyleSheet.create({
   cleanHeaderTagText: {
     fontSize: 10.5,
     fontWeight: '800',
-    color: '#B45309',
+    color: '#D4AF37',
     letterSpacing: 0.5,
   },
   cleanHeaderStatsText: {
@@ -1802,7 +1802,7 @@ const getStyles = (theme) => StyleSheet.create({
   cleanHeaderTitle: {
     fontSize: 20,
     fontWeight: '800',
-    color: '#B45309',
+    color: '#D4AF37',
     letterSpacing: -0.2,
     marginTop: 2,
   },
@@ -1996,7 +1996,7 @@ const getStyles = (theme) => StyleSheet.create({
   almaBatchPillText: {
     fontSize: 10.5,
     fontWeight: '800',
-    color: '#B45309',
+    color: '#D4AF37',
   },
   almaMemberRole: {
     fontSize: 12.5,

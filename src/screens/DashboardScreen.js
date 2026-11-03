@@ -418,10 +418,10 @@ const DashboardScreen = ({ navigation }) => {
     const content = (post?.content || '').toLowerCase();
     const role = (post?.role || '').toLowerCase();
     if (/hiring|referral|job|opening|career|internship|role|recruit|opportunity/i.test(content + ' ' + role)) {
-      return { label: 'JOB REFERRAL', color: isDarkMode ? '#FDE68A' : '#B45309', bg: isDarkMode ? 'rgba(212, 175, 55, 0.16)' : '#FAF5EB', icon: 'briefcase' };
+      return { label: 'JOB REFERRAL', color: isDarkMode ? '#FDE68A' : '#D4AF37', bg: isDarkMode ? 'rgba(212, 175, 55, 0.16)' : '#FAF5EB', icon: 'briefcase' };
     }
     if (/reunion|alumni meet|meetup|gathering|jubilee|celebrat/i.test(content)) {
-      return { label: 'REUNION', color: isDarkMode ? '#FDE68A' : '#B45309', bg: isDarkMode ? 'rgba(212, 175, 55, 0.16)' : '#FAF5EB', icon: 'people' };
+      return { label: 'REUNION', color: isDarkMode ? '#FDE68A' : '#D4AF37', bg: isDarkMode ? 'rgba(212, 175, 55, 0.16)' : '#FAF5EB', icon: 'people' };
     }
     if (/rvce|campus|convocation|exam|faculty|department|research|rsst|placement/i.test(content)) {
       return { label: 'CAMPUS NOTICE', color: isDarkMode ? '#60A5FA' : '#0F2C59', bg: isDarkMode ? '#0E1F3D' : '#EFF6FF', icon: 'school' };
@@ -1446,7 +1446,7 @@ const DashboardScreen = ({ navigation }) => {
               <Text style={styles.heroBannerSubtitle}>
                 Empowering 45,000+ graduates across global technology leaders, venture founders, and academic faculties.
               </Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginTop: 6 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginTop: 8 }}>
                 <TouchableOpacity
                   style={styles.heroBannerBtn}
                   onPress={() => navigation.navigate('Engage', { tab: 'directory' })}
@@ -1491,7 +1491,7 @@ const DashboardScreen = ({ navigation }) => {
           onPress={() => navigation.navigate('Jobs')}
           activeOpacity={0.75}
         >
-          <Ionicons name="briefcase" size={24} color={isDarkMode ? '#FDE68A' : '#B45309'} />
+          <Ionicons name="briefcase" size={24} color={isDarkMode ? '#FDE68A' : '#D4AF37'} />
           <Text style={[styles.quickActionText, styles.quickActionTextHighlight]}>Jobs</Text>
         </TouchableOpacity>
 
@@ -1573,7 +1573,7 @@ const DashboardScreen = ({ navigation }) => {
             <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
               <Ionicons name="shield-checkmark" size={18} color="#D4AF37" style={{ marginRight: 10 }} />
               <View>
-                <Text style={{ fontSize: 14, fontWeight: '700', color: isDarkMode ? '#FDE68A' : '#B45309' }}>{userRole} Dashboard</Text>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: isDarkMode ? '#FDE68A' : '#D4AF37' }}>{userRole} Dashboard</Text>
                 <Text style={{ fontSize: 12, color: '#64748B' }}>Quick actions for administration</Text>
               </View>
             </View>
@@ -1689,7 +1689,7 @@ const DashboardScreen = ({ navigation }) => {
                     </Text>
                   </View>
                   <View style={styles.sidebarPillTag}>
-                    <Text style={{ fontSize: 10, fontWeight: '800', color: isDarkMode ? '#FDE68A' : '#B45309' }}>COMMUNITY</Text>
+                    <Text style={{ fontSize: 10, fontWeight: '800', color: isDarkMode ? '#FDE68A' : '#D4AF37' }}>COMMUNITY</Text>
                   </View>
                 </View>
 
@@ -1701,14 +1701,14 @@ const DashboardScreen = ({ navigation }) => {
                 >
                   <FloatingElement distance={1.8} duration={2400}>
                     <View style={[styles.sidebarHubIcon, { backgroundColor: isDarkMode ? 'rgba(212, 175, 55, 0.16)' : '#FAF5EB', borderWidth: 1, borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.35)' : '#E6CA85' }]}>
-                      <Ionicons name="sparkles" size={17} color={isDarkMode ? '#FDE68A' : '#B45309'} />
+                      <Ionicons name="sparkles" size={17} color={isDarkMode ? '#FDE68A' : '#D4AF37'} />
                     </View>
                   </FloatingElement>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                       <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }}>1-on-1 Mentorship</Text>
                       <View style={{ backgroundColor: isDarkMode ? 'rgba(212, 175, 55, 0.16)' : '#FAF5EB', borderWidth: 1, borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.35)' : '#E6CA85', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 6 }}>
-                        <Text style={{ fontSize: 9.5, fontWeight: '800', color: isDarkMode ? '#FDE68A' : '#B45309' }}>ACTIVE</Text>
+                        <Text style={{ fontSize: 9.5, fontWeight: '800', color: isDarkMode ? '#FDE68A' : '#D4AF37' }}>ACTIVE</Text>
                       </View>
                     </View>
                     <Text style={{ fontSize: 11, color: theme.textMuted, marginTop: 1 }}>Career advice with senior alumni</Text>
@@ -1808,7 +1808,7 @@ const DashboardScreen = ({ navigation }) => {
                         </View>
                       </View>
                       <TouchableOpacity onPress={() => toggleSuggestionFollow(s.id)} activeOpacity={0.7}>
-                        <Text style={{ color: followingMap[s.id] ? theme.textSecondary : (isDarkMode ? '#FDE68A' : '#B45309'), fontSize: 12, fontWeight: '700' }}>
+                        <Text style={{ color: followingMap[s.id] ? theme.textSecondary : (isDarkMode ? '#FDE68A' : '#D4AF37'), fontSize: 12, fontWeight: '700' }}>
                           {followingMap[s.id] ? 'Following' : '+ Connect'}
                         </Text>
                       </TouchableOpacity>
@@ -1894,13 +1894,13 @@ const DashboardScreen = ({ navigation }) => {
                   activeOpacity={0.7}
                 >
                   <View style={[styles.sidebarCampusIcon, { backgroundColor: isDarkMode ? 'rgba(212, 175, 55, 0.16)' : '#FAF5EB', borderWidth: 1, borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.35)' : '#E6CA85' }]}>
-                    <Ionicons name="rocket" size={17} color={isDarkMode ? '#FDE68A' : '#B45309'} />
+                    <Ionicons name="rocket" size={17} color={isDarkMode ? '#FDE68A' : '#D4AF37'} />
                   </View>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                       <Text style={{ fontSize: 12.5, fontWeight: '700', color: theme.text }}>Incubation & Research Lab</Text>
                       <View style={{ backgroundColor: isDarkMode ? 'rgba(212, 175, 55, 0.16)' : '#FAF5EB', borderWidth: 1, borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.35)' : '#E6CA85', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 6 }}>
-                        <Text style={{ fontSize: 9, fontWeight: '800', color: isDarkMode ? '#FDE68A' : '#B45309' }}>GRANTS</Text>
+                        <Text style={{ fontSize: 9, fontWeight: '800', color: isDarkMode ? '#FDE68A' : '#D4AF37' }}>GRANTS</Text>
                       </View>
                     </View>
                     <Text style={{ fontSize: 11, color: theme.textMuted }}>RSST seed funds & patent filing</Text>
@@ -2813,19 +2813,19 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
 
   /* 2. Hero Mascot & Campus Banner */
   heroBannerCard: {
-    height: 180,
+    minHeight: 195,
     borderRadius: 20,
-    backgroundColor: isDarkMode ? '#0A192F' : '#FAF5EB',
+    backgroundColor: '#0A192F',
     borderWidth: 1.5,
-    borderColor: isDarkMode ? '#B45309' : 'rgba(212, 175, 55, 0.4)',
+    borderColor: '#D4AF37',
     overflow: 'hidden',
     position: 'relative',
     marginBottom: 16,
     shadowColor: '#0A192F',
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 4,
   },
   heroBannerImage: {
     position: 'absolute',
@@ -2841,15 +2841,15 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     left: 0,
     top: 0,
     bottom: 0,
-    width: '75%',
-    backgroundColor: isDarkMode ? 'rgba(10, 25, 47, 0.94)' : 'rgba(255, 255, 255, 0.95)',
+    width: '80%',
+    backgroundColor: 'rgba(10, 25, 47, 0.95)',
     borderTopRightRadius: 30,
     borderBottomRightRadius: 30,
   },
   heroBannerContent: {
     paddingHorizontal: 16,
     paddingVertical: 14,
-    width: '75%',
+    width: '80%',
     height: '100%',
     justifyContent: 'center',
     zIndex: 2,
@@ -2858,16 +2858,18 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
-    backgroundColor: isDarkMode ? 'rgba(212, 175, 55, 0.18)' : '#FDF6E2',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    backgroundColor: 'rgba(212, 175, 55, 0.2)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     borderRadius: 12,
-    marginBottom: 4,
+    marginBottom: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.4)',
   },
   heroBannerBadgeText: {
     fontSize: 11,
     fontWeight: '700',
-    color: isDarkMode ? '#FDE68A' : '#B45309',
+    color: '#D4AF37',
     letterSpacing: 0.2,
   },
   heroBannerCollegeName: {
@@ -2881,28 +2883,27 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   heroBannerGreeting: {
     fontSize: 12.5,
     fontWeight: '600',
-    color: isDarkMode ? '#FDE68A' : '#B45309',
+    color: isDarkMode ? '#FDE68A' : '#D4AF37',
     marginBottom: 2,
   },
   heroBannerTitle: {
-    fontSize: 19,
+    fontSize: 16,
     fontWeight: '800',
-    color: isDarkMode ? '#FFFFFF' : '#0A192F',
+    color: isDarkMode ? '#FAF5EB' : '#0F172A',
     letterSpacing: -0.3,
-    lineHeight: 24,
   },
   heroBannerSubtitle: {
-    fontSize: 12,
-    color: isDarkMode ? '#CBD5E1' : '#475569',
-    marginTop: 3,
+    fontSize: 11,
+    color: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#475569',
+    marginTop: 1,
     marginBottom: 8,
-    lineHeight: 16,
+    lineHeight: 14,
   },
   heroBannerBtn: {
-    backgroundColor: '#D4AF37',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
+    backgroundColor: '#0F2C59',
+    paddingHorizontal: 13,
+    paddingVertical: 6,
+    borderRadius: 20,
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
@@ -2913,9 +2914,9 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     elevation: 3,
   },
   heroBannerBtnText: {
-    color: '#0A192F',
-    fontWeight: '800',
-    fontSize: 12.5,
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 11.5,
   },
   heroBannerMascotWrap: {
     position: 'absolute',
@@ -2976,8 +2977,8 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     elevation: 2,
   },
   quickActionCardHighlight: {
-    backgroundColor: isDarkMode ? 'rgba(5, 150, 105, 0.2)' : '#FAF5EB',
-    borderColor: '#10B981',
+    backgroundColor: 'rgba(212, 175, 55, 0.2)',
+    borderColor: '#D4AF37',
   },
   quickActionText: {
     fontSize: 12,
@@ -3808,7 +3809,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(5, 150, 105, 0.25)',
+    backgroundColor: 'rgba(212, 175, 55, 0.25)',
   },
   sidebarProfileBody: {
     alignItems: 'center',

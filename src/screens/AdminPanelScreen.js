@@ -472,7 +472,7 @@ export default function AdminPanelScreen({ navigation }) {
             <View style={styles.desktopWindowHeader}>
               <View style={styles.desktopTrafficDots}>
                 <View style={[styles.trafficDot, { backgroundColor: '#EF4444' }]} />
-                <View style={[styles.trafficDot, { backgroundColor: '#F59E0B' }]} />
+                <View style={[styles.trafficDot, { backgroundColor: '#D4AF37' }]} />
                 <View style={[styles.trafficDot, { backgroundColor: '#10B981' }]} />
               </View>
               <Text style={styles.desktopWindowTitle}>RV Alumni Mail Client — Preview Mode</Text>
@@ -1397,7 +1397,7 @@ export default function AdminPanelScreen({ navigation }) {
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <View style={{
-                    backgroundColor: item.method === 'POST' ? '#0F2C59' : item.method === 'PUT' ? '#F59E0B' : item.method === 'DELETE' ? '#EF4444' : '#0F2C59',
+                    backgroundColor: item.method === 'POST' ? '#0F2C59' : item.method === 'PUT' ? '#D4AF37' : item.method === 'DELETE' ? '#EF4444' : '#0F2C59',
                     paddingHorizontal: 8,
                     paddingVertical: 2,
                     borderRadius: 4,

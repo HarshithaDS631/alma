@@ -1,36 +1,30 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { lightTheme, darkTheme } from './colors';
 
 const ThemeContext = createContext();
 
-const getInitialDarkMode = (systemColorScheme) => {
+// Signature Theme: Royal Midnight Navy & Warm Imperial Gold by default
+const getInitialDarkMode = () => {
   if (typeof window !== 'undefined') {
     try {
       const params = new URLSearchParams(window.location.search);
-      if (params.get('theme') === 'dark') return true;
       if (params.get('theme') === 'light') return false;
       const saved = localStorage.getItem('user_theme_mode');
-      if (saved === 'dark') return true;
       if (saved === 'light') return false;
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        return true;
-      }
     } catch {
       // fallback
     }
   }
-  return systemColorScheme === 'dark';
+  return true;
 };
 
 export const ThemeProvider = ({ children }) => {
-  const systemColorScheme = useColorScheme();
-  const [isDarkMode, setIsDarkMode] = useState(() => getInitialDarkMode(systemColorScheme));
+  const [isDarkMode, setIsDarkMode] = useState(() => getInitialDarkMode());
 
   useEffect(() => {
     if (typeof document !== 'undefined') {
-      const bg = isDarkMode ? '#0B1310' : '#F8FAFC';
+      const bg = '#070C18';
       document.documentElement.style.backgroundColor = bg;
       document.body.style.backgroundColor = bg;
       const rootEl = document.getElementById('root');
@@ -49,10 +43,6 @@ export const ThemeProvider = ({ children }) => {
       try {
         if (typeof window !== 'undefined') {
           const params = new URLSearchParams(window.location.search);
-          if (params.get('theme') === 'dark') {
-            setIsDarkMode(true);
-            return;
-          }
           if (params.get('theme') === 'light') {
             setIsDarkMode(false);
             return;
@@ -62,14 +52,14 @@ export const ThemeProvider = ({ children }) => {
         if (saved !== null) {
           setIsDarkMode(saved === 'dark');
         } else {
-          setIsDarkMode(systemColorScheme === 'dark');
+          setIsDarkMode(true);
         }
       } catch {
-        setIsDarkMode(systemColorScheme === 'dark');
+        setIsDarkMode(true);
       }
     };
     loadThemePreference();
-  }, [systemColorScheme]);
+  }, []);
 
   const toggleTheme = async () => {
     const nextMode = !isDarkMode;
@@ -107,4 +97,3 @@ export const ThemeProvider = ({ children }) => {
 };
 
 export const useTheme = () => useContext(ThemeContext);
-

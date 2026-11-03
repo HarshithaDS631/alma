@@ -120,17 +120,17 @@ const WelcomeScreen = ({ navigation }) => {
             {/* Bento Feature Highlights */}
             <View style={styles.bentoFeatureRow}>
               <View style={styles.bentoFeatureItem}>
-                <Ionicons name="people" size={13} color="#0F2C59" />
+                <Ionicons name="people" size={13} color="#D4AF37" />
                 <Text style={styles.bentoFeatureText}>9.9K+ Alumni</Text>
               </View>
               <View style={styles.bentoFeatureDivider} />
               <View style={styles.bentoFeatureItem}>
-                <Ionicons name="briefcase" size={13} color="#0F2C59" />
+                <Ionicons name="briefcase" size={13} color="#D4AF37" />
                 <Text style={styles.bentoFeatureText}>Job Referrals</Text>
               </View>
               <View style={styles.bentoFeatureDivider} />
               <View style={styles.bentoFeatureItem}>
-                <Ionicons name="globe" size={13} color="#0F2C59" />
+                <Ionicons name="globe" size={13} color="#D4AF37" />
                 <Text style={styles.bentoFeatureText}>12 Chapters</Text>
               </View>
             </View>
@@ -146,12 +146,12 @@ const WelcomeScreen = ({ navigation }) => {
               style={{ borderRadius: 14, overflow: 'hidden', marginBottom: 12 }}
             >
               <GradientView
-                colors={theme.gradientPrimary || ['#D4AF37', '#0F2C59']}
+                colors={['#D4AF37', '#FFD700', '#C5A059']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.primaryButton}
               >
-                <Text style={styles.primaryButtonText}>Sign In</Text>
+                <Text style={styles.primaryButtonText}>Sign In to Alumni Portal →</Text>
               </GradientView>
             </TouchableOpacity>
             
@@ -255,18 +255,18 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: isDarkMode ? '#131F19' : '#FFFFFF',
+    backgroundColor: '#0D1B3A',
     borderWidth: 1,
-    borderColor: isDarkMode ? '#1E2E25' : '#E6F4EA',
+    borderColor: 'rgba(212, 175, 55, 0.35)',
     borderRadius: 20,
     paddingHorizontal: 14,
     paddingVertical: 8,
     marginTop: 14,
-    shadowColor: '#000',
+    shadowColor: '#0A192F',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.03,
+    shadowOpacity: 0.25,
     shadowRadius: 6,
-    elevation: 1,
+    elevation: 3,
   },
   bentoFeatureItem: {
     flexDirection: 'row',
@@ -277,12 +277,12 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   bentoFeatureDivider: {
     width: 1,
     height: 12,
-    backgroundColor: isDarkMode ? '#1E2E25' : '#E2E8F0',
+    backgroundColor: 'rgba(212, 175, 55, 0.4)',
   },
   bentoFeatureText: {
     fontSize: 11,
     fontWeight: '700',
-    color: isDarkMode ? '#DCFCE7' : '#0A192F',
+    color: '#D4AF37',
   },
   actionSection: {
     width: '100%',
@@ -292,35 +292,40 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     flexDirection: 'row',
     height: 52,
     borderRadius: 14,
-    backgroundColor: 'transparent',
+    backgroundColor: '#D4AF37',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: theme.primary,
+    shadowColor: '#D4AF37',
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.35,
     shadowRadius: 6,
     elevation: 4,
   },
   primaryButtonText: {
     fontSize: 16,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    fontWeight: '800',
+    color: '#0A192F',
     letterSpacing: 0.2,
   },
   secondaryButton: {
     height: 52,
     borderRadius: 14,
-    backgroundColor: isDarkMode ? '#1E2025' : '#FFFFFF',
+    backgroundColor: '#0D1B3A',
     borderWidth: 1.5,
-    borderColor: isDarkMode ? '#2D3139' : '#CBD5E1',
+    borderColor: '#D4AF37',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
+    shadowColor: '#0A192F',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
   },
   secondaryButtonText: {
     fontSize: 15,
     fontWeight: '700',
-    color: theme.text,
+    color: '#FFFFFF',
   },
   dividerRow: {
     flexDirection: 'row',
@@ -330,7 +335,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: theme.border,
+    backgroundColor: 'rgba(212, 175, 55, 0.25)',
   },
   dividerText: {
     marginHorizontal: 12,
@@ -347,28 +352,28 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     flexDirection: 'row',
     height: 48,
     borderRadius: 12,
-    backgroundColor: isDarkMode ? '#1E2025' : '#FFFFFF',
+    backgroundColor: '#0D1B3A',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1.2,
-    borderColor: isDarkMode ? '#2D3139' : '#E2E8F0',
-    shadowColor: '#000',
+    borderColor: 'rgba(212, 175, 55, 0.35)',
+    shadowColor: '#0A192F',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
+    shadowOpacity: 0.2,
     shadowRadius: 3,
     elevation: 2,
   },
   socialButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: theme.text,
+    color: '#FFFFFF',
   },
   appleButton: {
-    backgroundColor: isDarkMode ? '#F9FAFB' : '#000000',
-    borderColor: isDarkMode ? '#F9FAFB' : '#000000',
+    backgroundColor: '#0A1224',
+    borderColor: 'rgba(212, 175, 55, 0.4)',
   },
   appleButtonText: {
-    color: isDarkMode ? '#121316' : '#FFFFFF',
+    color: '#FFFFFF',
   },
   footerContainer: {
     marginTop: 24,

@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
     borderRadius: 8
   },
   entryTypeText: {
-    color: '#B45309',
+    color: '#D4AF37',
     fontSize: 10,
     fontWeight: '800',
     letterSpacing: 0.5

@@ -304,7 +304,7 @@ export default function MentorshipBookingModal({ visible, onClose, mentor, onSes
                         onPress={() => setSelectedTopic(t)}
                         activeOpacity={0.75}
                       >
-                        <Text style={[styles.topicText, { color: isSel ? '#B45309' : (isDarkMode ? '#CBD5E1' : '#475569'), fontWeight: isSel ? '700' : '500' }]}>
+                        <Text style={[styles.topicText, { color: isSel ? '#D4AF37' : (isDarkMode ? '#CBD5E1' : '#475569'), fontWeight: isSel ? '700' : '500' }]}>
                           {t}
                         </Text>
                       </TouchableOpacity>
@@ -455,7 +455,7 @@ const styles = StyleSheet.create({
   durationText: {
     fontSize: 10,
     fontWeight: '800',
-    color: '#B45309'
+    color: '#D4AF37'
   },
   sectionTitle: {
     fontSize: 12,
@@ -531,7 +531,7 @@ const styles = StyleSheet.create({
   },
   confirmedSubtitle: {
     fontSize: 12.5,
-    color: '#B45309',
+    color: '#D4AF37',
     fontWeight: '700',
     marginTop: 4,
     textAlign: 'center'
