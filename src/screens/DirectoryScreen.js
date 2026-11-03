@@ -118,9 +118,7 @@ const DirectoryScreen = ({ navigation, route }) => {
   const [selectedGraduationYear, setSelectedGraduationYear] = useState('all'); // '2022', '2020', etc.
   const [selectedLocation, setSelectedLocation] = useState('all'); // 'Bangalore', etc.
   const [selectedSpecializedList, setSelectedSpecializedList] = useState(null);
-  const [viewMode, setViewMode] = useState('all_cards'); // 'all_cards' or 'batch_wise'
   const [showFiltersModal, setShowFiltersModal] = useState(false);
-  const [collapsedBatches, setCollapsedBatches] = useState({});
 
   React.useEffect(() => {
     if (route?.params?.tab) {
@@ -452,31 +450,6 @@ const DirectoryScreen = ({ navigation, route }) => {
     });
   }, [unifiedDirectory, searchQuery, selectedMemberType, selectedCourse, selectedGraduationYear, selectedLocation, selectedSpecializedList, currentUser]);
 
-  // ─── Batch-Wise Grouping ──────────────────────────────────────────────
-  const batchWiseGroups = useMemo(() => {
-    const groups = {};
-    filteredDirectory.forEach((item) => {
-      const yr = item.batchYear || 'Other';
-      if (!groups[yr]) groups[yr] = [];
-      groups[yr].push(item);
-    });
-
-    const sortedYears = Object.keys(groups).sort((a, b) => {
-      const numA = parseInt(a, 10) || 0;
-      const numB = parseInt(b, 10) || 0;
-      return numB - numA;
-    });
-
-    return sortedYears.map(year => ({
-      year,
-      count: groups[year].length,
-      members: groups[year]
-    }));
-  }, [filteredDirectory]);
-
-  const toggleBatchCollapse = (year) => {
-    setCollapsedBatches(prev => ({ ...prev, [year]: !prev[year] }));
-  };
 
   const handleToggleFollow = async (targetUser) => {
     const userId = targetUser._id || targetUser.id;
@@ -930,29 +903,6 @@ const DirectoryScreen = ({ navigation, route }) => {
             )}
           </View>
 
-          {/* View Mode Toggle (Grid vs Batch) */}
-          <View style={styles.viewModeToggleWrapper}>
-            <TouchableOpacity
-              style={[styles.viewModeBtn, viewMode === 'all_cards' && styles.viewModeBtnActive]}
-              onPress={() => setViewMode('all_cards')}
-              activeOpacity={0.7}
-            >
-              <Ionicons name="grid-outline" size={13} color={viewMode === 'all_cards' ? '#059669' : '#94A3B8'} />
-              <Text style={[styles.viewModeBtnText, viewMode === 'all_cards' && styles.viewModeBtnTextActive]}>
-                Grid
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.viewModeBtn, viewMode === 'batch_wise' && styles.viewModeBtnActive]}
-              onPress={() => setViewMode('batch_wise')}
-              activeOpacity={0.7}
-            >
-              <Ionicons name="layers-outline" size={13} color={viewMode === 'batch_wise' ? '#059669' : '#94A3B8'} />
-              <Text style={[styles.viewModeBtnText, viewMode === 'batch_wise' && styles.viewModeBtnTextActive]}>
-                Batch
-              </Text>
-            </TouchableOpacity>
-          </View>
         </View>
 
         {/* ─── Results Counter ─── */}
@@ -987,39 +937,6 @@ const DirectoryScreen = ({ navigation, route }) => {
             >
               <Text style={styles.emptyClearBtnText}>Reset All Filters</Text>
             </TouchableOpacity>
-          </View>
-        ) : viewMode === 'batch_wise' ? (
-          <View style={{ gap: 14 }}>
-            {batchWiseGroups.map((batchGroup) => {
-              const isCollapsed = !!collapsedBatches[batchGroup.year];
-              return (
-                <View key={batchGroup.year} style={styles.batchSectionWrapper}>
-                  <TouchableOpacity
-                    style={styles.batchHeaderBtn}
-                    onPress={() => toggleBatchCollapse(batchGroup.year)}
-                    activeOpacity={0.8}
-                  >
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                      <Text style={styles.batchTitleText}>Class of {batchGroup.year}</Text>
-                      <View style={styles.batchCountBadge}>
-                        <Text style={styles.batchCountBadgeText}>{batchGroup.count}</Text>
-                      </View>
-                    </View>
-                    <Ionicons
-                      name={isCollapsed ? "chevron-down" : "chevron-up"}
-                      size={16}
-                      color="#64748B"
-                    />
-                  </TouchableOpacity>
-
-                  {!isCollapsed && (
-                    <View style={styles.batchCardsGrid}>
-                      {batchGroup.members.map(renderAlmaConnectCard)}
-                    </View>
-                  )}
-                </View>
-              );
-            })}
           </View>
         ) : (
           <View style={styles.batchCardsGrid}>
@@ -1998,38 +1915,6 @@ const getStyles = (theme) => StyleSheet.create({
     fontWeight: '700',
     color: '#DC2626',
   },
-  viewModeToggleWrapper: {
-    flexDirection: 'row',
-    backgroundColor: '#F1F5F9',
-    borderRadius: 8,
-    padding: 2,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  viewModeBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  viewModeBtnActive: {
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  viewModeBtnText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#94A3B8',
-  },
-  viewModeBtnTextActive: {
-    color: '#059669',
-  },
 
   /* Results Counter */
   resultsCounterRow: {
@@ -2044,42 +1929,6 @@ const getStyles = (theme) => StyleSheet.create({
     color: '#64748B',
   },
 
-  /* Batch Section Group */
-  batchSectionWrapper: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    overflow: 'hidden',
-  },
-  batchHeaderBtn: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    backgroundColor: '#F8FAFC',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
-  },
-  batchTitleText: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: '#059669',
-  },
-  batchCountBadge: {
-    backgroundColor: '#F0FDF4',
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#A7F3D0',
-  },
-  batchCountBadgeText: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#047857',
-  },
   batchCardsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
