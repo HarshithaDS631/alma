@@ -120,17 +120,17 @@ const WelcomeScreen = ({ navigation }) => {
             {/* Bento Feature Highlights */}
             <View style={styles.bentoFeatureRow}>
               <View style={styles.bentoFeatureItem}>
-                <Ionicons name="people" size={13} color="#059669" />
+                <Ionicons name="people" size={13} color="#0F2C59" />
                 <Text style={styles.bentoFeatureText}>9.9K+ Alumni</Text>
               </View>
               <View style={styles.bentoFeatureDivider} />
               <View style={styles.bentoFeatureItem}>
-                <Ionicons name="briefcase" size={13} color="#059669" />
+                <Ionicons name="briefcase" size={13} color="#0F2C59" />
                 <Text style={styles.bentoFeatureText}>Job Referrals</Text>
               </View>
               <View style={styles.bentoFeatureDivider} />
               <View style={styles.bentoFeatureItem}>
-                <Ionicons name="globe" size={13} color="#059669" />
+                <Ionicons name="globe" size={13} color="#0F2C59" />
                 <Text style={styles.bentoFeatureText}>12 Chapters</Text>
               </View>
             </View>
@@ -146,7 +146,7 @@ const WelcomeScreen = ({ navigation }) => {
               style={{ borderRadius: 14, overflow: 'hidden', marginBottom: 12 }}
             >
               <GradientView
-                colors={theme.gradientPrimary || ['#34D399', '#059669']}
+                colors={theme.gradientPrimary || ['#D4AF37', '#0F2C59']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.primaryButton}
@@ -282,7 +282,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   bentoFeatureText: {
     fontSize: 11,
     fontWeight: '700',
-    color: isDarkMode ? '#DCFCE7' : '#047857',
+    color: isDarkMode ? '#DCFCE7' : '#0A192F',
   },
   actionSection: {
     width: '100%',

@@ -110,7 +110,7 @@ const Mascot = ({
             </Text>
 
             {onActionPress && (
-              <TouchableOpacity style={[styles.bannerActionBtn, { backgroundColor: theme.primary || '#059669' }]} onPress={onActionPress} activeOpacity={0.8}>
+              <TouchableOpacity style={[styles.bannerActionBtn, { backgroundColor: theme.primary || '#0F2C59' }]} onPress={onActionPress} activeOpacity={0.8}>
                 <Text style={styles.bannerActionBtnText}>{actionText || 'Explore Network'}</Text>
                 <Ionicons name="arrow-forward" size={14} color="#FFFFFF" style={{ marginLeft: 4 }} />
               </TouchableOpacity>
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   bannerActionBtn: {
-    backgroundColor: '#059669',
+    backgroundColor: '#0F2C59',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,

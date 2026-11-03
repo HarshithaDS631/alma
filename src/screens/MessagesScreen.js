@@ -168,7 +168,7 @@ const MessagesScreen = ({ navigation }) => {
 
       {/* Messages Search Bar */}
       <View style={styles.expandedSearchBarRow}>
-        <Ionicons name="search" size={17} color="#059669" style={{ marginRight: 8 }} />
+        <Ionicons name="search" size={17} color="#0F2C59" style={{ marginRight: 8 }} />
         <TextInput
           style={styles.expandedSearchInput}
           placeholder="Search contacts, degrees, or message text..."
@@ -373,12 +373,12 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     paddingVertical: 7,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: isDarkMode ? '#059669' : '#A7F3D0',
+    borderColor: isDarkMode ? '#0F2C59' : '#CBD5E1',
   },
   desktopSectionTitle: {
     fontSize: 15,
     fontWeight: '800',
-    color: isDarkMode ? '#34D399' : '#059669',
+    color: isDarkMode ? '#D4AF37' : '#0F2C59',
     letterSpacing: -0.2,
   },
   desktopCampusBadge: {
@@ -396,7 +396,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#059669',
+    backgroundColor: '#0F2C59',
   },
   desktopCampusBadgeText: {
     fontSize: 12.5,
@@ -434,15 +434,15 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 12,
-    backgroundColor: '#059669',
+    backgroundColor: '#0F2C59',
     borderWidth: 1,
-    borderTopColor: '#34D399',
+    borderTopColor: '#D4AF37',
     borderLeftColor: '#10B981',
-    borderRightColor: '#047857',
+    borderRightColor: '#0A192F',
     borderBottomColor: '#064E3B',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#059669',
+    shadowColor: '#0F2C59',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.35,
     shadowRadius: 5,
@@ -486,13 +486,13 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     elevation: 6,
   },
   headerIconBtnActive: {
-    backgroundColor: '#059669',
-    borderTopColor: '#34D399',
+    backgroundColor: '#0F2C59',
+    borderTopColor: '#D4AF37',
     borderLeftColor: '#10B981',
-    borderRightColor: '#047857',
+    borderRightColor: '#0A192F',
     borderBottomColor: '#064E3B',
     borderBottomWidth: 3.5,
-    shadowColor: '#059669',
+    shadowColor: '#0F2C59',
     shadowOpacity: 0.45,
   },
   icon3DGlyph: {

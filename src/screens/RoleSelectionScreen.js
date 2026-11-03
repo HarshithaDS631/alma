@@ -27,8 +27,8 @@ const RoleSelectionScreen = ({ navigation }) => {
       icon: 'shield-checkmark-outline', 
       description: 'Manage campus alumni rosters, approve registrations, publish jobs, and moderate community feeds.',
       tagBg: isDarkMode ? '#14251B' : '#F0FDF4',
-      tagBorder: isDarkMode ? 'rgba(52, 211, 153, 0.3)' : '#A7F3D0',
-      tagColor: isDarkMode ? '#34D399' : '#059669',
+      tagBorder: isDarkMode ? 'rgba(52, 211, 153, 0.3)' : '#CBD5E1',
+      tagColor: isDarkMode ? '#D4AF37' : '#0F2C59',
     },
     { 
       id: 'Super Admin', 
@@ -217,14 +217,14 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     borderRadius: 14,
     backgroundColor: isDarkMode ? '#1C251F' : '#F0FDF4',
     borderWidth: 1,
-    borderColor: isDarkMode ? 'rgba(52, 211, 153, 0.2)' : '#A7F3D0',
+    borderColor: isDarkMode ? 'rgba(52, 211, 153, 0.2)' : '#CBD5E1',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 14,
   },
   selectedIconContainer: {
     backgroundColor: theme.primary,
-    borderColor: theme.primaryDark || '#047857',
+    borderColor: theme.primaryDark || '#0A192F',
   },
   roleTitleGroup: {
     flex: 1,

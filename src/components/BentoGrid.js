@@ -56,12 +56,12 @@ export function BentoCard({
             : isSand 
             ? sandBg 
             : isAccent 
-            ? (isDarkMode ? '#0E291D' : '#F0FDF4') 
+            ? (isDarkMode ? '#0E1F3D' : '#F0F4FA') 
             : defaultBg,
           borderColor: isSand 
             ? sandBorder 
             : isAccent 
-            ? (isDarkMode ? '#059669' : '#A7F3D0') 
+            ? (isDarkMode ? '#D4AF37' : 'rgba(212, 175, 55, 0.4)') 
             : defaultBorder,
         },
         style,
@@ -80,8 +80,8 @@ export function BentoCard({
                   styles.iconPod,
                   {
                     backgroundColor: iconBg || (isSand 
-                      ? (isDarkMode ? '#3B2A1E' : '#F5E6D8') 
-                      : (isDarkMode ? '#1E3A2B' : '#DCFCE7')),
+                      ? (isDarkMode ? '#1A150A' : '#FAF5EB') 
+                      : (isDarkMode ? '#0F2C59' : '#EFF6FF')),
                   },
                 ]}
               >
@@ -89,8 +89,8 @@ export function BentoCard({
                   name={icon}
                   size={isHero ? 20 : 17}
                   color={iconColor || (isSand 
-                    ? (isDarkMode ? '#E8CAAE' : '#C89565') 
-                    : (isDarkMode ? '#34D399' : '#059669'))}
+                    ? (isDarkMode ? '#FDE68A' : '#D4AF37') 
+                    : (isDarkMode ? '#60A5FA' : '#0F2C59'))}
                 />
               </View>
             </FloatingElement>
@@ -102,11 +102,11 @@ export function BentoCard({
                 styles.badgePill,
                 {
                   backgroundColor: badgeBg || (isSand 
-                    ? (isDarkMode ? '#3B2A1E' : '#F5E6D8') 
-                    : (isDarkMode ? '#064E3B' : '#DCFCE7')),
+                    ? (isDarkMode ? '#1A150A' : '#FAF5EB') 
+                    : (isDarkMode ? 'rgba(212, 175, 55, 0.15)' : '#FDF6E2')),
                   borderColor: isSand 
                     ? sandBorder 
-                    : (isDarkMode ? '#047857' : '#A7F3D0'),
+                    : (isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#E6CA85'),
                 },
               ]}
             >
@@ -115,8 +115,8 @@ export function BentoCard({
                   styles.badgeText,
                   { 
                     color: badgeTextColor || (isSand 
-                      ? (isDarkMode ? '#E8CAAE' : '#B88758') 
-                      : (isDarkMode ? '#34D399' : '#047857')) 
+                      ? (isDarkMode ? '#FDE68A' : '#B45309') 
+                      : (isDarkMode ? '#FDE68A' : '#B45309')) 
                   },
                 ]}
               >
@@ -132,7 +132,7 @@ export function BentoCard({
                 <Ionicons
                   name="arrow-forward-outline"
                   size={14}
-                  color={isSand ? (isDarkMode ? '#E8CAAE' : '#C89565') : (isDarkMode ? '#34D399' : '#059669')}
+                  color={isSand ? (isDarkMode ? '#FDE68A' : '#D4AF37') : (isDarkMode ? '#60A5FA' : '#0F2C59')}
                 />
               </View>
             </FloatingElement>
@@ -144,7 +144,7 @@ export function BentoCard({
           <Text
             style={[
               styles.metricText,
-              { color: isSand ? (isDarkMode ? '#D4A373' : '#B88758') : (isDarkMode ? '#DCFCE7' : '#047857') },
+              { color: isSand ? (isDarkMode ? '#D4A373' : '#B88758') : (isDarkMode ? '#DCFCE7' : '#0A192F') },
             ]}
           >
             {metric}

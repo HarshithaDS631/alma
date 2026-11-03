@@ -36,8 +36,8 @@ export default function ServerHealthBanner({ theme = {}, showOnlyWhenOffline = t
     const isOffline = !health.active;
 
     let bg = isDark ? '#064E3B' : '#ECFDF5';
-    let border = isDark ? '#059669' : '#A7F3D0';
-    let text = isDark ? '#A7F3D0' : '#065F46';
+    let border = isDark ? '#0F2C59' : '#CBD5E1';
+    let text = isDark ? '#CBD5E1' : '#0A192F';
     let iconName = 'checkmark-circle';
     let iconColor = '#10B981';
     let title = 'Server Active & Secure';

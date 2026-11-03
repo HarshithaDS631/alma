@@ -262,7 +262,7 @@ const PostCreationScreen = ({ navigation }) => {
                     <Image source={{ uri: localImageUri }} style={styles.previewImage} />
                   ) : (
                     <View style={styles.documentPreview}>
-                      <Ionicons name="document-text" size={48} color="#059669" />
+                      <Ionicons name="document-text" size={48} color="#0F2C59" />
                       <Text style={styles.documentName} numberOfLines={2}>{fileName || 'Document'}</Text>
                     </View>
                   )}
@@ -273,14 +273,14 @@ const PostCreationScreen = ({ navigation }) => {
               ) : (
                 <View style={styles.mediaSection}>
                   <TouchableOpacity style={styles.mediaPlaceholder} onPress={handleSelectMedia} activeOpacity={0.7}>
-                    <View style={styles.iconCircle}><Ionicons name="image-outline" size={24} color="#059669" /></View>
+                    <View style={styles.iconCircle}><Ionicons name="image-outline" size={24} color="#0F2C59" /></View>
                     <View>
                       <Text style={styles.mediaLabel}>Add Photo or Video</Text>
                       <Text style={styles.mediaSubLabel}>Showcase your achievements</Text>
                     </View>
                   </TouchableOpacity>
                   <TouchableOpacity style={[styles.mediaPlaceholder, {marginTop: 12}]} onPress={handleSelectDocument} activeOpacity={0.7}>
-                    <View style={styles.iconCircle}><Ionicons name="document-attach-outline" size={24} color="#059669" /></View>
+                    <View style={styles.iconCircle}><Ionicons name="document-attach-outline" size={24} color="#0F2C59" /></View>
                     <View>
                       <Text style={styles.mediaLabel}>Attach Document</Text>
                       <Text style={styles.mediaSubLabel}>PDFs, Docs, and more</Text>

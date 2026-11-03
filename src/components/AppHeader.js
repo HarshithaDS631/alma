@@ -115,15 +115,15 @@ const AppHeader = ({
           <View style={[
             styles.desktopBadge,
             { 
-              backgroundColor: isDarkMode ? '#064E3B' : '#ECFDF5',
-              borderColor: isDarkMode ? '#059669' : '#A7F3D0',
+              backgroundColor: isDarkMode ? 'rgba(212, 175, 55, 0.15)' : '#FAF5EB',
+              borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#E6CA85',
             }
           ]}>
-            <Text style={[styles.desktopBadgeText, { color: isDarkMode ? '#34D399' : '#059669' }]}>
+            <Text style={[styles.desktopBadgeText, { color: isDarkMode ? '#FDE68A' : '#B45309' }]}>
               {desktopTitle}
             </Text>
             {desktopSubtitle && (
-              <Text style={{ fontSize: 11.5, color: isDarkMode ? '#94A3B8' : '#64748B', marginLeft: 4 }}>
+              <Text style={{ fontSize: 11.5, color: isDarkMode ? '#CBD5E1' : '#475569', marginLeft: 4 }}>
                 • {desktopSubtitle}
               </Text>
             )}
@@ -141,11 +141,11 @@ const AppHeader = ({
             styles.headerIconBtn,
             {
               backgroundColor: isMessagesActive 
-                ? (isDarkMode ? 'rgba(5, 150, 105, 0.2)' : '#ECFDF5') 
-                : (isDarkMode ? '#1E293B' : '#F8FAFC'),
+                ? (isDarkMode ? 'rgba(212, 175, 55, 0.2)' : '#FAF5EB') 
+                : (isDarkMode ? '#0A1224' : '#F8FAFC'),
               borderColor: isMessagesActive 
-                ? (isDarkMode ? '#059669' : '#A7F3D0') 
-                : (isDarkMode ? '#334155' : '#E2E8F0'),
+                ? (isDarkMode ? '#D4AF37' : '#C5A059') 
+                : (isDarkMode ? 'rgba(212, 175, 55, 0.25)' : '#E2E8F0'),
             }
           ]}
           onPress={() => {
@@ -158,7 +158,7 @@ const AppHeader = ({
           <Ionicons
             name={isMessagesActive ? 'chatbubbles' : 'chatbubbles-outline'}
             size={20}
-            color={isMessagesActive ? '#059669' : (isDarkMode ? '#CBD5E1' : '#475569')}
+            color={isMessagesActive ? '#D4AF37' : (isDarkMode ? '#E2E8F0' : '#0A192F')}
           />
           {unreadMessages > 0 && (
             <View style={styles.badgeDot} />
@@ -251,17 +251,19 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 8,
-    backgroundColor: '#059669',
+    backgroundColor: '#0F2C59',
+    borderWidth: 1,
+    borderColor: '#D4AF37',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#059669',
+    shadowColor: '#0A192F',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3,
     elevation: 2,
   },
   brandCrestText: {
-    color: '#FFFFFF',
+    color: '#D4AF37',
     fontWeight: '900',
     fontSize: 12,
     letterSpacing: 0.5,

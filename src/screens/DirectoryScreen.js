@@ -308,7 +308,7 @@ const DirectoryScreen = ({ navigation, route }) => {
           profileSlug: `/profiles/${(u.name || 'member').toLowerCase().replace(/\s+/g, '-')}`,
           initials: getInitials(u.name || 'Alumni Member'),
           institution: u.institution || currentUser?.institution || 'Institution Alumni',
-          color: '#059669',
+          color: '#D4AF37',
           tags: [u.department || u.branch || 'Alumni', 'Verified'],
           openToWork: isOpen,
           isOpenToWork: isOpen,
@@ -671,7 +671,7 @@ const DirectoryScreen = ({ navigation, route }) => {
                 <Text style={styles.almaMemberName} numberOfLines={1}>
                   {item.name}
                 </Text>
-                <Ionicons name="checkmark-circle" size={13} color="#008B74" />
+                <Ionicons name="checkmark-circle" size={13} color="#D4AF37" />
               </View>
 
               <View style={styles.almaBatchPill}>
@@ -690,7 +690,7 @@ const DirectoryScreen = ({ navigation, route }) => {
                 flexDirection: 'row',
                 alignItems: 'center',
                 gap: 4,
-                backgroundColor: '#DCFCE7',
+                backgroundColor: '#FDF6E2',
                 alignSelf: 'flex-start',
                 paddingHorizontal: 6,
                 paddingVertical: 2,
@@ -700,7 +700,7 @@ const DirectoryScreen = ({ navigation, route }) => {
                 borderColor: '#86EFAC'
               }}>
                 <View style={{ width: 5, height: 5, borderRadius: 2.5, backgroundColor: '#057642' }} />
-                <Text style={{ fontSize: 10, fontWeight: '800', color: '#047857' }} numberOfLines={1}>
+                <Text style={{ fontSize: 10, fontWeight: '800', color: '#B45309' }} numberOfLines={1}>
                   #OpenToWork{item.openToWorkRoles ? ` • ${Array.isArray(item.openToWorkRoles) ? item.openToWorkRoles[0] : item.openToWorkRoles.split(',')[0].trim()}` : ''}
                 </Text>
               </View>
@@ -750,7 +750,7 @@ const DirectoryScreen = ({ navigation, route }) => {
             })}
             activeOpacity={0.8}
           >
-            <Ionicons name="chatbubble-ellipses-outline" size={14} color="#008B74" />
+            <Ionicons name="chatbubble-ellipses-outline" size={14} color="#D4AF37" />
             <Text style={styles.almaChatBtnText}>Message</Text>
           </TouchableOpacity>
 
@@ -762,7 +762,7 @@ const DirectoryScreen = ({ navigation, route }) => {
             <Ionicons 
               name={isFollowing ? "bookmark" : "bookmark-outline"} 
               size={15} 
-              color={isFollowing ? "#059669" : "#64748B"} 
+              color={isFollowing ? "#D4AF37" : "#64748B"} 
             />
           </TouchableOpacity>
 
@@ -833,7 +833,7 @@ const DirectoryScreen = ({ navigation, route }) => {
               <Ionicons 
                 name="options-outline" 
                 size={14} 
-                color={activeFilterCount > 0 ? '#059669' : '#475569'} 
+                color={activeFilterCount > 0 ? '#0F2C59' : '#475569'} 
               />
               <Text style={[styles.filterTriggerText, activeFilterCount > 0 && styles.filterTriggerTextActive]}>
                 {activeFilterCount > 0 ? `Filters (${activeFilterCount})` : 'Filters'}
@@ -848,7 +848,7 @@ const DirectoryScreen = ({ navigation, route }) => {
                 activeOpacity={0.7}
               >
                 <Text style={styles.activeFilterChipText}>{selectedCourse}</Text>
-                <Ionicons name="close-circle" size={13} color="#059669" />
+                <Ionicons name="close-circle" size={13} color="#D4AF37" />
               </TouchableOpacity>
             )}
 
@@ -859,7 +859,7 @@ const DirectoryScreen = ({ navigation, route }) => {
                 activeOpacity={0.7}
               >
                 <Text style={styles.activeFilterChipText}>Batch {selectedGraduationYear}</Text>
-                <Ionicons name="close-circle" size={13} color="#059669" />
+                <Ionicons name="close-circle" size={13} color="#D4AF37" />
               </TouchableOpacity>
             )}
 
@@ -870,7 +870,7 @@ const DirectoryScreen = ({ navigation, route }) => {
                 activeOpacity={0.7}
               >
                 <Text style={styles.activeFilterChipText}>{selectedLocation}</Text>
-                <Ionicons name="close-circle" size={13} color="#059669" />
+                <Ionicons name="close-circle" size={13} color="#D4AF37" />
               </TouchableOpacity>
             )}
 
@@ -881,7 +881,7 @@ const DirectoryScreen = ({ navigation, route }) => {
                 activeOpacity={0.7}
               >
                 <Text style={styles.activeFilterChipText}>Specialized</Text>
-                <Ionicons name="close-circle" size={13} color="#059669" />
+                <Ionicons name="close-circle" size={13} color="#D4AF37" />
               </TouchableOpacity>
             )}
 
@@ -911,7 +911,7 @@ const DirectoryScreen = ({ navigation, route }) => {
             Showing <Text style={{ fontWeight: '700', color: theme.text }}>{filteredDirectory.length} members</Text>
           </Text>
           {loadingDirectory && (
-            <Text style={{ fontSize: 12, color: '#008B74', fontWeight: '600' }}>Syncing with RVCE servers...</Text>
+            <Text style={{ fontSize: 12, color: '#D4AF37', fontWeight: '600' }}>Syncing with RVCE servers...</Text>
           )}
         </View>
 
@@ -982,7 +982,7 @@ const DirectoryScreen = ({ navigation, route }) => {
                   onPress={() => handleAccept(item.id)}
                   activeOpacity={0.7}
                 >
-                  <Ionicons name="checkmark" size={18} color="#059669" />
+                  <Ionicons name="checkmark" size={18} color="#D4AF37" />
                 </TouchableOpacity>
               </View>
             </View>
@@ -1044,7 +1044,7 @@ const DirectoryScreen = ({ navigation, route }) => {
               <View style={{ flex: 1, marginRight: 8 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
                   <Text style={styles.waCommunityName} numberOfLines={1}>{comm.name}</Text>
-                  <Ionicons name="checkmark-circle" size={15} color="#008B74" />
+                  <Ionicons name="checkmark-circle" size={15} color="#D4AF37" />
                 </View>
                 <Text style={styles.waCommunityMeta}>{comm.membersCount || 'Active Community'}</Text>
                 {comm.description ? (
@@ -1107,7 +1107,7 @@ const DirectoryScreen = ({ navigation, route }) => {
                   activeOpacity={0.72}
                 >
                   <View style={styles.waGroupIconPod}>
-                    <Ionicons name={group.icon || "chatbubbles"} size={16} color="#059669" />
+                    <Ionicons name={group.icon || "chatbubbles"} size={16} color="#D4AF37" />
                   </View>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -1151,7 +1151,7 @@ const DirectoryScreen = ({ navigation, route }) => {
 
         {/* Directory Search Bar */}
         <View style={styles.expandedSearchBarRow}>
-          <Ionicons name="search" size={17} color="#059669" style={{ marginRight: 8 }} />
+          <Ionicons name="search" size={17} color="#D4AF37" style={{ marginRight: 8 }} />
           <TextInput
             style={styles.expandedSearchInput}
             placeholder={`Search in ${currentUser?.institution ? currentUser.institution : 'directory'}...`}
@@ -1169,8 +1169,8 @@ const DirectoryScreen = ({ navigation, route }) => {
         {/* Admin Verification Banner */}
         {isAdminOrSuper && (
           <View style={styles.adminBanner}>
-            <Ionicons name="shield-checkmark" size={16} color="#059669" style={{ marginRight: 8 }} />
-            <Text style={{ fontSize: 13, fontWeight: '700', color: '#059669' }}>{userRole} Mode</Text>
+            <Ionicons name="shield-checkmark" size={16} color="#D4AF37" style={{ marginRight: 8 }} />
+            <Text style={{ fontSize: 13, fontWeight: '700', color: '#D4AF37' }}>{userRole} Mode</Text>
             <Text style={{ fontSize: 12, color: '#64748B', marginLeft: 8 }}>AlmaConnect Directory Verification Control</Text>
           </View>
         )}
@@ -1186,7 +1186,7 @@ const DirectoryScreen = ({ navigation, route }) => {
               <Ionicons 
                 name={activeTab === 'directory' ? "people" : "people-outline"} 
                 size={18} 
-                color={activeTab === 'directory' ? '#059669' : '#64748B'} 
+                color={activeTab === 'directory' ? '#0F2C59' : '#64748B'} 
               />
               <Text style={[styles.tabText, activeTab === 'directory' && styles.activeTabText]}>
                 Directory
@@ -1203,7 +1203,7 @@ const DirectoryScreen = ({ navigation, route }) => {
               <Ionicons 
                 name={activeTab === 'request' ? "person-add" : "person-add-outline"} 
                 size={18} 
-                color={activeTab === 'request' ? '#059669' : '#64748B'} 
+                color={activeTab === 'request' ? '#0F2C59' : '#64748B'} 
               />
               <Text style={[styles.tabText, activeTab === 'request' && styles.activeTabText]}>
                 Requests
@@ -1225,7 +1225,7 @@ const DirectoryScreen = ({ navigation, route }) => {
               <Ionicons 
                 name={(activeTab === 'community' || activeTab === 'communities') ? "chatbubbles" : "chatbubbles-outline"} 
                 size={18} 
-                color={(activeTab === 'community' || activeTab === 'communities') ? '#059669' : '#64748B'} 
+                color={(activeTab === 'community' || activeTab === 'communities') ? '#0F2C59' : '#64748B'} 
               />
               <Text style={[styles.tabText, (activeTab === 'community' || activeTab === 'communities') && styles.activeTabText]}>
                 Community
@@ -1266,7 +1266,7 @@ const DirectoryScreen = ({ navigation, route }) => {
                     </TouchableOpacity>
                   )}
                   <TouchableOpacity onPress={() => setShowFiltersModal(false)}>
-                    <Ionicons name="close" size={24} color="#059669" />
+                    <Ionicons name="close" size={24} color="#D4AF37" />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -1289,7 +1289,7 @@ const DirectoryScreen = ({ navigation, route }) => {
                         {c.label} ({c.count})
                       </Text>
                       {selectedCourse === c.id && (
-                        <Ionicons name="checkmark-circle" size={18} color="#059669" />
+                        <Ionicons name="checkmark-circle" size={18} color="#D4AF37" />
                       )}
                     </TouchableOpacity>
                   ))}
@@ -1312,7 +1312,7 @@ const DirectoryScreen = ({ navigation, route }) => {
                         {y.label} ({y.count})
                       </Text>
                       {selectedGraduationYear === y.id && (
-                        <Ionicons name="checkmark-circle" size={18} color="#059669" />
+                        <Ionicons name="checkmark-circle" size={18} color="#D4AF37" />
                       )}
                     </TouchableOpacity>
                   ))}
@@ -1335,7 +1335,7 @@ const DirectoryScreen = ({ navigation, route }) => {
                         {loc.label} ({loc.count})
                       </Text>
                       {selectedLocation === loc.id && (
-                        <Ionicons name="checkmark-circle" size={18} color="#059669" />
+                        <Ionicons name="checkmark-circle" size={18} color="#D4AF37" />
                       )}
                     </TouchableOpacity>
                   ))}
@@ -1358,7 +1358,7 @@ const DirectoryScreen = ({ navigation, route }) => {
                         {list.title} ({list.count})
                       </Text>
                       {selectedSpecializedList === list.id && (
-                        <Ionicons name="checkmark-circle" size={18} color="#059669" />
+                        <Ionicons name="checkmark-circle" size={18} color="#D4AF37" />
                       )}
                     </TouchableOpacity>
                   ))}
@@ -1399,14 +1399,14 @@ const DirectoryScreen = ({ navigation, route }) => {
                       activeOpacity={0.8}
                       onPress={handlePickCommunityIcon}
                     >
-                      <View style={[styles.commIconBgLarge, communityIconUri && { borderStyle: 'solid', borderColor: '#059669', overflow: 'hidden' }]}>
+                      <View style={[styles.commIconBgLarge, communityIconUri && { borderStyle: 'solid', borderColor: '#D4AF37', overflow: 'hidden' }]}>
                         {communityIconUri ? (
                           <Image source={{ uri: communityIconUri }} style={{ width: '100%', height: '100%', borderRadius: 24 }} />
                         ) : (
-                          <Ionicons name="camera" size={32} color="#059669" />
+                          <Ionicons name="camera" size={32} color="#D4AF37" />
                         )}
                       </View>
-                      <Text style={[styles.commIconLabel, { color: '#059669', fontWeight: '700' }]}>
+                      <Text style={[styles.commIconLabel, { color: '#D4AF37', fontWeight: '700' }]}>
                         {communityIconUri ? 'Change Community Icon' : 'Add Community Icon'}
                       </Text>
                     </TouchableOpacity>
@@ -1455,13 +1455,13 @@ const DirectoryScreen = ({ navigation, route }) => {
                     <Text style={styles.groupSectionHeader}>Required Group</Text>
                     <View style={[styles.groupSelectRow, styles.groupDisabledSelect]}>
                       <View style={[styles.commGroupIconBg, styles.announcementBg]}>
-                        <Ionicons name="megaphone" size={16} color="#059669" />
+                        <Ionicons name="megaphone" size={16} color="#D4AF37" />
                       </View>
                       <View style={styles.groupSelectInfo}>
                         <Text style={styles.groupSelectName}>Announcements (Required)</Text>
                         <Text style={styles.groupSelectDesc}>Broadcast messages to all community members</Text>
                       </View>
-                      <Ionicons name="checkbox" size={24} color="#059669" />
+                      <Ionicons name="checkbox" size={24} color="#D4AF37" />
                     </View>
 
                     <Text style={styles.groupSectionHeader}>Optional Groups</Text>
@@ -1482,7 +1482,7 @@ const DirectoryScreen = ({ navigation, route }) => {
                         <Ionicons
                           name={selectedGroups.includes(group.id) ? "checkbox" : "square-outline"}
                           size={24}
-                          color={selectedGroups.includes(group.id) ? "#059669" : "#94A3B8"}
+                          color={selectedGroups.includes(group.id) ? "#D4AF37" : "#94A3B8"}
                         />
                       </TouchableOpacity>
                     ))}
@@ -1546,17 +1546,17 @@ const getStyles = (theme) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: theme.isDark ? '#064E3B' : '#ECFDF5',
+    backgroundColor: theme.isDark ? '#0A192F' : '#FAF5EB',
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: theme.isDark ? '#059669' : '#A7F3D0',
+    borderColor: theme.isDark ? '#0F2C59' : 'rgba(212, 175, 55, 0.4)',
   },
   desktopSectionTitle: {
     fontSize: 15,
     fontWeight: '800',
-    color: theme.isDark ? '#34D399' : '#059669',
+    color: theme.isDark ? '#D4AF37' : '#0F2C59',
     letterSpacing: -0.2,
   },
   desktopCampusBadge: {
@@ -1574,7 +1574,7 @@ const getStyles = (theme) => StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#059669',
+    backgroundColor: '#0F2C59',
   },
   desktopCampusBadgeText: {
     fontSize: 12.5,
@@ -1612,15 +1612,15 @@ const getStyles = (theme) => StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 12,
-    backgroundColor: '#059669',
+    backgroundColor: '#0F2C59',
     borderWidth: 1,
-    borderTopColor: '#34D399',
-    borderLeftColor: '#10B981',
-    borderRightColor: '#047857',
-    borderBottomColor: '#064E3B',
+    borderTopColor: '#D4AF37',
+    borderLeftColor: '#C5A059',
+    borderRightColor: '#0A192F',
+    borderBottomColor: '#0A192F',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#059669',
+    shadowColor: '#0A192F',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.35,
     shadowRadius: 5,
@@ -1664,13 +1664,13 @@ const getStyles = (theme) => StyleSheet.create({
     elevation: 6,
   },
   headerIconBtnActive: {
-    backgroundColor: '#059669',
-    borderTopColor: '#34D399',
-    borderLeftColor: '#10B981',
-    borderRightColor: '#047857',
-    borderBottomColor: '#064E3B',
+    backgroundColor: '#0F2C59',
+    borderTopColor: '#D4AF37',
+    borderLeftColor: '#C5A059',
+    borderRightColor: '#0A192F',
+    borderBottomColor: '#0A192F',
     borderBottomWidth: 3.5,
-    shadowColor: '#059669',
+    shadowColor: '#0A192F',
     shadowOpacity: 0.45,
   },
   icon3DGlyph: {
@@ -1699,11 +1699,11 @@ const getStyles = (theme) => StyleSheet.create({
     paddingVertical: 0,
   },
   adminBanner: {
-    backgroundColor: '#F0FDF4',
+    backgroundColor: '#FAF5EB',
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#A7F3D0',
+    borderBottomColor: 'rgba(212, 175, 55, 0.3)',
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -1724,7 +1724,7 @@ const getStyles = (theme) => StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   activeTab: {
-    borderBottomColor: '#059669',
+    borderBottomColor: '#D4AF37',
   },
   tabInner: {
     flexDirection: 'row',
@@ -1738,11 +1738,11 @@ const getStyles = (theme) => StyleSheet.create({
     color: theme.textMuted || '#64748B',
   },
   activeTabText: {
-    color: '#059669',
+    color: '#D4AF37',
     fontWeight: '800',
   },
   requestBadge: {
-    backgroundColor: '#059669',
+    backgroundColor: '#0F2C59',
     borderRadius: 10,
     paddingHorizontal: 6,
     paddingVertical: 2,
@@ -1765,13 +1765,13 @@ const getStyles = (theme) => StyleSheet.create({
 
   /* Clean Header Banner */
   cleanHeaderBanner: {
-    backgroundColor: '#F0FDF4',
+    backgroundColor: '#FAF5EB',
     backgroundImage: Platform.OS === 'web' ? 'linear-gradient(135deg, #F0FDF4 0%, #E6FBF0 100%)' : undefined,
     borderRadius: 16,
     padding: 16,
     marginBottom: 14,
     borderWidth: 1,
-    borderColor: '#A7F3D0',
+    borderColor: 'rgba(212, 175, 55, 0.35)',
   },
   cleanHeaderTagRow: {
     flexDirection: 'row',
@@ -1783,7 +1783,7 @@ const getStyles = (theme) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#DCFCE7',
+    backgroundColor: '#FDF6E2',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
@@ -1791,18 +1791,18 @@ const getStyles = (theme) => StyleSheet.create({
   cleanHeaderTagText: {
     fontSize: 10.5,
     fontWeight: '800',
-    color: '#047857',
+    color: '#B45309',
     letterSpacing: 0.5,
   },
   cleanHeaderStatsText: {
     fontSize: 11.5,
     fontWeight: '700',
-    color: '#008B74',
+    color: '#D4AF37',
   },
   cleanHeaderTitle: {
     fontSize: 20,
     fontWeight: '800',
-    color: '#047857',
+    color: '#B45309',
     letterSpacing: -0.2,
     marginTop: 2,
   },
@@ -1829,9 +1829,9 @@ const getStyles = (theme) => StyleSheet.create({
     borderColor: '#E2E8F0',
   },
   memberTypePillActive: {
-    backgroundColor: '#059669',
-    borderColor: '#059669',
-    backgroundImage: Platform.OS === 'web' ? 'linear-gradient(135deg, #34D399 0%, #059669 100%)' : undefined,
+    backgroundColor: '#0F2C59',
+    borderColor: '#D4AF37',
+    backgroundImage: Platform.OS === 'web' ? 'linear-gradient(135deg, #1E3A8A 0%, #0F2C59 100%)' : undefined,
   },
   memberTypePillText: {
     fontSize: 12,
@@ -1879,8 +1879,8 @@ const getStyles = (theme) => StyleSheet.create({
     borderRadius: 8,
   },
   filterTriggerBtnActive: {
-    backgroundColor: '#F0FDF4',
-    borderColor: '#059669',
+    backgroundColor: '#FAF5EB',
+    borderColor: '#D4AF37',
   },
   filterTriggerText: {
     fontSize: 12,
@@ -1888,15 +1888,15 @@ const getStyles = (theme) => StyleSheet.create({
     color: '#475569',
   },
   filterTriggerTextActive: {
-    color: '#059669',
+    color: '#D4AF37',
   },
   activeFilterChip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#F0FDF4',
+    backgroundColor: '#FAF5EB',
     borderWidth: 1,
-    borderColor: '#A7F3D0',
+    borderColor: 'rgba(212, 175, 55, 0.35)',
     paddingHorizontal: 8,
     paddingVertical: 5,
     borderRadius: 8,
@@ -1904,7 +1904,7 @@ const getStyles = (theme) => StyleSheet.create({
   activeFilterChipText: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#059669',
+    color: '#D4AF37',
   },
   clearAllBtn: {
     paddingHorizontal: 6,
@@ -1962,7 +1962,7 @@ const getStyles = (theme) => StyleSheet.create({
     marginRight: 12,
     overflow: 'hidden',
     borderWidth: 1.5,
-    borderColor: '#A7F3D0',
+    borderColor: 'rgba(212, 175, 55, 0.35)',
   },
   almaAvatarImage: {
     width: '100%',
@@ -1986,17 +1986,17 @@ const getStyles = (theme) => StyleSheet.create({
     letterSpacing: -0.2,
   },
   almaBatchPill: {
-    backgroundColor: '#F0FDF4',
+    backgroundColor: '#FAF5EB',
     paddingHorizontal: 7,
     paddingVertical: 2.5,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#A7F3D0',
+    borderColor: 'rgba(212, 175, 55, 0.35)',
   },
   almaBatchPillText: {
     fontSize: 10.5,
     fontWeight: '800',
-    color: '#047857',
+    color: '#B45309',
   },
   almaMemberRole: {
     fontSize: 12.5,
@@ -2029,8 +2029,8 @@ const getStyles = (theme) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 5,
-    backgroundColor: '#059669',
-    backgroundImage: Platform.OS === 'web' ? 'linear-gradient(135deg, #34D399 0%, #059669 100%)' : undefined,
+    backgroundColor: '#0F2C59',
+    backgroundImage: Platform.OS === 'web' ? 'linear-gradient(135deg, #1E3A8A 0%, #0F2C59 100%)' : undefined,
     paddingVertical: 8,
     borderRadius: 10,
   },
@@ -2049,9 +2049,9 @@ const getStyles = (theme) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
-    backgroundColor: '#F0FDF4',
+    backgroundColor: '#FAF5EB',
     borderWidth: 1,
-    borderColor: '#A7F3D0',
+    borderColor: 'rgba(212, 175, 55, 0.35)',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 10,
@@ -2059,7 +2059,7 @@ const getStyles = (theme) => StyleSheet.create({
   almaChatBtnText: {
     fontSize: 11.5,
     fontWeight: '700',
-    color: '#008B74',
+    color: '#D4AF37',
   },
   almaIconBtn: {
     width: 32,
@@ -2102,8 +2102,8 @@ const getStyles = (theme) => StyleSheet.create({
   },
   emptyClearBtn: {
     marginTop: 18,
-    backgroundColor: '#059669',
-    backgroundImage: Platform.OS === 'web' ? 'linear-gradient(135deg, #34D399 0%, #059669 100%)' : undefined,
+    backgroundColor: '#0F2C59',
+    backgroundImage: Platform.OS === 'web' ? 'linear-gradient(135deg, #1E3A8A 0%, #0F2C59 100%)' : undefined,
     paddingHorizontal: 18,
     paddingVertical: 10,
     borderRadius: 10,
@@ -2146,7 +2146,7 @@ const getStyles = (theme) => StyleSheet.create({
   filterModalTitle: {
     fontSize: 17,
     fontWeight: '800',
-    color: '#059669',
+    color: '#D4AF37',
   },
   filterSectionTitle: {
     fontSize: 11,
@@ -2165,9 +2165,9 @@ const getStyles = (theme) => StyleSheet.create({
     backgroundColor: '#F8FAFC',
   },
   filterOptionRowActive: {
-    backgroundColor: '#F0FDF4',
+    backgroundColor: '#FAF5EB',
     borderWidth: 1,
-    borderColor: '#A7F3D0',
+    borderColor: 'rgba(212, 175, 55, 0.35)',
   },
   filterOptionText: {
     fontSize: 13,
@@ -2175,12 +2175,12 @@ const getStyles = (theme) => StyleSheet.create({
     fontWeight: '600',
   },
   filterOptionTextActive: {
-    color: '#059669',
+    color: '#D4AF37',
     fontWeight: '800',
   },
   filterApplyBtn: {
-    backgroundColor: '#059669',
-    backgroundImage: Platform.OS === 'web' ? 'linear-gradient(135deg, #34D399 0%, #059669 100%)' : undefined,
+    backgroundColor: '#0F2C59',
+    backgroundImage: Platform.OS === 'web' ? 'linear-gradient(135deg, #1E3A8A 0%, #0F2C59 100%)' : undefined,
     borderRadius: 12,
     paddingVertical: 12,
     alignItems: 'center',
@@ -2257,8 +2257,8 @@ const getStyles = (theme) => StyleSheet.create({
     height: 36,
     borderRadius: 18,
     borderWidth: 1.5,
-    borderColor: '#6EE7B7',
-    backgroundColor: '#DCFCE7',
+    borderColor: '#FDE68A',
+    backgroundColor: '#FDF6E2',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -2302,7 +2302,7 @@ const getStyles = (theme) => StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 14,
-    backgroundColor: '#059669',
+    backgroundColor: '#0F2C59',
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
@@ -2314,7 +2314,7 @@ const getStyles = (theme) => StyleSheet.create({
     width: 18,
     height: 18,
     borderRadius: 9,
-    backgroundColor: '#059669',
+    backgroundColor: '#0F2C59',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1.5,
@@ -2350,7 +2350,7 @@ const getStyles = (theme) => StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 14,
-    backgroundColor: '#059669',
+    backgroundColor: '#0F2C59',
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
@@ -2368,7 +2368,7 @@ const getStyles = (theme) => StyleSheet.create({
   waCommunityMeta: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#059669',
+    color: '#D4AF37',
     marginTop: 2,
   },
   waCommunityDesc: {
@@ -2424,11 +2424,11 @@ const getStyles = (theme) => StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: '#F0FDF4',
+    backgroundColor: '#FAF5EB',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#A7F3D0',
+    borderColor: 'rgba(212, 175, 55, 0.35)',
   },
   waGroupName: {
     fontSize: 14,
@@ -2479,12 +2479,12 @@ const getStyles = (theme) => StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#059669',
+    color: '#D4AF37',
   },
   modalActionText: {
     fontSize: 15,
     fontWeight: '800',
-    color: '#059669',
+    color: '#D4AF37',
   },
   wizardBody: {
     paddingVertical: 20,
@@ -2497,9 +2497,9 @@ const getStyles = (theme) => StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 24,
-    backgroundColor: '#F0FDF4',
+    backgroundColor: '#FAF5EB',
     borderWidth: 2,
-    borderColor: '#A7F3D0',
+    borderColor: 'rgba(212, 175, 55, 0.35)',
     borderStyle: 'dashed',
     justifyContent: 'center',
     alignItems: 'center',
@@ -2558,8 +2558,8 @@ const getStyles = (theme) => StyleSheet.create({
   },
   groupDisabledSelect: {
     opacity: 0.8,
-    backgroundColor: '#F0FDF4',
-    borderColor: '#A7F3D0',
+    backgroundColor: '#FAF5EB',
+    borderColor: 'rgba(212, 175, 55, 0.35)',
   },
   commGroupIconBg: {
     width: 36,
@@ -2570,7 +2570,7 @@ const getStyles = (theme) => StyleSheet.create({
     alignItems: 'center',
   },
   announcementBg: {
-    backgroundColor: '#A7F3D0',
+    backgroundColor: 'rgba(212, 175, 55, 0.2)',
   },
   groupSelectInfo: {
     flex: 1,
@@ -2593,7 +2593,7 @@ const getStyles = (theme) => StyleSheet.create({
     width: 90,
     height: 90,
     borderRadius: 45,
-    backgroundColor: '#059669',
+    backgroundColor: '#0F2C59',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
@@ -2613,7 +2613,7 @@ const getStyles = (theme) => StyleSheet.create({
     paddingHorizontal: 16,
   },
   successBtn: {
-    backgroundColor: '#059669',
+    backgroundColor: '#0F2C59',
     borderRadius: 12,
     paddingVertical: 14,
     paddingHorizontal: 32,

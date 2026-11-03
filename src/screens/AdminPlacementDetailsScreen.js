@@ -81,7 +81,7 @@ export default function AdminPlacementDetailsScreen({ navigation, route }) {
             }
           }}
         >
-          <Ionicons name="arrow-back" size={24} color="#059669" />
+          <Ionicons name="arrow-back" size={24} color="#0F2C59" />
         </TouchableOpacity>
         <View style={styles.headerTitleBox}>
           <Text style={styles.headerTitle} numberOfLines={1}>{companyName} Alumni</Text>

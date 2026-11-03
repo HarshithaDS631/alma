@@ -60,7 +60,7 @@ const SplashScreen = ({ navigation }) => {
         <Text style={styles.subtitle}>Portal Network</Text>
         
         <View style={styles.loaderContainer}>
-          <ActivityIndicator size="large" color="#059669" />
+          <ActivityIndicator size="large" color="#0F2C59" />
           <TouchableOpacity 
             style={styles.tourBtn} 
             onPress={() => navigation.navigate('DemoCarousel')}

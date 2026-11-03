@@ -568,7 +568,7 @@ const LoginScreen = ({ navigation }) => {
               activeOpacity={0.7}
               accessibilityLabel="Toggle Theme"
             >
-              <Ionicons name={isDarkMode ? 'moon' : 'sunny'} size={18} color={isDarkMode ? '#34D399' : '#059669'} />
+              <Ionicons name={isDarkMode ? 'moon' : 'sunny'} size={18} color={isDarkMode ? '#D4AF37' : '#0F2C59'} />
             </TouchableOpacity>
           </View>
 
@@ -602,7 +602,7 @@ const LoginScreen = ({ navigation }) => {
                 borderRadius: 9,
                 backgroundColor: authMode === 'password' ? (isDarkMode ? '#282A30' : '#FFFFFF') : 'transparent',
                 borderWidth: authMode === 'password' ? 1 : 0,
-                borderColor: authMode === 'password' ? (isDarkMode ? theme.primary : '#A7F3D0') : 'transparent',
+                borderColor: authMode === 'password' ? (isDarkMode ? theme.primary : '#CBD5E1') : 'transparent',
                 shadowColor: authMode === 'password' ? '#000' : 'transparent',
                 shadowOffset: { width: 0, height: 1 },
                 shadowOpacity: authMode === 'password' ? 0.08 : 0,
@@ -637,7 +637,7 @@ const LoginScreen = ({ navigation }) => {
                 borderRadius: 9,
                 backgroundColor: authMode === 'otp' ? (isDarkMode ? '#282A30' : '#FFFFFF') : 'transparent',
                 borderWidth: authMode === 'otp' ? 1 : 0,
-                borderColor: authMode === 'otp' ? (isDarkMode ? theme.primary : '#A7F3D0') : 'transparent',
+                borderColor: authMode === 'otp' ? (isDarkMode ? theme.primary : '#CBD5E1') : 'transparent',
                 shadowColor: authMode === 'otp' ? '#000' : 'transparent',
                 shadowOffset: { width: 0, height: 1 },
                 shadowOpacity: authMode === 'otp' ? 0.08 : 0,
@@ -1223,12 +1223,12 @@ const getStyles = (theme) => StyleSheet.create({
     borderRadius: 12,
     padding: 14,
     borderWidth: 1,
-    borderColor: '#A7F3D0',
+    borderColor: '#CBD5E1',
   },
   credentialsTitle: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#047857',
+    color: '#0A192F',
     marginBottom: 10,
   },
   credentialRow: {

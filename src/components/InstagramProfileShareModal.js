@@ -45,8 +45,8 @@ const CARD_THEMES = [
     id: 'emerald',
     name: 'Emerald Green',
     bg: '#064E3B',
-    gradient: ['#064E3B', '#047857', '#059669'],
-    accent: '#34D399',
+    gradient: ['#064E3B', '#0A192F', '#0F2C59'],
+    accent: '#D4AF37',
     accentLight: '#DCFCE7',
     badgeText: '🌿 ALUMNI NETWORK',
     cardBorder: 'rgba(52, 211, 153, 0.4)'
@@ -56,8 +56,8 @@ const CARD_THEMES = [
     name: 'Midnight Dark',
     bg: '#090D16',
     gradient: ['#090D16', '#1E293B', '#334155'],
-    accent: '#34D399',
-    accentLight: '#A7F3D0',
+    accent: '#D4AF37',
+    accentLight: '#CBD5E1',
     badgeText: '🎓 OFFICIAL MEMBER',
     cardBorder: 'rgba(96, 165, 250, 0.3)'
   },
@@ -65,7 +65,7 @@ const CARD_THEMES = [
     id: 'cyber',
     name: 'Cyber Violet',
     bg: '#4C1D95',
-    gradient: ['#4C1D95', '#059669', '#A855F7'],
+    gradient: ['#4C1D95', '#0F2C59', '#A855F7'],
     accent: '#E879F9',
     accentLight: '#F3E8FF',
     badgeText: '🚀 RV TECH ALUM',
@@ -298,7 +298,7 @@ export default function InstagramProfileShareModal({
               <View style={styles.cardIdentity}>
                 <View style={styles.nameRow}>
                   <Text style={styles.cardName} numberOfLines={1}>{name}</Text>
-                  <Ionicons name="checkmark-circle" size={18} color="#34D399" style={{ marginLeft: 6 }} />
+                  <Ionicons name="checkmark-circle" size={18} color="#D4AF37" style={{ marginLeft: 6 }} />
                 </View>
 
                 <Text style={[styles.cardHandle, { color: currentTheme.accent }]}>
@@ -359,10 +359,10 @@ export default function InstagramProfileShareModal({
                   <Ionicons
                     name={copied ? 'checkmark-circle' : 'copy-outline'}
                     size={19}
-                    color={copied ? '#059669' : '#FFFFFF'}
+                    color={copied ? '#0F2C59' : '#FFFFFF'}
                     style={{ marginRight: 7 }}
                   />
-                  <Text style={[styles.copyLinkBtnText, copied && { color: '#059669' }]}>
+                  <Text style={[styles.copyLinkBtnText, copied && { color: '#0F2C59' }]}>
                     {copied ? 'Copied!' : 'Copy Link'}
                   </Text>
                 </TouchableOpacity>
@@ -682,7 +682,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   copyLinkBtnActive: {
-    borderColor: '#059669',
+    borderColor: '#0F2C59',
     backgroundColor: 'rgba(5, 150, 105, 0.15)',
   },
   copyLinkBtnText: {

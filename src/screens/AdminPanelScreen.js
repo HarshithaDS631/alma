@@ -41,20 +41,20 @@ const INITIAL_IMPORT_LOGS = [];
 const INITIAL_ACTIVITIES = [];
 
 const panelItems = [
-  { id: '1', title: 'Dashboard Overview', icon: 'pie-chart-outline', color: '#DCFCE7', iconColor: '#047857', moduleName: 'dashboard_overview', desc: 'Real-time metrics for alumni network members, active posts, and pending approvals' },
-  { id: '2', title: 'Membership Requests', icon: 'checkbox-outline', color: '#DCFCE7', iconColor: '#059669', moduleName: 'membership_request', desc: 'Verify & approve pending alumni, student & faculty signups' },
+  { id: '1', title: 'Dashboard Overview', icon: 'pie-chart-outline', color: '#DCFCE7', iconColor: '#0A192F', moduleName: 'dashboard_overview', desc: 'Real-time metrics for alumni network members, active posts, and pending approvals' },
+  { id: '2', title: 'Membership Requests', icon: 'checkbox-outline', color: '#DCFCE7', iconColor: '#0F2C59', moduleName: 'membership_request', desc: 'Verify & approve pending alumni, student & faculty signups' },
   { id: '3', title: 'Database Manager', icon: 'people-outline', color: '#F0FDF4', iconColor: '#16A34A', moduleName: 'master_list', desc: 'Search & filter registered alumni directory by department and batch' },
   { id: '4', title: 'Talent / Resume Book', icon: 'book-outline', color: '#FAF5FF', iconColor: '#9333EA', moduleName: 'resume_book', desc: 'Browse verified alumni resumes, domain skills & recruiter dispatch' },
-  { id: '5', title: 'Placement Tool', icon: 'briefcase-outline', color: '#DCFCE7', iconColor: '#059669', moduleName: 'placement_tool', desc: 'Explore employer network and placement opportunities' },
-  { id: '6', title: 'Bulk Data Import', icon: 'cloud-upload-outline', color: '#DCFCE7', iconColor: '#059669', moduleName: 'bulk_import', desc: 'Import student and alumni datasets via CSV with column mapping' },
-  { id: '7', title: 'Mass Mail Broadcast', icon: 'paper-plane-outline', color: '#F0FDF4', iconColor: '#059669', moduleName: 'mass_mail', desc: 'Targeted broadcast campaigns by batch, department or region' },
-  { id: '8', title: 'Welcome Mail Automator', icon: 'mail-open-outline', color: '#F0FDF4', iconColor: '#059669', moduleName: 'welcome_mail', desc: 'Automated welcome email triggers with customizable template tokens' },
-  { id: '9', title: 'Dynamic Email Stats', icon: 'analytics-outline', color: '#DCFCE7', iconColor: '#059669', moduleName: 'email_stats', desc: 'Real-time open & click metrics for invitation and broadcast emails' },
-  { id: '10', title: 'Mentorship Moderation', icon: 'git-pull-request-outline', color: '#DCFCE7', iconColor: '#059669', moduleName: 'mentor_application', desc: 'Approve mentor applications and monitor 1-on-1 mentorship pairings' },
+  { id: '5', title: 'Placement Tool', icon: 'briefcase-outline', color: '#DCFCE7', iconColor: '#0F2C59', moduleName: 'placement_tool', desc: 'Explore employer network and placement opportunities' },
+  { id: '6', title: 'Bulk Data Import', icon: 'cloud-upload-outline', color: '#DCFCE7', iconColor: '#0F2C59', moduleName: 'bulk_import', desc: 'Import student and alumni datasets via CSV with column mapping' },
+  { id: '7', title: 'Mass Mail Broadcast', icon: 'paper-plane-outline', color: '#F0FDF4', iconColor: '#0F2C59', moduleName: 'mass_mail', desc: 'Targeted broadcast campaigns by batch, department or region' },
+  { id: '8', title: 'Welcome Mail Automator', icon: 'mail-open-outline', color: '#F0FDF4', iconColor: '#0F2C59', moduleName: 'welcome_mail', desc: 'Automated welcome email triggers with customizable template tokens' },
+  { id: '9', title: 'Dynamic Email Stats', icon: 'analytics-outline', color: '#DCFCE7', iconColor: '#0F2C59', moduleName: 'email_stats', desc: 'Real-time open & click metrics for invitation and broadcast emails' },
+  { id: '10', title: 'Mentorship Moderation', icon: 'git-pull-request-outline', color: '#DCFCE7', iconColor: '#0F2C59', moduleName: 'mentor_application', desc: 'Approve mentor applications and monitor 1-on-1 mentorship pairings' },
   { id: '11', title: 'Spam & Moderation', icon: 'flag-outline', color: '#FFF5F5', iconColor: '#E53E3E', moduleName: 'spam_report', desc: 'Review reported content, flagged accounts, and suspension tools' },
-  { id: '12', title: 'Custom Page Builder', icon: 'document-text-outline', color: '#F0FDF4', iconColor: '#059669', moduleName: 'page_builder', desc: 'Create custom institutional pages, forms, and event registrations' },
+  { id: '12', title: 'Custom Page Builder', icon: 'document-text-outline', color: '#F0FDF4', iconColor: '#0F2C59', moduleName: 'page_builder', desc: 'Create custom institutional pages, forms, and event registrations' },
   { id: '13', title: 'Activities & Audit Log', icon: 'time-outline', color: '#F1F5F9', iconColor: '#475569', moduleName: 'admin_activities', desc: 'Track administrative outreach logs across email, phone & platform' },
-  { id: '14', title: 'Data Exports', icon: 'download-outline', color: '#F0FDF4', iconColor: '#059669', moduleName: 'data_exports', desc: 'Export verified directory & placement analytics to CSV' },
+  { id: '14', title: 'Data Exports', icon: 'download-outline', color: '#F0FDF4', iconColor: '#0F2C59', moduleName: 'data_exports', desc: 'Export verified directory & placement analytics to CSV' },
 ];
 
 const AUDIENCE_SEGMENTS = [
@@ -335,7 +335,7 @@ export default function AdminPanelScreen({ navigation }) {
     <View style={styles.tokenChipsContainer}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-          <Ionicons name="sparkles" size={14} color="#059669" />
+          <Ionicons name="sparkles" size={14} color="#0F2C59" />
           <Text style={styles.tokenSectionTitle}>Personalization Tokens</Text>
         </View>
         <Text style={styles.tokenHintText}>
@@ -351,7 +351,7 @@ export default function AdminPanelScreen({ navigation }) {
             onPress={() => handleInsertToken(item.token, target)}
           >
             <View style={styles.tokenChipPlus}>
-              <Ionicons name="add" size={12} color="#059669" />
+              <Ionicons name="add" size={12} color="#0F2C59" />
             </View>
             <Text style={styles.tokenChipText}>{item.token}</Text>
             <Text style={styles.tokenChipLabel}>{item.label}</Text>
@@ -380,7 +380,7 @@ export default function AdminPanelScreen({ navigation }) {
               onPress={() => setDevice('mobile')}
               activeOpacity={0.8}
             >
-              <Ionicons name="phone-portrait-outline" size={14} color={device === 'mobile' ? '#059669' : '#64748B'} />
+              <Ionicons name="phone-portrait-outline" size={14} color={device === 'mobile' ? '#0F2C59' : '#64748B'} />
               <Text style={[styles.deviceTabText, device === 'mobile' && styles.deviceTabTextActive]}>Mobile</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -388,7 +388,7 @@ export default function AdminPanelScreen({ navigation }) {
               onPress={() => setDevice('desktop')}
               activeOpacity={0.8}
             >
-              <Ionicons name="laptop-outline" size={14} color={device === 'desktop' ? '#059669' : '#64748B'} />
+              <Ionicons name="laptop-outline" size={14} color={device === 'desktop' ? '#0F2C59' : '#64748B'} />
               <Text style={[styles.deviceTabText, device === 'desktop' && styles.deviceTabTextActive]}>Desktop</Text>
             </TouchableOpacity>
           </View>
@@ -415,7 +415,7 @@ export default function AdminPanelScreen({ navigation }) {
             {/* Mobile Mail App Nav Bar */}
             <View style={styles.mobileMailNav}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                <Ionicons name="chevron-back" size={16} color="#059669" />
+                <Ionicons name="chevron-back" size={16} color="#0F2C59" />
                 <Text style={styles.mobileMailNavBack}>Inbox</Text>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
@@ -433,7 +433,7 @@ export default function AdminPanelScreen({ navigation }) {
                 <View style={{ flex: 1 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                     <Text style={styles.mobileSenderName} numberOfLines={1}>{adminInstitution}</Text>
-                    <Ionicons name="checkmark-circle" size={13} color="#059669" />
+                    <Ionicons name="checkmark-circle" size={13} color="#0F2C59" />
                   </View>
                   <Text style={styles.mobileRecipientText}>To: harshitha.cs20@rvce.edu.in</Text>
                 </View>
@@ -492,7 +492,7 @@ export default function AdminPanelScreen({ navigation }) {
             <View style={styles.desktopSubjectRow}>
               <Text style={styles.desktopSubjectTitle}>{renderedSubject || 'No Subject Line'}</Text>
               <View style={styles.desktopSecureBadge}>
-                <Ionicons name="shield-checkmark" size={13} color="#059669" />
+                <Ionicons name="shield-checkmark" size={13} color="#0F2C59" />
                 <Text style={styles.desktopSecureBadgeText}>TLS 1.3 Verified</Text>
               </View>
             </View>
@@ -521,7 +521,7 @@ export default function AdminPanelScreen({ navigation }) {
               {/* Institutional Header Banner */}
               <View style={styles.desktopInstBanner}>
                 <View style={styles.desktopInstIcon}>
-                  <Ionicons name="school" size={20} color="#059669" />
+                  <Ionicons name="school" size={20} color="#0F2C59" />
                 </View>
                 <View>
                   <Text style={styles.desktopInstTitle}>{adminInstitution}</Text>
@@ -542,7 +542,7 @@ export default function AdminPanelScreen({ navigation }) {
 
               <View style={styles.desktopEmailSignature}>
                 <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }}>Warm regards,</Text>
-                <Text style={{ fontSize: 13, fontWeight: '600', color: '#059669', marginTop: 2 }}>{adminInstitution} Alumni Association</Text>
+                <Text style={{ fontSize: 13, fontWeight: '600', color: '#0F2C59', marginTop: 2 }}>{adminInstitution} Alumni Association</Text>
                 <Text style={{ fontSize: 11, color: '#64748B', marginTop: 1 }}>Mysore Road, Bengaluru, Karnataka 560059</Text>
               </View>
             </View>
@@ -559,10 +559,10 @@ export default function AdminPanelScreen({ navigation }) {
               activeOpacity={0.8}
             >
               {isTesting ? (
-                <ActivityIndicator size="small" color="#059669" />
+                <ActivityIndicator size="small" color="#0F2C59" />
               ) : (
                 <>
-                  <Ionicons name="mail-unread-outline" size={16} color="#059669" style={{ marginRight: 6 }} />
+                  <Ionicons name="mail-unread-outline" size={16} color="#0F2C59" style={{ marginRight: 6 }} />
                   <Text style={styles.sendTestBtnText}>Send Test to Me ({adminEmail})</Text>
                 </>
               )}
@@ -935,10 +935,10 @@ export default function AdminPanelScreen({ navigation }) {
             activeOpacity={0.8}
           >
             {sendingTestMail ? (
-              <ActivityIndicator size="small" color="#059669" />
+              <ActivityIndicator size="small" color="#0F2C59" />
             ) : (
               <>
-                <Ionicons name="mail-unread-outline" size={17} color="#059669" style={{ marginRight: 6 }} />
+                <Ionicons name="mail-unread-outline" size={17} color="#0F2C59" style={{ marginRight: 6 }} />
                 <Text style={styles.secondaryActionBtnText}>Send Test to Me</Text>
               </>
             )}
@@ -1132,7 +1132,7 @@ export default function AdminPanelScreen({ navigation }) {
           <TouchableOpacity style={styles.placementRowCard} activeOpacity={0.7} onPress={() => handleCompanyClick(item)}>
             <Text style={styles.placementRank}>{index + 1}</Text>
             <View style={styles.companyIconBox}>
-              <Ionicons name="business" size={18} color="#059669" />
+              <Ionicons name="business" size={18} color="#0F2C59" />
             </View>
             <View style={{ flex: 1, marginLeft: 12 }}>
               <Text style={styles.placementCompName}>{item.company}</Text>
@@ -1287,7 +1287,7 @@ export default function AdminPanelScreen({ navigation }) {
           <View style={styles.chartBarRow}>
             <Text style={styles.chartLabel}>Click Rate ({clickRatePercent}%)</Text>
             <View style={styles.chartTrack}>
-              <View style={[styles.chartFill, { width: `${clickRatePercent}%`, backgroundColor: '#059669' }]} />
+              <View style={[styles.chartFill, { width: `${clickRatePercent}%`, backgroundColor: '#0F2C59' }]} />
             </View>
           </View>
         </View>
@@ -1397,7 +1397,7 @@ export default function AdminPanelScreen({ navigation }) {
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <View style={{
-                    backgroundColor: item.method === 'POST' ? '#059669' : item.method === 'PUT' ? '#F59E0B' : item.method === 'DELETE' ? '#EF4444' : '#059669',
+                    backgroundColor: item.method === 'POST' ? '#0F2C59' : item.method === 'PUT' ? '#F59E0B' : item.method === 'DELETE' ? '#EF4444' : '#0F2C59',
                     paddingHorizontal: 8,
                     paddingVertical: 2,
                     borderRadius: 4,
@@ -1426,7 +1426,7 @@ export default function AdminPanelScreen({ navigation }) {
                 <Text style={{ fontSize: 11, color: '#64748B' }}>
                   🌐 IP: {item.ipAddress || '127.0.0.1'}
                 </Text>
-                <Text style={{ fontSize: 11, fontWeight: '700', color: item.status < 400 ? '#059669' : '#EF4444' }}>
+                <Text style={{ fontSize: 11, fontWeight: '700', color: item.status < 400 ? '#0F2C59' : '#EF4444' }}>
                   Status: {item.status || 200}
                 </Text>
               </View>
@@ -1593,7 +1593,7 @@ export default function AdminPanelScreen({ navigation }) {
                   style={styles.resumeOutlineBtn}
                   onPress={() => Alert.alert('Resume Preview', `Opening official PDF portfolio for ${item.name}`)}
                 >
-                  <Ionicons name="document-text-outline" size={15} color="#059669" style={{ marginRight: 5 }} />
+                  <Ionicons name="document-text-outline" size={15} color="#0F2C59" style={{ marginRight: 5 }} />
                   <Text style={styles.resumeOutlineBtnText}>View Resume</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -1696,7 +1696,7 @@ export default function AdminPanelScreen({ navigation }) {
 
       {/* Upload Box */}
       <View style={styles.uploadDropBox}>
-        <Ionicons name="cloud-upload-outline" size={48} color="#059669" />
+        <Ionicons name="cloud-upload-outline" size={48} color="#0F2C59" />
         <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text, marginTop: 10 }}>Select CSV File to Import</Text>
         <Text style={{ fontSize: 12, color: theme.textSecondary, marginTop: 4, textAlign: 'center' }}>
           Selected: <Text style={{ fontWeight: '700', color: theme.primary }}>{selectedCsvName || 'No file chosen (Tap to browse CSV)'}</Text>
@@ -1746,7 +1746,7 @@ export default function AdminPanelScreen({ navigation }) {
             </View>
             <View style={{ alignItems: 'flex-end' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={{ fontSize: 13, fontWeight: '800', color: '#059669' }}>{log.imported} ok</Text>
+                <Text style={{ fontSize: 13, fontWeight: '800', color: '#0F2C59' }}>{log.imported} ok</Text>
                 {log.failed > 0 && <Text style={{ fontSize: 11, fontWeight: '700', color: '#EF4444', marginLeft: 6 }}>{log.failed} err</Text>}
               </View>
               <Text style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>{log.status}</Text>
@@ -1812,7 +1812,7 @@ export default function AdminPanelScreen({ navigation }) {
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
           <Text style={styles.inputLabel}>Target Audience Segment</Text>
           <View style={styles.audienceCounterBadge}>
-            <Ionicons name="people" size={13} color="#059669" />
+            <Ionicons name="people" size={13} color="#0F2C59" />
             <Text style={styles.audienceCounterText}>
               {(AUDIENCE_SEGMENTS.find(a => a.id === massAudience) || { count: '~9,655 Alumni' }).count}
             </Text>
@@ -1866,10 +1866,10 @@ export default function AdminPanelScreen({ navigation }) {
             activeOpacity={0.8}
           >
             {sendingTestMail ? (
-              <ActivityIndicator size="small" color="#059669" />
+              <ActivityIndicator size="small" color="#0F2C59" />
             ) : (
               <>
-                <Ionicons name="mail-unread-outline" size={17} color="#059669" style={{ marginRight: 6 }} />
+                <Ionicons name="mail-unread-outline" size={17} color="#0F2C59" style={{ marginRight: 6 }} />
                 <Text style={styles.secondaryActionBtnText}>Send Test to Me</Text>
               </>
             )}
@@ -2012,7 +2012,7 @@ export default function AdminPanelScreen({ navigation }) {
             {/* Welcome Card */}
             <View style={styles.welcomeCard}>
               <View style={styles.welcomeIconCircle}>
-                <Ionicons name="school" size={28} color="#059669" />
+                <Ionicons name="school" size={28} color="#0F2C59" />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.welcomeTitle}>Welcome, {userName || 'Administrator'}</Text>
@@ -2027,13 +2027,13 @@ export default function AdminPanelScreen({ navigation }) {
                 <Text style={styles.quickStatLabel}>Total Alumni</Text>
               </View>
               <View style={[styles.quickStat, styles.quickStatMiddle]}>
-                <Text style={[styles.quickStatValue, { color: dashboardStats.pendingUsers > 0 ? '#DC2626' : '#059669' }]}>
+                <Text style={[styles.quickStatValue, { color: dashboardStats.pendingUsers > 0 ? '#DC2626' : '#0F2C59' }]}>
                   {dashboardStats.pendingUsers || 0}
                 </Text>
                 <Text style={styles.quickStatLabel}>Pending Approvals</Text>
               </View>
               <View style={styles.quickStat}>
-                <Text style={[styles.quickStatValue, { color: '#059669' }]}>{dashboardStats.totalPosts || 0}</Text>
+                <Text style={[styles.quickStatValue, { color: '#0F2C59' }]}>{dashboardStats.totalPosts || 0}</Text>
                 <Text style={styles.quickStatLabel}>Community Posts</Text>
               </View>
             </View>
@@ -2082,11 +2082,11 @@ export default function AdminPanelScreen({ navigation }) {
       <View style={styles.header}>
         {activeModule ? (
           <TouchableOpacity style={styles.backBtnHeader} onPress={() => { setActiveModule(null); setSearchText(''); }}>
-            <Ionicons name="arrow-back" size={24} color="#059669" />
+            <Ionicons name="arrow-back" size={24} color="#0F2C59" />
           </TouchableOpacity>
         ) : (
           <TouchableOpacity 
-            style={[styles.headerAvatar, { overflow: 'hidden', backgroundColor: '#059669', justifyContent: 'center', alignItems: 'center' }]} 
+            style={[styles.headerAvatar, { overflow: 'hidden', backgroundColor: '#0F2C59', justifyContent: 'center', alignItems: 'center' }]} 
             activeOpacity={0.8} 
             onPress={() => navigation.navigate('AdminProfile')}
           >
@@ -2106,10 +2106,10 @@ export default function AdminPanelScreen({ navigation }) {
         </View>
         <View style={styles.headerIcons}>
           <TouchableOpacity style={styles.headerIconBtn} onPress={() => navigation.navigate('Messages')}>
-            <Ionicons name="chatbubble-ellipses-outline" size={22} color="#059669" />
+            <Ionicons name="chatbubble-ellipses-outline" size={22} color="#0F2C59" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.headerIconBtn} onPress={() => navigation.navigate('Notifications')}>
-            <Ionicons name="notifications-outline" size={22} color="#059669" />
+            <Ionicons name="notifications-outline" size={22} color="#0F2C59" />
           </TouchableOpacity>
         </View>
       </View>
@@ -2254,11 +2254,11 @@ const getStyles = (theme) => StyleSheet.create({
   textArea: { minHeight: 120, textAlignVertical: 'top' },
   
   formButtonRow: { flexDirection: 'row', alignItems: 'center', marginTop: 10 },
-  secondaryActionBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 10, borderWidth: 1.5, borderColor: '#A7F3D0', backgroundColor: '#F0FDF4' },
-  secondaryActionBtnText: { fontSize: 13.5, fontWeight: '700', color: '#059669' },
+  secondaryActionBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 10, borderWidth: 1.5, borderColor: '#CBD5E1', backgroundColor: '#F0FDF4' },
+  secondaryActionBtnText: { fontSize: 13.5, fontWeight: '700', color: '#0F2C59' },
 
-  audienceCounterBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#ECFDF5', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, borderWidth: 1, borderColor: '#A7F3D0' },
-  audienceCounterText: { fontSize: 11.5, fontWeight: '700', color: '#047857' },
+  audienceCounterBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#ECFDF5', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, borderWidth: 1, borderColor: '#CBD5E1' },
+  audienceCounterText: { fontSize: 11.5, fontWeight: '700', color: '#0A192F' },
 
   switchRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12, marginBottom: 16, borderTopWidth: 1, borderTopColor: '#F1F5F9' },
   switchLabel: { flex: 1, fontSize: 13, color: '#475569', fontWeight: '600', marginRight: 16 },
@@ -2275,10 +2275,10 @@ const getStyles = (theme) => StyleSheet.create({
   tokenSectionTitle: { fontSize: 12, fontWeight: '700', color: theme.primary },
   tokenHintText: { fontSize: 11, color: theme.textSecondary },
   tokenScrollContent: { flexDirection: 'row', gap: 8, paddingVertical: 2 },
-  tokenChipBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#ECFDF5', borderWidth: 1, borderColor: '#A7F3D0', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6 },
-  tokenChipPlus: { width: 16, height: 16, borderRadius: 8, backgroundColor: '#D1FAE5', alignItems: 'center', justifyContent: 'center', marginRight: 5 },
-  tokenChipText: { fontSize: 12, fontWeight: '800', color: '#065F46' },
-  tokenChipLabel: { fontSize: 10.5, fontWeight: '600', color: '#047857', marginLeft: 4, opacity: 0.8 },
+  tokenChipBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#ECFDF5', borderWidth: 1, borderColor: '#CBD5E1', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6 },
+  tokenChipPlus: { width: 16, height: 16, borderRadius: 8, backgroundColor: '#FAF5EB', alignItems: 'center', justifyContent: 'center', marginRight: 5 },
+  tokenChipText: { fontSize: 12, fontWeight: '800', color: '#0A192F' },
+  tokenChipLabel: { fontSize: 10.5, fontWeight: '600', color: '#0A192F', marginLeft: 4, opacity: 0.8 },
 
   // Live Email Preview Styling
   previewCardContainer: { padding: 16 },
@@ -2290,7 +2290,7 @@ const getStyles = (theme) => StyleSheet.create({
   deviceTabBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 7 },
   deviceTabBtnActive: { backgroundColor: '#FFFFFF', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 2 },
   deviceTabText: { fontSize: 11.5, fontWeight: '600', color: '#64748B' },
-  deviceTabTextActive: { color: '#059669', fontWeight: '800' },
+  deviceTabTextActive: { color: '#0F2C59', fontWeight: '800' },
 
   // Mobile Preview Frame
   mobileChassis: { maxWidth: 360, width: '100%', alignSelf: 'center', borderRadius: 28, borderWidth: 3, borderColor: '#334155', backgroundColor: theme.card, overflow: 'hidden', shadowColor: '#000', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.15, shadowRadius: 12, elevation: 6 },
@@ -2300,11 +2300,11 @@ const getStyles = (theme) => StyleSheet.create({
   mobileStatusIcons: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   
   mobileMailNav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: theme.border, backgroundColor: theme.card },
-  mobileMailNavBack: { fontSize: 13, fontWeight: '600', color: '#059669' },
+  mobileMailNavBack: { fontSize: 13, fontWeight: '600', color: '#0F2C59' },
   
   mobileMailContent: { padding: 14 },
   mobileSenderRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 },
-  mobileSenderAvatar: { width: 34, height: 34, borderRadius: 17, backgroundColor: '#059669', alignItems: 'center', justifyContent: 'center' },
+  mobileSenderAvatar: { width: 34, height: 34, borderRadius: 17, backgroundColor: '#0F2C59', alignItems: 'center', justifyContent: 'center' },
   mobileSenderAvatarText: { color: '#FFFFFF', fontSize: 13, fontWeight: '800' },
   mobileSenderName: { fontSize: 13, fontWeight: '700', color: theme.text },
   mobileRecipientText: { fontSize: 11, color: theme.textSecondary, marginTop: 1 },
@@ -2315,7 +2315,7 @@ const getStyles = (theme) => StyleSheet.create({
   mobileBodyText: { fontSize: 13, color: '#334155', lineHeight: 21 },
   
   mobileCtaBox: { alignItems: 'center', marginVertical: 16 },
-  mobileCtaBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#059669', paddingHorizontal: 18, paddingVertical: 10, borderRadius: 8, shadowColor: '#059669', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 4, elevation: 3 },
+  mobileCtaBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#0F2C59', paddingHorizontal: 18, paddingVertical: 10, borderRadius: 8, shadowColor: '#0F2C59', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 4, elevation: 3 },
   mobileCtaBtnText: { color: '#FFFFFF', fontSize: 13, fontWeight: '700' },
   
   mobileFooterBox: { borderTopWidth: 1, borderTopColor: theme.border, paddingTop: 12, marginTop: 14 },
@@ -2334,8 +2334,8 @@ const getStyles = (theme) => StyleSheet.create({
   
   desktopSubjectRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingTop: 14, paddingBottom: 6 },
   desktopSubjectTitle: { fontSize: 17, fontWeight: '800', color: theme.text, flex: 1, marginRight: 10 },
-  desktopSecureBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#ECFDF5', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, borderWidth: 1, borderColor: '#A7F3D0' },
-  desktopSecureBadgeText: { fontSize: 10.5, fontWeight: '700', color: '#047857' },
+  desktopSecureBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#ECFDF5', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, borderWidth: 1, borderColor: '#CBD5E1' },
+  desktopSecureBadgeText: { fontSize: 10.5, fontWeight: '700', color: '#0A192F' },
   
   desktopMetaGrid: { paddingHorizontal: 16, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: theme.border },
   desktopMetaLabel: { width: 44, fontSize: 11.5, fontWeight: '700', color: '#64748B' },
@@ -2344,19 +2344,19 @@ const getStyles = (theme) => StyleSheet.create({
   desktopBodyCanvas: { padding: 20 },
   desktopInstBanner: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#F0FDF4', padding: 12, borderRadius: 10, borderWidth: 1, borderColor: '#DCFCE7', marginBottom: 18 },
   desktopInstIcon: { width: 38, height: 38, borderRadius: 10, backgroundColor: '#DCFCE7', alignItems: 'center', justifyContent: 'center' },
-  desktopInstTitle: { fontSize: 14, fontWeight: '800', color: '#065F46' },
-  desktopInstSubtitle: { fontSize: 11, color: '#047857', fontWeight: '500' },
+  desktopInstTitle: { fontSize: 14, fontWeight: '800', color: '#0A192F' },
+  desktopInstSubtitle: { fontSize: 11, color: '#0A192F', fontWeight: '500' },
   desktopBodyContent: { fontSize: 14, color: '#334155', lineHeight: 23 },
   
   desktopCtaBox: { alignItems: 'flex-start', marginVertical: 20 },
-  desktopCtaBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#059669', paddingHorizontal: 22, paddingVertical: 12, borderRadius: 8, shadowColor: '#059669', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 4, elevation: 3 },
+  desktopCtaBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#0F2C59', paddingHorizontal: 22, paddingVertical: 12, borderRadius: 8, shadowColor: '#0F2C59', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 4, elevation: 3 },
   desktopCtaBtnText: { color: '#FFFFFF', fontSize: 14, fontWeight: '700' },
   
   desktopEmailSignature: { borderTopWidth: 1, borderTopColor: theme.border, paddingTop: 16, marginTop: 18 },
   
   previewActionRow: { marginTop: 14, alignItems: 'flex-end' },
-  sendTestBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#ECFDF5', borderWidth: 1.5, borderColor: '#A7F3D0', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8 },
-  sendTestBtnText: { fontSize: 12, fontWeight: '700', color: '#047857' },
+  sendTestBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#ECFDF5', borderWidth: 1.5, borderColor: '#CBD5E1', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8 },
+  sendTestBtnText: { fontSize: 12, fontWeight: '700', color: '#0A192F' },
 
   previewContainer: { padding: 16 },
   previewTitle: { fontSize: 14, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', marginBottom: 8 },
@@ -2453,7 +2453,7 @@ const getStyles = (theme) => StyleSheet.create({
   badgeMentee: { backgroundColor: '#F0FDF4' },
   badgeRoleText: { fontSize: 11, fontWeight: '700' },
   badgeMentorText: { color: theme.success },
-  badgeMenteeText: { color: '#059669' },
+  badgeMenteeText: { color: '#0F2C59' },
 
   // Admin Activities Log Layout
   activityLayout: { flex: 1, flexDirection: 'row' },
@@ -2492,9 +2492,9 @@ const getStyles = (theme) => StyleSheet.create({
   exportDownloadBtn: { width: 44, height: 44, borderRadius: 10, backgroundColor: theme.primary, alignItems: 'center', justifyContent: 'center', marginLeft: 16 },
   
   progressBarWrapper: { marginTop: 16, padding: 12, backgroundColor: '#F0FDF4', borderRadius: 10, borderWidth: 1, borderColor: '#B9E6FE' },
-  progressLabel: { fontSize: 12.5, fontWeight: '700', color: '#059669', marginBottom: 6 },
+  progressLabel: { fontSize: 12.5, fontWeight: '700', color: '#0F2C59', marginBottom: 6 },
   progressBarTrack: { height: 8, backgroundColor: '#DCFCE7', borderRadius: 4, overflow: 'hidden' },
-  progressBarFill: { height: 8, backgroundColor: '#059669' },
+  progressBarFill: { height: 8, backgroundColor: '#0F2C59' },
 
   // Dropdown Modals Layout
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.4)', justifyContent: 'center', alignItems: 'center' },
@@ -2528,12 +2528,12 @@ const getStyles = (theme) => StyleSheet.create({
   columnMappingBox: { width: '100%', backgroundColor: '#F8FAFC', padding: 12, borderRadius: 10, marginTop: 14, borderWidth: 1, borderColor: '#E2E8F0' },
   mappingChip: { backgroundColor: '#F0FDF4', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
   mappingChipText: { fontSize: 10.5, fontWeight: '600', color: '#1E40AF' },
-  importActionBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#059669', paddingHorizontal: 20, paddingVertical: 12, borderRadius: 10, marginTop: 18 },
+  importActionBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#0F2C59', paddingHorizontal: 20, paddingVertical: 12, borderRadius: 10, marginTop: 18 },
   importActionBtnText: { fontSize: 14, fontWeight: '700', color: '#FFFFFF' },
   importLogRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: theme.card, padding: 14, borderRadius: 12, marginHorizontal: 16, marginBottom: 10, borderWidth: 1, borderColor: theme.border },
 
   // Custom Pages Styling
   customPageRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: theme.card, padding: 16, borderRadius: 12, marginBottom: 10, borderWidth: 1, borderColor: theme.border },
   greenBadge: { backgroundColor: '#DCFCE7', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 },
-  greenBadgeText: { fontSize: 10.5, fontWeight: '700', color: '#059669' },
+  greenBadgeText: { fontSize: 10.5, fontWeight: '700', color: '#0F2C59' },
 });

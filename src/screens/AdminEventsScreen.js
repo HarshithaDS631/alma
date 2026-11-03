@@ -382,7 +382,7 @@ const AdminEventsScreen = ({ navigation, route }) => {
         {/* Detail Header */}
         <View style={styles.detailHeader}>
           <TouchableOpacity onPress={() => setSelectedEvent(null)} style={styles.backBtn}>
-            <Ionicons name="arrow-back" size={24} color="#059669" />
+            <Ionicons name="arrow-back" size={24} color="#0F2C59" />
           </TouchableOpacity>
           <Text style={styles.detailTitleText}>Event Details</Text>
           <View style={{ width: 40 }} />
@@ -392,7 +392,7 @@ const AdminEventsScreen = ({ navigation, route }) => {
           {/* Top Card */}
           <View style={styles.detailTopCard}>
             <View style={styles.detailIconCircle}>
-              <Ionicons name="calendar" size={32} color="#059669" />
+              <Ionicons name="calendar" size={32} color="#0F2C59" />
             </View>
             <Text style={styles.detailTitle}>{selectedEvent.title}</Text>
             
@@ -419,13 +419,13 @@ const AdminEventsScreen = ({ navigation, route }) => {
             <View style={styles.detailSection}>
               <Text style={styles.detailSectionTitle}>Attachment</Text>
               <View style={styles.attachmentDownloadCard}>
-                <Ionicons name="document-attach" size={24} color="#059669" style={{ marginRight: 10 }} />
+                <Ionicons name="document-attach" size={24} color="#0F2C59" style={{ marginRight: 10 }} />
                 <View style={{ flex: 1 }}>
                   <Text style={styles.attachmentDownloadName}>{selectedEvent.attachment}</Text>
                   <Text style={{ fontSize: 11, color: theme.textMuted, marginTop: 2 }}>PDF Document • 1.2 MB</Text>
                 </View>
                 <TouchableOpacity style={styles.downloadIconBtn} onPress={() => Alert.alert('Download', `Downloading ${selectedEvent.attachment}...`)}>
-                  <Ionicons name="download-outline" size={20} color="#059669" />
+                  <Ionicons name="download-outline" size={20} color="#0F2C59" />
                 </TouchableOpacity>
               </View>
             </View>
@@ -435,10 +435,10 @@ const AdminEventsScreen = ({ navigation, route }) => {
           {(() => {
             const isSelectedRsvpd = registeredEventIds.has(String(selectedEvent.id));
             return (
-              <View style={[styles.detailSection, { backgroundColor: isSelectedRsvpd ? (isDarkMode ? '#064E3B' : '#F0FDF4') : (isDarkMode ? '#1E293B' : '#F8FAFC'), borderWidth: 1.5, borderColor: isSelectedRsvpd ? '#059669' : theme.border }]}>
+              <View style={[styles.detailSection, { backgroundColor: isSelectedRsvpd ? (isDarkMode ? '#064E3B' : '#F0FDF4') : (isDarkMode ? '#1E293B' : '#F8FAFC'), borderWidth: 1.5, borderColor: isSelectedRsvpd ? '#0F2C59' : theme.border }]}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                    <Ionicons name={isSelectedRsvpd ? "checkmark-circle" : "calendar"} size={22} color={isSelectedRsvpd ? "#059669" : theme.primary} />
+                    <Ionicons name={isSelectedRsvpd ? "checkmark-circle" : "calendar"} size={22} color={isSelectedRsvpd ? "#0F2C59" : theme.primary} />
                     <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>
                       {isSelectedRsvpd ? 'Registration Confirmed' : 'Event Attendance'}
                     </Text>
@@ -478,7 +478,7 @@ const AdminEventsScreen = ({ navigation, route }) => {
                     style={{
                       backgroundColor: isDarkMode ? '#1E293B' : '#F0FDF4',
                       borderWidth: 1,
-                      borderColor: isDarkMode ? '#334155' : '#A7F3D0',
+                      borderColor: isDarkMode ? '#334155' : '#CBD5E1',
                       paddingHorizontal: 14,
                       paddingVertical: 12,
                       borderRadius: 10,
@@ -497,7 +497,7 @@ const AdminEventsScreen = ({ navigation, route }) => {
                 {isSelectedRsvpd && (
                   <TouchableOpacity
                     style={{
-                      backgroundColor: '#059669',
+                      backgroundColor: '#0F2C59',
                       marginTop: 10,
                       paddingVertical: 12,
                       borderRadius: 10,
@@ -529,7 +529,7 @@ const AdminEventsScreen = ({ navigation, route }) => {
                   onPress={() => handleOpenScanner(selectedEvent)}
                   activeOpacity={0.85}
                 >
-                  <Ionicons name="scan-circle" size={20} color="#059669" />
+                  <Ionicons name="scan-circle" size={20} color="#0F2C59" />
                   <Text style={{ color: isDarkMode ? '#F8FAFC' : '#0F172A', fontSize: 13, fontWeight: '700' }}>
                     Organizer Gate Scanner & Check-in
                   </Text>
@@ -634,7 +634,7 @@ const AdminEventsScreen = ({ navigation, route }) => {
             <Text style={styles.inputLabel}>Attachment (Optional)</Text>
             {eventAttachment ? (
               <View style={styles.attachmentPreview}>
-                <Ionicons name="document" size={20} color="#059669" />
+                <Ionicons name="document" size={20} color="#0F2C59" />
                 <Text style={styles.attachmentName}>{eventAttachment}</Text>
                 <TouchableOpacity onPress={() => setEventAttachment(null)}>
                   <Ionicons name="close-circle" size={20} color="#EF4444" />
@@ -642,7 +642,7 @@ const AdminEventsScreen = ({ navigation, route }) => {
               </View>
             ) : (
               <TouchableOpacity style={styles.attachBtn} onPress={() => setEventAttachment('event_brochure.pdf')}>
-                <Ionicons name="add" size={20} color="#059669" style={{ marginRight: 6 }} />
+                <Ionicons name="add" size={20} color="#0F2C59" style={{ marginRight: 6 }} />
                 <Text style={styles.attachBtnText}>Attach Brochure / Agenda</Text>
               </TouchableOpacity>
             )}
@@ -673,7 +673,7 @@ const AdminEventsScreen = ({ navigation, route }) => {
           </TouchableOpacity>
         )}
         <TouchableOpacity 
-          style={[styles.headerAvatar, { overflow: 'hidden', justifyContent: 'center', alignItems: 'center' }, isSuperAdmin && { backgroundColor: '#059669' }]} 
+          style={[styles.headerAvatar, { overflow: 'hidden', justifyContent: 'center', alignItems: 'center' }, isSuperAdmin && { backgroundColor: '#0F2C59' }]} 
           activeOpacity={0.8} 
           onPress={() => {
             const role = (userRole || '').toLowerCase();
@@ -710,10 +710,10 @@ const AdminEventsScreen = ({ navigation, route }) => {
         </View>
         <View style={styles.headerIcons}>
           <TouchableOpacity style={styles.headerIconBtn} onPress={() => navigation && navigation.navigate('Messages')}>
-            <Ionicons name="chatbubble-ellipses-outline" size={22} color="#059669" />
+            <Ionicons name="chatbubble-ellipses-outline" size={22} color="#0F2C59" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.headerIconBtn} onPress={() => navigation && navigation.navigate('Notifications')}>
-            <Ionicons name="notifications-outline" size={22} color="#059669" />
+            <Ionicons name="notifications-outline" size={22} color="#0F2C59" />
           </TouchableOpacity>
         </View>
       </View>
@@ -750,7 +750,7 @@ const AdminEventsScreen = ({ navigation, route }) => {
             <TouchableOpacity activeOpacity={0.8} onPress={() => setSelectedEvent(item)}>
               <View style={styles.eventCardHeader}>
                 <View style={styles.eventIconCircle}>
-                  <Ionicons name="calendar" size={20} color="#059669" />
+                  <Ionicons name="calendar" size={20} color="#0F2C59" />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.eventTitle}>{item.title}</Text>
@@ -771,7 +771,7 @@ const AdminEventsScreen = ({ navigation, route }) => {
                       alignItems: 'center',
                       backgroundColor: isItemRsvpd ? (isDarkMode ? 'rgba(5, 150, 105, 0.2)' : '#DEF7EC') : theme.primary,
                       borderWidth: isItemRsvpd ? 1 : 0,
-                      borderColor: isItemRsvpd ? '#059669' : 'transparent',
+                      borderColor: isItemRsvpd ? '#0F2C59' : 'transparent',
                       paddingHorizontal: 14,
                       paddingVertical: 7,
                       borderRadius: 8,
@@ -783,9 +783,9 @@ const AdminEventsScreen = ({ navigation, route }) => {
                     <Ionicons 
                       name={isItemRsvpd ? "checkmark-circle" : "calendar"} 
                       size={15} 
-                      color={isItemRsvpd ? (isDarkMode ? '#34D399' : "#03543F") : "#FFFFFF"} 
+                      color={isItemRsvpd ? (isDarkMode ? '#D4AF37' : "#03543F") : "#FFFFFF"} 
                     />
-                    <Text style={{ fontSize: 12, fontWeight: '700', color: isItemRsvpd ? (isDarkMode ? '#34D399' : "#03543F") : "#FFFFFF" }}>
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: isItemRsvpd ? (isDarkMode ? '#D4AF37' : "#03543F") : "#FFFFFF" }}>
                       {isItemRsvpd ? 'Attending ✓' : 'RSVP / Register'}
                     </Text>
                   </TouchableOpacity>
@@ -1036,7 +1036,7 @@ const getStyles = (theme) => StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderWidth: 1,
-    borderColor: '#A7F3D0',
+    borderColor: '#CBD5E1',
   },
   attachmentName: {
     flex: 1,

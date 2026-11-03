@@ -779,7 +779,10 @@ exports.getProfile = async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-        res.json(user);
+        const userObj = user.toObject();
+        userObj.avatar_url = userObj.avatar_url || userObj.profilePicture || '';
+        userObj.profilePicture = userObj.avatar_url;
+        res.json(userObj);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

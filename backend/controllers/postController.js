@@ -28,33 +28,32 @@ exports.getPosts = async (req, res) => {
 
         let query = { user: { $nin: blockedUserIds } };
 
-        // For Alumni, Student, and Institution Admin roles: enforce strict institution filtering
+        // For Alumni, Student, and Institution Admin roles: prioritize institution & community network
         if (currentUser && currentUser.role !== 'Super Admin') {
-            const followedUserIds = (currentUser.following || []).map(id => id.toString());
-            
-            // Find users strictly belonging to the same institution
             const institutionUsers = await User.find({
                 institution: userInstitution ? new RegExp(`^${userInstitution.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') : { $exists: true }
             }).select('_id');
             const institutionUserIds = institutionUsers.map(u => u._id.toString());
 
-            // Also find Super Admins for global announcements
-            const superAdmins = await User.find({ role: 'Super Admin' }).select('_id');
-            const superAdminIds = superAdmins.map(s => s._id.toString());
+            // Also find Super Admins & Admins for global announcements
+            const admins = await User.find({ role: { $in: ['Admin', 'Super Admin'] } }).select('_id');
+            const adminIds = admins.map(s => s._id.toString());
 
             const allowedCreatorIds = Array.from(new Set([
                 req.user._id.toString(),
                 ...institutionUserIds,
-                ...superAdminIds
+                ...adminIds
             ]));
 
             query.$or = [
                 { institution: userInstitution ? new RegExp(`^${userInstitution.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') : undefined },
-                { user: { $in: allowedCreatorIds, $nin: blockedUserIds } }
-            ].filter(cond => cond.institution !== undefined || cond.user);
+                { user: { $in: allowedCreatorIds, $nin: blockedUserIds } },
+                { isOfficial: true },
+                { isAdmin: true }
+            ].filter(cond => cond.institution !== undefined || cond.user || cond.isOfficial || cond.isAdmin);
 
             if (query.$or.length === 0) {
-                query.user = { $in: allowedCreatorIds, $nin: blockedUserIds };
+                query.user = { $nin: blockedUserIds };
                 delete query.$or;
             }
         } else if (req.query.institution && req.query.institution !== 'All') {
@@ -71,17 +70,50 @@ exports.getPosts = async (req, res) => {
             ];
         }
 
-        const posts = await Post.find(query)
-            .populate('user', 'name branch department batchYear avatar_url username role institution')
-            .populate('tags', 'name username avatar_url')
-            .populate('comments.user', 'name avatar_url username')
+        let posts = await Post.find(query)
+            .populate('user', 'name branch department batchYear avatar_url profilePicture username role institution')
+            .populate('tags', 'name username avatar_url profilePicture')
+            .populate('comments.user', 'name avatar_url profilePicture username')
             .populate({
                 path: 'originalPost',
-                populate: { path: 'user', select: 'name department branch batchYear avatar_url' }
+                populate: { path: 'user', select: 'name department branch batchYear avatar_url profilePicture' }
             })
             .sort({ createdAt: -1 })
             .limit(50)
             .lean();
+
+        // If strict filtering returned no posts, fall back to general unblocked community posts
+        if (!posts || posts.length === 0) {
+            posts = await Post.find({ user: { $nin: blockedUserIds } })
+                .populate('user', 'name branch department batchYear avatar_url profilePicture username role institution')
+                .populate('tags', 'name username avatar_url profilePicture')
+                .populate('comments.user', 'name avatar_url profilePicture username')
+                .populate({
+                    path: 'originalPost',
+                    populate: { path: 'user', select: 'name department branch batchYear avatar_url profilePicture' }
+                })
+                .sort({ createdAt: -1 })
+                .limit(50)
+                .lean();
+        }
+
+        // Normalize avatar URLs across user and comments
+        if (Array.isArray(posts)) {
+            posts.forEach(p => {
+                if (p.user) {
+                    p.user.avatar_url = p.user.avatar_url || p.user.profilePicture || '';
+                    p.user.profilePicture = p.user.avatar_url;
+                }
+                if (Array.isArray(p.comments)) {
+                    p.comments.forEach(c => {
+                        if (c.user) {
+                            c.user.avatar_url = c.user.avatar_url || c.user.profilePicture || '';
+                            c.user.profilePicture = c.user.avatar_url;
+                        }
+                    });
+                }
+            });
+        }
 
         res.json(posts);
     } catch (error) {
@@ -501,11 +533,20 @@ exports.getUserPosts = async (req, res) => {
                 { originalPost: { $exists: true } }
             ]
         })
-        .populate('user', 'name branch department batchYear avatar_url username role institution')
-        .populate('tags', 'name username avatar_url')
-        .populate('comments.user', 'name avatar_url username')
+        .populate('user', 'name branch department batchYear avatar_url profilePicture username role institution')
+        .populate('tags', 'name username avatar_url profilePicture')
+        .populate('comments.user', 'name avatar_url profilePicture username')
         .sort({ createdAt: -1 })
         .lean();
+
+        if (Array.isArray(posts)) {
+            posts.forEach(p => {
+                if (p.user) {
+                    p.user.avatar_url = p.user.avatar_url || p.user.profilePicture || '';
+                    p.user.profilePicture = p.user.avatar_url;
+                }
+            });
+        }
 
         res.json(posts);
     } catch (error) {

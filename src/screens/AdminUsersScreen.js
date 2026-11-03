@@ -59,7 +59,7 @@ const checkDatabaseVerification = (name, batchYear, joiningYear, institution) =>
 const FRIENDS_DATA = [];
 const COMMUNITIES_DATA = [];
 
-const AVATAR_COLORS = ['#059669', '#C89565', '#047857', '#D4A373', '#34D399', '#B88758'];
+const AVATAR_COLORS = ['#0F2C59', '#C89565', '#0A192F', '#D4A373', '#D4AF37', '#B88758'];
 
 const BATCH_OPTIONS = ['All', '2015', '2017', '2018', '2019', '2020', '2021', '2022', '2023'];
 const BRANCH_OPTIONS = ['All', 'CSE', 'ECE', 'ISE', 'MBA', 'ME', 'EEE'];
@@ -658,7 +658,7 @@ const AdminUsersScreen = ({ navigation, route }) => {
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           ListHeaderComponent={() => (
-            <View style={{ backgroundColor: isDarkMode ? '#14251B' : '#F0FDF4', borderColor: isDarkMode ? 'rgba(52, 211, 153, 0.3)' : '#A7F3D0', borderWidth: 1, borderRadius: 12, padding: 12, marginBottom: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <View style={{ backgroundColor: isDarkMode ? '#14251B' : '#F0FDF4', borderColor: isDarkMode ? 'rgba(52, 211, 153, 0.3)' : '#CBD5E1', borderWidth: 1, borderRadius: 12, padding: 12, marginBottom: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
               <View style={{ flex: 1, marginRight: 8 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                   <Ionicons name="document-text" size={16} color={theme.primary} />

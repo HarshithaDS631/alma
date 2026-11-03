@@ -73,7 +73,7 @@ export default function ReferralModal({ visible, onClose, job, currentUser, onRe
           <View style={styles.header}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
               <View style={styles.iconCircle}>
-                <Ionicons name="people" size={18} color="#059669" />
+                <Ionicons name="people" size={18} color="#D4AF37" />
               </View>
               <View>
                 <Text style={[styles.headerTitle, { color: isDarkMode ? '#F8FAFC' : '#0F172A' }]}>
@@ -100,13 +100,13 @@ export default function ReferralModal({ visible, onClose, job, currentUser, onRe
                 </Text>
               </View>
               <View style={styles.badgePod}>
-                <Ionicons name="shield-checkmark" size={12} color="#059669" />
+                <Ionicons name="shield-checkmark" size={12} color="#D4AF37" />
                 <Text style={styles.badgeText}>ALUMNI POST</Text>
               </View>
             </View>
 
             <View style={styles.referrerRow}>
-              <Ionicons name="person-circle-outline" size={20} color="#059669" />
+              <Ionicons name="person-circle-outline" size={20} color="#D4AF37" />
               <Text style={[styles.referrerText, { color: isDarkMode ? '#CBD5E1' : '#475569' }]}>
                 Referral goes directly to <Text style={{ fontWeight: '700', color: isDarkMode ? '#F8FAFC' : '#0F172A' }}>{posterName}</Text> ({posterRole})
               </Text>
@@ -278,7 +278,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(5, 150, 105, 0.1)',
+    backgroundColor: 'rgba(212, 175, 55, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.4)',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8
@@ -286,7 +288,7 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: 9.5,
     fontWeight: '800',
-    color: '#059669',
+    color: '#B45309',
     letterSpacing: 0.4
   },
   referrerRow: {
@@ -365,7 +367,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 12,
     borderRadius: 12,
-    backgroundColor: '#059669',
+    backgroundColor: '#0F2C59',
     gap: 6
   },
   submitText: {

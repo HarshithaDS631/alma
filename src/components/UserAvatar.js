@@ -4,14 +4,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { getImageUrl } from '../services/uploadService';
 import getInitials from '../lib/getInitials';
 
+// Formal Academic & Institutional Palettes (Royal Navy & Warm Gold)
 const PALETTES = [
-  { bg: '#059669', text: '#FFFFFF', border: '#34D399' }, // Emerald
-  { bg: '#0284C7', text: '#FFFFFF', border: '#38BDF8' }, // Blue
-  { bg: '#7C3AED', text: '#FFFFFF', border: '#A78BFA' }, // Purple
-  { bg: '#D97706', text: '#FFFFFF', border: '#FBBF24' }, // Amber
-  { bg: '#0D9488', text: '#FFFFFF', border: '#2DD4BF' }, // Teal
-  { bg: '#4F46E5', text: '#FFFFFF', border: '#818CF8' }, // Indigo
-  { bg: '#E11D48', text: '#FFFFFF', border: '#FB7185' }, // Rose
+  { bg: '#0A192F', text: '#D4AF37', border: '#D4AF37' }, // Royal Midnight & Imperial Gold
+  { bg: '#0F2C59', text: '#FDE68A', border: '#C5A059' }, // Deep Royal Navy & Champagne
+  { bg: '#1E3A8A', text: '#FFFFFF', border: '#D4AF37' }, // Classic Royal Azure
+  { bg: '#1E293B', text: '#FDE68A', border: '#D4AF37' }, // Slate Navy & Gold
+  { bg: '#002147', text: '#D4AF37', border: '#D4AF37' }, // Oxford Maritime & Gold
+  { bg: '#172554', text: '#FDE68A', border: '#C5A059' }, // Cobalt Deep Navy
 ];
 
 function getPalette(str) {
@@ -56,7 +56,7 @@ export default function UserAvatar({
   const palette = getPalette(displayName);
   const initials = getInitials(displayName, 'RV');
   const computedRadius = customRadius !== undefined ? customRadius : size / 2;
-  const fontSize = Math.max(11, Math.round(size * 0.38));
+  const fontSize = Math.max(9, Math.round(size * 0.36));
 
   const shouldRenderImage = Boolean(resolvedUrl) && !hasError;
 
@@ -70,8 +70,8 @@ export default function UserAvatar({
           borderRadius: computedRadius,
         },
         ring && {
-          borderWidth: Math.max(2, Math.round(size * 0.04)),
-          borderColor: ringColor || '#059669',
+          borderWidth: Math.max(1.5, Math.round(size * 0.045)),
+          borderColor: ringColor || '#D4AF37',
         },
         openToWork && styles.openToWorkRing,
         style,
@@ -100,6 +100,8 @@ export default function UserAvatar({
               height: size,
               borderRadius: computedRadius,
               backgroundColor: palette.bg,
+              borderWidth: 1,
+              borderColor: palette.border,
             },
           ]}
         >
@@ -109,9 +111,11 @@ export default function UserAvatar({
               {
                 color: palette.text,
                 fontSize,
+                lineHeight: Math.round(fontSize * 1.2),
               },
               textStyle,
             ]}
+            numberOfLines={1}
           >
             {initials}
           </Text>
@@ -127,8 +131,8 @@ export default function UserAvatar({
               ? styles.onlineBadge
               : styles.verifiedBadge,
             {
-              width: Math.max(12, Math.round(size * 0.32)),
-              height: Math.max(12, Math.round(size * 0.32)),
+              width: Math.max(13, Math.round(size * 0.32)),
+              height: Math.max(13, Math.round(size * 0.32)),
               borderRadius: Math.round(size * 0.16),
             },
           ]}
@@ -137,7 +141,7 @@ export default function UserAvatar({
             <Ionicons
               name="checkmark"
               size={Math.max(8, Math.round(size * 0.2))}
-              color="#FFFFFF"
+              color="#0A192F"
             />
           ) : null}
         </View>
@@ -154,25 +158,26 @@ const styles = StyleSheet.create({
     overflow: 'visible',
   },
   image: {
-    backgroundColor: '#E2E8F0',
+    backgroundColor: '#0F2C59',
   },
   monogramPod: {
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
+    shadowColor: '#0A192F',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.15,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowOpacity: 0.25,
+    shadowRadius: 3,
+    elevation: 3,
   },
   monogramText: {
     fontWeight: '800',
     letterSpacing: 0.5,
     textAlign: 'center',
+    includeFontPadding: false,
   },
   openToWorkRing: {
-    borderWidth: 2.5,
-    borderColor: '#059669',
+    borderWidth: 2,
+    borderColor: '#D4AF37',
   },
   badgePosition: {
     position: 'absolute',
@@ -181,10 +186,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1.5,
-    borderColor: '#FFFFFF',
+    borderColor: '#0A192F',
   },
   verifiedBadge: {
-    backgroundColor: '#059669',
+    backgroundColor: '#D4AF37',
   },
   onlineBadge: {
     backgroundColor: '#10B981',

@@ -57,7 +57,7 @@ export default function CaptchaBox({
             <View style={[styles.captchaDisplayWrapper, { backgroundColor: '#FFFFFF', borderColor }]}>
                 {loading ? (
                     <View style={styles.loadingPlaceholder}>
-                        <ActivityIndicator size="small" color="#059669" />
+                        <ActivityIndicator size="small" color="#0F2C59" />
                         <Text style={styles.loadingText}>Generating challenge...</Text>
                     </View>
                 ) : isWeb && captcha?.svg ? (
@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
         fontSize: 22,
         fontWeight: '800',
         letterSpacing: 6,
-        color: '#059669',
+        color: '#0F2C59',
     },
     inputRow: {
         width: '100%',

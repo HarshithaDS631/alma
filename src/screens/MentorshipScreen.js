@@ -216,6 +216,9 @@ const MentorshipScreen = ({ navigation }) => {
   const [requestTarget, setRequestTarget] = useState(null); // person to request or connect
   const [requestGoal, setRequestGoal] = useState('');
   const [requestNote, setRequestNote] = useState('');
+  const [bookedSessions, setBookedSessions] = useState([]);
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [bookingTarget, setBookingTarget] = useState(null);
 
   // Expandable Mentee Profile Card Tracking
   const [expandedMenteeIds, setExpandedMenteeIds] = useState(new Set());
@@ -316,7 +319,8 @@ const MentorshipScreen = ({ navigation }) => {
   useFocusEffect(
     useCallback(() => {
       loadData();
-    }, [loadData])
+      loadBookedSessions();
+    }, [loadData, loadBookedSessions])
   );
 
   // Filter Mentors
@@ -544,7 +548,7 @@ const MentorshipScreen = ({ navigation }) => {
     <View style={styles.heroGradient}>
       <View style={styles.heroContent}>
         <View style={styles.heroBadge}>
-          <MaterialCommunityIcons name="handshake" size={14} color="#34D399" />
+          <MaterialCommunityIcons name="handshake" size={14} color="#D4AF37" />
           <Text style={styles.heroBadgeText}>RVCE ALUMNI MENTORSHIP PROGRAM</Text>
         </View>
         <Text style={styles.heroTitle}>Connect. Guide.{'\n'}Accelerate Careers.</Text>
@@ -556,14 +560,14 @@ const MentorshipScreen = ({ navigation }) => {
             style={styles.heroPrimaryBtn}
             onPress={() => { setApplyType('mentee'); setShowApplyModal(true); }}
           >
-            <Ionicons name="school-outline" size={18} color="#059669" />
+            <Ionicons name="school-outline" size={18} color="#0F2C59" />
             <Text style={styles.heroPrimaryBtnText}>Apply as Mentee</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.heroSecondaryBtn}
             onPress={() => { setApplyType('mentor'); setShowApplyModal(true); }}
           >
-            <MaterialCommunityIcons name="hand-heart-outline" size={18} color="#34D399" />
+            <MaterialCommunityIcons name="hand-heart-outline" size={18} color="#D4AF37" />
             <Text style={styles.heroSecondaryBtnText}>Register as Mentor</Text>
           </TouchableOpacity>
         </View>
@@ -643,7 +647,7 @@ const MentorshipScreen = ({ navigation }) => {
           <View style={{ flex: 1, marginLeft: 12 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={[styles.cardTitle, { color: theme.text }]} numberOfLines={1}>{m.name}</Text>
-              {m.isVerified && <Ionicons name="checkmark-circle" size={16} color="#059669" style={{ marginLeft: 4 }} />}
+              {m.isVerified && <Ionicons name="checkmark-circle" size={16} color="#0F2C59" style={{ marginLeft: 4 }} />}
             </View>
             <Text style={[styles.cardSubTitle, { color: theme.textSecondary || '#64748B' }]} numberOfLines={1}>
               {m.designation} at {m.company}
@@ -663,7 +667,7 @@ const MentorshipScreen = ({ navigation }) => {
         <View style={styles.tagWrap}>
           {(m.areas || []).slice(0, 3).map((tag, i) => (
             <View key={i} style={[styles.pillBadge, { backgroundColor: isDarkMode ? '#1E3A5F' : '#F0FDF4' }]}>
-              <Text style={[styles.pillText, { color: isDarkMode ? '#A7F3D0' : '#059669' }]}>{tag}</Text>
+              <Text style={[styles.pillText, { color: isDarkMode ? '#CBD5E1' : '#0F2C59' }]}>{tag}</Text>
             </View>
           ))}
         </View>
@@ -675,7 +679,7 @@ const MentorshipScreen = ({ navigation }) => {
 
         <View style={styles.cardActionsRow}>
           <TouchableOpacity
-            style={[styles.primaryActionBtn, { backgroundColor: '#059669', marginRight: 6 }]}
+            style={[styles.primaryActionBtn, { backgroundColor: '#0F2C59', marginRight: 6 }]}
             onPress={() => {
               setBookingTarget(m);
               setShowBookingModal(true);
@@ -705,8 +709,8 @@ const MentorshipScreen = ({ navigation }) => {
             style={[styles.secondaryActionBtn, { borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
             onPress={() => openChatWithUser(m)}
           >
-            <Ionicons name="chatbubble-outline" size={15} color={isDarkMode ? '#34D399' : '#059669'} />
-            <Text style={[styles.secondaryActionText, { color: isDarkMode ? '#34D399' : '#059669' }]}>Message</Text>
+            <Ionicons name="chatbubble-outline" size={15} color={isDarkMode ? '#D4AF37' : '#0F2C59'} />
+            <Text style={[styles.secondaryActionText, { color: isDarkMode ? '#D4AF37' : '#0F2C59' }]}>Message</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.iconActionBtn, { backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9' }]}
@@ -746,7 +750,7 @@ const MentorshipScreen = ({ navigation }) => {
         <View style={styles.tagWrap}>
           {(mentee.areas || []).map((area, i) => (
             <View key={i} style={[styles.pillBadge, { backgroundColor: isDarkMode ? '#1E3A5F' : '#F0FDF4' }]}>
-              <Text style={[styles.pillText, { color: isDarkMode ? '#A7F3D0' : '#059669' }]}>🎯 {area}</Text>
+              <Text style={[styles.pillText, { color: isDarkMode ? '#CBD5E1' : '#0F2C59' }]}>🎯 {area}</Text>
             </View>
           ))}
         </View>
@@ -798,7 +802,7 @@ const MentorshipScreen = ({ navigation }) => {
         {/* Action Row */}
         <View style={styles.cardActionsRow}>
           <TouchableOpacity
-            style={[styles.primaryActionBtn, { backgroundColor: '#059669' }]}
+            style={[styles.primaryActionBtn, { backgroundColor: '#0F2C59' }]}
             onPress={() => {
               setRequestTarget(mentee);
               setShowRequestModal(true);
@@ -813,8 +817,8 @@ const MentorshipScreen = ({ navigation }) => {
             style={[styles.secondaryActionBtn, { borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
             onPress={() => openChatWithUser(mentee)}
           >
-            <Ionicons name="chatbubble-outline" size={15} color={isDarkMode ? '#34D399' : '#059669'} />
-            <Text style={[styles.secondaryActionText, { color: isDarkMode ? '#34D399' : '#059669' }]}>Message</Text>
+            <Ionicons name="chatbubble-outline" size={15} color={isDarkMode ? '#D4AF37' : '#0F2C59'} />
+            <Text style={[styles.secondaryActionText, { color: isDarkMode ? '#D4AF37' : '#0F2C59' }]}>Message</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.iconActionBtn, { backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9' }]}
@@ -838,7 +842,7 @@ const MentorshipScreen = ({ navigation }) => {
       {myConnections.length === 0 ? (
         <View style={styles.emptyState}>
           <View style={[styles.emptyIcon, { backgroundColor: isDarkMode ? '#1E293B' : '#F0FDF4' }]}>
-            <MaterialCommunityIcons name="handshake-outline" size={48} color={isDarkMode ? '#34D399' : '#059669'} />
+            <MaterialCommunityIcons name="handshake-outline" size={48} color={isDarkMode ? '#D4AF37' : '#0F2C59'} />
           </View>
           <Text style={[styles.emptyTitle, { color: theme.text }]}>No Connections Yet</Text>
           <Text style={[styles.emptySubtitle, { color: isDarkMode ? '#94A3B8' : '#64748B' }]}>
@@ -863,10 +867,10 @@ const MentorshipScreen = ({ navigation }) => {
                 backgroundColor: conn.status === 'Active' ? '#DCFCE7' : conn.status === 'Pending' ? '#DCFCE7' : '#FEE2E2'
               }]}>
                 <View style={[styles.statusDot, {
-                  backgroundColor: conn.status === 'Active' ? '#16A34A' : conn.status === 'Pending' ? '#059669' : '#DC2626'
+                  backgroundColor: conn.status === 'Active' ? '#16A34A' : conn.status === 'Pending' ? '#0F2C59' : '#DC2626'
                 }]} />
                 <Text style={[styles.statusText, {
-                  color: conn.status === 'Active' ? '#16A34A' : conn.status === 'Pending' ? '#059669' : '#DC2626'
+                  color: conn.status === 'Active' ? '#16A34A' : conn.status === 'Pending' ? '#0F2C59' : '#DC2626'
                 }]}>{conn.status}</Text>
               </View>
             </View>
@@ -883,8 +887,8 @@ const MentorshipScreen = ({ navigation }) => {
                 style={[styles.actionBtnSmall, { backgroundColor: isDarkMode ? '#0F172A' : '#F0FDF4', flex: 1 }]}
                 onPress={() => openChatWithUser({ id: conn.targetId, name: conn.name, avatar_url: conn.avatar })}
               >
-                <Ionicons name="chatbubble-outline" size={14} color="#059669" />
-                <Text style={{ color: '#059669', fontSize: 12, fontWeight: '700', marginLeft: 4 }}>Open Chat</Text>
+                <Ionicons name="chatbubble-outline" size={14} color="#0F2C59" />
+                <Text style={{ color: '#0F2C59', fontSize: 12, fontWeight: '700', marginLeft: 4 }}>Open Chat</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.actionBtnSmall, { backgroundColor: isDarkMode ? '#0F172A' : '#F0FDF4', flex: 1 }]}
@@ -903,10 +907,10 @@ const MentorshipScreen = ({ navigation }) => {
   // ─── RENDER FAQ TAB (ALMACONNECT RULES) ───────────────────
   const renderFaqTab = () => (
     <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
-      <View style={[styles.faqBanner, { backgroundColor: isDarkMode ? '#1E293B' : '#F0FDF4', borderColor: isDarkMode ? '#334155' : '#A7F3D0' }]}>
-        <Ionicons name="information-circle" size={24} color="#059669" />
+      <View style={[styles.faqBanner, { backgroundColor: isDarkMode ? '#1E293B' : '#F0FDF4', borderColor: isDarkMode ? '#334155' : '#CBD5E1' }]}>
+        <Ionicons name="information-circle" size={24} color="#0F2C59" />
         <View style={{ flex: 1, marginLeft: 12 }}>
-          <Text style={[styles.faqBannerTitle, { color: isDarkMode ? '#A7F3D0' : '#1E40AF' }]}>
+          <Text style={[styles.faqBannerTitle, { color: isDarkMode ? '#CBD5E1' : '#1E40AF' }]}>
             AlmaConnect Mentorship Guidelines
           </Text>
           <Text style={[styles.faqBannerText, { color: isDarkMode ? '#CBD5E1' : '#064E3B' }]}>
@@ -951,7 +955,7 @@ const MentorshipScreen = ({ navigation }) => {
         style={styles.sampleAppButton}
         onPress={() => setShowSampleModal(true)}
       >
-        <Ionicons name="document-text-outline" size={18} color="#059669" />
+        <Ionicons name="document-text-outline" size={18} color="#0F2C59" />
         <Text style={styles.sampleAppButtonText}>View Sample Exemplary Applications</Text>
       </TouchableOpacity>
     </View>
@@ -998,8 +1002,8 @@ const MentorshipScreen = ({ navigation }) => {
               style={{ marginTop: 12, alignSelf: 'flex-end', flexDirection: 'row', alignItems: 'center' }}
               onPress={() => setShowSampleModal(true)}
             >
-              <Ionicons name="help-circle-outline" size={14} color="#059669" />
-              <Text style={{ color: '#059669', fontSize: 12, fontWeight: '700', marginLeft: 4 }}>
+              <Ionicons name="help-circle-outline" size={14} color="#0F2C59" />
+              <Text style={{ color: '#0F2C59', fontSize: 12, fontWeight: '700', marginLeft: 4 }}>
                 View Sample Applications
               </Text>
             </TouchableOpacity>
@@ -1214,8 +1218,8 @@ const MentorshipScreen = ({ navigation }) => {
               </Text>
             </View>
 
-            <View style={[styles.sampleBox, { backgroundColor: isDarkMode ? '#1E293B' : '#F0FDF4', borderColor: '#A7F3D0', marginTop: 14 }]}>
-              <Text style={[styles.sampleTitle, { color: '#059669' }]}>Exemplary Mentor Profile</Text>
+            <View style={[styles.sampleBox, { backgroundColor: isDarkMode ? '#1E293B' : '#F0FDF4', borderColor: '#CBD5E1', marginTop: 14 }]}>
+              <Text style={[styles.sampleTitle, { color: '#0F2C59' }]}>Exemplary Mentor Profile</Text>
               <Text style={styles.sampleSubHeading}>💼 Guidance Offered:</Text>
               <Text style={styles.sampleText}>
                 {"\"10+ years in software architecture at Microsoft. Happy to review system design portfolios, conduct 1 mock interview per month, and advise on navigating corporate tech careers.\""}
@@ -1227,7 +1231,7 @@ const MentorshipScreen = ({ navigation }) => {
             </View>
 
             <TouchableOpacity
-              style={[styles.submitBtn, { backgroundColor: '#059669', marginTop: 20 }]}
+              style={[styles.submitBtn, { backgroundColor: '#0F2C59', marginTop: 20 }]}
               onPress={() => setShowSampleModal(false)}
             >
               <Text style={styles.submitBtnText}>Got it!</Text>
@@ -1259,13 +1263,13 @@ const MentorshipScreen = ({ navigation }) => {
               style={[styles.headerActionBtn, { backgroundColor: isDarkMode ? '#1E293B' : '#DCFCE7' }]}
               onPress={() => { setApplyType('mentor'); setShowApplyModal(true); }}
             >
-              <MaterialCommunityIcons name="hand-heart" size={18} color="#059669" />
+              <MaterialCommunityIcons name="hand-heart" size={18} color="#0F2C59" />
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.headerActionBtn, { backgroundColor: isDarkMode ? '#1E293B' : '#F0FDF4' }]}
               onPress={() => { setApplyType('mentee'); setShowApplyModal(true); }}
             >
-              <Ionicons name="school" size={18} color="#059669" />
+              <Ionicons name="school" size={18} color="#0F2C59" />
             </TouchableOpacity>
           </View>
         </View>
@@ -1286,12 +1290,12 @@ const MentorshipScreen = ({ navigation }) => {
               <Ionicons
                 name={tab.icon}
                 size={16}
-                color={activeTab === tab.key ? (isDarkMode ? '#34D399' : '#059669') : (isDarkMode ? '#64748B' : '#94A3B8')}
+                color={activeTab === tab.key ? (isDarkMode ? '#D4AF37' : '#0F2C59') : (isDarkMode ? '#64748B' : '#94A3B8')}
               />
               <Text style={[
                 styles.tabText,
                 activeTab === tab.key && styles.activeTabText,
-                { color: activeTab === tab.key ? (isDarkMode ? '#34D399' : '#059669') : (isDarkMode ? '#64748B' : '#94A3B8') }
+                { color: activeTab === tab.key ? (isDarkMode ? '#D4AF37' : '#0F2C59') : (isDarkMode ? '#64748B' : '#94A3B8') }
               ]}>{tab.label}</Text>
             </TouchableOpacity>
           ))}
@@ -1308,7 +1312,7 @@ const MentorshipScreen = ({ navigation }) => {
               {bookedSessions.length > 0 && (
                 <View style={{ paddingHorizontal: 16, marginTop: 14 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 }}>
-                    <Ionicons name="videocam" size={18} color="#059669" />
+                    <Ionicons name="videocam" size={18} color="#0F2C59" />
                     <Text style={[styles.sectionTitle, { color: theme.text, marginBottom: 0 }]}>
                       My Upcoming 1-on-1 Sessions ({bookedSessions.length})
                     </Text>
@@ -1341,14 +1345,14 @@ const MentorshipScreen = ({ navigation }) => {
                               {session.isMentor ? 'Mentoring ' + (otherUser?.name || 'Student') : 'With ' + (otherUser?.name || 'Mentor')}
                             </Text>
                             <View style={{ backgroundColor: 'rgba(5, 150, 105, 0.12)', paddingHorizontal: 7, paddingVertical: 2, borderRadius: 6 }}>
-                              <Text style={{ fontSize: 9.5, fontWeight: '800', color: '#059669' }}>CONFIRMED</Text>
+                              <Text style={{ fontSize: 9.5, fontWeight: '800', color: '#0F2C59' }}>CONFIRMED</Text>
                             </View>
                           </View>
                           <Text style={{ fontSize: 11.5, color: '#64748B', marginBottom: 8 }} numberOfLines={1}>
                             {session.topic || 'General Mentorship'}
                           </Text>
                           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 }}>
-                            <Ionicons name="calendar-outline" size={13} color="#059669" />
+                            <Ionicons name="calendar-outline" size={13} color="#0F2C59" />
                             <Text style={{ fontSize: 11.5, fontWeight: '700', color: theme.text }}>
                               {dateStr} • {timeStr}
                             </Text>
@@ -1356,7 +1360,7 @@ const MentorshipScreen = ({ navigation }) => {
                           {session.meetingUrl ? (
                             <TouchableOpacity
                               style={{
-                                backgroundColor: '#059669',
+                                backgroundColor: '#0F2C59',
                                 paddingVertical: 8,
                                 borderRadius: 8,
                                 alignItems: 'center',
@@ -1386,7 +1390,7 @@ const MentorshipScreen = ({ navigation }) => {
                     Verified Alumni Mentors ({filteredMentors.length})
                   </Text>
                   <TouchableOpacity onPress={() => setShowSampleModal(true)}>
-                    <Text style={{ fontSize: 12, color: '#059669', fontWeight: '700' }}>View Best Practices</Text>
+                    <Text style={{ fontSize: 12, color: '#0F2C59', fontWeight: '700' }}>View Best Practices</Text>
                   </TouchableOpacity>
                 </View>
 
@@ -1409,7 +1413,7 @@ const MentorshipScreen = ({ navigation }) => {
 
           {activeTab === 'mentees' && (
             <>
-              <View style={[styles.menteePoolBanner, { backgroundColor: isDarkMode ? '#0F172A' : '#059669' }]}>
+              <View style={[styles.menteePoolBanner, { backgroundColor: isDarkMode ? '#0F172A' : '#0F2C59' }]}>
                 <Text style={styles.menteePoolBannerTitle}>RVCE Mentee Profiles Pool</Text>
                 <Text style={styles.menteePoolBannerSubtitle}>
                   Students and young alumni seeking guidance across industries. Alumni mentors can review applications and directly reach out.
@@ -1483,14 +1487,14 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     paddingVertical: 12, gap: 4,
   },
   activeTab: {
-    borderBottomWidth: 2.5, borderBottomColor: '#059669',
+    borderBottomWidth: 2.5, borderBottomColor: '#0F2C59',
   },
   tabText: { fontSize: 11, fontWeight: '600' },
   activeTabText: { fontWeight: '800' },
 
   // Hero
   heroGradient: {
-    backgroundColor: isDarkMode ? '#0F172A' : '#059669',
+    backgroundColor: isDarkMode ? '#0F172A' : '#0F2C59',
     paddingHorizontal: 20, paddingVertical: 28,
   },
   heroContent: { alignItems: 'center' },
@@ -1498,7 +1502,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(52, 211, 153, 0.15)',
     paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, gap: 6, marginBottom: 12,
   },
-  heroBadgeText: { color: '#34D399', fontSize: 10, fontWeight: '800', letterSpacing: 0.5 },
+  heroBadgeText: { color: '#D4AF37', fontSize: 10, fontWeight: '800', letterSpacing: 0.5 },
   heroTitle: {
     fontSize: 26, fontWeight: '900', color: '#FFFFFF', textAlign: 'center', lineHeight: 34, letterSpacing: -0.5,
   },
@@ -1509,15 +1513,15 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     flexDirection: 'row', gap: 10, marginTop: 20, flexWrap: 'wrap', justifyContent: 'center',
   },
   heroPrimaryBtn: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: '#34D399',
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#D4AF37',
     paddingHorizontal: 18, paddingVertical: 10, borderRadius: 12, gap: 8,
   },
-  heroPrimaryBtnText: { color: '#059669', fontSize: 13, fontWeight: '800' },
+  heroPrimaryBtnText: { color: '#0F2C59', fontSize: 13, fontWeight: '800' },
   heroSecondaryBtn: {
     flexDirection: 'row', alignItems: 'center', borderWidth: 1.5, borderColor: 'rgba(52, 211, 153, 0.5)',
     paddingHorizontal: 18, paddingVertical: 10, borderRadius: 12, gap: 8,
   },
-  heroSecondaryBtnText: { color: '#34D399', fontSize: 13, fontWeight: '700' },
+  heroSecondaryBtnText: { color: '#D4AF37', fontSize: 13, fontWeight: '700' },
 
   // Mentee Pool Banner
   menteePoolBanner: {
@@ -1528,9 +1532,9 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     fontSize: 12, color: 'rgba(255,255,255,0.8)', textAlign: 'center', marginTop: 6, lineHeight: 18, maxWidth: 480,
   },
   menteePoolCta: {
-    backgroundColor: '#34D399', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 10, marginTop: 14,
+    backgroundColor: '#D4AF37', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 10, marginTop: 14,
   },
-  menteePoolCtaText: { color: '#059669', fontSize: 12, fontWeight: '800' },
+  menteePoolCtaText: { color: '#0F2C59', fontSize: 12, fontWeight: '800' },
 
   // Search & Filter
   searchSection: { paddingHorizontal: 16, paddingTop: 14 },
@@ -1542,14 +1546,14 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   filterChip: {
     paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1, marginRight: 6,
   },
-  filterChipActive: { backgroundColor: '#059669', borderColor: '#059669' },
+  filterChipActive: { backgroundColor: '#0F2C59', borderColor: '#0F2C59' },
   filterChipText: { fontSize: 11, fontWeight: '600' },
   filterChipTextActive: { color: '#FFF' },
   deptChip: {
     paddingHorizontal: 10, paddingVertical: 5, borderRadius: 14, marginRight: 6,
     backgroundColor: 'transparent', borderWidth: 1, borderColor: '#CBD5E1',
   },
-  deptChipActive: { backgroundColor: '#059669', borderColor: '#059669' },
+  deptChipActive: { backgroundColor: '#0F2C59', borderColor: '#0F2C59' },
   deptChipText: { fontSize: 10, fontWeight: '600', color: '#64748B' },
   deptChipTextActive: { color: '#FFF' },
 
@@ -1573,7 +1577,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   cardActionsRow: { flexDirection: 'row', gap: 8, marginTop: 14, alignItems: 'center' },
   primaryActionBtn: {
     flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    backgroundColor: '#059669', paddingVertical: 9, borderRadius: 10, gap: 6,
+    backgroundColor: '#0F2C59', paddingVertical: 9, borderRadius: 10, gap: 6,
   },
   requestedActionBtn: { backgroundColor: '#DCFCE7', borderWidth: 1, borderColor: '#86EFAC' },
   primaryActionText: { color: '#FFF', fontSize: 12, fontWeight: '700' },
@@ -1593,7 +1597,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   // Mentee Card
   menteeCard: {
     backgroundColor: theme.card, borderRadius: 16, padding: 16, marginBottom: 14,
-    borderWidth: 1.5, borderColor: isDarkMode ? '#1E3A5F' : '#A7F3D0',
+    borderWidth: 1.5, borderColor: isDarkMode ? '#1E3A5F' : '#CBD5E1',
   },
   menteeSeekerBadge: {
     backgroundColor: '#DCFCE7', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8,
@@ -1604,10 +1608,10 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     borderRadius: 12, padding: 12, marginTop: 12, borderWidth: 1,
   },
   qnaBlock: {},
-  qnaHeading: { fontSize: 11, fontWeight: '800', color: '#059669', marginBottom: 3 },
+  qnaHeading: { fontSize: 11, fontWeight: '800', color: '#0F2C59', marginBottom: 3 },
   qnaAnswer: { fontSize: 12, lineHeight: 18 },
   expandToggleBtn: { alignSelf: 'center', marginTop: 10, paddingVertical: 4 },
-  expandToggleText: { fontSize: 11, fontWeight: '800', color: '#059669' },
+  expandToggleText: { fontSize: 11, fontWeight: '800', color: '#0F2C59' },
 
   // Connections
   connectionCard: { borderRadius: 14, padding: 14, marginBottom: 10, borderWidth: 1 },
@@ -1635,9 +1639,9 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   faqAnswer: { fontSize: 12, lineHeight: 18, marginTop: 8 },
   sampleAppButton: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    backgroundColor: '#34D399', paddingVertical: 12, borderRadius: 12, gap: 8, marginTop: 16,
+    backgroundColor: '#D4AF37', paddingVertical: 12, borderRadius: 12, gap: 8, marginTop: 16,
   },
-  sampleAppButtonText: { color: '#059669', fontSize: 13, fontWeight: '800' },
+  sampleAppButtonText: { color: '#0F2C59', fontSize: 13, fontWeight: '800' },
 
   // Sample Modal
   sampleBox: { borderRadius: 12, padding: 12, borderWidth: 1 },
@@ -1651,7 +1655,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   emptyTitle: { fontSize: 16, fontWeight: '800', marginTop: 6 },
   emptySubtitle: { fontSize: 12, textAlign: 'center', marginTop: 4, lineHeight: 18, maxWidth: 280 },
   emptyAction: {
-    backgroundColor: '#059669', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 10, marginTop: 16,
+    backgroundColor: '#0F2C59', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 10, marginTop: 16,
   },
   emptyActionText: { color: '#FFF', fontSize: 13, fontWeight: '700' },
 
@@ -1669,19 +1673,19 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   modalTitle: { fontSize: 18, fontWeight: '900' },
   typeToggle: { flexDirection: 'row', borderRadius: 10, padding: 3 },
   typeToggleBtn: { flex: 1, paddingVertical: 8, borderRadius: 8, alignItems: 'center' },
-  typeToggleBtnActive: { backgroundColor: '#059669' },
+  typeToggleBtnActive: { backgroundColor: '#0F2C59' },
   typeToggleText: { fontSize: 12, fontWeight: '600', color: '#64748B' },
   typeToggleTextActive: { color: '#FFF', fontWeight: '800' },
   fieldLabel: { fontSize: 12, fontWeight: '700', marginBottom: 6 },
   selectChip: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 14, borderWidth: 1 },
-  selectChipActive: { backgroundColor: '#059669', borderColor: '#059669' },
+  selectChipActive: { backgroundColor: '#0F2C59', borderColor: '#0F2C59' },
   selectChipText: { fontSize: 11, fontWeight: '600', color: '#64748B' },
   selectChipTextActive: { color: '#FFF', fontWeight: '800' },
   formInput: { borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, fontSize: 13, borderWidth: 1 },
   formTextArea: { minHeight: 80, textAlignVertical: 'top' },
   submitBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    backgroundColor: '#059669', paddingVertical: 13, borderRadius: 12, gap: 8, marginTop: 20, marginBottom: 24,
+    backgroundColor: '#0F2C59', paddingVertical: 13, borderRadius: 12, gap: 8, marginTop: 20, marginBottom: 24,
   },
   submitBtnText: { color: '#FFF', fontSize: 14, fontWeight: '800' },
   sectionTitle: { fontSize: 16, fontWeight: '800' }

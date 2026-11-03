@@ -56,7 +56,7 @@ export default function EventPassModal({ visible, onClose, passData, event }) {
           <View style={styles.topHeader}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <View style={styles.badgeIcon}>
-                <Ionicons name="qr-code" size={16} color="#059669" />
+                <Ionicons name="qr-code" size={16} color="#D4AF37" />
               </View>
               <Text style={[styles.headerTitle, { color: isDarkMode ? '#F8FAFC' : '#0F172A' }]}>
                 Digital Event Pass
@@ -127,7 +127,7 @@ export default function EventPassModal({ visible, onClose, passData, event }) {
                   <Image source={{ uri: qrCodeUri }} style={styles.qrImage} resizeMode="contain" />
                 ) : (
                   <View style={styles.mockQrPlaceholder}>
-                    <Ionicons name="qr-code-outline" size={140} color="#059669" />
+                    <Ionicons name="qr-code-outline" size={140} color="#0F2C59" />
                   </View>
                 )}
               </View>
@@ -231,12 +231,14 @@ const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: '#059669',
+    backgroundColor: '#0F2C59',
+    borderWidth: 1,
+    borderColor: '#D4AF37',
     alignItems: 'center',
     justifyContent: 'center'
   },
   crestText: {
-    color: '#FFFFFF',
+    color: '#D4AF37',
     fontWeight: '900',
     fontSize: 13
   },
@@ -247,7 +249,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6
   },
   passSubtype: {
-    color: '#34D399',
+    color: '#D4AF37',
     fontSize: 9.5,
     fontWeight: '700',
     letterSpacing: 0.4
@@ -351,13 +353,15 @@ const styles = StyleSheet.create({
     marginTop: 2
   },
   entryTypePod: {
-    backgroundColor: 'rgba(5, 150, 105, 0.12)',
+    backgroundColor: 'rgba(212, 175, 55, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.4)',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8
   },
   entryTypeText: {
-    color: '#059669',
+    color: '#B45309',
     fontSize: 10,
     fontWeight: '800',
     letterSpacing: 0.5
@@ -396,11 +400,11 @@ const styles = StyleSheet.create({
   },
   tokenCode: {
     fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
-    color: '#059669',
+    color: '#0F2C59',
     fontSize: 14,
     fontWeight: '800',
     letterSpacing: 1.5,
-    backgroundColor: 'rgba(5, 150, 105, 0.08)',
+    backgroundColor: 'rgba(15, 44, 89, 0.08)',
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: 8,
@@ -440,7 +444,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 12,
     borderRadius: 12,
-    backgroundColor: '#059669',
+    backgroundColor: '#0F2C59',
     gap: 6
   },
   doneBtnText: {

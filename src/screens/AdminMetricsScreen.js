@@ -322,7 +322,7 @@ export default function AdminMetricsScreen({ navigation, isEmbedded = false }) {
             />
             <MetricCard 
               icon="newspaper-outline" 
-              color={theme.primaryDark || '#047857'} 
+              color={theme.primaryDark || '#0A192F'} 
               value={(metrics.activeJobs ?? 0).toString()} 
               label="Community Posts" 
             />

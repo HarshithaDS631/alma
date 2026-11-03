@@ -172,17 +172,7 @@ const getDefaultPostsForUser = (currentUserId, currentUserName, followingIds = [
     // Always show official announcement / admin posts
     if (post.isAdmin || post.isOfficial) return true;
 
-    // Show posts from followed users if followed list exists
-    if (followingSet.size > 0) {
-      if (followingSet.has((post.authorId || '').toString().toLowerCase())) return true;
-      const postUserName = (post.user || '').toLowerCase();
-      for (const id of followingSet) {
-        if (id === postUserName) return true;
-      }
-      return false;
-    }
-
-    // Default to showing community seed posts so the feed is never blank
+    // Default to showing community posts so the feed is always vibrant and active
     return true;
   });
 };
@@ -418,28 +408,25 @@ const DashboardScreen = ({ navigation }) => {
     navigation.navigate('PostCreation', { resharePost: post });
   };
 
-  const mockComments = [];
-
-  // Real data states — initialize with all posts as open feed (filtered per user once we know who they are)
-  // Start with empty feed — populated after we know who the user follows
+  // Real data states — initialize with all posts as open feed
   const [posts, setPosts] = useState([]);
 
   const getPostCategory = useCallback((post) => {
     const isReshared = Boolean(post?.isReshare || post?.originalPost || post?.originalAuthorName || (post?.content && /reshared\s+from/i.test(post.content)));
-    if (isReshared) return { label: 'AMPLIFIED', color: '#059669', bg: isDarkMode ? '#064E3B' : '#DCFCE7', icon: 'repeat' };
+    if (isReshared) return { label: 'AMPLIFIED', color: isDarkMode ? '#60A5FA' : '#0F2C59', bg: isDarkMode ? '#0E1F3D' : '#EFF6FF', icon: 'repeat' };
     
     const content = (post?.content || '').toLowerCase();
     const role = (post?.role || '').toLowerCase();
     if (/hiring|referral|job|opening|career|internship|role|recruit|opportunity/i.test(content + ' ' + role)) {
-      return { label: 'JOB REFERRAL', color: '#059669', bg: isDarkMode ? '#064E3B' : '#DCFCE7', icon: 'briefcase' };
+      return { label: 'JOB REFERRAL', color: isDarkMode ? '#FDE68A' : '#B45309', bg: isDarkMode ? 'rgba(212, 175, 55, 0.16)' : '#FAF5EB', icon: 'briefcase' };
     }
     if (/reunion|alumni meet|meetup|gathering|jubilee|celebrat/i.test(content)) {
-      return { label: 'REUNION', color: '#059669', bg: isDarkMode ? '#451A03' : '#DCFCE7', icon: 'people' };
+      return { label: 'REUNION', color: isDarkMode ? '#FDE68A' : '#B45309', bg: isDarkMode ? 'rgba(212, 175, 55, 0.16)' : '#FAF5EB', icon: 'people' };
     }
     if (/rvce|campus|convocation|exam|faculty|department|research|rsst|placement/i.test(content)) {
-      return { label: 'CAMPUS NOTICE', color: '#059669', bg: isDarkMode ? '#082F49' : '#DCFCE7', icon: 'school' };
+      return { label: 'CAMPUS NOTICE', color: isDarkMode ? '#60A5FA' : '#0F2C59', bg: isDarkMode ? '#0E1F3D' : '#EFF6FF', icon: 'school' };
     }
-    return { label: 'ALUMNI UPDATE', color: '#64748B', bg: isDarkMode ? '#1E293B' : '#F1F5F9', icon: 'newspaper-outline' };
+    return { label: 'ALUMNI UPDATE', color: isDarkMode ? '#CBD5E1' : '#475569', bg: isDarkMode ? '#131D38' : '#F1F5F9', icon: 'newspaper-outline' };
   }, [isDarkMode]);
 
   const filteredPosts = React.useMemo(() => {
@@ -781,14 +768,7 @@ const DashboardScreen = ({ navigation }) => {
                 // Always show official / admin posts
                 if (p.user?.role === 'Admin' || p.user?.role === 'Super Admin' || p.isAdmin || p.isOfficial) return true;
 
-                // Show posts from followed users
-                if (followedUserIds.size > 0 || followedUserNames.size > 0) {
-                  if (followedUserIds.has(authorId)) return true;
-                  if (followedUserNames.has(authorName)) return true;
-                  return false;
-                }
-
-                // If user doesn't follow anyone yet, show active community posts
+                // Include all verified community updates so the network feed remains active and visible
                 return true;
               })
               .map(p => formatPostObject(p, myUserId))
@@ -1086,7 +1066,7 @@ const DashboardScreen = ({ navigation }) => {
         {isReshared && (
           <View style={styles.resharedHeaderTag}>
             <View style={styles.resharedIconWrap}>
-              <Ionicons name="repeat" size={12} color="#059669" />
+              <Ionicons name="repeat" size={12} color="#D4AF37" />
             </View>
             <Text style={styles.resharedText}>
               <Text style={{ fontWeight: '700', color: theme.text }}>{post.user}</Text> amplified to alumni network
@@ -1111,7 +1091,7 @@ const DashboardScreen = ({ navigation }) => {
           <View style={styles.postUserInfo}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, flexWrap: 'wrap' }}>
               <Text style={styles.postUserName}>{post.user}</Text>
-              <Ionicons name="checkmark-circle" size={15} color="#059669" />
+              <Ionicons name="checkmark-circle" size={15} color="#D4AF37" />
             </View>
             <Text style={styles.postUserRole} numberOfLines={1}>
               {post.role || 'RVCE Alumni Member'}
@@ -1277,7 +1257,7 @@ const DashboardScreen = ({ navigation }) => {
               onPress={() => openModal('reshare', post)}
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
-              <Ionicons name="repeat-outline" size={25} color={isReshared ? '#059669' : theme.text} />
+              <Ionicons name="repeat-outline" size={25} color={isReshared ? '#D4AF37' : theme.text} />
             </TouchableOpacity>
 
             {/* Direct / Share Paper Plane */}
@@ -1388,7 +1368,7 @@ const DashboardScreen = ({ navigation }) => {
           activeOpacity={0.75}
           accessibilityLabel="Filter Options"
         >
-          <Ionicons name="options-outline" size={20} color={showFilters ? '#FFFFFF' : '#059669'} />
+          <Ionicons name="options-outline" size={20} color={showFilters ? '#FFFFFF' : '#D4AF37'} />
         </TouchableOpacity>
       </View>
 
@@ -1457,19 +1437,31 @@ const DashboardScreen = ({ navigation }) => {
 
             <View style={styles.heroBannerContent}>
               <View style={styles.heroBannerBadgePill}>
-                <Ionicons name="school" size={11} color={isDarkMode ? '#6EE7B7' : '#047857'} style={{ marginRight: 4 }} />
-                <Text style={styles.heroBannerBadgeText}>{banner.badge}</Text>
+                <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#D4AF37', marginRight: 6 }} />
+                <Text style={styles.heroBannerBadgeText}>RSST Central Campus • Estd 1940</Text>
               </View>
-              <Text style={styles.heroBannerCollegeName} numberOfLines={2}>{collegeDisplayName}</Text>
-              <Text style={styles.heroBannerGreeting} numberOfLines={1}>Welcome back, {firstName}!</Text>
-              <Text style={styles.heroBannerSubtitle} numberOfLines={2}>{banner.subtitle}</Text>
-              <TouchableOpacity
-                style={styles.heroBannerBtn}
-                onPress={() => navigation.navigate('Engage', { tab: 'directory' })}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.heroBannerBtnText}>Find alumni →</Text>
-              </TouchableOpacity>
+              <Text style={styles.heroBannerTitle}>
+                Welcome to the <Text style={{ color: '#D4AF37', fontWeight: '900' }}>ALUMNI NETWORK</Text>
+              </Text>
+              <Text style={styles.heroBannerSubtitle}>
+                Empowering 45,000+ graduates across global technology leaders, venture founders, and academic faculties.
+              </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginTop: 6 }}>
+                <TouchableOpacity
+                  style={styles.heroBannerBtn}
+                  onPress={() => navigation.navigate('Engage', { tab: 'directory' })}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.heroBannerBtnText}>Browse Directory →</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.heroBannerSecondaryBtn}
+                  onPress={() => navigation.navigate('Post')}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.heroBannerSecondaryBtnText}>Share Professional Update</Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
             {/* Official RV Garuda Mascot Overlay */}
@@ -1499,7 +1491,7 @@ const DashboardScreen = ({ navigation }) => {
           onPress={() => navigation.navigate('Jobs')}
           activeOpacity={0.75}
         >
-          <Ionicons name="briefcase" size={24} color="#059669" />
+          <Ionicons name="briefcase" size={24} color={isDarkMode ? '#FDE68A' : '#B45309'} />
           <Text style={[styles.quickActionText, styles.quickActionTextHighlight]}>Jobs</Text>
         </TouchableOpacity>
 
@@ -1577,16 +1569,16 @@ const DashboardScreen = ({ navigation }) => {
 
         {/* Admin Quick Actions Banner */}
         {isAdminOrSuper && (
-          <View style={{ backgroundColor: '#F0FDF4', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#A7F3D0', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <View style={{ backgroundColor: isDarkMode ? 'rgba(212, 175, 55, 0.15)' : '#FAF5EB', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: isDarkMode ? 'rgba(212, 175, 55, 0.35)' : '#E6CA85', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-              <Ionicons name="shield-checkmark" size={18} color="#059669" style={{ marginRight: 10 }} />
+              <Ionicons name="shield-checkmark" size={18} color="#D4AF37" style={{ marginRight: 10 }} />
               <View>
-                <Text style={{ fontSize: 14, fontWeight: '700', color: '#059669' }}>{userRole} Dashboard</Text>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: isDarkMode ? '#FDE68A' : '#B45309' }}>{userRole} Dashboard</Text>
                 <Text style={{ fontSize: 12, color: '#64748B' }}>Quick actions for administration</Text>
               </View>
             </View>
             <TouchableOpacity 
-              style={{ backgroundColor: '#059669', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8 }}
+              style={{ backgroundColor: '#0F2C59', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8 }}
               onPress={() => navigation.navigate(isSuperAdmin ? 'SuperAdminMain' : 'AdminMain')}
             >
               <Text style={{ fontSize: 12, fontWeight: '700', color: '#FFFFFF' }}>Admin Panel</Text>
@@ -1645,12 +1637,12 @@ const DashboardScreen = ({ navigation }) => {
                     onPress={() => navigation.navigate('Profile')}
                     activeOpacity={0.8}
                   >
-                    <UserAvatar url={userAvatarUrl} name={userName || currentUser?.name || 'User'} size={72} ring ringColor="#059669" />
+                    <UserAvatar url={userAvatarUrl} name={userName || currentUser?.name || 'User'} size={72} ring ringColor="#D4AF37" />
                   </TouchableOpacity>
 
                   <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10, gap: 5 }}>
                     <Text style={{ fontSize: 17, fontWeight: '800', color: theme.text }}>{userName || 'Alumni Member'}</Text>
-                    <Ionicons name="checkmark-circle" size={17} color="#059669" />
+                    <Ionicons name="checkmark-circle" size={17} color="#D4AF37" />
                   </View>
 
                   <Text style={{ fontSize: 12.5, color: theme.textSecondary, textAlign: 'center', marginTop: 4, lineHeight: 18 }}>
@@ -1691,13 +1683,13 @@ const DashboardScreen = ({ navigation }) => {
               <View style={styles.sidebarCardPadded}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7 }}>
-                    <View style={{ width: 6, height: 16, borderRadius: 3, backgroundColor: '#059669' }} />
+                    <View style={{ width: 6, height: 16, borderRadius: 3, backgroundColor: '#D4AF37' }} />
                     <Text style={{ fontSize: 13, fontWeight: '800', color: theme.text, letterSpacing: 0.3 }}>
                       Alumni Hub
                     </Text>
                   </View>
                   <View style={styles.sidebarPillTag}>
-                    <Text style={{ fontSize: 10, fontWeight: '800', color: isDarkMode ? (theme.sand || '#D4A373') : (theme.sandDark || '#B88758') }}>COMMUNITY</Text>
+                    <Text style={{ fontSize: 10, fontWeight: '800', color: isDarkMode ? '#FDE68A' : '#B45309' }}>COMMUNITY</Text>
                   </View>
                 </View>
 
@@ -1708,15 +1700,15 @@ const DashboardScreen = ({ navigation }) => {
                   activeOpacity={0.7}
                 >
                   <FloatingElement distance={1.8} duration={2400}>
-                    <View style={[styles.sidebarHubIcon, { backgroundColor: isDarkMode ? '#064E3B' : '#DCFCE7' }]}>
-                      <Ionicons name="sparkles" size={17} color="#047857" />
+                    <View style={[styles.sidebarHubIcon, { backgroundColor: isDarkMode ? 'rgba(212, 175, 55, 0.16)' : '#FAF5EB', borderWidth: 1, borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.35)' : '#E6CA85' }]}>
+                      <Ionicons name="sparkles" size={17} color={isDarkMode ? '#FDE68A' : '#B45309'} />
                     </View>
                   </FloatingElement>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                       <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }}>1-on-1 Mentorship</Text>
-                      <View style={{ backgroundColor: '#DCFCE7', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 6 }}>
-                        <Text style={{ fontSize: 9.5, fontWeight: '800', color: '#15803D' }}>ACTIVE</Text>
+                      <View style={{ backgroundColor: isDarkMode ? 'rgba(212, 175, 55, 0.16)' : '#FAF5EB', borderWidth: 1, borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.35)' : '#E6CA85', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 6 }}>
+                        <Text style={{ fontSize: 9.5, fontWeight: '800', color: isDarkMode ? '#FDE68A' : '#B45309' }}>ACTIVE</Text>
                       </View>
                     </View>
                     <Text style={{ fontSize: 11, color: theme.textMuted, marginTop: 1 }}>Career advice with senior alumni</Text>
@@ -1777,14 +1769,14 @@ const DashboardScreen = ({ navigation }) => {
                   activeOpacity={0.7}
                 >
                   <FloatingElement distance={1.8} duration={2700} delay={600}>
-                    <View style={[styles.sidebarHubIcon, { backgroundColor: isDarkMode ? '#064E3B' : '#DCFCE7' }]}>
-                      <Ionicons name="briefcase" size={17} color="#059669" />
+                    <View style={[styles.sidebarHubIcon, { backgroundColor: isDarkMode ? '#0A192F' : '#FDF6E2' }]}>
+                      <Ionicons name="briefcase" size={17} color="#D4AF37" />
                     </View>
                   </FloatingElement>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                       <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }}>Founder Referrals</Text>
-                      <View style={{ backgroundColor: '#DCFCE7', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 6 }}>
+                      <View style={{ backgroundColor: '#FDF6E2', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 6 }}>
                         <Text style={{ fontSize: 9.5, fontWeight: '800', color: '#166534' }}>HIRING</Text>
                       </View>
                     </View>
@@ -1816,7 +1808,7 @@ const DashboardScreen = ({ navigation }) => {
                         </View>
                       </View>
                       <TouchableOpacity onPress={() => toggleSuggestionFollow(s.id)} activeOpacity={0.7}>
-                        <Text style={{ color: followingMap[s.id] ? theme.textSecondary : '#008B74', fontSize: 12, fontWeight: '700' }}>
+                        <Text style={{ color: followingMap[s.id] ? theme.textSecondary : (isDarkMode ? '#FDE68A' : '#B45309'), fontSize: 12, fontWeight: '700' }}>
                           {followingMap[s.id] ? 'Following' : '+ Connect'}
                         </Text>
                       </TouchableOpacity>
@@ -1824,7 +1816,7 @@ const DashboardScreen = ({ navigation }) => {
                   ))
                 ) : (
                   <View style={{ alignItems: 'center', paddingVertical: 12 }}>
-                    <Ionicons name="people-outline" size={32} color="#059669" style={{ marginBottom: 8 }} />
+                    <Ionicons name="people-outline" size={32} color="#D4AF37" style={{ marginBottom: 8 }} />
                     <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text, textAlign: 'center', marginBottom: 4 }}>Expand Your Network</Text>
                     <Text style={{ fontSize: 11.5, color: theme.textSecondary, textAlign: 'center', lineHeight: 17, marginBottom: 14 }}>
                       Find and connect with alumni from your department and batch.
@@ -1845,7 +1837,7 @@ const DashboardScreen = ({ navigation }) => {
               <View style={styles.sidebarCardPadded}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7 }}>
-                    <View style={{ width: 6, height: 16, borderRadius: 3, backgroundColor: '#059669' }} />
+                    <View style={{ width: 6, height: 16, borderRadius: 3, backgroundColor: '#D4AF37' }} />
                     <Text style={{ fontSize: 13, fontWeight: '800', color: theme.text, letterSpacing: 0.3 }}>
                       Campus Quick Links
                     </Text>
@@ -1861,8 +1853,8 @@ const DashboardScreen = ({ navigation }) => {
                   onPress={() => handleOpenExternalUrl('https://rvce.edu.in')}
                   activeOpacity={0.7}
                 >
-                  <View style={[styles.sidebarCampusIcon, { backgroundColor: isDarkMode ? '#1E293B' : '#F0FDF4' }]}>
-                    <Ionicons name="school" size={17} color="#059669" />
+                  <View style={[styles.sidebarCampusIcon, { backgroundColor: isDarkMode ? '#1E293B' : '#FAF5EB' }]}>
+                    <Ionicons name="school" size={17} color="#D4AF37" />
                   </View>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
@@ -1901,14 +1893,14 @@ const DashboardScreen = ({ navigation }) => {
                   onPress={() => handleOpenExternalUrl('https://rvce.edu.in/rvce-centre-for-innovation')}
                   activeOpacity={0.7}
                 >
-                  <View style={[styles.sidebarCampusIcon, { backgroundColor: isDarkMode ? '#7C2D12' : '#FFEDD5' }]}>
-                    <Ionicons name="rocket" size={17} color="#059669" />
+                  <View style={[styles.sidebarCampusIcon, { backgroundColor: isDarkMode ? 'rgba(212, 175, 55, 0.16)' : '#FAF5EB', borderWidth: 1, borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.35)' : '#E6CA85' }]}>
+                    <Ionicons name="rocket" size={17} color={isDarkMode ? '#FDE68A' : '#B45309'} />
                   </View>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                       <Text style={{ fontSize: 12.5, fontWeight: '700', color: theme.text }}>Incubation & Research Lab</Text>
-                      <View style={{ backgroundColor: '#FFEDD5', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 6 }}>
-                        <Text style={{ fontSize: 9, fontWeight: '800', color: '#047857' }}>GRANTS</Text>
+                      <View style={{ backgroundColor: isDarkMode ? 'rgba(212, 175, 55, 0.16)' : '#FAF5EB', borderWidth: 1, borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.35)' : '#E6CA85', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 6 }}>
+                        <Text style={{ fontSize: 9, fontWeight: '800', color: isDarkMode ? '#FDE68A' : '#B45309' }}>GRANTS</Text>
                       </View>
                     </View>
                     <Text style={{ fontSize: 11, color: theme.textMuted }}>RSST seed funds & patent filing</Text>
@@ -2167,7 +2159,7 @@ const DashboardScreen = ({ navigation }) => {
                             {avatarUrl ? (
                               <Image source={{ uri: avatarUrl }} style={{ width: 66, height: 66, borderRadius: 33, borderWidth: isSent ? 2.5 : 0, borderColor: '#22C55E' }} />
                             ) : (
-                              <View style={{ width: 66, height: 66, borderRadius: 33, backgroundColor: isSent ? '#22C55E' : '#059669', justifyContent: 'center', alignItems: 'center' }}>
+                              <View style={{ width: 66, height: 66, borderRadius: 33, backgroundColor: isSent ? '#22C55E' : '#0F2C59', justifyContent: 'center', alignItems: 'center' }}>
                                 <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 18 }}>{initials}</Text>
                               </View>
                             )}
@@ -2246,7 +2238,7 @@ const DashboardScreen = ({ navigation }) => {
             {/* Instagram-style Reshare Header */}
             <View style={styles.sheetHeader}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <Ionicons name="repeat" size={20} color="#059669" />
+                <Ionicons name="repeat" size={20} color="#D4AF37" />
                 <Text style={styles.sheetTitle}>Repost</Text>
               </View>
               <TouchableOpacity onPress={closeModal}><Ionicons name="close" size={24} color={theme.text} /></TouchableOpacity>
@@ -2257,8 +2249,8 @@ const DashboardScreen = ({ navigation }) => {
 
                 {/* ── Your caption input (top, like Instagram) ── */}
                 <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 14 }}>
-                  <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#059669', justifyContent: 'center', alignItems: 'center', marginRight: 10, marginTop: 2 }}>
-                    <Text style={{ fontSize: 12, fontWeight: '700', color: '#FFF' }}>{getInitials(userName)}</Text>
+                  <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#0F2C59', borderWidth: 1, borderColor: '#D4AF37', justifyContent: 'center', alignItems: 'center', marginRight: 10, marginTop: 2 }}>
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: '#D4AF37' }}>{getInitials(userName)}</Text>
                   </View>
                   <TextInput
                     style={{
@@ -2287,8 +2279,8 @@ const DashboardScreen = ({ navigation }) => {
                 }}>
                   {/* Original author row */}
                   <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10 }}>
-                    <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: '#059669', justifyContent: 'center', alignItems: 'center', marginRight: 8 }}>
-                      <Text style={{ fontSize: 11, fontWeight: '700', color: '#FFF' }}>
+                    <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: '#0F2C59', borderWidth: 1, borderColor: '#D4AF37', justifyContent: 'center', alignItems: 'center', marginRight: 8 }}>
+                      <Text style={{ fontSize: 11, fontWeight: '700', color: '#D4AF37' }}>
                         {getInitials(selectedPost.user?.name || selectedPost.user)}
                       </Text>
                     </View>
@@ -2333,7 +2325,7 @@ const DashboardScreen = ({ navigation }) => {
                 {/* ── Repost Button ── */}
                 <TouchableOpacity
                   style={{
-                    backgroundColor: '#059669',
+                    backgroundColor: '#0F2C59',
                     paddingVertical: 14,
                     borderRadius: 12,
                     alignItems: 'center',
@@ -2441,7 +2433,7 @@ const DashboardScreen = ({ navigation }) => {
         >
           <TouchableOpacity activeOpacity={1} style={{ backgroundColor: theme.card || '#FFFFFF', width: '100%', maxWidth: 330, borderRadius: 20, overflow: 'hidden', alignItems: 'center', padding: 24, borderWidth: 1, borderColor: theme.border || '#E2E8F0' }}>
             {/* Target User Avatar */}
-            <View style={{ width: 68, height: 68, borderRadius: 34, backgroundColor: '#059669', justifyContent: 'center', alignItems: 'center', marginBottom: 16 }}>
+            <View style={{ width: 68, height: 68, borderRadius: 34, backgroundColor: '#0F2C59', justifyContent: 'center', alignItems: 'center', marginBottom: 16 }}>
               <Text style={{ fontSize: 24, fontWeight: '700', color: '#FFFFFF' }}>
                 {unfollowTarget?.avatar || (getInitials(unfollowTarget?.name))}
               </Text>
@@ -2486,7 +2478,7 @@ const DashboardScreen = ({ navigation }) => {
             {/* Modal Header */}
             <View style={styles.spotlightModalHeader}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#059669' }} />
+                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#0F2C59' }} />
                 <Text style={styles.spotlightModalHeaderTitle}>Alumni Spotlight</Text>
               </View>
               <TouchableOpacity onPress={() => setShowSpotlightModal(false)} style={styles.spotlightModalCloseBtn}>
@@ -2502,7 +2494,7 @@ const DashboardScreen = ({ navigation }) => {
               />
 
               <View style={styles.spotlightModalTag}>
-                <Ionicons name="sparkles" size={13} color="#059669" />
+                <Ionicons name="sparkles" size={13} color="#D4AF37" />
                 <Text style={styles.spotlightModalTagText}>BATCH OF 2019 • CLEANTECH INNOVATION</Text>
               </View>
 
@@ -2514,7 +2506,7 @@ const DashboardScreen = ({ navigation }) => {
               </Text>
 
               <View style={styles.spotlightModalQuoteCard}>
-                <Ionicons name="quote" size={20} color="#059669" style={{ marginBottom: 6 }} />
+                <Ionicons name="quote" size={20} color="#D4AF37" style={{ marginBottom: 6 }} />
                 <Text style={styles.spotlightModalQuoteText}>
                   {'“Our foundations in engineering problem-solving and sustainable thinking were shaped directly by RVCE’s faculty and supportive alumni network.”'}
                 </Text>
@@ -2583,17 +2575,17 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: isDarkMode ? '#064E3B' : '#ECFDF5',
+    backgroundColor: isDarkMode ? '#0A192F' : '#FAF5EB',
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: isDarkMode ? '#059669' : '#A7F3D0',
+    borderColor: isDarkMode ? '#0F2C59' : 'rgba(212, 175, 55, 0.4)',
   },
   desktopSectionTitle: {
     fontSize: 15,
     fontWeight: '800',
-    color: isDarkMode ? '#34D399' : '#059669',
+    color: isDarkMode ? '#D4AF37' : '#0F2C59',
     letterSpacing: -0.2,
   },
   desktopCampusBadge: {
@@ -2611,7 +2603,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#059669',
+    backgroundColor: '#0F2C59',
   },
   desktopCampusBadgeText: {
     fontSize: 12.5,
@@ -2649,15 +2641,15 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 12,
-    backgroundColor: '#059669',
+    backgroundColor: '#0F2C59',
     borderWidth: 1,
-    borderTopColor: '#34D399',
-    borderLeftColor: '#10B981',
-    borderRightColor: '#047857',
-    borderBottomColor: '#064E3B',
+    borderTopColor: '#D4AF37',
+    borderLeftColor: '#C5A059',
+    borderRightColor: '#0A192F',
+    borderBottomColor: '#0A192F',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#059669',
+    shadowColor: '#0A192F',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.35,
     shadowRadius: 5,
@@ -2701,13 +2693,13 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     elevation: 6,
   },
   headerIconBtnActive: {
-    backgroundColor: '#059669',
-    borderTopColor: '#34D399',
-    borderLeftColor: '#10B981',
-    borderRightColor: '#047857',
-    borderBottomColor: '#064E3B',
+    backgroundColor: '#0F2C59',
+    borderTopColor: '#D4AF37',
+    borderLeftColor: '#C5A059',
+    borderRightColor: '#0A192F',
+    borderBottomColor: '#0A192F',
     borderBottomWidth: 3.5,
-    shadowColor: '#059669',
+    shadowColor: '#0A192F',
     shadowOpacity: 0.45,
   },
   icon3DGlyph: {
@@ -2755,11 +2747,11 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     height: 36,
     borderRadius: 18,
     borderWidth: 1.5,
-    borderColor: '#059669',
+    borderColor: '#D4AF37',
     overflow: 'hidden',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#059669',
+    backgroundColor: '#0F2C59',
   },
   dot: {
     position: 'absolute',
@@ -2808,28 +2800,28 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     width: 46,
     height: 46,
     borderRadius: 14,
-    backgroundColor: isDarkMode ? '#1E293B' : '#F0FDF4',
+    backgroundColor: isDarkMode ? '#1E293B' : '#FAF5EB',
     borderWidth: 1.5,
-    borderColor: isDarkMode ? '#065F46' : '#A7F3D0',
+    borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : 'rgba(212, 175, 55, 0.4)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   filterToggleBtnActive: {
-    backgroundColor: '#059669',
-    borderColor: '#059669',
+    backgroundColor: '#0F2C59',
+    borderColor: '#D4AF37',
   },
 
   /* 2. Hero Mascot & Campus Banner */
   heroBannerCard: {
     height: 180,
     borderRadius: 20,
-    backgroundColor: isDarkMode ? '#064E3B' : '#ECFDF5',
+    backgroundColor: isDarkMode ? '#0A192F' : '#FAF5EB',
     borderWidth: 1.5,
-    borderColor: isDarkMode ? '#047857' : '#A7F3D0',
+    borderColor: isDarkMode ? '#B45309' : 'rgba(212, 175, 55, 0.4)',
     overflow: 'hidden',
     position: 'relative',
     marginBottom: 16,
-    shadowColor: '#059669',
+    shadowColor: '#0A192F',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.12,
     shadowRadius: 8,
@@ -2849,15 +2841,15 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     left: 0,
     top: 0,
     bottom: 0,
-    width: '63%',
-    backgroundColor: isDarkMode ? 'rgba(6, 46, 36, 0.92)' : 'rgba(255, 255, 255, 0.95)',
+    width: '75%',
+    backgroundColor: isDarkMode ? 'rgba(10, 25, 47, 0.94)' : 'rgba(255, 255, 255, 0.95)',
     borderTopRightRadius: 30,
     borderBottomRightRadius: 30,
   },
   heroBannerContent: {
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    width: '63%',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    width: '75%',
     height: '100%',
     justifyContent: 'center',
     zIndex: 2,
@@ -2866,22 +2858,22 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
-    backgroundColor: isDarkMode ? 'rgba(5, 150, 105, 0.25)' : '#DCFCE7',
+    backgroundColor: isDarkMode ? 'rgba(212, 175, 55, 0.18)' : '#FDF6E2',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 12,
     marginBottom: 4,
   },
   heroBannerBadgeText: {
-    fontSize: 10.5,
+    fontSize: 11,
     fontWeight: '700',
-    color: isDarkMode ? '#A7F3D0' : '#047857',
+    color: isDarkMode ? '#FDE68A' : '#B45309',
     letterSpacing: 0.2,
   },
   heroBannerCollegeName: {
     fontSize: 16,
     fontWeight: '800',
-    color: isDarkMode ? '#ECFDF5' : '#0F172A',
+    color: isDarkMode ? '#FAF5EB' : '#0F172A',
     letterSpacing: -0.3,
     lineHeight: 19,
     marginBottom: 2,
@@ -2889,40 +2881,41 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   heroBannerGreeting: {
     fontSize: 12.5,
     fontWeight: '600',
-    color: isDarkMode ? '#6EE7B7' : '#047857',
+    color: isDarkMode ? '#FDE68A' : '#B45309',
     marginBottom: 2,
   },
   heroBannerTitle: {
-    fontSize: 16,
+    fontSize: 19,
     fontWeight: '800',
-    color: isDarkMode ? '#ECFDF5' : '#0F172A',
+    color: isDarkMode ? '#FFFFFF' : '#0A192F',
     letterSpacing: -0.3,
+    lineHeight: 24,
   },
   heroBannerSubtitle: {
-    fontSize: 11,
-    color: isDarkMode ? '#A7F3D0' : '#475569',
-    marginTop: 1,
+    fontSize: 12,
+    color: isDarkMode ? '#CBD5E1' : '#475569',
+    marginTop: 3,
     marginBottom: 8,
-    lineHeight: 14,
+    lineHeight: 16,
   },
   heroBannerBtn: {
-    backgroundColor: '#059669',
-    paddingHorizontal: 13,
-    paddingVertical: 6,
-    borderRadius: 20,
+    backgroundColor: '#D4AF37',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
-    shadowColor: '#059669',
+    shadowColor: '#0A192F',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 3,
   },
   heroBannerBtnText: {
-    color: '#FFFFFF',
-    fontWeight: '700',
-    fontSize: 11.5,
+    color: '#0A192F',
+    fontWeight: '800',
+    fontSize: 12.5,
   },
   heroBannerMascotWrap: {
     position: 'absolute',
@@ -2957,7 +2950,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   },
   carouselDotActive: {
     width: 16,
-    backgroundColor: '#059669',
+    backgroundColor: '#0F2C59',
   },
 
   /* 3. 4 Quick Action Cards */
@@ -2983,7 +2976,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     elevation: 2,
   },
   quickActionCardHighlight: {
-    backgroundColor: isDarkMode ? 'rgba(5, 150, 105, 0.2)' : '#ECFDF5',
+    backgroundColor: isDarkMode ? 'rgba(5, 150, 105, 0.2)' : '#FAF5EB',
     borderColor: '#10B981',
   },
   quickActionText: {
@@ -2993,7 +2986,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     marginTop: 6,
   },
   quickActionTextHighlight: {
-    color: '#059669',
+    color: '#D4AF37',
     fontWeight: '800',
   },
 
@@ -3117,7 +3110,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: isDarkMode ? '#064E3B' : '#ECFDF5',
+    backgroundColor: isDarkMode ? '#0A192F' : '#FAF5EB',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
@@ -3127,7 +3120,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   spotlightModalTagText: {
     fontSize: 10,
     fontWeight: '800',
-    color: '#059669',
+    color: '#D4AF37',
     letterSpacing: 0.5,
   },
   spotlightModalStoryTitle: {
@@ -3151,7 +3144,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   spotlightModalQuoteCard: {
     backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
     borderLeftWidth: 3.5,
-    borderLeftColor: '#059669',
+    borderLeftColor: '#D4AF37',
     padding: 12,
     borderRadius: 8,
     marginVertical: 10,
@@ -3165,7 +3158,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   spotlightModalQuoteAuthor: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#059669',
+    color: '#D4AF37',
     marginTop: 6,
   },
   spotlightModalPrimaryBtn: {
@@ -3173,7 +3166,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#059669',
+    backgroundColor: '#0F2C59',
     paddingVertical: 12,
     borderRadius: 12,
   },
@@ -3251,7 +3244,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: '#059669',
+    backgroundColor: '#0F2C59',
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
@@ -3273,7 +3266,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
-    backgroundColor: '#059669',
+    backgroundColor: '#0F2C59',
     paddingHorizontal: 11,
     paddingVertical: 6,
     borderRadius: 10,
@@ -3302,8 +3295,8 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     borderColor: isDarkMode ? '#334155' : '#E2E8F0',
   },
   filterPillActive: {
-    backgroundColor: '#059669',
-    borderColor: '#059669',
+    backgroundColor: '#0F2C59',
+    borderColor: '#D4AF37',
   },
   filterPillText: {
     fontSize: 12,
@@ -3348,7 +3341,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   infoContextText: {
     fontSize: 11.5,
     fontWeight: '600',
-    color: isDarkMode ? '#34D399' : '#059669',
+    color: isDarkMode ? '#D4AF37' : '#0F2C59',
     flex: 1,
   },
 
@@ -3383,7 +3376,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     maxWidth: 320,
   },
   emptyFeedCta: {
-    backgroundColor: '#059669',
+    backgroundColor: '#0F2C59',
     paddingHorizontal: 16,
     paddingVertical: 9,
     borderRadius: 10,
@@ -3420,7 +3413,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: isDarkMode ? '#064E3B' : '#DCFCE7',
+    backgroundColor: isDarkMode ? '#0A192F' : '#FDF6E2',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -3438,7 +3431,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: '#059669',
+    backgroundColor: '#0F2C59',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 10,
@@ -3479,7 +3472,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
-    backgroundColor: isDarkMode ? '#1E293B' : '#F0FDF4',
+    backgroundColor: isDarkMode ? '#1E293B' : '#FAF5EB',
   },
   followBtnText: {
     fontSize: 11,
@@ -3523,7 +3516,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#059669',
+    backgroundColor: '#0F2C59',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 8,
@@ -3616,7 +3609,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: '#059669',
+    backgroundColor: '#0F2C59',
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
@@ -3827,7 +3820,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     width: 70,
     height: 70,
     borderRadius: 35,
-    backgroundColor: '#059669',
+    backgroundColor: '#0F2C59',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
@@ -3885,7 +3878,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     alignItems: 'center',
   },
   sidebarDirectoryBtn: {
-    backgroundColor: '#059669',
+    backgroundColor: '#0F2C59',
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,

@@ -116,11 +116,11 @@ const NotificationsScreen = ({ navigation }) => {
   const getIconColorForType = (type) => {
     switch (type) {
       case 'follow': return '#9333EA';
-      case 'connection': return '#059669';
-      case 'job': return '#059669';
+      case 'connection': return '#0F2C59';
+      case 'job': return '#0F2C59';
       case 'event': return '#9333EA';
       case 'referral': return '#16A34A';
-      case 'announcement': return '#059669';
+      case 'announcement': return '#0F2C59';
       case 'mention': return '#DB2777';
       case 'birthday': return '#EF4444';
       default: return '#64748B';
@@ -314,7 +314,7 @@ const getStyles = (theme) => StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#059669',
+    backgroundColor: '#0F2C59',
   },
   iconBox: {
     width: 44,

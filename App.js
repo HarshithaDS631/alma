@@ -107,11 +107,11 @@ function Render3DTabIcon({ name, focused, isDarkMode, theme, isPost, label, isMa
             paddingHorizontal: 16,
             height: 38,
             borderRadius: 19,
-            backgroundColor: theme.primary || '#059669',
+            backgroundColor: theme.primary || '#0F2C59',
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'center',
-            shadowColor: theme.primary || '#059669',
+            shadowColor: theme.primary || '#0A192F',
             shadowOffset: { width: 0, height: 4 },
             shadowOpacity: isDarkMode ? 0.5 : 0.28,
             shadowRadius: 8,
@@ -140,10 +140,10 @@ function Render3DTabIcon({ name, focused, isDarkMode, theme, isPost, label, isMa
           name={profileInitials || 'Harshitha D S'}
           size={26}
           ring={focused}
-          ringColor={theme.primary || '#059669'}
+          ringColor="#D4AF37"
         />
         <Text style={{
-          color: focused ? theme.primary : (isDarkMode ? '#94A3B8' : '#64748B'),
+          color: focused ? (isDarkMode ? '#FDE68A' : '#0F2C59') : (isDarkMode ? '#CBD5E1' : '#64748B'),
           fontSize: 10.5,
           fontWeight: focused ? '800' : '600',
           marginTop: 3,
@@ -164,7 +164,7 @@ function Render3DTabIcon({ name, focused, isDarkMode, theme, isPost, label, isMa
           width: 32,
           height: 3,
           borderRadius: 1.5,
-          backgroundColor: theme.primary || '#059669',
+          backgroundColor: '#D4AF37',
         }} />
       )}
       <View style={{
@@ -173,13 +173,13 @@ function Render3DTabIcon({ name, focused, isDarkMode, theme, isPost, label, isMa
         justifyContent: 'center'
       }}>
         {isMaterial ? (
-          <MaterialCommunityIcons name={name} size={22} color={focused ? theme.primary : (isDarkMode ? '#94A3B8' : '#64748B')} />
+          <MaterialCommunityIcons name={name} size={22} color={focused ? (isDarkMode ? '#FDE68A' : '#0F2C59') : (isDarkMode ? '#CBD5E1' : '#64748B')} />
         ) : (
-          <Ionicons name={name} size={22} color={focused ? theme.primary : (isDarkMode ? '#94A3B8' : '#64748B')} />
+          <Ionicons name={name} size={22} color={focused ? (isDarkMode ? '#FDE68A' : '#0F2C59') : (isDarkMode ? '#CBD5E1' : '#64748B')} />
         )}
       </View>
       <Text style={{
-        color: focused ? theme.primary : (isDarkMode ? '#94A3B8' : '#64748B'),
+        color: focused ? (isDarkMode ? '#FDE68A' : '#0F2C59') : (isDarkMode ? '#CBD5E1' : '#64748B'),
         fontSize: 10.5,
         fontWeight: focused ? '800' : '600',
         marginTop: 3,
@@ -217,31 +217,32 @@ function CustomDrawerContent(props) {
   }, []);
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.card }}>
+    <View style={{ flex: 1, backgroundColor: isDarkMode ? '#0A1224' : '#FFFFFF' }}>
       {/* Top Brand Header */}
-      <View style={{ paddingHorizontal: 16, paddingTop: 20, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: theme.border }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+      <View style={{ paddingHorizontal: 16, paddingTop: 22, paddingBottom: 18, borderBottomWidth: 1, borderBottomColor: isDarkMode ? 'rgba(212, 175, 55, 0.25)' : '#E2E8F0' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
           <View style={{
-            width: 40,
-            height: 40,
+            width: 44,
+            height: 44,
             borderRadius: 12,
-            backgroundColor: '#059669',
+            backgroundColor: '#D4AF37',
             justifyContent: 'center',
             alignItems: 'center',
-            shadowColor: '#059669',
+            shadowColor: '#0A192F',
             shadowOffset: { width: 0, height: 3 },
-            shadowOpacity: 0.25,
-            shadowRadius: 5,
-            elevation: 3
+            shadowOpacity: 0.35,
+            shadowRadius: 6,
+            elevation: 4
           }}>
-            <Ionicons name="school" size={20} color="#34D399" />
+            <Text style={{ color: '#0A192F', fontWeight: '900', fontSize: 17, letterSpacing: -0.5 }}>RV</Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 15, fontWeight: '800', color: theme.text, letterSpacing: -0.2 }}>RV ALUMNI</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 2 }}>
-              <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#059669', marginRight: 5 }} />
-              <Text style={{ fontSize: 11, fontWeight: '600', color: theme.textMuted }}>Official Portal</Text>
-            </View>
+            <Text style={{ fontSize: 14, fontWeight: '900', color: isDarkMode ? '#FFFFFF' : '#0A192F', letterSpacing: 0.5 }}>
+              RV ALUMNI <Text style={{ color: '#D4AF37' }}>•</Text>
+            </Text>
+            <Text style={{ fontSize: 9.5, fontWeight: '800', color: isDarkMode ? '#D4AF37' : '#B45309', letterSpacing: 1.4, marginTop: 2 }}>
+              OFFICIAL PORTAL
+            </Text>
           </View>
         </View>
       </View>
@@ -252,35 +253,42 @@ function CustomDrawerContent(props) {
       </DrawerContentScrollView>
 
       {/* Bottom Profile Widget */}
-      <View style={{ padding: 12, borderTopWidth: 1, borderTopColor: theme.border }}>
+      <View style={{ padding: 12, borderTopWidth: 1, borderTopColor: isDarkMode ? 'rgba(212, 175, 55, 0.25)' : '#E2E8F0' }}>
         <TouchableOpacity
           onPress={() => props.navigation.navigate('Profile')}
           activeOpacity={0.8}
           style={{
             flexDirection: 'row',
             alignItems: 'center',
-            backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
+            backgroundColor: isDarkMode ? '#131D38' : '#F1F5F9',
             borderRadius: 12,
-            padding: 10,
+            padding: 12,
             borderWidth: 1,
-            borderColor: theme.border
+            borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.35)' : 'rgba(212, 175, 55, 0.25)',
+            shadowColor: '#0A192F',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.2,
+            shadowRadius: 5,
+            elevation: 2,
           }}
         >
           <UserAvatar
             url={currentUser?.avatar_url || currentUser?.profilePicture}
             name={currentUser?.name || 'Harshitha D S'}
-            size={38}
-            style={{ marginRight: 10 }}
+            size={40}
+            ring
+            ringColor="#D4AF37"
+            style={{ marginRight: 12 }}
           />
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }} numberOfLines={1}>
-              {currentUser?.name || 'Alumni Member'}
+            <Text style={{ fontSize: 13.5, fontWeight: '700', color: isDarkMode ? '#FFFFFF' : '#0A192F' }} numberOfLines={1}>
+              {currentUser?.name || 'Harshitha D S'}
             </Text>
-            <Text style={{ fontSize: 11, color: theme.textMuted }} numberOfLines={1}>
-              {currentUser?.role || 'Alumni'} • Profile
+            <Text style={{ fontSize: 11, color: isDarkMode ? '#94A3B8' : '#64748B', fontWeight: '500', marginTop: 2 }} numberOfLines={1}>
+              {`${currentUser?.role || 'Alumni'} • RVCE '24`}
             </Text>
           </View>
-          <Ionicons name="chevron-forward" size={16} color={theme.textMuted} />
+          <Ionicons name="chevron-forward" size={16} color={isDarkMode ? '#94A3B8' : '#64748B'} />
         </TouchableOpacity>
       </View>
     </View>
@@ -337,16 +345,17 @@ function MainTabs() {
             paddingHorizontal: 10,
             marginVertical: 3,
           },
-          drawerActiveBackgroundColor: isDarkMode ? 'rgba(5, 150, 105, 0.14)' : 'rgba(5, 150, 105, 0.08)',
-          drawerActiveTintColor: isDarkMode ? theme.primaryLight : theme.primary,
-          drawerInactiveTintColor: isDarkMode ? '#94A3B8' : '#64748B',
+          drawerActiveBackgroundColor: isDarkMode ? 'rgba(212, 175, 55, 0.16)' : '#FDF6E2',
+          drawerActiveTintColor: isDarkMode ? '#FDE68A' : '#B45309',
+          drawerInactiveTintColor: isDarkMode ? '#CBD5E1' : '#475569',
           drawerLabelStyle: { fontSize: 14, fontWeight: '700', marginLeft: -4 },
           drawerIcon: ({ focused, color }) => {
+            const activeColor = isDarkMode ? '#FDE68A' : '#B45309';
             let iconComp = null;
-            if (route.name === 'Home') iconComp = <Ionicons name={focused ? 'home' : 'home-outline'} size={20} color={focused ? (isDarkMode ? theme.primaryLight : theme.primary) : color} />;
-            if (route.name === 'Engage') iconComp = <MaterialCommunityIcons name={focused ? 'handshake' : 'handshake-outline'} size={20} color={focused ? (isDarkMode ? theme.primaryLight : theme.primary) : color} />;
-            if (route.name === 'Post') iconComp = <Ionicons name={focused ? 'add-circle' : 'add-circle-outline'} size={22} color={focused ? (isDarkMode ? theme.primaryLight : theme.primary) : color} />;
-            if (route.name === 'Jobs') iconComp = <Ionicons name={focused ? 'briefcase' : 'briefcase-outline'} size={20} color={focused ? (isDarkMode ? theme.primaryLight : theme.primary) : color} />;
+            if (route.name === 'Home') iconComp = <Ionicons name={focused ? 'home' : 'home-outline'} size={20} color={focused ? activeColor : color} />;
+            if (route.name === 'Engage') iconComp = <Ionicons name={focused ? 'people' : 'people-outline'} size={20} color={focused ? activeColor : color} />;
+            if (route.name === 'Post') iconComp = <Ionicons name={focused ? 'calendar' : 'calendar-outline'} size={20} color={focused ? activeColor : color} />;
+            if (route.name === 'Jobs') iconComp = <Ionicons name={focused ? 'briefcase' : 'briefcase-outline'} size={20} color={focused ? activeColor : color} />;
             if (route.name === 'Profile') {
               iconComp = (
                 <UserAvatar
@@ -354,17 +363,17 @@ function MainTabs() {
                   name={currentUser?.name || 'Harshitha D S'}
                   size={26}
                   ring={focused}
-                  ringColor="#059669"
+                  ringColor="#D4AF37"
                 />
               );
             }
-            if (route.name === 'Messages') iconComp = <Ionicons name={focused ? 'chatbubble-ellipses' : 'chatbubble-ellipses-outline'} size={20} color={focused ? (isDarkMode ? theme.primaryLight : theme.primary) : color} />;
+            if (route.name === 'Messages') iconComp = <Ionicons name={focused ? 'chatbubble-ellipses' : 'chatbubble-ellipses-outline'} size={20} color={focused ? activeColor : color} />;
             return (
               <View style={{
                 width: 32,
                 height: 32,
                 borderRadius: 9,
-                backgroundColor: focused ? (isDarkMode ? 'rgba(5, 150, 105, 0.2)' : 'rgba(5, 150, 105, 0.12)') : 'transparent',
+                backgroundColor: focused ? (isDarkMode ? 'rgba(212, 175, 55, 0.22)' : 'rgba(212, 175, 55, 0.16)') : 'transparent',
                 justifyContent: 'center',
                 alignItems: 'center'
               }}>
@@ -374,11 +383,11 @@ function MainTabs() {
           }
         })}
       >
-        <Drawer.Screen name="Home" component={DashboardScreen} />
+        <Drawer.Screen name="Home" component={DashboardScreen} options={{ drawerLabel: 'Dashboard Feed' }} />
         <Drawer.Screen name="Engage" component={DirectoryScreen} options={{ drawerLabel: 'Directory' }} />
-        <Drawer.Screen name="Post" component={EngageScreen} options={{ drawerLabel: 'Feed & Events' }} />
-        <Drawer.Screen name="Jobs" component={JobsScreen} options={{ drawerLabel: 'Jobs' }} />
-        <Drawer.Screen name="Profile" component={ProfileScreen} options={{ drawerLabel: 'Profile' }} />
+        <Drawer.Screen name="Post" component={EngageScreen} options={{ drawerLabel: 'Events & QR Pass' }} />
+        <Drawer.Screen name="Jobs" component={JobsScreen} options={{ drawerLabel: 'Career Referrals' }} />
+        <Drawer.Screen name="Profile" component={ProfileScreen} options={{ drawerLabel: 'Profile', drawerItemStyle: { display: 'none' } }} />
         <Drawer.Screen name="Messages" component={MessagesScreen} options={{ drawerItemStyle: { display: 'none' } }} />
         <Drawer.Screen name="Support" component={ContributeScreen} options={{ drawerItemStyle: { display: 'none' } }} />
         <Drawer.Screen name="Contribute" component={ContributeScreen} options={{ drawerItemStyle: { display: 'none' } }} />
