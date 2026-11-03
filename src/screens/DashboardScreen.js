@@ -3209,17 +3209,17 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     letterSpacing: -0.2,
   },
   bentoSectionBadgePod: {
-    backgroundColor: isDarkMode ? '#241B15' : '#FAF4ED',
+    backgroundColor: isDarkMode ? 'rgba(212, 175, 55, 0.15)' : '#FAF5EB',
     paddingHorizontal: 7,
     paddingVertical: 2,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: isDarkMode ? 'rgba(212, 163, 115, 0.35)' : '#E8D4C1',
+    borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : 'rgba(212, 175, 55, 0.35)',
   },
   bentoSectionBadge: {
     fontSize: 9.5,
     fontWeight: '800',
-    color: isDarkMode ? '#D4A373' : '#B88758',
+    color: isDarkMode ? '#FDE68A' : '#C5A059',
     letterSpacing: 0.5,
   },
 

@@ -217,9 +217,16 @@ function CustomDrawerContent(props) {
   }, []);
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#070D1E' }}>
+    <View style={{ flex: 1, backgroundColor: isDarkMode ? '#070D1E' : '#FFFFFF' }}>
       {/* Top Brand Header */}
-      <View style={{ paddingHorizontal: 16, paddingTop: 22, paddingBottom: 18, borderBottomWidth: 1, borderBottomColor: 'rgba(212, 175, 55, 0.3)' }}>
+      <View style={{
+        paddingHorizontal: 16,
+        paddingTop: 22,
+        paddingBottom: 18,
+        borderBottomWidth: 1,
+        borderBottomColor: isDarkMode ? 'rgba(212, 175, 55, 0.3)' : '#E2E8F0',
+        backgroundColor: isDarkMode ? '#0A192F' : '#F8FAFC',
+      }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
           <View style={{
             width: 44,
@@ -237,7 +244,7 @@ function CustomDrawerContent(props) {
             <Text style={{ color: '#0A192F', fontWeight: '900', fontSize: 17, letterSpacing: -0.5 }}>RV</Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 14.5, fontWeight: '900', color: '#FFFFFF', letterSpacing: 0.5 }}>
+            <Text style={{ fontSize: 14.5, fontWeight: '900', color: isDarkMode ? '#FFFFFF' : '#0A192F', letterSpacing: 0.5 }}>
               RV ALUMNI <Text style={{ color: '#D4AF37' }}>•</Text>
             </Text>
             <Text style={{ fontSize: 9.5, fontWeight: '800', color: '#D4AF37', letterSpacing: 1.4, marginTop: 2 }}>
@@ -253,21 +260,21 @@ function CustomDrawerContent(props) {
       </DrawerContentScrollView>
 
       {/* Bottom Profile Widget */}
-      <View style={{ padding: 12, borderTopWidth: 1, borderTopColor: 'rgba(212, 175, 55, 0.3)' }}>
+      <View style={{ padding: 12, borderTopWidth: 1, borderTopColor: isDarkMode ? 'rgba(212, 175, 55, 0.3)' : '#E2E8F0' }}>
         <TouchableOpacity
           onPress={() => props.navigation.navigate('Profile')}
           activeOpacity={0.8}
           style={{
             flexDirection: 'row',
             alignItems: 'center',
-            backgroundColor: '#0D1B3A',
+            backgroundColor: isDarkMode ? '#0D1B3A' : '#F8FAFC',
             borderRadius: 12,
             padding: 12,
             borderWidth: 1,
-            borderColor: 'rgba(212, 175, 55, 0.35)',
+            borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.35)' : 'rgba(212, 175, 55, 0.45)',
             shadowColor: '#0A192F',
             shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.2,
+            shadowOpacity: isDarkMode ? 0.2 : 0.05,
             shadowRadius: 5,
             elevation: 2,
           }}
@@ -281,10 +288,10 @@ function CustomDrawerContent(props) {
             style={{ marginRight: 12 }}
           />
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 13.5, fontWeight: '700', color: '#FFFFFF' }} numberOfLines={1}>
+            <Text style={{ fontSize: 13.5, fontWeight: '700', color: isDarkMode ? '#FFFFFF' : '#0A192F' }} numberOfLines={1}>
               {currentUser?.name || 'Harshitha D S'}
             </Text>
-            <Text style={{ fontSize: 11, color: '#D4AF37', fontWeight: '600', marginTop: 2 }} numberOfLines={1}>
+            <Text style={{ fontSize: 11, color: isDarkMode ? '#D4AF37' : '#B48608', fontWeight: '700', marginTop: 2 }} numberOfLines={1}>
               {`${currentUser?.role || 'Alumni'} • RVCE '24`}
             </Text>
           </View>
@@ -337,20 +344,20 @@ function MainTabs() {
           drawerStyle: {
             width: 255,
             borderRightWidth: 1.5,
-            borderRightColor: theme.cardBorder || theme.border,
-            backgroundColor: theme.card,
+            borderRightColor: isDarkMode ? 'rgba(212, 175, 55, 0.3)' : '#E2E8F0',
+            backgroundColor: isDarkMode ? '#070D1E' : '#FFFFFF',
           },
           drawerItemStyle: {
             borderRadius: 12,
             paddingHorizontal: 10,
             marginVertical: 3,
           },
-          drawerActiveBackgroundColor: 'rgba(212, 175, 55, 0.2)',
-          drawerActiveTintColor: '#D4AF37',
-          drawerInactiveTintColor: '#CBD5E1',
+          drawerActiveBackgroundColor: isDarkMode ? 'rgba(212, 175, 55, 0.2)' : 'rgba(15, 44, 89, 0.08)',
+          drawerActiveTintColor: isDarkMode ? '#D4AF37' : '#0F2C59',
+          drawerInactiveTintColor: isDarkMode ? '#CBD5E1' : '#475569',
           drawerLabelStyle: { fontSize: 14, fontWeight: '700', marginLeft: -4 },
           drawerIcon: ({ focused, color }) => {
-            const activeColor = '#D4AF37';
+            const activeColor = isDarkMode ? '#D4AF37' : '#0F2C59';
             let iconComp = null;
             if (route.name === 'Home') iconComp = <Ionicons name={focused ? 'home' : 'home-outline'} size={20} color={focused ? activeColor : color} />;
             if (route.name === 'Engage') iconComp = <Ionicons name={focused ? 'people' : 'people-outline'} size={20} color={focused ? activeColor : color} />;
@@ -467,14 +474,14 @@ function MainTabs() {
         },
         tabBarStyle: {
           borderTopWidth: 1,
-          borderTopColor: 'rgba(212, 175, 55, 0.35)',
+          borderTopColor: isDarkMode ? 'rgba(212, 175, 55, 0.35)' : '#E2E8F0',
           paddingBottom: bottomPadding,
           paddingTop: 8,
           height: 60 + bottomPadding,
-          backgroundColor: '#070D1E',
+          backgroundColor: isDarkMode ? '#070D1E' : '#FFFFFF',
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -3 },
-          shadowOpacity: 0.45,
+          shadowOpacity: isDarkMode ? 0.45 : 0.08,
           shadowRadius: 10,
           elevation: 10
         },
@@ -519,8 +526,8 @@ function AdminTabs() {
           drawerStyle: {
             width: 240,
             borderRightWidth: 1,
-            borderRightColor: 'rgba(212, 175, 55, 0.35)',
-            backgroundColor: '#0A1224',
+            borderRightColor: isDarkMode ? 'rgba(212, 175, 55, 0.35)' : '#E2E8F0',
+            backgroundColor: isDarkMode ? '#0A1224' : '#FFFFFF',
             paddingTop: 20,
             paddingHorizontal: 12,
           },
@@ -529,9 +536,9 @@ function AdminTabs() {
             paddingHorizontal: 12,
             marginVertical: 4,
           },
-          drawerActiveBackgroundColor: 'rgba(212, 175, 55, 0.2)',
-          drawerActiveTintColor: '#D4AF37',
-          drawerInactiveTintColor: '#CBD5E1',
+          drawerActiveBackgroundColor: isDarkMode ? 'rgba(212, 175, 55, 0.2)' : 'rgba(15, 44, 89, 0.08)',
+          drawerActiveTintColor: isDarkMode ? '#D4AF37' : '#0F2C59',
+          drawerInactiveTintColor: isDarkMode ? '#CBD5E1' : '#475569',
           drawerLabelStyle: { fontSize: 16, fontWeight: '700', marginLeft: -8 },
           drawerIcon: ({ focused, color, size }) => {
             if (route.name === 'AdminHome') return <Ionicons name={focused ? 'home' : 'home-outline'} size={22} color={color} />;
@@ -612,8 +619,8 @@ function SuperAdminTabs() {
           drawerStyle: {
             width: 240,
             borderRightWidth: 1,
-            borderRightColor: 'rgba(212, 175, 55, 0.35)',
-            backgroundColor: '#0A1224',
+            borderRightColor: isDarkMode ? 'rgba(212, 175, 55, 0.35)' : '#E2E8F0',
+            backgroundColor: isDarkMode ? '#0A1224' : '#FFFFFF',
             paddingTop: 20,
             paddingHorizontal: 12,
           },
@@ -622,9 +629,9 @@ function SuperAdminTabs() {
             paddingHorizontal: 12,
             marginVertical: 4,
           },
-          drawerActiveBackgroundColor: 'rgba(212, 175, 55, 0.2)',
-          drawerActiveTintColor: '#D4AF37',
-          drawerInactiveTintColor: '#CBD5E1',
+          drawerActiveBackgroundColor: isDarkMode ? 'rgba(212, 175, 55, 0.2)' : 'rgba(15, 44, 89, 0.08)',
+          drawerActiveTintColor: isDarkMode ? '#D4AF37' : '#0F2C59',
+          drawerInactiveTintColor: isDarkMode ? '#CBD5E1' : '#475569',
           drawerLabelStyle: { fontSize: 16, fontWeight: '700', marginLeft: -8 },
           drawerIcon: ({ focused, color, size }) => {
             if (route.name === 'SADashboard') return <Ionicons name={focused ? 'home' : 'home-outline'} size={22} color={color} />;

@@ -88,8 +88,8 @@ const AppHeader = ({
     <View style={[
       styles.header, 
       { 
-        backgroundColor: '#070D1E',
-        borderBottomColor: 'rgba(212, 175, 55, 0.3)',
+        backgroundColor: isDarkMode ? '#070D1E' : '#FFFFFF',
+        borderBottomColor: isDarkMode ? 'rgba(212, 175, 55, 0.3)' : '#E2E8F0',
       },
       style
     ]}>
@@ -105,7 +105,7 @@ const AppHeader = ({
           <View style={styles.brandCrest}>
             <Text style={styles.brandCrestText}>RV</Text>
           </View>
-          <Text style={{ fontSize: 18, fontWeight: '900', color: '#FFFFFF', letterSpacing: 0.5 }}>
+          <Text style={{ fontSize: 18, fontWeight: '900', color: isDarkMode ? '#FFFFFF' : '#0A192F', letterSpacing: 0.5 }}>
             ALUMNI <Text style={{ color: '#D4AF37' }}>•</Text>
           </Text>
         </TouchableOpacity>
@@ -171,7 +171,7 @@ const AppHeader = ({
             styles.headerIconBtn,
             {
               backgroundColor: isNotificationsActive 
-                ? (isDarkMode ? 'rgba(217, 119, 6, 0.2)' : '#FEF3C7') 
+                ? (isDarkMode ? 'rgba(212, 175, 55, 0.2)' : '#FEF9C3') 
                 : (isDarkMode ? '#1E293B' : '#F8FAFC'),
               borderColor: isNotificationsActive 
                 ? (isDarkMode ? '#D4AF37' : '#FDE68A') 

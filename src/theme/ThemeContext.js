@@ -4,19 +4,21 @@ import { lightTheme, darkTheme } from './colors';
 
 const ThemeContext = createContext();
 
-// Signature Theme: Royal Midnight Navy & Warm Imperial Gold by default
+// Signature Institutional Theme: Crisp White & Royal Midnight Navy Blue with Imperial Gold
 const getInitialDarkMode = () => {
   if (typeof window !== 'undefined') {
     try {
       const params = new URLSearchParams(window.location.search);
+      if (params.get('theme') === 'dark') return true;
       if (params.get('theme') === 'light') return false;
       const saved = localStorage.getItem('user_theme_mode');
+      if (saved === 'dark') return true;
       if (saved === 'light') return false;
     } catch {
       // fallback
     }
   }
-  return true;
+  return false; // Default to luminous executive White + Royal Blue & Imperial Gold theme
 };
 
 export const ThemeProvider = ({ children }) => {
@@ -24,7 +26,7 @@ export const ThemeProvider = ({ children }) => {
 
   useEffect(() => {
     if (typeof document !== 'undefined') {
-      const bg = '#070C18';
+      const bg = isDarkMode ? '#070C18' : '#F8FAFC';
       document.documentElement.style.backgroundColor = bg;
       document.body.style.backgroundColor = bg;
       const rootEl = document.getElementById('root');
@@ -33,7 +35,7 @@ export const ThemeProvider = ({ children }) => {
       }
       const metaThemeColor = document.querySelector('meta[name="theme-color"]');
       if (metaThemeColor) {
-        metaThemeColor.setAttribute('content', bg);
+        metaThemeColor.setAttribute('content', isDarkMode ? '#070C18' : '#0F2C59');
       }
     }
   }, [isDarkMode]);
@@ -43,6 +45,10 @@ export const ThemeProvider = ({ children }) => {
       try {
         if (typeof window !== 'undefined') {
           const params = new URLSearchParams(window.location.search);
+          if (params.get('theme') === 'dark') {
+            setIsDarkMode(true);
+            return;
+          }
           if (params.get('theme') === 'light') {
             setIsDarkMode(false);
             return;
@@ -52,10 +58,10 @@ export const ThemeProvider = ({ children }) => {
         if (saved !== null) {
           setIsDarkMode(saved === 'dark');
         } else {
-          setIsDarkMode(true);
+          setIsDarkMode(false);
         }
       } catch {
-        setIsDarkMode(true);
+        setIsDarkMode(false);
       }
     };
     loadThemePreference();

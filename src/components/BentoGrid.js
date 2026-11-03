@@ -33,11 +33,11 @@ export function BentoCard({
   const isSand = variant === 'sand' || variant === 'secondary';
 
   // Base card surface colors
-  const defaultBg = isDarkMode ? '#131F19' : '#FFFFFF';
-  const defaultBorder = isDarkMode ? '#1E2E25' : '#E6F4EA';
+  const defaultBg = isDarkMode ? '#0A1224' : '#FFFFFF';
+  const defaultBorder = isDarkMode ? '#1E293B' : '#E2E8F0';
 
-  const sandBg = isDarkMode ? '#241B15' : '#FAF4ED';
-  const sandBorder = isDarkMode ? 'rgba(212, 163, 115, 0.35)' : '#E8D4C1';
+  const sandBg = isDarkMode ? 'rgba(212, 175, 55, 0.12)' : '#FAF5EB';
+  const sandBorder = isDarkMode ? 'rgba(212, 175, 55, 0.35)' : 'rgba(212, 175, 55, 0.3)';
 
   const CardWrapper = gradientColors ? GradientView : View;
   const wrapperProps = gradientColors ? { colors: gradientColors } : {};
@@ -144,7 +144,7 @@ export function BentoCard({
           <Text
             style={[
               styles.metricText,
-              { color: isSand ? (isDarkMode ? '#D4A373' : '#B88758') : (isDarkMode ? '#DCFCE7' : '#0A192F') },
+              { color: isSand ? (isDarkMode ? '#FDE68A' : '#C5A059') : (isDarkMode ? '#FFFFFF' : '#0A192F') },
             ]}
           >
             {metric}
