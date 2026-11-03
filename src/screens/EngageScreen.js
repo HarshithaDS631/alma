@@ -20,7 +20,7 @@ const EngageScreen = ({ navigation, route }) => {
   const isWeb = Platform.OS === 'web';
   const isDesktop = isWeb && width >= 1024;
   const webContainerStyle = isWeb ? { alignSelf: 'center', width: '100%', maxWidth: isDesktop ? 1200 : 800, flex: 1 } : { flex: 1 };
-  const [currentView, setCurrentView] = useState('feed');
+  const [currentView, setCurrentView] = useState(route?.params?.view === 'feed' ? 'feed' : 'joinEvent');
   const [showSearch, setShowSearch] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [actionSheetVisible, setActionSheetVisible] = useState(false);
@@ -108,14 +108,17 @@ const EngageScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     if (route?.params?.view) {
-      if (route.params.view === 'events' || route.params.view === 'joinEvent') {
-        setCurrentView('joinEvent');
-        fetchEventsFast();
+      if (route.params.view === 'feed') {
+        setCurrentView('feed');
       } else if (route.params.view === 'createEvent') {
         setCurrentView('createEvent');
       } else {
-        setCurrentView(route.params.view);
+        setCurrentView('joinEvent');
+        fetchEventsFast();
       }
+    } else {
+      setCurrentView('joinEvent');
+      fetchEventsFast();
     }
   }, [route?.params?.view, fetchEventsFast]);
 
@@ -360,19 +363,16 @@ const EngageScreen = ({ navigation, route }) => {
 
     const unsubscribe = navigation.addListener('focus', () => {
       const incoming = route?.params?.view;
-      if (incoming === 'events' || incoming === 'joinEvent') {
-        setCurrentView('joinEvent');
+      if (incoming === 'feed') {
+        setCurrentView('feed');
         setActionSheetVisible(false);
-        fetchEventsFast();
       } else if (incoming === 'createEvent') {
         setCurrentView('createEvent');
         setActionSheetVisible(false);
-      } else if (incoming) {
-        setCurrentView(incoming);
-        setActionSheetVisible(false);
       } else {
-        setCurrentView('feed');
-        setActionSheetVisible(true);
+        setCurrentView('joinEvent');
+        setActionSheetVisible(false);
+        fetchEventsFast();
       }
       init();
     });
@@ -613,12 +613,12 @@ const EngageScreen = ({ navigation, route }) => {
           {/* Subscreen Header with Attractive Host Event Action */}
           <View style={styles.eventsHeader}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <TouchableOpacity onPress={() => setCurrentView('feed')} style={styles.backCircleBtn}>
+              <TouchableOpacity onPress={() => navigation.navigate('Home')} style={styles.backCircleBtn}>
                 <Ionicons name="arrow-back" size={20} color={theme.text} />
               </TouchableOpacity>
               <View>
-                <Text style={styles.eventsHeaderTitle}>Alumni Events & Meetups</Text>
-                <Text style={styles.eventsHeaderSubtitle}>Reunions, workshops & chapter meets</Text>
+                <Text style={styles.eventsHeaderTitle}>Events & QR Pass</Text>
+                <Text style={styles.eventsHeaderSubtitle}>Reunions, workshops, chapter meets & digital entry passes</Text>
               </View>
             </View>
 
@@ -632,6 +632,71 @@ const EngageScreen = ({ navigation, route }) => {
                 <Ionicons name="add" size={18} color="#FFFFFF" />
               </View>
               <Text style={styles.hostEventPillText}>Host Event</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Segmented Section Switcher */}
+          <View style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: isDarkMode ? '#0F1D38' : '#F1F5F9',
+            borderRadius: 14,
+            padding: 4,
+            marginHorizontal: 16,
+            marginTop: 4,
+            marginBottom: 10,
+            borderWidth: 1,
+            borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.3)' : '#E2E8F0',
+          }}>
+            <TouchableOpacity
+              onPress={() => { setCurrentView('joinEvent'); fetchEventsFast(); }}
+              activeOpacity={0.8}
+              style={{
+                flex: 1,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingVertical: 8,
+                borderRadius: 10,
+                backgroundColor: isDarkMode ? '#0F2C59' : '#FFFFFF',
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.08,
+                shadowRadius: 3,
+                elevation: 2,
+              }}
+            >
+              <Ionicons name="calendar" size={15} color="#D4AF37" style={{ marginRight: 6 }} />
+              <Text style={{
+                fontSize: 13,
+                fontWeight: '800',
+                color: isDarkMode ? '#FFFFFF' : '#0F2C59',
+              }}>
+                Events & QR Pass
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => setCurrentView('feed')}
+              activeOpacity={0.8}
+              style={{
+                flex: 1,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingVertical: 8,
+                borderRadius: 10,
+                backgroundColor: 'transparent',
+              }}
+            >
+              <Ionicons name="chatbubbles-outline" size={15} color={isDarkMode ? '#94A3B8' : '#64748B'} style={{ marginRight: 6 }} />
+              <Text style={{
+                fontSize: 13,
+                fontWeight: '600',
+                color: isDarkMode ? '#94A3B8' : '#64748B',
+              }}>
+                Community Posts
+              </Text>
             </TouchableOpacity>
           </View>
 
@@ -936,6 +1001,71 @@ const EngageScreen = ({ navigation, route }) => {
           desktopTitle="Feed & Events"
           desktopSubtitle="Community Discussions"
         />
+
+        {/* Segmented Section Switcher */}
+        <View style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          backgroundColor: isDarkMode ? '#0F1D38' : '#F1F5F9',
+          borderRadius: 14,
+          padding: 4,
+          marginHorizontal: 16,
+          marginTop: 8,
+          marginBottom: 8,
+          borderWidth: 1,
+          borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.3)' : '#E2E8F0',
+        }}>
+          <TouchableOpacity
+            onPress={() => { setCurrentView('joinEvent'); fetchEventsFast(); }}
+            activeOpacity={0.8}
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingVertical: 8,
+              borderRadius: 10,
+              backgroundColor: 'transparent',
+            }}
+          >
+            <Ionicons name="calendar-outline" size={15} color={isDarkMode ? '#94A3B8' : '#64748B'} style={{ marginRight: 6 }} />
+            <Text style={{
+              fontSize: 13,
+              fontWeight: '600',
+              color: isDarkMode ? '#94A3B8' : '#64748B',
+            }}>
+              Events & QR Pass
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => setCurrentView('feed')}
+            activeOpacity={0.8}
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingVertical: 8,
+              borderRadius: 10,
+              backgroundColor: isDarkMode ? '#0F2C59' : '#FFFFFF',
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: 0.08,
+              shadowRadius: 3,
+              elevation: 2,
+            }}
+          >
+            <Ionicons name="chatbubbles" size={15} color="#D4AF37" style={{ marginRight: 6 }} />
+            <Text style={{
+              fontSize: 13,
+              fontWeight: '800',
+              color: isDarkMode ? '#FFFFFF' : '#0F2C59',
+            }}>
+              Community Posts
+            </Text>
+          </TouchableOpacity>
+        </View>
 
         {/* Expandable Search Input when Search Button is Clicked */}
         {showSearch && (

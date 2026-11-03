@@ -392,8 +392,8 @@ function MainTabs() {
       >
         <Drawer.Screen name="Home" component={DashboardScreen} options={{ drawerLabel: 'Dashboard Feed' }} />
         <Drawer.Screen name="Engage" component={DirectoryScreen} options={{ drawerLabel: 'Directory' }} />
-        <Drawer.Screen name="Post" component={EngageScreen} options={{ drawerLabel: 'Events & QR Pass' }} />
-        <Drawer.Screen name="Jobs" component={JobsScreen} options={{ drawerLabel: 'Career Referrals' }} />
+        <Drawer.Screen name="Post" component={EngageScreen} initialParams={{ view: 'events' }} options={{ drawerLabel: 'Events & QR Pass' }} />
+        <Drawer.Screen name="Jobs" component={JobsScreen} options={{ drawerLabel: 'Jobs' }} />
         <Drawer.Screen name="Profile" component={ProfileScreen} options={{ drawerLabel: 'Profile', drawerItemStyle: { display: 'none' } }} />
         <Drawer.Screen name="Messages" component={MessagesScreen} options={{ drawerItemStyle: { display: 'none' } }} />
         <Drawer.Screen name="Support" component={ContributeScreen} options={{ drawerItemStyle: { display: 'none' } }} />
