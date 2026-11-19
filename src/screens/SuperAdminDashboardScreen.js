@@ -27,7 +27,7 @@ import { getEmailStats } from '../services/adminService';
 import { getImageUrl } from '../services/uploadService';
 
 // ==========================================
-// DUMMY DATABASE / SEED DATA
+// ─── Initial Store & Master Database State ─────────────────────────────
 // ==========================================
 
 const INSTITUTIONS = [

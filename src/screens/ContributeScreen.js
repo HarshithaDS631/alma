@@ -21,35 +21,7 @@ const ContributeScreen = ({ navigation, route }) => {
   const [userInitials, setUserInitials] = useState('MA');
   const [userAvatarUrl, setUserAvatarUrl] = useState('');
 
-  const DEFAULT_APPLICATIONS = [
-    {
-      id: 'app-seed-1',
-      type: 'Mentee',
-      applicantName: 'Arjun Mehta',
-      applicantEmail: 'arjun.mehta@alumni.rv.edu',
-      applicantRole: 'Alumni',
-      applicantInstitution: 'RV College of Engineering',
-      keyword: 'Cloud Architecture, Microservices, Kubernetes',
-      why: 'Transitioning to Tech Lead role and seeking guidance on enterprise cloud scalability.',
-      guidance: 'Hands-on system design best practices and CI/CD automation.',
-      progress: '3 years experience in backend Node.js and AWS.',
-      activities: 'IEEE Student Chapter volunteer, Coding Club coordinator.',
-      status: 'Pending',
-      appliedAt: new Date(Date.now() - 3600000 * 24).toISOString()
-    },
-    {
-      id: 'app-seed-2',
-      type: 'Mentor',
-      applicantName: 'Dr. Priya Rao',
-      applicantEmail: 'priya.rao@alumni.rv.edu',
-      applicantRole: 'Alumni',
-      applicantInstitution: 'RV Institute of Management',
-      keyword: 'Product Strategy, FinTech, Early-stage Venture',
-      info: 'VP of Product at a Series B FinTech firm. Happy to help budding entrepreneurs and product managers.',
-      status: 'Approved',
-      appliedAt: new Date(Date.now() - 3600000 * 72).toISOString()
-    }
-  ];
+  const DEFAULT_APPLICATIONS = [];
 
   const [applications, setApplications] = useState(DEFAULT_APPLICATIONS);
   const [adminFilter, setAdminFilter] = useState('all'); // 'all' | 'pending' | 'approved' | 'rejected'

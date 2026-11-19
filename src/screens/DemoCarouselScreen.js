@@ -14,12 +14,12 @@ const DemoCarouselScreen = ({ navigation }) => {
   const slides = [
     {
       title: 'Institutional Ecosystem',
-      description: 'Find members and access tailored opportunities across the entire Institution institution network.',
+      description: 'Find members and access tailored opportunities across the entire RV Educational Institutions network.',
       image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=600&h=400&q=80'
     },
     {
       title: 'Verified Profiles',
-      description: 'Every profile is authenticated by Institution administration, ensuring a trusted alumni space.',
+      description: 'Every profile is authenticated by institutional administration, ensuring a trusted alumni space.',
       image: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=600&h=400&q=80'
     },
     {

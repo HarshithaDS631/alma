@@ -410,16 +410,9 @@ const JobsScreen = ({ navigation, route }) => {
         if (selectedJobType !== 'All') filters.jobType = selectedJobType;
         const res = await fetchJobs(filters);
         if (Array.isArray(res) && res.length > 0) {
-          // Merge with DEFAULT_ALUMNI_JOBS to guarantee full rich experience
-          const merged = [...res];
-          DEFAULT_ALUMNI_JOBS.forEach(def => {
-            if (!merged.some(m => (m._id || m.id) === def._id)) {
-              merged.push(def);
-            }
-          });
-          setJobs(merged);
+          setJobs(res);
           if (!searchQuery && selectedWorkplace === 'All' && selectedJobType === 'All') {
-            AsyncStorage.setItem('cached_jobs_list', JSON.stringify(merged)).catch(() => {});
+            AsyncStorage.setItem('cached_jobs_list', JSON.stringify(res)).catch(() => {});
           }
         } else {
           setJobs(DEFAULT_ALUMNI_JOBS);

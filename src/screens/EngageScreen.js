@@ -303,36 +303,6 @@ const EngageScreen = ({ navigation, route }) => {
           }));
       }
 
-      if (formatted.length === 0) {
-        formatted = [
-          {
-            id: 'engage-seed-1',
-            user_id: 'rv-admin',
-            user: 'RV Alumni Relations',
-            subtitle: 'RSST Official Announcement',
-            avatar: 'RV',
-            avatar_url: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=200',
-            image: null,
-            likes: 15,
-            time: 'Today',
-            content: '🎓 Welcome to the RV Alumni Feed & Events Hub! Connect with alumni across disciplines, RSVP to institutional meets, and download your digital QR entry pass.',
-            tags: ['#RVCE', '#AlumniMeet', '#Official']
-          },
-          {
-            id: 'engage-seed-2',
-            user_id: 'mentor-seed',
-            user: 'Aditya Rao',
-            subtitle: 'Staff Engineering Lead (RVCE CSE 2016)',
-            avatar: 'AR',
-            avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200',
-            image: null,
-            likes: 9,
-            time: 'Yesterday',
-            content: 'Excited to host an interactive System Design & Career Masterclass for final-year students and young alumni next weekend! Check the Events tab to register.',
-            tags: ['#Mentorship', '#TechTalk', '#Careers']
-          }
-        ];
-      }
       setPostsList(formatted);
 
       if (suggRes.status === 'fulfilled' && suggRes.value) {
@@ -1437,7 +1407,22 @@ const EngageScreen = ({ navigation, route }) => {
         </View>
 
         {/* Posts List */}
-        {filteredPosts.map((post, index) => (
+        {filteredPosts.length === 0 ? (
+          <View style={{ backgroundColor: '#FFFFFF', padding: 36, alignItems: 'center', justifyContent: 'center', borderRadius: 16, marginVertical: 12, borderWidth: 1, borderColor: '#E2E8F0' }}>
+            <Ionicons name="chatbubbles-outline" size={44} color="#D4AF37" style={{ marginBottom: 12 }} />
+            <Text style={{ fontSize: 17, fontWeight: '700', color: '#0F2C59', marginBottom: 6 }}>No Community Posts Yet</Text>
+            <Text style={{ fontSize: 14, color: '#64748B', textAlign: 'center', maxWidth: 320, marginBottom: 16, lineHeight: 20 }}>
+              Be the first to share an achievement, question, or milestone with your fellow alumni!
+            </Text>
+            <TouchableOpacity 
+              style={{ backgroundColor: '#0F2C59', paddingHorizontal: 22, paddingVertical: 10, borderRadius: 20 }} 
+              onPress={() => navigation.navigate('PostCreation')}
+            >
+              <Text style={{ color: '#F5D061', fontWeight: '700', fontSize: 14 }}>Create First Post</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          filteredPosts.map((post, index) => (
           <React.Fragment key={post.id}>
             <View style={styles.postCard}>
               <View style={styles.postHeader}>
@@ -1519,7 +1504,7 @@ const EngageScreen = ({ navigation, route }) => {
               </View>
             )}
           </React.Fragment>
-        ))}
+        )))}
       </ScrollView>
     </View>
   );

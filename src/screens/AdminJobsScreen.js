@@ -23,7 +23,7 @@ import { fetchResumeBook, shareCandidateResume } from '../services/jobService';
 import { getImageUrl } from '../services/uploadService';
 import getInitials from '../lib/getInitials';
 
-const DUMMY_JOBS = [];
+const INITIAL_JOBS = [];
 
 const WORK_MODES = ['Full-Time', 'Part-Time', 'Remote', 'Hybrid', 'Contract', 'Internship'];
 
@@ -189,7 +189,7 @@ export default function AdminJobsScreen({ navigation, route }) {
   const [selectedWorkMode, setSelectedWorkMode] = useState('All');
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [screen, setScreen] = useState('list');
-  const [jobs, setJobs] = useState(DUMMY_JOBS);
+  const [jobs, setJobs] = useState(INITIAL_JOBS);
   const [detail, setDetail] = useState(null);
   const [search, setSearch] = useState('');
   const [modalVisible, setModalVisible] = useState(false); // work mode picker inside editor

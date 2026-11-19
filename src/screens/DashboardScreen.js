@@ -36,63 +36,8 @@ import { FloatingElement, PulseElement } from '../components/MotionGraphic';
 import AppHeader from '../components/AppHeader';
 
 
-// Pool of all known posts across all users — used as offline fallback
-const ALL_KNOWN_POSTS = [
-  {
-    id: 'seed-post-1',
-    _id: 'seed-post-1',
-    user: 'RVCE Alumni Relations',
-    authorId: 'rv-admin-official',
-    role: 'Official Institution Announcement • RSST',
-    avatar: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=200',
-    avatar_url: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=200',
-    isAvatarUrl: true,
-    content: '🎓 Welcome to the Official RV Alumni Community Portal! Discover batchmates, find career referral opportunities, and book 1-on-1 mentorship sessions with global leaders across engineering, tech, and business.',
-    image: null,
-    likes: 24,
-    comments: [],
-    commentsCount: 3,
-    time: 'Today',
-    isAdmin: true,
-    isOfficial: true
-  },
-  {
-    id: 'seed-post-2',
-    _id: 'seed-post-2',
-    user: 'Aditya Rao',
-    authorId: 'aditya-rao-2016',
-    role: 'Staff Engineering Lead (RVCE CSE 2016) • Google',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200',
-    avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200',
-    isAvatarUrl: true,
-    content: '🚀 Hiring for Distributed Systems & ML Infrastructure engineers! We have multiple openings open for RV alumni. Check the Jobs tab to request an expedited employee referral.',
-    image: null,
-    likes: 18,
-    comments: [],
-    commentsCount: 5,
-    time: '1 day ago',
-    isAdmin: false,
-    isOfficial: false
-  },
-  {
-    id: 'seed-post-3',
-    _id: 'seed-post-3',
-    user: 'Dr. K. S. Geetha',
-    authorId: 'faculty-mentor-rvce',
-    role: 'Dean of Alumni Relations & Academic Affairs • RVCE',
-    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200',
-    avatar_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200',
-    isAvatarUrl: true,
-    content: '✨ The RVCE Annual Alumni Leadership Summit 2026 registration is officially live! Keynotes by distinguished founders, networking dinners, and digital QR event passes available in the Events section.',
-    image: null,
-    likes: 35,
-    comments: [],
-    commentsCount: 8,
-    time: '2 days ago',
-    isAdmin: true,
-    isOfficial: true
-  }
-];
+// Pool of all known posts across all users — empty default for real API-only data
+const ALL_KNOWN_POSTS = [];
 
 /**
  * Respective college campus photos with official RV Alumni Garuda mascot
@@ -185,26 +130,8 @@ const getCollegeBannerIndexForInstitution = (inst) => {
  * Returns ONLY posts from followed users + own posts.
  * Instagram-style: you only see posts from people you follow.
  */
-const getDefaultPostsForUser = (currentUserId, currentUserName, followingIds = []) => {
-  const userIdStr = (currentUserId || '').toString().toLowerCase();
-  const userNameStr = (currentUserName || '').toLowerCase();
-  const followingSet = new Set(followingIds.map(id => id.toString().toLowerCase()));
-
-  return ALL_KNOWN_POSTS.filter(post => {
-    // Skip reshared posts from feed
-    if (post.content && /reshared\s+from/i.test(post.content)) return false;
-
-    // Always show own posts
-    const isOwnPost = (post.authorId || '').toString().toLowerCase() === userIdStr ||
-      (userNameStr && (post.user || '').toLowerCase().includes(userNameStr));
-    if (isOwnPost) return true;
-
-    // Always show official announcement / admin posts
-    if (post.isAdmin || post.isOfficial) return true;
-
-    // Default to showing community posts so the feed is always vibrant and active
-    return true;
-  });
+const getDefaultPostsForUser = () => {
+  return [];
 };
 
 const getTimeAgo = (dateString) => {
