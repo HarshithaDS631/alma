@@ -99,56 +99,111 @@ const ALL_KNOWN_POSTS = [
  */
 const COLLEGE_BANNERS = [
   {
-    id: 'RVEI',
-    name: 'RV Educational Institutions',
-    tagline: 'Go, Change the World',
-    subtitle: 'Rashtreeya Sikshana Samithi Trust • Estd 1940',
-    image: require('../../assets/images/hero-campus-rvei.jpg'),
-    badge: 'RSST Central Campus'
-  },
-  {
     id: 'RVCE',
     name: 'RV College of Engineering',
-    tagline: 'Engineering & Technology',
+    shortName: 'RVCE',
+    tagline: 'Engineering & Technology Excellence',
     subtitle: 'Autonomous Institute affiliated to VTU • Mysore Road',
-    image: require('../../assets/images/hero-campus-mascot.jpg'),
-    badge: 'RVCE Flagship Campus'
+    estd: '1963',
+    location: 'Mysore Road, Bengaluru',
+    image: require('../../assets/images/campus-rvce.jpg'),
+    badge: 'RVCE Flagship Campus',
+    specialty: 'Engineering, AI, Robotics & Tech',
+    alumniCount: '28,000+ Alumni',
+    accreditation: 'NAAC A+ & NBA • NIRF Top 100',
+    chips: [
+      { icon: 'hardware-chip-outline', text: '15+ Engineering Depts' },
+      { icon: 'trophy-outline', text: 'NIRF Ranked' },
+      { icon: 'school-outline', text: 'Estd 1963' }
+    ]
   },
   {
     id: 'RVU',
     name: 'RV University',
+    shortName: 'RVU',
     tagline: 'Go, Change the World',
-    subtitle: 'Liberal arts, design, tech & global impact.',
-    image: require('../../assets/images/hero-campus-rvu.jpg'),
-    badge: 'RV University Campus'
+    subtitle: 'State Private University • Liberal Arts, Design, Law & Tech',
+    estd: '2021',
+    location: 'RV Vidyanikethan, Bengaluru',
+    image: require('../../assets/images/campus-rvu.jpg'),
+    badge: 'RV University Campus',
+    specialty: 'Liberal Arts, School of Design, Law & New-Age Tech',
+    alumniCount: '5,000+ Scholars',
+    accreditation: 'UGC Recognized State Private University',
+    chips: [
+      { icon: 'color-palette-outline', text: 'School of Design' },
+      { icon: 'book-outline', text: 'School of Law' },
+      { icon: 'sparkles-outline', text: 'Estd 2021' }
+    ]
   },
   {
     id: 'RVIM',
     name: 'RV Institute of Management',
+    shortName: 'RVIM',
     tagline: 'Leadership & Business Excellence',
-    subtitle: 'Connecting business leaders and innovators.',
-    image: require('../../assets/images/hero-campus-rvim.jpg'),
-    badge: 'RV Management & Commerce'
+    subtitle: 'Autonomous Management Institute • Jayanagar',
+    estd: '1999',
+    location: '4th T Block, Jayanagar, Bengaluru',
+    image: require('../../assets/images/campus-rvim.jpg'),
+    badge: 'RV Management & Commerce',
+    specialty: 'MBA, Finance, Business Analytics & Entrepreneurship',
+    alumniCount: '6,500+ CXOs & Leaders',
+    accreditation: 'NAAC "A+" Accredited Premier B-School',
+    chips: [
+      { icon: 'trending-up-outline', text: 'Premier MBA' },
+      { icon: 'ribbon-outline', text: 'NAAC A+ Grade' },
+      { icon: 'briefcase-outline', text: 'Estd 1999' }
+    ]
   },
   {
     id: 'RVCA',
     name: 'RV College of Architecture',
+    shortName: 'RVCA',
     tagline: 'Designing Tomorrow',
-    subtitle: 'Creative minds shaping spaces and modern design.',
-    image: require('../../assets/images/hero-campus-rvca.jpg'),
-    badge: 'RV Architecture & Design'
+    subtitle: 'Council of Architecture Accredited • Bengaluru',
+    estd: '1992',
+    location: 'Banashankari 6th Stage, Bengaluru',
+    image: require('../../assets/images/campus-rvca.jpg'),
+    badge: 'RV Architecture & Design',
+    specialty: 'Architecture, Urban Planning, Interior & Spatial Design',
+    alumniCount: '3,200+ Architects',
+    accreditation: 'Council of Architecture (COA) Approved',
+    chips: [
+      { icon: 'business-outline', text: 'B.Arch & M.Arch' },
+      { icon: 'compass-outline', text: 'COA Approved' },
+      { icon: 'cube-outline', text: 'Estd 1992' }
+    ]
+  },
+  {
+    id: 'RVEI',
+    name: 'RV Educational Institutions (RSST)',
+    shortName: 'RSST / RVEI',
+    tagline: 'Go, Change the World',
+    subtitle: 'Rashtreeya Sikshana Samithi Trust • Central Trust Campus',
+    estd: '1940',
+    location: 'Jayanagar, Bengaluru',
+    image: require('../../assets/images/hero-campus-rvei.jpg'),
+    badge: 'RSST Central Trust Campus',
+    specialty: 'Pioneering Higher Education across 27+ Institutions',
+    alumniCount: '45,000+ Global Alumni',
+    accreditation: 'Pioneering 80+ Year Educational Heritage',
+    chips: [
+      { icon: 'globe-outline', text: '27+ Institutions' },
+      { icon: 'shield-checkmark-outline', text: 'Estd 1940' },
+      { icon: 'people-outline', text: '45k+ Global Network' }
+    ]
   }
 ];
 
 const getCollegeBannerIndexForInstitution = (inst) => {
-  if (!inst || typeof inst !== 'string') return 1;
+  if (!inst || typeof inst !== 'string') return 0;
   const lower = inst.toLowerCase();
-  if (lower.includes('engineering') || lower.includes('rvce')) return 1;
-  if (lower.includes('university') || lower.includes('rvu')) return 2;
-  if (lower.includes('management') || lower.includes('rvim') || lower.includes('nmkrv') || lower.includes('ssmrv') || lower.includes('commerce')) return 3;
-  if (lower.includes('architecture') || lower.includes('rvca') || lower.includes('rvitm') || lower.includes('design')) return 4;
-  if (lower.includes('trust') || lower.includes('rsst') || lower.includes('rvei') || lower.includes('institutions')) return 0;
-  return 1; // Default RVCE
+  if (lower.includes('engineering') || lower.includes('rvce')) return 0;
+  if (lower.includes('university') || lower.includes('rvu')) return 1;
+  if (lower.includes('management') || lower.includes('rvim') || lower.includes('nmkrv') || lower.includes('ssmrv') || lower.includes('commerce')) return 2;
+  if (lower.includes('architecture') || lower.includes('rvca') || lower.includes('rvitm') || lower.includes('design')) return 3;
+  if (lower.includes('trust') || lower.includes('rsst') || lower.includes('rvei') || lower.includes('institutions')) return 4;
+  return 0; // Default RVCE
 };
 
 /**
@@ -270,6 +325,7 @@ const DashboardScreen = ({ navigation }) => {
   const [dismissMascotBanner, setDismissMascotBanner] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [showSpotlightModal, setShowSpotlightModal] = useState(false);
+  const [selectedCollegeIndex, setSelectedCollegeIndex] = useState(null);
 
   // Modal States
   const [activeModal, setActiveModal] = useState(null);
@@ -1421,87 +1477,133 @@ const DashboardScreen = ({ navigation }) => {
 
       {/* 2. Hero Mascot & Dedicated College Campus Banner */}
       {(() => {
-        const bannerIndex = getCollegeBannerIndexForInstitution(userInstitution);
-        const banner = COLLEGE_BANNERS[bannerIndex] || COLLEGE_BANNERS[1] || COLLEGE_BANNERS[0];
-        const badgeText = (userInstitution && userInstitution !== 'Our Network')
-          ? userInstitution
-          : (banner.badge || 'RSST Central Campus');
+        const initialIndex = getCollegeBannerIndexForInstitution(userInstitution);
+        const bannerIndex = selectedCollegeIndex !== null ? selectedCollegeIndex : initialIndex;
+        const banner = COLLEGE_BANNERS[bannerIndex] || COLLEGE_BANNERS[0];
+        const badgeText = `${banner.badge} • Estd ${banner.estd}`;
         return (
-          <View style={styles.heroBannerCard}>
-            {/* Top Imperial Gold Accent Line */}
-            <View style={styles.heroBannerGoldTopLine} />
-
-            {/* Seamless Ambient Background Campus Architecture */}
-            <Image 
-              source={banner.image} 
-              style={styles.heroBannerImage} 
-            />
-            {/* Smooth Velvet Gradient Wash Overlay */}
-            <View style={styles.heroBannerFadeOverlay} />
-
-            {/* Main Content Area */}
-            <View style={styles.heroBannerContent}>
-              <View style={styles.heroBannerBadgePill}>
-                <Ionicons name="shield-checkmark" size={13} color="#D4AF37" style={{ marginRight: 5 }} />
-                <Text style={styles.heroBannerBadgeText}>{badgeText} • Estd 1940</Text>
-              </View>
-
-              <Text style={styles.heroBannerTitle}>
-                Welcome to the <Text style={styles.heroBannerTitleHighlight}>ALUMNI NETWORK</Text>
-              </Text>
-
-              <Text style={styles.heroBannerSubtitle}>
-                Empowering <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>45,000+</Text> distinguished graduates across global technology leaders, venture founders, and academic faculties.
-              </Text>
-
-              {/* Prestige Collegiate Highlights */}
-              <View style={styles.heroBannerStatsRow}>
-                <View style={styles.heroBannerStatChip}>
-                  <Ionicons name="globe-outline" size={12} color="#D4AF37" style={{ marginRight: 4 }} />
-                  <Text style={styles.heroBannerStatText}>Global Chapter</Text>
+          <View style={styles.heroBannerContainer}>
+            {/* Interactive College Switcher Strip */}
+            <View style={styles.collegeSwitcherContainer}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                  <Ionicons name="business" size={14} color="#D4AF37" />
+                  <Text style={styles.collegeSwitcherHeaderTitle}>SELECT INSTITUTION / COLLEGE</Text>
                 </View>
-                <View style={styles.heroBannerStatChip}>
-                  <Ionicons name="briefcase-outline" size={12} color="#D4AF37" style={{ marginRight: 4 }} />
-                  <Text style={styles.heroBannerStatText}>Jobs & Referrals</Text>
-                </View>
-                <View style={styles.heroBannerStatChip}>
-                  <Ionicons name="ribbon-outline" size={12} color="#D4AF37" style={{ marginRight: 4 }} />
-                  <Text style={styles.heroBannerStatText}>Verified Alumni</Text>
-                </View>
+                <Text style={styles.collegeSwitcherHeaderCount}>{COLLEGE_BANNERS.length} Campuses</Text>
               </View>
-
-              {/* High-Contrast Action CTAs */}
-              <View style={styles.heroBannerActionsRow}>
-                <TouchableOpacity
-                  style={styles.heroBannerPrimaryBtn}
-                  onPress={() => navigation.navigate('Engage', { tab: 'directory' })}
-                  activeOpacity={0.82}
-                >
-                  <Ionicons name="compass" size={15} color="#0A192F" style={{ marginRight: 6 }} />
-                  <Text style={styles.heroBannerPrimaryBtnText}>Browse Directory</Text>
-                  <Ionicons name="arrow-forward" size={13} color="#0A192F" style={{ marginLeft: 5 }} />
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.heroBannerSecondaryBtn}
-                  onPress={() => navigation.navigate('Post')}
-                  activeOpacity={0.82}
-                >
-                  <Ionicons name="create-outline" size={15} color="#FFD700" style={{ marginRight: 6 }} />
-                  <Text style={styles.heroBannerSecondaryBtnText}>Share Professional Update</Text>
-                </TouchableOpacity>
-              </View>
+              <ScrollView 
+                horizontal 
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.collegeSwitcherScroll}
+              >
+                {COLLEGE_BANNERS.map((col, idx) => {
+                  const isSelected = bannerIndex === idx;
+                  return (
+                    <TouchableOpacity
+                      key={col.id}
+                      onPress={() => setSelectedCollegeIndex(idx)}
+                      style={[styles.collegeSwitcherPill, isSelected && styles.collegeSwitcherPillActive]}
+                      activeOpacity={0.8}
+                    >
+                      <Ionicons 
+                        name={isSelected ? 'checkmark-circle' : 'school-outline'} 
+                        size={13} 
+                        color={isSelected ? '#0A192F' : (isDarkMode ? '#FDE68A' : '#D4AF37')} 
+                        style={{ marginRight: 5 }} 
+                      />
+                      <Text style={[styles.collegeSwitcherText, isSelected && styles.collegeSwitcherTextActive]}>
+                        {col.shortName}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
             </View>
 
-            {/* Official RV Garuda Mascot Crest Medallion */}
-            <View style={styles.heroBannerMedallionWrap} pointerEvents="none">
-              <View style={styles.heroBannerMedallion}>
-                <Image 
-                  source={require('../../assets/images/mascot.png')}
-                  style={styles.heroBannerMascotImg}
-                />
-                <View style={styles.heroBannerMascotBadge}>
-                  <Text style={styles.heroBannerMascotBadgeText}>RV GARUDA</Text>
+            {/* Main Hero Banner Card */}
+            <View style={styles.heroBannerCard}>
+              {/* Top Imperial Gold Accent Line */}
+              <View style={styles.heroBannerGoldTopLine} />
+
+              {/* Seamless Ambient Background Campus Architecture */}
+              <Image 
+                source={banner.image} 
+                style={styles.heroBannerImage} 
+              />
+              {/* Smooth Velvet Gradient Wash Overlay */}
+              <View style={styles.heroBannerFadeOverlay} />
+
+              {/* Main Content Area */}
+              <View style={styles.heroBannerContent}>
+                <View style={styles.heroBannerBadgePill}>
+                  <Ionicons name="shield-checkmark" size={13} color="#D4AF37" style={{ marginRight: 5 }} />
+                  <Text style={styles.heroBannerBadgeText}>{badgeText}</Text>
+                </View>
+
+                {/* Institution Name Prominently Featured */}
+                <Text style={styles.heroBannerTitle}>
+                  Welcome to <Text style={styles.heroBannerTitleHighlight}>{banner.shortName}</Text> Alumni
+                </Text>
+
+                <Text style={styles.heroBannerSubtitle}>
+                  <Text style={{ color: '#FFFFFF', fontWeight: '800' }}>{banner.name}</Text>
+                  {' — '}{banner.specialty}. {banner.accreditation}.
+                </Text>
+
+                {/* Campus Location Pin */}
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+                  <Ionicons name="location-outline" size={13} color="#D4AF37" style={{ marginRight: 4 }} />
+                  <Text style={styles.heroBannerLocationText}>{banner.location}</Text>
+                </View>
+
+                {/* Prestige Collegiate Highlights */}
+                <View style={styles.heroBannerStatsRow}>
+                  {banner.chips.map((chip, cIdx) => (
+                    <View key={`chip-${cIdx}`} style={styles.heroBannerStatChip}>
+                      <Ionicons name={chip.icon} size={12} color="#D4AF37" style={{ marginRight: 4 }} />
+                      <Text style={styles.heroBannerStatText}>{chip.text}</Text>
+                    </View>
+                  ))}
+                  <View style={styles.heroBannerStatChip}>
+                    <Ionicons name="people" size={12} color="#D4AF37" style={{ marginRight: 4 }} />
+                    <Text style={styles.heroBannerStatText}>{banner.alumniCount}</Text>
+                  </View>
+                </View>
+
+                {/* High-Contrast Action CTAs */}
+                <View style={styles.heroBannerActionsRow}>
+                  <TouchableOpacity
+                    style={styles.heroBannerPrimaryBtn}
+                    onPress={() => navigation.navigate('Engage', { tab: 'directory', institution: banner.name })}
+                    activeOpacity={0.82}
+                  >
+                    <Ionicons name="compass" size={15} color="#0A192F" style={{ marginRight: 6 }} />
+                    <Text style={styles.heroBannerPrimaryBtnText}>Explore {banner.shortName} Directory</Text>
+                    <Ionicons name="arrow-forward" size={13} color="#0A192F" style={{ marginLeft: 5 }} />
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.heroBannerSecondaryBtn}
+                    onPress={() => navigation.navigate('Post')}
+                    activeOpacity={0.82}
+                  >
+                    <Ionicons name="create-outline" size={15} color="#FFD700" style={{ marginRight: 6 }} />
+                    <Text style={styles.heroBannerSecondaryBtnText}>Share Update</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Official RV Garuda Mascot Crest Medallion */}
+              <View style={styles.heroBannerMedallionWrap} pointerEvents="none">
+                <View style={styles.heroBannerMedallion}>
+                  <Image 
+                    source={require('../../assets/images/mascot.png')}
+                    style={styles.heroBannerMascotImg}
+                  />
+                  <View style={styles.heroBannerMascotBadge}>
+                    <Text style={styles.heroBannerMascotBadgeText}>{banner.shortName}</Text>
+                  </View>
                 </View>
               </View>
             </View>
@@ -1547,6 +1649,91 @@ const DashboardScreen = ({ navigation }) => {
           <Text style={styles.quickActionText}>Events</Text>
         </TouchableOpacity>
       </View>
+
+      {/* 3b. Dedicated Colleges & Institutions Architectural Showcase */}
+      <View style={styles.sectionHeadingRow}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <Ionicons name="school" size={18} color="#D4AF37" />
+          <Text style={styles.sectionHeadingTitle}>Colleges & Campuses</Text>
+        </View>
+        <TouchableOpacity 
+          onPress={() => navigation.navigate('Engage', { tab: 'directory' })} 
+          activeOpacity={0.7}
+        >
+          <Text style={styles.sectionHeadingLink}>View all in Directory →</Text>
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.campusShowcaseScroll}
+      >
+        {COLLEGE_BANNERS.map((college, idx) => {
+          const isSelectedInBanner = (selectedCollegeIndex !== null ? selectedCollegeIndex : getCollegeBannerIndexForInstitution(userInstitution)) === idx;
+          const isCurrentEnrolled = userInstitution && userInstitution.toLowerCase().includes(college.shortName.toLowerCase());
+          return (
+            <TouchableOpacity
+              key={`showcase-college-${college.id}`}
+              style={[styles.campusShowcaseCard, isSelectedInBanner && styles.campusShowcaseCardSelected]}
+              onPress={() => setSelectedCollegeIndex(idx)}
+              activeOpacity={0.88}
+            >
+              {/* Institution Building Photograph */}
+              <View style={styles.campusShowcaseImgWrap}>
+                <Image source={college.image} style={styles.campusShowcaseImg} />
+                <View style={styles.campusShowcaseImgOverlay} />
+                
+                {/* Floating Top Badges */}
+                <View style={styles.campusShowcaseTopRow}>
+                  <View style={styles.campusEstdBadge}>
+                    <Text style={styles.campusEstdText}>Estd {college.estd}</Text>
+                  </View>
+                  {isCurrentEnrolled && (
+                    <View style={styles.yourCollegeBadge}>
+                      <Text style={styles.yourCollegeText}>Your College 🎓</Text>
+                    </View>
+                  )}
+                </View>
+              </View>
+
+              {/* Institution Info Card Body */}
+              <View style={styles.campusShowcaseBody}>
+                <Text style={styles.campusShowcaseName} numberOfLines={1}>
+                  {college.name}
+                </Text>
+                
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 3, marginBottom: 5 }}>
+                  <Ionicons name="location" size={11.5} color="#D4AF37" style={{ marginRight: 3 }} />
+                  <Text style={styles.campusShowcaseLocation} numberOfLines={1}>
+                    {college.location}
+                  </Text>
+                </View>
+
+                <Text style={styles.campusShowcaseSpecialty} numberOfLines={1}>
+                  {college.specialty}
+                </Text>
+
+                <View style={styles.campusShowcaseFooter}>
+                  <View>
+                    <Text style={styles.campusShowcaseAlumniLabel}>Network</Text>
+                    <Text style={styles.campusShowcaseAlumniVal}>{college.alumniCount}</Text>
+                  </View>
+                  
+                  <TouchableOpacity
+                    style={styles.campusShowcaseExploreBtn}
+                    onPress={() => navigation.navigate('Engage', { tab: 'directory', institution: college.name })}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.campusShowcaseExploreBtnText}>View Alumni</Text>
+                    <Ionicons name="arrow-forward" size={11} color="#0A192F" style={{ marginLeft: 3 }} />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
 
       {/* 4. Alumni Spotlight Section */}
       <View style={styles.sectionHeadingRow}>
@@ -2846,6 +3033,58 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   },
 
   /* 2. Hero Mascot & Campus Banner */
+  heroBannerContainer: {
+    marginBottom: 16,
+  },
+  collegeSwitcherContainer: {
+    marginBottom: 10,
+    paddingHorizontal: 2,
+  },
+  collegeSwitcherHeaderTitle: {
+    fontSize: 10.5,
+    fontWeight: '800',
+    color: '#D4AF37',
+    letterSpacing: 0.8,
+  },
+  collegeSwitcherHeaderCount: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: isDarkMode ? '#94A3B8' : '#64748B',
+  },
+  collegeSwitcherScroll: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 2,
+  },
+  collegeSwitcherPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: isDarkMode ? '#0F1D38' : '#F1F5F9',
+    paddingHorizontal: 12,
+    paddingVertical: 6.5,
+    borderRadius: 20,
+    borderWidth: 1.2,
+    borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.35)' : '#CBD5E1',
+  },
+  collegeSwitcherPillActive: {
+    backgroundColor: '#D4AF37',
+    borderColor: '#D4AF37',
+    shadowColor: '#D4AF37',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  collegeSwitcherText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: isDarkMode ? '#F8FAFC' : '#0F2C59',
+  },
+  collegeSwitcherTextActive: {
+    color: '#0A192F',
+    fontWeight: '900',
+  },
   heroBannerCard: {
     minHeight: 210,
     borderRadius: 22,
@@ -2854,7 +3093,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     borderColor: '#D4AF37',
     overflow: 'hidden',
     position: 'relative',
-    marginBottom: 16,
+    marginBottom: 0,
     shadowColor: '#0A192F',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.45,
@@ -2932,9 +3171,14 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     fontSize: 12,
     color: '#F1F5F9',
     marginTop: 4,
-    marginBottom: 10,
+    marginBottom: 8,
     lineHeight: 17,
     fontWeight: '400',
+  },
+  heroBannerLocationText: {
+    fontSize: 11.5,
+    fontWeight: '600',
+    color: '#FDE68A',
   },
   heroBannerStatsRow: {
     flexDirection: 'row',
@@ -3042,6 +3286,140 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     fontSize: 8.5,
     fontWeight: '900',
     letterSpacing: 0.6,
+  },
+
+  /* Colleges & Campuses Showcase Section */
+  campusShowcaseScroll: {
+    paddingHorizontal: 2,
+    paddingBottom: 14,
+    gap: 12,
+  },
+  campusShowcaseCard: {
+    width: 260,
+    borderRadius: 18,
+    overflow: 'hidden',
+    backgroundColor: isDarkMode ? '#0A192F' : '#0F2C59',
+    borderWidth: 1.5,
+    borderColor: 'rgba(212, 175, 55, 0.45)',
+    shadowColor: '#0A192F',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  campusShowcaseCardSelected: {
+    borderColor: '#D4AF37',
+    borderWidth: 2,
+    shadowColor: '#D4AF37',
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  campusShowcaseImgWrap: {
+    width: '100%',
+    height: 115,
+    position: 'relative',
+  },
+  campusShowcaseImg: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  campusShowcaseImgOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(7, 21, 43, 0.35)',
+  },
+  campusShowcaseTopRow: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    right: 8,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    zIndex: 2,
+  },
+  campusEstdBadge: {
+    backgroundColor: 'rgba(10, 25, 47, 0.85)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#D4AF37',
+  },
+  campusEstdText: {
+    color: '#F5D061',
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.2,
+  },
+  yourCollegeBadge: {
+    backgroundColor: '#D4AF37',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  yourCollegeText: {
+    color: '#0A192F',
+    fontSize: 10,
+    fontWeight: '900',
+  },
+  campusShowcaseBody: {
+    padding: 12,
+  },
+  campusShowcaseName: {
+    fontSize: 13.5,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: -0.2,
+  },
+  campusShowcaseLocation: {
+    fontSize: 11,
+    color: '#E2E8F0',
+    fontWeight: '500',
+    flex: 1,
+  },
+  campusShowcaseSpecialty: {
+    fontSize: 11,
+    color: '#FDE68A',
+    fontWeight: '600',
+    marginBottom: 10,
+  },
+  campusShowcaseFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(212, 175, 55, 0.2)',
+    paddingTop: 8,
+  },
+  campusShowcaseAlumniLabel: {
+    fontSize: 9.5,
+    color: '#94A3B8',
+    textTransform: 'uppercase',
+    fontWeight: '700',
+  },
+  campusShowcaseAlumniVal: {
+    fontSize: 11.5,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+  campusShowcaseExploreBtn: {
+    backgroundColor: '#D4AF37',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  campusShowcaseExploreBtnText: {
+    color: '#0A192F',
+    fontSize: 11,
+    fontWeight: '900',
   },
 
   /* Carousel Dots */

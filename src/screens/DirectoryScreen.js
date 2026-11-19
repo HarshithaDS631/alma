@@ -124,7 +124,12 @@ const DirectoryScreen = ({ navigation, route }) => {
     if (route?.params?.tab) {
       setActiveTab(route.params.tab);
     }
-  }, [route?.params?.tab]);
+    if (route?.params?.institution) {
+      setSearchQuery(route.params.institution);
+    } else if (route?.params?.search) {
+      setSearchQuery(route.params.search);
+    }
+  }, [route?.params]);
 
   useFocusEffect(
     useCallback(() => {
@@ -391,7 +396,8 @@ const DirectoryScreen = ({ navigation, route }) => {
         const matchesYear = (member.batchYear || '').includes(q);
         const matchesLoc = (member.location || '').toLowerCase().includes(q);
         const matchesTags = (member.tags || []).some(t => t.toLowerCase().includes(q));
-        if (!matchesName && !matchesRole && !matchesCompany && !matchesYear && !matchesLoc && !matchesTags) {
+        const matchesInstitution = (member.institution || '').toLowerCase().includes(q);
+        if (!matchesName && !matchesRole && !matchesCompany && !matchesYear && !matchesLoc && !matchesTags && !matchesInstitution) {
           return false;
         }
       }
