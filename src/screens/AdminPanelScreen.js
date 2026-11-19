@@ -395,7 +395,7 @@ export default function AdminPanelScreen({ navigation }) {
         </View>
 
         <Text style={styles.previewPersonaBadge}>
-          Simulated Recipient: <Text style={{ fontWeight: '700' }}>Harshitha D S</Text> • Class of 2024 • CSE • {adminInstitution}
+          Preview Recipient: <Text style={{ fontWeight: '700' }}>Harshitha D S</Text> • Class of 2024 • CSE • {adminInstitution}
         </Text>
 
         {device === 'mobile' ? (

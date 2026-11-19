@@ -1792,7 +1792,7 @@ const DEFAULT_TAGGED_POSTS = [];
                 <Text style={styles.editLabel}>Profile Picture Image URL</Text>
                 <TextInput 
                   style={styles.securityInput} 
-                  placeholder="https://example.com/avatar.jpg" 
+                  placeholder="https://images.unsplash.com/... or cloud URL" 
                   placeholderTextColor="#94A3B8"
                   value={editAvatarUrl}
                   onChangeText={setEditAvatarUrl}

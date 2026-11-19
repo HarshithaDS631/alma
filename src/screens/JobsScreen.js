@@ -57,206 +57,7 @@ const KEYWORD_FILTERS = [
   'Full-time'
 ];
 
-export const DEFAULT_ALUMNI_JOBS = [
-  {
-    _id: 'job_google_01',
-    title: 'Senior Software Engineer - Cloud Infrastructure',
-    company: 'Google',
-    companyInitial: 'G',
-    companyColor: '#4285F4',
-    location: 'Bangalore, India',
-    workplaceType: 'Hybrid',
-    jobType: 'Full-time',
-    salaryRange: '₹38L – ₹55L • Equity + Bonus',
-    experienceLevel: '3-6 years',
-    applicantCount: 38,
-    alumniCount: 14,
-    alumniRecruiter: {
-      name: 'Aditya Rao',
-      role: 'Staff Engineering Lead (RVCE CSE 2016)',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-      isAlumni: true,
-      batch: 'Class of 2016',
-      department: 'Computer Science'
-    },
-    keywords: ['Python', 'Go', 'Kubernetes', 'GCP', 'Distributed Systems', 'System Design'],
-    aboutCompany: 'Google is a global technology leader focusing on search, cloud, AI, and consumer hardware with major development centers across Bangalore and Hyderabad.',
-    description: `Google is seeking a Senior Software Engineer to design, develop, and scale high-performance cloud infrastructure services. You will architect distributed systems that handle billions of requests with ultra-low latency.
-
-Key Responsibilities:
-• Architect resilient microservices using Go and Python on Google Cloud Platform.
-• Lead reliability, observability, and container orchestration using Kubernetes and Istio.
-• Mentor junior engineers and collaborate with global engineering teams across Mountain View and Zurich.
-
-Qualifications & Skills:
-• 3+ years experience with large-scale distributed backend systems.
-• Deep proficiency with Python, Go, or C++.
-• Solid foundation in data structures, algorithms, and microservice architecture.`,
-    screeningQuestions: [
-      { id: 'q1', question: 'How many years of work experience do you have with Distributed Systems and Go/Python?', options: ['1-2 years', '3-5 years', '5+ years'] },
-      { id: 'q2', question: 'Have you worked with Kubernetes in production environments?', options: ['Yes, extensively', 'Yes, basic knowledge', 'No, willing to learn'] },
-      { id: 'q3', question: 'Notice period / joining availability', options: ['Immediate', '15 Days', '30 Days', '60+ Days'] }
-    ]
-  },
-  {
-    _id: 'job_msft_02',
-    title: 'Full Stack Engineer - Azure Developer Platform',
-    company: 'Microsoft',
-    companyInitial: 'M',
-    companyColor: '#00A4EF',
-    location: 'Hyderabad / Bangalore',
-    workplaceType: 'Remote',
-    jobType: 'Full-time',
-    salaryRange: '₹32L – ₹46L + Stock Units',
-    experienceLevel: '2-5 years',
-    applicantCount: 42,
-    alumniCount: 22,
-    alumniRecruiter: {
-      name: 'Sneha Kulkarni',
-      role: 'Principal PM Manager (RVCE ISE 2015)',
-      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
-      isAlumni: true,
-      batch: 'Class of 2015',
-      department: 'Information Science'
-    },
-    keywords: ['React', 'TypeScript', 'Node.js', 'Azure', 'GraphQL', 'Docker'],
-    aboutCompany: 'Microsoft enables digital transformation for the era of an intelligent cloud and an intelligent edge. Our mission is to empower every person and organization to achieve more.',
-    description: `Join the Azure Developer Experience team to build the next generation of cloud developer tools, IDE extensions, and cloud dashboards used by millions of engineers worldwide.
-
-Key Responsibilities:
-• Build lightning-fast web applications with React, TypeScript, and modern GraphQL backends.
-• Partner with product designers and UX researchers to create delightful developer tooling.
-• Ensure enterprise-grade accessibility, security, and automated CI/CD deployment pipelines.
-
-Qualifications & Skills:
-• Strong frontend foundations in React, TypeScript, and modern state management.
-• Node.js or C# backend service experience.
-• Familiarity with Azure, AWS, or Docker containers.`,
-    screeningQuestions: [
-      { id: 'q1', question: 'How many years of experience do you have with React & TypeScript?', options: ['1-2 years', '3-5 years', '5+ years'] },
-      { id: 'q2', question: 'Are you comfortable working in a distributed remote team across time zones?', options: ['Yes', 'No'] },
-      { id: 'q3', question: 'Notice period / joining availability', options: ['Immediate', '15 Days', '30 Days', '60+ Days'] }
-    ]
-  },
-  {
-    _id: 'job_amazon_03',
-    title: 'Applied AI & Machine Learning Scientist',
-    company: 'Amazon Web Services (AWS)',
-    companyInitial: 'A',
-    companyColor: '#FF9900',
-    location: 'Bangalore, India',
-    workplaceType: 'Hybrid',
-    jobType: 'Full-time',
-    salaryRange: '₹42L – ₹60L + Sign-on Bonus',
-    experienceLevel: '2-6 years',
-    applicantCount: 29,
-    alumniCount: 19,
-    alumniRecruiter: {
-      name: 'Rohan Sharma',
-      role: 'Senior Machine Learning Manager (RVCE ECE 2014)',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
-      isAlumni: true,
-      batch: 'Class of 2014',
-      department: 'Electronics & Communication'
-    },
-    keywords: ['Machine Learning', 'Python', 'PyTorch', 'AWS', 'LLMs', 'NLP', 'Docker'],
-    aboutCompany: 'AWS is the world’s most comprehensive and broadly adopted cloud platform, offering over 200 fully featured services from data centers globally.',
-    description: `AWS is looking for an Applied Machine Learning Scientist to build cutting-edge generative AI models, recommendation systems, and autonomous pipeline tooling for AWS Bedrock and SageMaker customers.
-
-Key Responsibilities:
-• Train and fine-tune large foundation models and NLP pipelines using PyTorch and Hugging Face.
-• Optimize model inference latency and memory footprints for deployment on AWS Inferentia.
-• Publish research papers and file patents on novel multi-modal architectures.
-
-Qualifications & Skills:
-• Experience deploying deep learning models in production.
-• Strong coding skills in Python, PyTorch/TensorFlow, and vector databases.
-• Strong mathematical foundation in linear algebra, probability, and optimization.`,
-    screeningQuestions: [
-      { id: 'q1', question: 'What is your primary machine learning framework?', options: ['PyTorch', 'TensorFlow', 'JAX', 'Scikit-learn'] },
-      { id: 'q2', question: 'Have you fine-tuned or deployed Large Language Models (LLMs)?', options: ['Yes, in production', 'Yes, in personal projects', 'No, theoretical knowledge'] },
-      { id: 'q3', question: 'Notice period / joining availability', options: ['Immediate', '15 Days', '30 Days', '60+ Days'] }
-    ]
-  },
-  {
-    _id: 'job_cisco_04',
-    title: 'DevOps & Site Reliability Engineer (SRE)',
-    company: 'Cisco Systems',
-    companyInitial: 'C',
-    companyColor: '#1BA0D7',
-    location: 'Bangalore, India',
-    workplaceType: 'On-site',
-    jobType: 'Full-time',
-    salaryRange: '₹26L – ₹38L + Perks',
-    experienceLevel: '2-4 years',
-    applicantCount: 18,
-    alumniCount: 31,
-    alumniRecruiter: {
-      name: 'Pooja Hegde',
-      role: 'Staff SRE Director (RVCE CSE 2013)',
-      avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150',
-      isAlumni: true,
-      batch: 'Class of 2013',
-      department: 'Computer Science'
-    },
-    keywords: ['DevOps', 'AWS', 'Kubernetes', 'Terraform', 'CI/CD', 'Linux', 'Python'],
-    aboutCompany: 'Cisco is the worldwide leader in technology that powers the Internet, delivering digital transformation through networking, cloud, and cybersecurity.',
-    description: `Cisco's Cloud Security division is hiring an SRE to drive high availability, automated infrastructure provisioning, and continuous deployment across multi-cloud environments.
-
-Key Responsibilities:
-• Implement Infrastructure-as-Code using Terraform and Ansible.
-• Maintain 99.99% uptime for global enterprise DNS and VPN tunneling services.
-• Automate incident response and conduct blameless post-mortems.
-
-Qualifications & Skills:
-• Strong Linux system administration and networking (TCP/IP, BGP, DNS) background.
-• Experience with Kubernetes, Docker, and CI/CD tools (GitHub Actions, Jenkins).`,
-    screeningQuestions: [
-      { id: 'q1', question: 'Years of hands-on experience managing Kubernetes clusters in production?', options: ['1-2 years', '3-5 years', '5+ years'] },
-      { id: 'q2', question: 'Experience writing Terraform infrastructure as code?', options: ['Expert', 'Intermediate', 'Beginner'] },
-      { id: 'q3', question: 'Notice period / joining availability', options: ['Immediate', '15 Days', '30 Days', '60+ Days'] }
-    ]
-  },
-  {
-    _id: 'job_uber_05',
-    title: 'Product Engineer - Mobility & Payments',
-    company: 'Uber',
-    companyInitial: 'U',
-    companyColor: '#000000',
-    location: 'Bangalore, India',
-    workplaceType: 'Hybrid',
-    jobType: 'Full-time',
-    salaryRange: '₹36L – ₹52L + Stock Grants',
-    experienceLevel: '3-6 years',
-    applicantCount: 54,
-    alumniCount: 16,
-    alumniRecruiter: {
-      name: 'Karthik V.',
-      role: 'Engineering Manager (RVCE Telecomm 2015)',
-      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150',
-      isAlumni: true,
-      batch: 'Class of 2015',
-      department: 'Telecommunication'
-    },
-    keywords: ['Java', 'Go', 'SQL', 'Microservices', 'Kafka', 'System Design'],
-    aboutCompany: 'Uber ignites opportunity by setting the world in motion, powering ridesharing, freight logistics, and seamless digital commerce across 70+ countries.',
-    description: `Uber Bangalore is the core engineering hub for global payments, rider experience, and driver earnings. We are looking for talented engineers to build mission-critical payment gateways and financial ledger systems.
-
-Key Responsibilities:
-• Develop idempotent payment processing workflows handling millions of dollars daily.
-• Build real-time streaming architectures using Apache Kafka and Apache Flink.
-• Work with global compliance, risk, and fraud teams.
-
-Qualifications & Skills:
-• Solid backend engineering in Java, Go, or C++.
-• Strong understanding of ACID transactions, distributed locking, and relational databases.`,
-    screeningQuestions: [
-      { id: 'q1', question: 'Do you have experience with high-throughput message queues (Kafka / RabbitMQ)?', options: ['Yes, extensively', 'Yes, basic', 'No'] },
-      { id: 'q2', question: 'Are you comfortable working on hybrid schedule in Bangalore office?', options: ['Yes', 'No'] },
-      { id: 'q3', question: 'Notice period / joining availability', options: ['Immediate', '15 Days', '30 Days', '60+ Days'] }
-    ]
-  }
-];
+export const DEFAULT_ALUMNI_JOBS = [];
 
 const JobsScreen = ({ navigation, route }) => {
   const { theme, isDarkMode } = useTheme();
@@ -437,19 +238,19 @@ const JobsScreen = ({ navigation, route }) => {
             mergedSaved.unshift(loc);
           }
         });
-        setSavedJobs(mergedSaved.length > 0 ? mergedSaved : DEFAULT_ALUMNI_JOBS.slice(0, 1));
+        setSavedJobs(mergedSaved);
       } else if (activeTab === 'recommended') {
         const recs = await fetchRecommendedJobs();
         if (Array.isArray(recs) && recs.length > 0) {
           setRecommendedJobs(recs);
         } else {
-          // Calculate high-match jobs based on target keywords
+          // Calculate high-match jobs based on target keywords from real jobs
           const currentSkills = (targetKeywords || userSkills.join(', ')).toLowerCase().split(',').map(s => s.trim()).filter(Boolean);
-          const computed = DEFAULT_ALUMNI_JOBS.filter(job => {
+          const computed = (jobs || []).filter(job => {
             const jKws = (job.keywords || []).map(k => k.toLowerCase());
             return currentSkills.some(s => jKws.some(k => k.includes(s) || s.includes(k)));
           });
-          setRecommendedJobs(computed.length > 0 ? computed : DEFAULT_ALUMNI_JOBS.slice(0, 3));
+          setRecommendedJobs(computed);
         }
       } else if (activeTab === 'referrals') {
         loadReferralData();
@@ -575,7 +376,7 @@ const JobsScreen = ({ navigation, route }) => {
       if (exists) {
         updated = prev.filter(j => (j._id || j.id) !== jobId);
       } else {
-        const jobToAdd = [...jobs, ...DEFAULT_ALUMNI_JOBS].find(j => (j._id || j.id) === jobId);
+        const jobToAdd = jobs.find(j => (j._id || j.id) === jobId);
         updated = jobToAdd ? [jobToAdd, ...prev] : prev;
       }
       AsyncStorage.setItem('cached_saved_jobs', JSON.stringify(updated)).catch(() => {});
@@ -713,7 +514,7 @@ const JobsScreen = ({ navigation, route }) => {
     }
   };
 
-  const displayJobs = jobs.length > 0 ? jobs : DEFAULT_ALUMNI_JOBS;
+  const displayJobs = jobs;
   const filteredSearchJobs = displayJobs.filter(job => {
     if (selectedWorkplace !== 'All' && job.workplaceType !== selectedWorkplace) return false;
     if (selectedJobType !== 'All' && job.jobType !== selectedJobType) return false;

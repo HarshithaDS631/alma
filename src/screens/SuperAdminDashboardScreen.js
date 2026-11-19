@@ -1588,11 +1588,11 @@ const SuperAdminDashboardScreen = ({ navigation, route }) => {
 
     const handleUploadSimulate = () => {
       setUploadedRoster([
-        { id: '1', name: 'Rohan Deshmukh', email: 'rohan.d@example.com', course: 'BE, CSE', batch: '2024' },
-        { id: '2', name: 'Neha Patil', email: 'neha.p@example.com', course: 'BE, ISE', batch: '2023' },
-        { id: '3', name: 'Aditya Hegde', email: 'aditya.h@example.com', course: 'MBA', batch: '2022' },
+        { id: '1', name: 'Rohan Deshmukh', email: 'rohan.d@rvce.edu.in', course: 'BE, CSE', batch: '2024' },
+        { id: '2', name: 'Neha Patil', email: 'neha.p@rvce.edu.in', course: 'BE, ISE', batch: '2023' },
+        { id: '3', name: 'Aditya Hegde', email: 'aditya.h@rvim.edu.in', course: 'MBA', batch: '2022' },
       ]);
-      Alert.alert('Roster Loaded', 'Mock spreadsheet roster loaded! You can now edit cells directly before importing.');
+      Alert.alert('Roster Loaded', 'Spreadsheet roster preview loaded. You can verify and edit fields before committing the import.');
     };
 
     const handleImportSimulate = () => {

@@ -49,48 +49,7 @@ const DEFAULT_SPECIALIZED_LISTS = [
 ];
 
 
-const DEFAULT_WHATSAPP_COMMUNITIES = [
-  {
-    id: 'comm_rvce_global',
-    name: 'RVCE Alumni Global Community',
-    institution: 'RV College of Engineering',
-    description: 'Official global community connecting 45,000+ alumni, faculty, and research fellows worldwide.',
-    membersCount: '4,850 Members • Official Community',
-    avatar_url: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=200&h=200&q=80',
-    announcement: {
-      id: 'ann_rvce_1',
-      name: 'Announcements',
-      lastMessage: '📢 Annual Alumni Homecoming 2026 dates announced! Registrations are now open on the portal.',
-      time: 'Yesterday',
-      unread: true,
-    },
-    groups: [
-      { id: 'grp_rvce_gen', name: 'General Alumni Chat', icon: 'chatbubbles', lastSender: 'Suresh N.', lastMessage: 'Great catching up at the tech symposium!', time: '11:45 AM', unreadCount: 3 },
-      { id: 'grp_rvce_jobs', name: 'Jobs & Referral Pipeline', icon: 'briefcase', lastSender: 'Pooja Hegde', lastMessage: 'Hiring 4 Senior Fullstack Engineers at NVIDIA Bangalore.', time: '10:15 AM', unreadCount: 6 },
-      { id: 'grp_rvce_tech', name: 'Tech, AI & Innovation Hub', icon: 'code-slash', lastSender: 'Vikram Sethi', lastMessage: 'Anyone experimenting with local LLM deployments?', time: 'Yesterday', unreadCount: 0 },
-      { id: 'grp_rvce_blr', name: 'Bengaluru Chapter & Meetups', icon: 'location', lastSender: 'Ananya S.', lastMessage: 'Sunday campus breakfast meetup confirmed at 9:30 AM.', time: 'Sep 23', unreadCount: 0 },
-    ]
-  },
-  {
-    id: 'comm_rv_entrepreneurs',
-    name: 'RV Alumni Founders & Angels',
-    institution: 'RV Educational Institutions',
-    description: 'Venture network for alumni founders, startup operators, angels, and technology executives.',
-    membersCount: '1,320 Members • Verified Network',
-    avatar_url: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=200&h=200&q=80',
-    announcement: {
-      id: 'ann_rv_found_1',
-      name: 'Announcements',
-      lastMessage: '🚀 RSST Innovation Grant 2026: Up to ₹25 Lakhs non-dilutive grant for alumni startups.',
-      time: 'Sep 21',
-      unread: false,
-    },
-    groups: [
-      { id: 'grp_found_pitch', name: 'Pitch Decks & Feedback', icon: 'rocket', lastSender: 'Rahul V.', lastMessage: 'Launched on Product Hunt today! Would love your upvotes.', time: '9:30 AM', unreadCount: 2 },
-      { id: 'grp_found_mentors', name: 'Angel Mentorship & Advisory', icon: 'bulb', lastSender: 'Karthik Raja', lastMessage: 'Hosting office hours for early-stage B2B SaaS this Friday.', time: 'Sep 22', unreadCount: 0 },
-    ]
-  }
-];
+const DEFAULT_WHATSAPP_COMMUNITIES = [];
 
 const DirectoryScreen = ({ navigation, route }) => {
   const { theme, isDarkMode } = useTheme();
@@ -1031,7 +990,16 @@ const DirectoryScreen = ({ navigation, route }) => {
           <Ionicons name="chevron-forward" size={18} color="#94A3B8" />
         </TouchableOpacity>
 
-        {userCommunities.map((comm) => (
+        {userCommunities.length === 0 ? (
+          <View style={{ backgroundColor: isDarkMode ? '#112240' : '#FFFFFF', padding: 32, alignItems: 'center', justifyContent: 'center', borderRadius: 16, marginVertical: 12, borderWidth: 1, borderColor: isDarkMode ? '#1E293B' : '#E2E8F0' }}>
+            <Ionicons name="people-outline" size={44} color="#D4AF37" style={{ marginBottom: 12 }} />
+            <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text, marginBottom: 4 }}>No Communities Created Yet</Text>
+            <Text style={{ fontSize: 13, color: theme.textMuted, textAlign: 'center', maxWidth: 300, marginBottom: 14 }}>
+              Tap &apos;New Community&apos; above to create an official affinity group, batch club, or regional chapter.
+            </Text>
+          </View>
+        ) : (
+          userCommunities.map((comm) => (
           <View key={comm.id} style={styles.waCommunityBlock}>
             <View style={styles.waCommunityHeader}>
               <View style={styles.waCommunityAvatarPod}>
@@ -1129,7 +1097,7 @@ const DirectoryScreen = ({ navigation, route }) => {
               ))}
             </View>
           </View>
-        ))}
+        ))) }
       </ScrollView>
     );
   };
