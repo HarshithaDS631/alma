@@ -1423,53 +1423,87 @@ const DashboardScreen = ({ navigation }) => {
       {(() => {
         const bannerIndex = getCollegeBannerIndexForInstitution(userInstitution);
         const banner = COLLEGE_BANNERS[bannerIndex] || COLLEGE_BANNERS[1] || COLLEGE_BANNERS[0];
-        const firstName = userName ? userName.split(' ')[0] : 'RVian';
-        const collegeDisplayName = (userInstitution && userInstitution !== 'Our Network')
+        const badgeText = (userInstitution && userInstitution !== 'Our Network')
           ? userInstitution
-          : banner.name;
+          : (banner.badge || 'RSST Central Campus');
         return (
           <View style={styles.heroBannerCard}>
+            {/* Top Imperial Gold Accent Line */}
+            <View style={styles.heroBannerGoldTopLine} />
+
+            {/* Seamless Ambient Background Campus Architecture */}
             <Image 
               source={banner.image} 
               style={styles.heroBannerImage} 
             />
+            {/* Smooth Velvet Gradient Wash Overlay */}
             <View style={styles.heroBannerFadeOverlay} />
 
+            {/* Main Content Area */}
             <View style={styles.heroBannerContent}>
               <View style={styles.heroBannerBadgePill}>
-                <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#D4AF37', marginRight: 6 }} />
-                <Text style={styles.heroBannerBadgeText}>RSST Central Campus • Estd 1940</Text>
+                <Ionicons name="shield-checkmark" size={13} color="#D4AF37" style={{ marginRight: 5 }} />
+                <Text style={styles.heroBannerBadgeText}>{badgeText} • Estd 1940</Text>
               </View>
+
               <Text style={styles.heroBannerTitle}>
-                Welcome to the <Text style={{ color: '#D4AF37', fontWeight: '900' }}>ALUMNI NETWORK</Text>
+                Welcome to the <Text style={styles.heroBannerTitleHighlight}>ALUMNI NETWORK</Text>
               </Text>
+
               <Text style={styles.heroBannerSubtitle}>
-                Empowering 45,000+ graduates across global technology leaders, venture founders, and academic faculties.
+                Empowering <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>45,000+</Text> distinguished graduates across global technology leaders, venture founders, and academic faculties.
               </Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginTop: 8 }}>
+
+              {/* Prestige Collegiate Highlights */}
+              <View style={styles.heroBannerStatsRow}>
+                <View style={styles.heroBannerStatChip}>
+                  <Ionicons name="globe-outline" size={12} color="#D4AF37" style={{ marginRight: 4 }} />
+                  <Text style={styles.heroBannerStatText}>Global Chapter</Text>
+                </View>
+                <View style={styles.heroBannerStatChip}>
+                  <Ionicons name="briefcase-outline" size={12} color="#D4AF37" style={{ marginRight: 4 }} />
+                  <Text style={styles.heroBannerStatText}>Jobs & Referrals</Text>
+                </View>
+                <View style={styles.heroBannerStatChip}>
+                  <Ionicons name="ribbon-outline" size={12} color="#D4AF37" style={{ marginRight: 4 }} />
+                  <Text style={styles.heroBannerStatText}>Verified Alumni</Text>
+                </View>
+              </View>
+
+              {/* High-Contrast Action CTAs */}
+              <View style={styles.heroBannerActionsRow}>
                 <TouchableOpacity
-                  style={styles.heroBannerBtn}
+                  style={styles.heroBannerPrimaryBtn}
                   onPress={() => navigation.navigate('Engage', { tab: 'directory' })}
-                  activeOpacity={0.8}
+                  activeOpacity={0.82}
                 >
-                  <Text style={styles.heroBannerBtnText}>Browse Directory →</Text>
+                  <Ionicons name="compass" size={15} color="#0A192F" style={{ marginRight: 6 }} />
+                  <Text style={styles.heroBannerPrimaryBtnText}>Browse Directory</Text>
+                  <Ionicons name="arrow-forward" size={13} color="#0A192F" style={{ marginLeft: 5 }} />
                 </TouchableOpacity>
+
                 <TouchableOpacity
                   style={styles.heroBannerSecondaryBtn}
                   onPress={() => navigation.navigate('Post')}
-                  activeOpacity={0.8}
+                  activeOpacity={0.82}
                 >
+                  <Ionicons name="create-outline" size={15} color="#FFD700" style={{ marginRight: 6 }} />
                   <Text style={styles.heroBannerSecondaryBtnText}>Share Professional Update</Text>
                 </TouchableOpacity>
               </View>
             </View>
 
-            {/* Official RV Garuda Mascot Overlay */}
-            <View style={styles.heroBannerMascotWrap} pointerEvents="none">
-              <Image 
-                source={require('../../assets/images/mascot.png')}
-                style={styles.heroBannerMascotImg}
-              />
+            {/* Official RV Garuda Mascot Crest Medallion */}
+            <View style={styles.heroBannerMedallionWrap} pointerEvents="none">
+              <View style={styles.heroBannerMedallion}>
+                <Image 
+                  source={require('../../assets/images/mascot.png')}
+                  style={styles.heroBannerMascotImg}
+                />
+                <View style={styles.heroBannerMascotBadge}>
+                  <Text style={styles.heroBannerMascotBadgeText}>RV GARUDA</Text>
+                </View>
+              </View>
             </View>
           </View>
         );
@@ -2813,19 +2847,29 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
 
   /* 2. Hero Mascot & Campus Banner */
   heroBannerCard: {
-    minHeight: 195,
-    borderRadius: 20,
-    backgroundColor: '#0A192F',
+    minHeight: 210,
+    borderRadius: 22,
+    backgroundColor: '#07152B',
     borderWidth: 1.5,
     borderColor: '#D4AF37',
     overflow: 'hidden',
     position: 'relative',
     marginBottom: 16,
     shadowColor: '#0A192F',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.45,
+    shadowRadius: 14,
+    elevation: 6,
+  },
+  heroBannerGoldTopLine: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 3,
+    backgroundColor: '#D4AF37',
+    opacity: 0.9,
+    zIndex: 5,
   },
   heroBannerImage: {
     position: 'absolute',
@@ -2835,22 +2879,22 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
+    opacity: 0.25,
   },
   heroBannerFadeOverlay: {
     position: 'absolute',
     left: 0,
     top: 0,
     bottom: 0,
-    width: '80%',
-    backgroundColor: 'rgba(10, 25, 47, 0.95)',
-    borderTopRightRadius: 30,
-    borderBottomRightRadius: 30,
+    right: 0,
+    backgroundColor: 'rgba(7, 21, 43, 0.88)',
   },
   heroBannerContent: {
     paddingHorizontal: 16,
-    paddingVertical: 14,
-    width: '80%',
-    height: '100%',
+    paddingTop: 18,
+    paddingBottom: 16,
+    paddingRight: 118,
+    width: '100%',
     justifyContent: 'center',
     zIndex: 2,
   },
@@ -2858,80 +2902,146 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
-    backgroundColor: 'rgba(212, 175, 55, 0.2)',
+    backgroundColor: 'rgba(212, 175, 55, 0.18)',
     paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    marginBottom: 6,
+    paddingVertical: 4.5,
+    borderRadius: 14,
+    marginBottom: 8,
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 55, 0.4)',
+    borderColor: 'rgba(212, 175, 55, 0.45)',
   },
   heroBannerBadgeText: {
     fontSize: 11,
-    fontWeight: '700',
-    color: '#D4AF37',
-    letterSpacing: 0.2,
-  },
-  heroBannerCollegeName: {
-    fontSize: 16,
     fontWeight: '800',
-    color: isDarkMode ? '#FAF5EB' : '#0F172A',
-    letterSpacing: -0.3,
-    lineHeight: 19,
-    marginBottom: 2,
-  },
-  heroBannerGreeting: {
-    fontSize: 12.5,
-    fontWeight: '600',
-    color: isDarkMode ? '#FDE68A' : '#D4AF37',
-    marginBottom: 2,
+    color: '#F5D061',
+    letterSpacing: 0.3,
   },
   heroBannerTitle: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: isDarkMode ? '#FAF5EB' : '#0F172A',
-    letterSpacing: -0.3,
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    letterSpacing: -0.2,
+    lineHeight: 23,
+  },
+  heroBannerTitleHighlight: {
+    color: '#FFD700',
+    fontWeight: '900',
+    letterSpacing: 0.6,
   },
   heroBannerSubtitle: {
-    fontSize: 11,
-    color: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#475569',
-    marginTop: 1,
-    marginBottom: 8,
-    lineHeight: 14,
+    fontSize: 12,
+    color: '#F1F5F9',
+    marginTop: 4,
+    marginBottom: 10,
+    lineHeight: 17,
+    fontWeight: '400',
   },
-  heroBannerBtn: {
-    backgroundColor: '#0F2C59',
-    paddingHorizontal: 13,
-    paddingVertical: 6,
-    borderRadius: 20,
+  heroBannerStatsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    alignSelf: 'flex-start',
-    shadowColor: '#0A192F',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginBottom: 12,
+  },
+  heroBannerStatChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.25)',
+  },
+  heroBannerStatText: {
+    fontSize: 10.5,
+    fontWeight: '600',
+    color: '#FDE68A',
+  },
+  heroBannerActionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  heroBannerPrimaryBtn: {
+    backgroundColor: '#D4AF37',
+    paddingHorizontal: 13,
+    paddingVertical: 8,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#D4AF37',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
+    shadowOpacity: 0.35,
+    shadowRadius: 5,
     elevation: 3,
   },
-  heroBannerBtnText: {
+  heroBannerPrimaryBtnText: {
+    color: '#0A192F',
+    fontWeight: '900',
+    fontSize: 12,
+    letterSpacing: 0.2,
+  },
+  heroBannerSecondaryBtn: {
+    backgroundColor: 'rgba(15, 44, 89, 0.75)',
+    paddingHorizontal: 12,
+    paddingVertical: 7.5,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1.2,
+    borderColor: '#D4AF37',
+  },
+  heroBannerSecondaryBtnText: {
     color: '#FFFFFF',
     fontWeight: '700',
-    fontSize: 11.5,
+    fontSize: 12,
+    letterSpacing: 0.2,
   },
-  heroBannerMascotWrap: {
+  heroBannerMedallionWrap: {
     position: 'absolute',
-    right: 8,
-    bottom: 0,
-    width: 78,
-    height: 158,
-    justifyContent: 'flex-end',
+    right: 14,
+    top: 16,
+    bottom: 16,
+    justifyContent: 'center',
     alignItems: 'center',
     zIndex: 3,
   },
+  heroBannerMedallion: {
+    width: 96,
+    height: 126,
+    borderRadius: 18,
+    backgroundColor: 'rgba(10, 25, 47, 0.85)',
+    borderWidth: 1.5,
+    borderColor: '#D4AF37',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 6,
+    paddingBottom: 6,
+    shadowColor: '#D4AF37',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 5,
+  },
   heroBannerMascotImg: {
-    width: '100%',
-    height: '100%',
+    width: 76,
+    height: 92,
     resizeMode: 'contain',
+  },
+  heroBannerMascotBadge: {
+    backgroundColor: '#D4AF37',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    marginTop: -2,
+  },
+  heroBannerMascotBadgeText: {
+    color: '#0A192F',
+    fontSize: 8.5,
+    fontWeight: '900',
+    letterSpacing: 0.6,
   },
 
   /* Carousel Dots */
