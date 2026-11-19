@@ -292,7 +292,6 @@ const DashboardScreen = ({ navigation }) => {
   const [searchText, setSearchText] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [userInstitution, setUserInstitution] = useState('Our Network');
-  const [selectedCollegeIndex, setSelectedCollegeIndex] = useState(null);
   const [userName, setUserName] = useState('');
   const [currentUser, setCurrentUser] = useState(null);
   const [feedFilter, setFeedFilter] = useState('all');
@@ -1452,53 +1451,14 @@ const DashboardScreen = ({ navigation }) => {
 
       {/* 2. Hero Mascot & Dedicated College Campus Showcase Banner */}
       {(() => {
-        const defaultBannerIndex = getCollegeBannerIndexForInstitution(userInstitution);
-        const activeIndex = selectedCollegeIndex !== null ? selectedCollegeIndex : defaultBannerIndex;
-        const banner = COLLEGE_BANNERS[activeIndex] || COLLEGE_BANNERS[1] || COLLEGE_BANNERS[0];
-        const isSelectedCollege = (idx) => activeIndex === idx;
-        const isMyCampus = (idx) => defaultBannerIndex === idx;
+        const bannerIndex = getCollegeBannerIndexForInstitution(userInstitution);
+        const banner = COLLEGE_BANNERS[bannerIndex] || COLLEGE_BANNERS[1] || COLLEGE_BANNERS[0];
         const isWideLayout = width >= 640;
 
         return (
           <View style={styles.heroBannerCard}>
             {/* Top Imperial Gold Accent Line */}
             <View style={styles.heroBannerGoldTopLine} />
-
-            {/* Top Interactive Campus Selector Tabs */}
-            <View style={styles.heroCampusSelectorBar}>
-              <View style={styles.heroCampusSelectorHeader}>
-                <Ionicons name="school" size={13} color="#D4AF37" style={{ marginRight: 5 }} />
-                <Text style={styles.heroCampusSelectorTitle}>SELECT CAMPUS ARCHITECTURE</Text>
-              </View>
-              <ScrollView 
-                horizontal 
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.heroCampusTabsScroll}
-              >
-                {COLLEGE_BANNERS.map((col, idx) => {
-                  const isActive = isSelectedCollege(idx);
-                  const isUserCol = isMyCampus(idx);
-                  return (
-                    <TouchableOpacity
-                      key={col.id}
-                      style={[styles.heroCampusTab, isActive && styles.heroCampusTabActive]}
-                      onPress={() => setSelectedCollegeIndex(idx)}
-                      activeOpacity={0.8}
-                    >
-                      <View style={[styles.heroCampusTabDot, isActive && styles.heroCampusTabDotActive]} />
-                      <Text style={[styles.heroCampusTabText, isActive && styles.heroCampusTabTextActive]}>
-                        {col.shortName}
-                      </Text>
-                      {isUserCol && (
-                        <View style={styles.heroCampusMyBadge}>
-                          <Text style={styles.heroCampusMyBadgeText}>My Campus</Text>
-                        </View>
-                      )}
-                    </TouchableOpacity>
-                  );
-                })}
-              </ScrollView>
-            </View>
 
             {/* Split layout on wide / Stacked on mobile */}
             <View style={[styles.heroBannerBody, isWideLayout ? styles.heroBannerBodyRow : styles.heroBannerBodyCol]}>
@@ -2982,81 +2942,6 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     backgroundColor: '#D4AF37',
     opacity: 0.95,
     zIndex: 5,
-  },
-  heroCampusSelectorBar: {
-    backgroundColor: '#0A192F',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(212, 175, 55, 0.25)',
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-  },
-  heroCampusSelectorHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  heroCampusSelectorTitle: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: '#F5D061',
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-  },
-  heroCampusTabsScroll: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingRight: 10,
-  },
-  heroCampusTab: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    backgroundColor: 'rgba(15, 44, 89, 0.45)',
-    borderWidth: 1,
-    borderColor: 'rgba(212, 175, 55, 0.3)',
-  },
-  heroCampusTabActive: {
-    backgroundColor: '#0F2C59',
-    borderColor: '#FFD700',
-    shadowColor: '#D4AF37',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.35,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  heroCampusTabDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#64748B',
-    marginRight: 6,
-  },
-  heroCampusTabDotActive: {
-    backgroundColor: '#FFD700',
-  },
-  heroCampusTabText: {
-    fontSize: 11.5,
-    fontWeight: '600',
-    color: '#E2E8F0',
-  },
-  heroCampusTabTextActive: {
-    color: '#FFFFFF',
-    fontWeight: '800',
-  },
-  heroCampusMyBadge: {
-    backgroundColor: '#D4AF37',
-    paddingHorizontal: 5,
-    paddingVertical: 1.5,
-    borderRadius: 6,
-    marginLeft: 6,
-  },
-  heroCampusMyBadgeText: {
-    color: '#0A192F',
-    fontSize: 9,
-    fontWeight: '900',
   },
   heroBannerBody: {
     padding: 16,
