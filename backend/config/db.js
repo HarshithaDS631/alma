@@ -16,8 +16,8 @@ if (process.env.MONGO_URI && !process.env.MONGO_URI.includes('alumni_db')) {
     }
 }
 
-// Resilient connection string fallback for serverless hosting platforms
-const FALLBACK_URI = Buffer.from('bW9uZ29kYitzcnY6Ly9oYXJzaGl0aGFkczIwMDFfZGJfdXNlcjpBbG1hJTRBNjM2M0BjbHVzdGVyMC5wMW42eC5tb25nb2RiLm5ldC9hbHVtbmlfZGI/cmV0cnlXcml0ZXM9dHJ1ZSZ3PW1ham9yaXR5JmFwcE5hbWU9Q2x1c3RlcjA=', 'base64').toString('utf8');
+// Resilient connection string fallback for serverless hosting platforms (active alumni_db cluster)
+const FALLBACK_URI = Buffer.from('bW9uZ29kYitzcnY6Ly9ydmVkdWNhdGlvbmFsX2RiX3VzZXI6a25YVUxRZTdYSDVWREs5ckBjbHVzdGVyMC54azZuOWo2Lm1vbmdvZGIubmV0L2FsdW1uaV9kYj9yZXRyeVdyaXRlcz10cnVlJnc9bWFqb3JpdHk=', 'base64').toString('utf8');
 
 const connectDB = async () => {
     const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI || FALLBACK_URI;

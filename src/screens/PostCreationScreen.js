@@ -100,9 +100,12 @@ const PostCreationScreen = ({ navigation }) => {
     } catch (error) {
       console.error('Error creating post:', error);
       setIsUploading(false);
-      const errorMsg = error.response?.data?.message || error.message || 'Failed to create post. Please try again later.';
-      if (Platform.OS === 'web') window.alert(`Error: ${errorMsg}`);
-      else Alert.alert('Error', errorMsg);
+      const isAuthErr = error.response?.status === 401 || error.response?.data?.message?.includes('token') || error.response?.data?.message?.includes('authorized');
+      const errorMsg = isAuthErr 
+        ? 'Your session has expired. Please log in again to post.' 
+        : (error.response?.data?.message || error.message || 'Failed to create post. Please try again later.');
+      if (Platform.OS === 'web') window.alert(errorMsg);
+      else Alert.alert('Notice', errorMsg);
     }
   };
 

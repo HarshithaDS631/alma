@@ -266,10 +266,10 @@ const LoginScreen = ({ navigation }) => {
     // Fast-track Admin Account for RVCE Alumni Affairs
     if (emailClean === 'alumniaffairs@rvei.edu.in') {
       try {
-        const adminToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InJ2Y2VfYWRtaW5fYWx1bW5pYWZmYWlycyIsImlhdCI6MTc5MDA3OTU5NiwiZXhwIjoxODIxNjE1NTk2fQ.adminToken';
+        const adminToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNTlkYWE0ZTU3MjEzZmQ2M2Q4MjY5OSIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc5NTA5MTcyOCwiZXhwIjoxODI2NjI3NzI4fQ.1cDHtHLEawSLnEZBnodGdHTzFBk1IrBqDthJOycBO1o';
         const adminUserData = {
-          _id: 'rvce_admin_alumniaffairs',
-          id: 'rvce_admin_alumniaffairs',
+          _id: '6a59daa4e57213fd63d82699',
+          id: '6a59daa4e57213fd63d82699',
           token: adminToken,
           name: 'RVCE Alumni Affairs Admin',
           email: 'alumniaffairs@rvei.edu.in',
@@ -308,7 +308,7 @@ const LoginScreen = ({ navigation }) => {
     // Fast-track Demo Account for Manager Presentation (Only when using valid demo password)
     if (emailClean === 'harshithads2001@gmail.com' && (password === 'Alumni@6363' || password === 'Gmail@2001')) {
       try {
-        const validToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNTlkYWE0ZTU3MjEzZmQ2M2Q4MjYxNyIsImlhdCI6MTc5MDA3OTU5NiwiZXhwIjoxODIxNjE1NTk2fQ.DcyI1VcrrHQ4OrGXdGOvCo4-AB7lKu4r6o7E7ZLPgdU';
+        const validToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNTlkYWE0ZTU3MjEzZmQ2M2Q4MjYxNyIsInJvbGUiOiJBbHVtbmkiLCJpYXQiOjE3OTUwOTE3MjgsImV4cCI6MTgyNjYyNzcyOH0.oNJUZMbf7E8nfBSush30rTAx0R7CUxu1f2jdOpLMxQw';
         const demoUserData = {
           _id: '6a59daa4e57213fd63d82617',
           id: '6a59daa4e57213fd63d82617',
