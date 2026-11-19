@@ -64,5 +64,6 @@ store-assets/*.jpeg
 
 # Binaries & Scratch
 *.apk
+*.aab
 scratch/
 .gemini/

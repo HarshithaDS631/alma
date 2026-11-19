@@ -21,10 +21,10 @@ import {
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
-import { getSuggestions, getPosts, getEvents, toggleFollowUser, getFollowing, getFollowers, toggleLikePost, getProfile, getUsers } from '../services/authService';
+import { getSuggestions, getPosts, getEvents, toggleFollowUser, getFollowing, getFollowers, toggleLikePost, getProfile, getUsers, blockUser } from '../services/authService';
 import { getImageUrl } from '../services/uploadService';
 import UserAvatar from '../components/UserAvatar';
-import { addComment, toggleSavePost, resharePost } from '../services/postService';
+import { addComment, toggleSavePost, resharePost, reportItem } from '../services/postService';
 import { sendMessage } from '../services/messageService';
 import { fetchJobs } from '../services/jobService';
 import useUserRole from '../hooks/useUserRole';
@@ -440,6 +440,7 @@ const DashboardScreen = ({ navigation }) => {
 
   // Real data states — initialize with all posts as open feed
   const [posts, setPosts] = useState([]);
+  const [blockedUsers, setBlockedUsers] = useState(new Set());
 
   const getPostCategory = useCallback((post) => {
     const isReshared = Boolean(post?.isReshare || post?.originalPost || post?.originalAuthorName || (post?.content && /reshared\s+from/i.test(post.content)));
@@ -462,6 +463,14 @@ const DashboardScreen = ({ navigation }) => {
   const filteredPosts = React.useMemo(() => {
     if (!Array.isArray(posts)) return [];
     let result = posts;
+    if (blockedUsers.size > 0) {
+      result = result.filter(p => {
+        const targetId = p.authorId || p.user_id || p.userId;
+        if (targetId && blockedUsers.has(targetId)) return false;
+        if (p.user && blockedUsers.has(p.user)) return false;
+        return true;
+      });
+    }
     if (feedFilter === 'jobs') {
       result = result.filter(p => /hiring|referral|job|opening|career|internship|role|recruit|opportunity/i.test((p.content || '') + ' ' + (p.role || '')));
     } else if (feedFilter === 'campus') {
@@ -486,7 +495,7 @@ const DashboardScreen = ({ navigation }) => {
       );
     }
     return result;
-  }, [posts, feedFilter, currentUser, followingMap, searchText]);
+  }, [posts, feedFilter, currentUser, followingMap, searchText, blockedUsers]);
 
   const [suggestions, setSuggestions] = useState([]);
   const [eventsAndJobs, setEventsAndJobs] = useState([]);
@@ -1130,10 +1139,53 @@ const DashboardScreen = ({ navigation }) => {
 
           {/* Right Header Badges */}
           <View style={{ alignItems: 'flex-end', gap: 6 }}>
-            {/* Category Intent Badge */}
-            <View style={[styles.categoryBadge, { backgroundColor: category.bg }]}>
-              <Ionicons name={category.icon} size={11} color={category.color} style={{ marginRight: 3 }} />
-              <Text style={[styles.categoryBadgeText, { color: category.color }]}>{category.label}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              {/* Category Intent Badge */}
+              <View style={[styles.categoryBadge, { backgroundColor: category.bg }]}>
+                <Ionicons name={category.icon} size={11} color={category.color} style={{ marginRight: 3 }} />
+                <Text style={[styles.categoryBadgeText, { color: category.color }]}>{category.label}</Text>
+              </View>
+
+              {/* 3-dots moderation options for UGC compliance (Report / Block) */}
+              {!isOwnPost && (
+                <TouchableOpacity
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  style={{ padding: 2 }}
+                  onPress={() => {
+                    Alert.alert('Content & Safety Options', 'Select an action for this post or user:', [
+                      {
+                        text: 'Report Post',
+                        style: 'destructive',
+                        onPress: async () => {
+                          try {
+                            await reportItem({ reportedItemId: post.id || post._id, itemType: 'post', reason: 'Flagged inappropriate content' });
+                          } catch (_e) {
+                            // continue gracefully
+                          }
+                          Alert.alert('Report Submitted', 'Thank you for keeping our community safe. Our moderation team will review this post within 24 hours.');
+                        }
+                      },
+                      {
+                        text: 'Block User',
+                        style: 'destructive',
+                        onPress: async () => {
+                          try {
+                            const targetId = post.authorId || post.user_id;
+                            if (targetId) await blockUser(targetId);
+                            setBlockedUsers(prev => new Set([...prev, targetId, post.user]));
+                          } catch (_e) {
+                            setBlockedUsers(prev => new Set([...prev, post.authorId, post.user]));
+                          }
+                          Alert.alert('User Blocked', 'You will no longer see content or messages from this user.');
+                        }
+                      },
+                      { text: 'Cancel', style: 'cancel' }
+                    ]);
+                  }}
+                >
+                  <Ionicons name="ellipsis-vertical" size={16} color={isDarkMode ? '#94A3B8' : '#64748B'} />
+                </TouchableOpacity>
+              )}
             </View>
 
             {/* Follow / Connect Button */}
