@@ -10,13 +10,13 @@ import { getFollowers, getFollowing } from '../services/authService';
 import getInitials from '../lib/getInitials';
 import UserAvatar from '../components/UserAvatar';
 
-const hashtags = ['#Institution', '#AlumniMeet', '#Mentorship', '#TechTalk', '#Careers', '#ClassOf2024'];
+const hashtags = ['#OpenToWork', '#JobSearch', '#Referral', '#Hiring', '#Careers', '#Institution', '#AlumniMeet', '#Mentorship', '#TechTalk'];
 
-const PostCreationScreen = ({ navigation }) => {
+const PostCreationScreen = ({ navigation, route }) => {
   const { theme, isDarkMode } = useTheme();
   const styles = getStyles(theme);
 
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState(route?.params?.initialContent || '');
   const [audience, setAudience] = useState('All Alumni');
   const [localImageUri, setLocalImageUri] = useState(null);
   const [mimeType, setMimeType] = useState('image/jpeg');
@@ -248,7 +248,7 @@ const PostCreationScreen = ({ navigation }) => {
                 style={styles.input}
                 placeholder="What do you want to talk about?"
                 multiline
-                maxLength={280}
+                maxLength={3000}
                 value={content}
                 onChangeText={setContent}
                 placeholderTextColor="#94A3B8"
@@ -257,6 +257,35 @@ const PostCreationScreen = ({ navigation }) => {
                 autoCorrect={false}
                 {...(Platform.OS === 'web' ? { 'data-ms-editor': false } : {})}
               />
+
+              {/* Quick LinkedIn Career Templates */}
+              <View style={{ marginBottom: 12 }}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingHorizontal: 4 }}>
+                  <TouchableOpacity
+                    style={[styles.templateChip, { backgroundColor: '#F0FDF4', borderColor: '#86EFAC' }]}
+                    onPress={() => {
+                      const otwTemplate = `🎓 I’m excited to share that I’m open to new career opportunities!\n\n🎯 Target Roles: Software Engineer / Full Stack Developer\n📍 Locations: Bengaluru, India (Remote / Hybrid)\n💼 Employment Type: Full-time\n\nIf you know of any open positions, have referral opportunities, or would like to connect, please feel free to reach out directly.\n\n#OpenToWork #CareerOpportunities #RVAlumni #JobSearch`;
+                      setContent(otwTemplate);
+                    }}
+                    activeOpacity={0.75}
+                  >
+                    <Ionicons name="sparkles" size={13} color="#057642" />
+                    <Text style={{ fontSize: 11.5, fontWeight: '700', color: '#057642' }}>+ #OpenToWork Template</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.templateChip, { backgroundColor: '#FAF5EB', borderColor: '#FDE68A' }]}
+                    onPress={() => {
+                      const jobInterestTemplate = `💼 I’m interested in exploring new career opportunities in the industry!\n\nLooking to connect with fellow alumni for advice, team insights, or referral opportunities at top companies.\n\nLet's connect! 🤝\n\n#JobSearch #Referral #RVAlumni #Career`;
+                      setContent(jobInterestTemplate);
+                    }}
+                    activeOpacity={0.75}
+                  >
+                    <Ionicons name="briefcase" size={13} color="#D4AF37" />
+                    <Text style={{ fontSize: 11.5, fontWeight: '700', color: '#92400E' }}>+ Job Interest Template</Text>
+                  </TouchableOpacity>
+                </ScrollView>
+              </View>
 
               {/* Attached Image Preview */}
               {localImageUri ? (
@@ -324,8 +353,8 @@ const PostCreationScreen = ({ navigation }) => {
                   )}
                 </TouchableOpacity>
                 <View style={{ flex: 1 }} />
-                <Text style={[styles.charCount, content.length >= 250 && styles.charCountWarning]}>
-                  {content.length}/280
+                <Text style={[styles.charCount, content.length >= 2850 && styles.charCountWarning]}>
+                  {content.length}/3000
                 </Text>
               </View>
             </View>
@@ -621,6 +650,15 @@ const getStyles = (theme) => StyleSheet.create({
   },
   charCountWarning: {
     color: theme.danger,
+  },
+  templateChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 16,
+    borderWidth: 1,
+    gap: 5,
   },
 });
 

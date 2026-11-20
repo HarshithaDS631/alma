@@ -2533,7 +2533,7 @@ Any guidance or connections would be greatly appreciated! 🤝
               {/* Action Buttons */}
               <View style={styles.shareModalActionRow}>
                 <TouchableOpacity
-                  style={[styles.shareCancelBtn, { borderColor: theme.border }]}
+                  style={[styles.shareCancelBtn, { borderColor: theme.border, flex: 0.8 }]}
                   onPress={() => setShareJobInterestModalVisible(false)}
                   disabled={shareJobInterestLoading}
                 >
@@ -2541,7 +2541,20 @@ Any guidance or connections would be greatly appreciated! 🤝
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={styles.shareSubmitBtn}
+                  style={[styles.shareCancelBtn, { borderColor: theme.border, flex: 1.1, flexDirection: 'row' }]}
+                  onPress={() => {
+                    const text = shareJobInterestPost;
+                    setShareJobInterestModalVisible(false);
+                    navigation.navigate('PostCreation', { initialContent: text });
+                  }}
+                  disabled={shareJobInterestLoading}
+                >
+                  <Ionicons name="create-outline" size={15} color={theme.textSecondary} style={{ marginRight: 4 }} />
+                  <Text style={[styles.shareCancelBtnText, { color: theme.textSecondary }]}>Full Editor</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.shareSubmitBtn, { flex: 1.6 }]}
                   onPress={handlePublishJobInterest}
                   disabled={shareJobInterestLoading}
                   activeOpacity={0.85}

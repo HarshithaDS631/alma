@@ -4139,14 +4139,28 @@ const DEFAULT_TAGGED_POSTS = [];
 
               <View style={{ flexDirection: 'row', gap: 10, marginTop: 18 }}>
                 <TouchableOpacity
-                  style={[styles.otwCancelButton, { flex: 1 }]}
+                  style={[styles.otwCancelButton, { flex: 0.8 }]}
                   onPress={() => setQuickShareModalVisible(false)}
                   disabled={quickShareLoading}
                 >
                   <Text style={styles.otwCancelButtonText}>Cancel</Text>
                 </TouchableOpacity>
+
                 <TouchableOpacity
-                  style={[styles.otwSaveButton, { flex: 2 }]}
+                  style={[styles.otwCancelButton, { flex: 1.1, flexDirection: 'row', gap: 4 }]}
+                  onPress={() => {
+                    const text = quickShareText;
+                    setQuickShareModalVisible(false);
+                    navigation.navigate('PostCreation', { initialContent: text });
+                  }}
+                  disabled={quickShareLoading}
+                >
+                  <Ionicons name="create-outline" size={15} color={theme.textSecondary} />
+                  <Text style={styles.otwCancelButtonText}>Full Editor</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.otwSaveButton, { flex: 1.6 }]}
                   onPress={handlePublishQuickOTWPost}
                   disabled={quickShareLoading}
                 >
