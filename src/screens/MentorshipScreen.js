@@ -433,7 +433,7 @@ const MentorshipScreen = ({ navigation }) => {
     <View style={styles.heroGradient}>
       <View style={styles.heroContent}>
         <View style={styles.heroBadge}>
-          <MaterialCommunityIcons name="handshake" size={14} color="#D4AF37" />
+          <MaterialCommunityIcons name="handshake" size={14} color="#CAA025" />
           <Text style={styles.heroBadgeText}>RVCE ALUMNI MENTORSHIP PROGRAM</Text>
         </View>
         <Text style={styles.heroTitle}>Connect. Guide.{'\n'}Accelerate Careers.</Text>
@@ -452,7 +452,7 @@ const MentorshipScreen = ({ navigation }) => {
             style={styles.heroSecondaryBtn}
             onPress={() => { setApplyType('mentor'); setShowApplyModal(true); }}
           >
-            <MaterialCommunityIcons name="hand-heart-outline" size={18} color="#D4AF37" />
+            <MaterialCommunityIcons name="hand-heart-outline" size={18} color="#CAA025" />
             <Text style={styles.heroSecondaryBtnText}>Register as Mentor</Text>
           </TouchableOpacity>
         </View>
@@ -594,8 +594,8 @@ const MentorshipScreen = ({ navigation }) => {
             style={[styles.secondaryActionBtn, { borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
             onPress={() => openChatWithUser(m)}
           >
-            <Ionicons name="chatbubble-outline" size={15} color={isDarkMode ? '#D4AF37' : '#0F2C59'} />
-            <Text style={[styles.secondaryActionText, { color: isDarkMode ? '#D4AF37' : '#0F2C59' }]}>Message</Text>
+            <Ionicons name="chatbubble-outline" size={15} color={isDarkMode ? '#CAA025' : '#0F2C59'} />
+            <Text style={[styles.secondaryActionText, { color: isDarkMode ? '#CAA025' : '#0F2C59' }]}>Message</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.iconActionBtn, { backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9' }]}
@@ -702,8 +702,8 @@ const MentorshipScreen = ({ navigation }) => {
             style={[styles.secondaryActionBtn, { borderColor: isDarkMode ? '#334155' : '#E2E8F0' }]}
             onPress={() => openChatWithUser(mentee)}
           >
-            <Ionicons name="chatbubble-outline" size={15} color={isDarkMode ? '#D4AF37' : '#0F2C59'} />
-            <Text style={[styles.secondaryActionText, { color: isDarkMode ? '#D4AF37' : '#0F2C59' }]}>Message</Text>
+            <Ionicons name="chatbubble-outline" size={15} color={isDarkMode ? '#CAA025' : '#0F2C59'} />
+            <Text style={[styles.secondaryActionText, { color: isDarkMode ? '#CAA025' : '#0F2C59' }]}>Message</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.iconActionBtn, { backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9' }]}
@@ -727,7 +727,7 @@ const MentorshipScreen = ({ navigation }) => {
       {myConnections.length === 0 ? (
         <View style={styles.emptyState}>
           <View style={[styles.emptyIcon, { backgroundColor: isDarkMode ? '#1E293B' : '#F0FDF4' }]}>
-            <MaterialCommunityIcons name="handshake-outline" size={48} color={isDarkMode ? '#D4AF37' : '#0F2C59'} />
+            <MaterialCommunityIcons name="handshake-outline" size={48} color={isDarkMode ? '#CAA025' : '#0F2C59'} />
           </View>
           <Text style={[styles.emptyTitle, { color: theme.text }]}>No Connections Yet</Text>
           <Text style={[styles.emptySubtitle, { color: isDarkMode ? '#94A3B8' : '#64748B' }]}>
@@ -1175,12 +1175,12 @@ const MentorshipScreen = ({ navigation }) => {
               <Ionicons
                 name={tab.icon}
                 size={16}
-                color={activeTab === tab.key ? (isDarkMode ? '#D4AF37' : '#0F2C59') : (isDarkMode ? '#64748B' : '#94A3B8')}
+                color={activeTab === tab.key ? (isDarkMode ? '#CAA025' : '#0F2C59') : (isDarkMode ? '#64748B' : '#94A3B8')}
               />
               <Text style={[
                 styles.tabText,
                 activeTab === tab.key && styles.activeTabText,
-                { color: activeTab === tab.key ? (isDarkMode ? '#D4AF37' : '#0F2C59') : (isDarkMode ? '#64748B' : '#94A3B8') }
+                { color: activeTab === tab.key ? (isDarkMode ? '#CAA025' : '#0F2C59') : (isDarkMode ? '#64748B' : '#94A3B8') }
               ]}>{tab.label}</Text>
             </TouchableOpacity>
           ))}
@@ -1387,7 +1387,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(52, 211, 153, 0.15)',
     paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, gap: 6, marginBottom: 12,
   },
-  heroBadgeText: { color: '#D4AF37', fontSize: 10, fontWeight: '800', letterSpacing: 0.5 },
+  heroBadgeText: { color: '#CAA025', fontSize: 10, fontWeight: '800', letterSpacing: 0.5 },
   heroTitle: {
     fontSize: 26, fontWeight: '900', color: '#FFFFFF', textAlign: 'center', lineHeight: 34, letterSpacing: -0.5,
   },
@@ -1398,7 +1398,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     flexDirection: 'row', gap: 10, marginTop: 20, flexWrap: 'wrap', justifyContent: 'center',
   },
   heroPrimaryBtn: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: '#D4AF37',
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#CAA025',
     paddingHorizontal: 18, paddingVertical: 10, borderRadius: 12, gap: 8,
   },
   heroPrimaryBtnText: { color: '#0F2C59', fontSize: 13, fontWeight: '800' },
@@ -1406,7 +1406,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', borderWidth: 1.5, borderColor: 'rgba(52, 211, 153, 0.5)',
     paddingHorizontal: 18, paddingVertical: 10, borderRadius: 12, gap: 8,
   },
-  heroSecondaryBtnText: { color: '#D4AF37', fontSize: 13, fontWeight: '700' },
+  heroSecondaryBtnText: { color: '#CAA025', fontSize: 13, fontWeight: '700' },
 
   // Mentee Pool Banner
   menteePoolBanner: {
@@ -1417,7 +1417,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     fontSize: 12, color: 'rgba(255,255,255,0.8)', textAlign: 'center', marginTop: 6, lineHeight: 18, maxWidth: 480,
   },
   menteePoolCta: {
-    backgroundColor: '#D4AF37', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 10, marginTop: 14,
+    backgroundColor: '#CAA025', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 10, marginTop: 14,
   },
   menteePoolCtaText: { color: '#0F2C59', fontSize: 12, fontWeight: '800' },
 
@@ -1524,7 +1524,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   faqAnswer: { fontSize: 12, lineHeight: 18, marginTop: 8 },
   sampleAppButton: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    backgroundColor: '#D4AF37', paddingVertical: 12, borderRadius: 12, gap: 8, marginTop: 16,
+    backgroundColor: '#CAA025', paddingVertical: 12, borderRadius: 12, gap: 8, marginTop: 16,
   },
   sampleAppButtonText: { color: '#0F2C59', fontSize: 13, fontWeight: '800' },
 

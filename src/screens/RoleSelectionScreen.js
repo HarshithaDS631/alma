@@ -28,7 +28,7 @@ const RoleSelectionScreen = ({ navigation }) => {
       description: 'Manage campus alumni rosters, approve registrations, publish jobs, and moderate community feeds.',
       tagBg: isDarkMode ? '#14251B' : '#F0FDF4',
       tagBorder: isDarkMode ? 'rgba(52, 211, 153, 0.3)' : '#CBD5E1',
-      tagColor: isDarkMode ? '#D4AF37' : '#0F2C59',
+      tagColor: isDarkMode ? '#CAA025' : '#0F2C59',
     },
     { 
       id: 'Super Admin', 

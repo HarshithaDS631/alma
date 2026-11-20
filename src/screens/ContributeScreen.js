@@ -1092,7 +1092,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   desktopSectionTitle: {
     fontSize: 15,
     fontWeight: '800',
-    color: isDarkMode ? '#D4AF37' : '#0F2C59',
+    color: isDarkMode ? '#CAA025' : '#0F2C59',
     letterSpacing: -0.2,
   },
   desktopCampusBadge: {
@@ -1150,7 +1150,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     borderRadius: 12,
     backgroundColor: '#0F2C59',
     borderWidth: 1,
-    borderTopColor: '#D4AF37',
+    borderTopColor: '#CAA025',
     borderLeftColor: '#10B981',
     borderRightColor: '#0A192F',
     borderBottomColor: '#064E3B',
@@ -1201,7 +1201,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   },
   headerIconBtnActive: {
     backgroundColor: '#0F2C59',
-    borderTopColor: '#D4AF37',
+    borderTopColor: '#CAA025',
     borderLeftColor: '#10B981',
     borderRightColor: '#0A192F',
     borderBottomColor: '#064E3B',

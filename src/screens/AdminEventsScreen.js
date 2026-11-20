@@ -783,9 +783,9 @@ const AdminEventsScreen = ({ navigation, route }) => {
                     <Ionicons 
                       name={isItemRsvpd ? "checkmark-circle" : "calendar"} 
                       size={15} 
-                      color={isItemRsvpd ? (isDarkMode ? '#D4AF37' : "#03543F") : "#FFFFFF"} 
+                      color={isItemRsvpd ? (isDarkMode ? '#CAA025' : "#03543F") : "#FFFFFF"} 
                     />
-                    <Text style={{ fontSize: 12, fontWeight: '700', color: isItemRsvpd ? (isDarkMode ? '#D4AF37' : "#03543F") : "#FFFFFF" }}>
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: isItemRsvpd ? (isDarkMode ? '#CAA025' : "#03543F") : "#FFFFFF" }}>
                       {isItemRsvpd ? 'Attending ✓' : 'RSVP / Register'}
                     </Text>
                   </TouchableOpacity>

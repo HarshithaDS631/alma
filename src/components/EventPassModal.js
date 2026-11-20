@@ -56,7 +56,7 @@ export default function EventPassModal({ visible, onClose, passData, event }) {
           <View style={styles.topHeader}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <View style={styles.badgeIcon}>
-                <Ionicons name="qr-code" size={16} color="#D4AF37" />
+                <Ionicons name="qr-code" size={16} color="#CAA025" />
               </View>
               <Text style={[styles.headerTitle, { color: isDarkMode ? '#F8FAFC' : '#0F172A' }]}>
                 Digital Event Pass
@@ -233,12 +233,12 @@ const styles = StyleSheet.create({
     borderRadius: 17,
     backgroundColor: '#0F2C59',
     borderWidth: 1,
-    borderColor: '#D4AF37',
+    borderColor: '#CAA025',
     alignItems: 'center',
     justifyContent: 'center'
   },
   crestText: {
-    color: '#D4AF37',
+    color: '#CAA025',
     fontWeight: '900',
     fontSize: 13
   },
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6
   },
   passSubtype: {
-    color: '#D4AF37',
+    color: '#CAA025',
     fontSize: 9.5,
     fontWeight: '700',
     letterSpacing: 0.4
@@ -353,15 +353,15 @@ const styles = StyleSheet.create({
     marginTop: 2
   },
   entryTypePod: {
-    backgroundColor: 'rgba(212, 175, 55, 0.15)',
+    backgroundColor: 'rgba(202, 160, 37, 0.15)',
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 55, 0.4)',
+    borderColor: 'rgba(202, 160, 37, 0.4)',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8
   },
   entryTypeText: {
-    color: '#D4AF37',
+    color: '#CAA025',
     fontSize: 10,
     fontWeight: '800',
     letterSpacing: 0.5

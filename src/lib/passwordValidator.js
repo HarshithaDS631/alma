@@ -77,7 +77,7 @@ export const validatePassword = (password) => {
     color = '#0F2C59'; // Blue
   } else if (score >= 40) {
     level = 'Fair';
-    color = '#D4AF37'; // Amber
+    color = '#CAA025'; // Amber
   }
 
   if (!checks.minLength) {

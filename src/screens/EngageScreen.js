@@ -434,15 +434,15 @@ const EngageScreen = ({ navigation, route }) => {
             borderRadius: 19,
             justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor: isSelected ? '#0F2C59' : (isToday ? 'rgba(212, 175, 55, 0.15)' : 'transparent'),
+            backgroundColor: isSelected ? '#0F2C59' : (isToday ? 'rgba(202, 160, 37, 0.15)' : 'transparent'),
             borderWidth: isSelected ? 2 : (isToday ? 1 : 0),
-            borderColor: isSelected ? '#D4AF37' : (isToday ? '#D4AF37' : 'transparent'),
+            borderColor: isSelected ? '#CAA025' : (isToday ? '#CAA025' : 'transparent'),
           }}
         >
           <Text style={{
             fontSize: 13,
             fontWeight: isSelected || isToday ? '800' : '500',
-            color: isSelected ? '#FFFFFF' : (isToday ? '#D4AF37' : (isDarkMode ? '#FFFFFF' : '#0F172A'))
+            color: isSelected ? '#FFFFFF' : (isToday ? '#CAA025' : (isDarkMode ? '#FFFFFF' : '#0F172A'))
           }}>
             {day}
           </Text>
@@ -509,14 +509,14 @@ const EngageScreen = ({ navigation, route }) => {
                 onPress={() => setCalendarModalVisible(true)}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
               >
-                <Ionicons name="calendar" size={14} color="#D4AF37" />
-                <Text style={{ fontSize: 12, fontWeight: '700', color: '#D4AF37' }}>Choose from Calendar</Text>
+                <Ionicons name="calendar" size={14} color="#CAA025" />
+                <Text style={{ fontSize: 12, fontWeight: '700', color: '#CAA025' }}>Choose from Calendar</Text>
               </TouchableOpacity>
             </View>
 
             <View style={styles.inputWithIconRow}>
               <TouchableOpacity onPress={() => setCalendarModalVisible(true)}>
-                <Ionicons name="calendar-sharp" size={19} color="#D4AF37" style={{ marginRight: 10 }} />
+                <Ionicons name="calendar-sharp" size={19} color="#CAA025" style={{ marginRight: 10 }} />
               </TouchableOpacity>
               {Platform.OS === 'web' ? (
                 <input 
@@ -585,7 +585,7 @@ const EngageScreen = ({ navigation, route }) => {
                     borderRadius: 14,
                     backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9',
                     borderWidth: 1,
-                    borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.3)' : '#E2E8F0'
+                    borderColor: isDarkMode ? 'rgba(202, 160, 37, 0.3)' : '#E2E8F0'
                   }}
                 >
                   <Text style={{ fontSize: 11, fontWeight: '700', color: isDarkMode ? '#FDE68A' : '#0F2C59' }}>{shortcut.label}</Text>
@@ -600,8 +600,8 @@ const EngageScreen = ({ navigation, route }) => {
                 onPress={() => openClockModal('start')}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
               >
-                <Ionicons name="time" size={14} color="#D4AF37" />
-                <Text style={{ fontSize: 12, fontWeight: '700', color: '#D4AF37' }}>Choose from Clock ⏰</Text>
+                <Ionicons name="time" size={14} color="#CAA025" />
+                <Text style={{ fontSize: 12, fontWeight: '700', color: '#CAA025' }}>Choose from Clock ⏰</Text>
               </TouchableOpacity>
             </View>
 
@@ -612,7 +612,7 @@ const EngageScreen = ({ navigation, route }) => {
                 onPress={() => openClockModal('start')}
                 activeOpacity={0.85}
               >
-                <Ionicons name="time" size={18} color="#D4AF37" style={{ marginRight: 6 }} />
+                <Ionicons name="time" size={18} color="#CAA025" style={{ marginRight: 6 }} />
                 {Platform.OS === 'web' ? (
                   <input 
                     type="time"
@@ -646,7 +646,7 @@ const EngageScreen = ({ navigation, route }) => {
                     {eventForm.startTime || 'Start Time'}
                   </Text>
                 )}
-                <Ionicons name="chevron-down" size={14} color="#D4AF37" />
+                <Ionicons name="chevron-down" size={14} color="#CAA025" />
               </TouchableOpacity>
 
               <Ionicons name="arrow-forward" size={16} color="#94A3B8" />
@@ -657,7 +657,7 @@ const EngageScreen = ({ navigation, route }) => {
                 onPress={() => openClockModal('end')}
                 activeOpacity={0.85}
               >
-                <Ionicons name="time" size={18} color="#D4AF37" style={{ marginRight: 6 }} />
+                <Ionicons name="time" size={18} color="#CAA025" style={{ marginRight: 6 }} />
                 {Platform.OS === 'web' ? (
                   <input 
                     type="time"
@@ -691,14 +691,14 @@ const EngageScreen = ({ navigation, route }) => {
                     {eventForm.endTime || 'End Time'}
                   </Text>
                 )}
-                <Ionicons name="chevron-down" size={14} color="#D4AF37" />
+                <Ionicons name="chevron-down" size={14} color="#CAA025" />
               </TouchableOpacity>
             </View>
 
             {/* Venue / Location */}
             <Text style={styles.fieldLabel}>Venue / Platform</Text>
             <View style={styles.inputWithIconRow}>
-              <Ionicons name="location-outline" size={19} color="#D4AF37" style={{ marginRight: 10 }} />
+              <Ionicons name="location-outline" size={19} color="#CAA025" style={{ marginRight: 10 }} />
               <TextInput 
                 style={styles.fieldInputEmbedded} 
                 placeholder="e.g. RVCE Campus Main Auditorium or Zoom / Meet" 
@@ -743,8 +743,8 @@ const EngageScreen = ({ navigation, route }) => {
                 <Text style={{ fontSize: 11.5, color: '#64748B' }}>Event Organizer & Host</Text>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#FAF5EB', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 }}>
-                <Ionicons name="shield-checkmark" size={13} color="#D4AF37" style={{ marginRight: 4 }} />
-                <Text style={{ fontSize: 11, fontWeight: '700', color: '#D4AF37' }}>Verified</Text>
+                <Ionicons name="shield-checkmark" size={13} color="#CAA025" style={{ marginRight: 4 }} />
+                <Text style={{ fontSize: 11, fontWeight: '700', color: '#CAA025' }}>Verified</Text>
               </View>
             </View>
 
@@ -833,7 +833,7 @@ const EngageScreen = ({ navigation, route }) => {
               backgroundColor: isDarkMode ? '#0F1D38' : '#FFFFFF',
               borderRadius: 24,
               borderWidth: 1.5,
-              borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#E2E8F0',
+              borderColor: isDarkMode ? 'rgba(202, 160, 37, 0.4)' : '#E2E8F0',
               padding: 20,
               shadowColor: '#000',
               shadowOffset: { width: 0, height: 12 },
@@ -846,7 +846,7 @@ const EngageScreen = ({ navigation, route }) => {
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                   <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: isDarkMode ? '#1E293B' : '#FAF5EB', justifyContent: 'center', alignItems: 'center' }}>
-                    <Ionicons name="calendar" size={20} color="#D4AF37" />
+                    <Ionicons name="calendar" size={20} color="#CAA025" />
                   </View>
                   <View>
                     <Text style={{ fontSize: 16, fontWeight: '800', color: isDarkMode ? '#FFFFFF' : '#0F2C59' }}>
@@ -868,7 +868,7 @@ const EngageScreen = ({ navigation, route }) => {
                   onPress={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1))}
                   style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9', justifyContent: 'center', alignItems: 'center' }}
                 >
-                  <Ionicons name="chevron-back" size={18} color="#D4AF37" />
+                  <Ionicons name="chevron-back" size={18} color="#CAA025" />
                 </TouchableOpacity>
 
                 <Text style={{ fontSize: 15, fontWeight: '700', color: isDarkMode ? '#F8FAFC' : '#0F2C59' }}>
@@ -879,7 +879,7 @@ const EngageScreen = ({ navigation, route }) => {
                   onPress={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1))}
                   style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9', justifyContent: 'center', alignItems: 'center' }}
                 >
-                  <Ionicons name="chevron-forward" size={18} color="#D4AF37" />
+                  <Ionicons name="chevron-forward" size={18} color="#CAA025" />
                 </TouchableOpacity>
               </View>
 
@@ -887,7 +887,7 @@ const EngageScreen = ({ navigation, route }) => {
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8, paddingHorizontal: 2 }}>
                 {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((d, i) => (
                   <View key={d + i} style={{ width: 38, alignItems: 'center' }}>
-                    <Text style={{ fontSize: 11, fontWeight: '700', color: i === 0 || i === 6 ? '#D4AF37' : '#94A3B8' }}>{d}</Text>
+                    <Text style={{ fontSize: 11, fontWeight: '700', color: i === 0 || i === 6 ? '#CAA025' : '#94A3B8' }}>{d}</Text>
                   </View>
                 ))}
               </View>
@@ -898,7 +898,7 @@ const EngageScreen = ({ navigation, route }) => {
               </View>
 
               {/* Quick Select Buttons */}
-              <View style={{ flexDirection: 'row', gap: 8, marginTop: 14, paddingTop: 12, borderTopWidth: 1, borderTopColor: isDarkMode ? 'rgba(212, 175, 55, 0.2)' : '#E2E8F0' }}>
+              <View style={{ flexDirection: 'row', gap: 8, marginTop: 14, paddingTop: 12, borderTopWidth: 1, borderTopColor: isDarkMode ? 'rgba(202, 160, 37, 0.2)' : '#E2E8F0' }}>
                 <TouchableOpacity
                   onPress={() => {
                     const today = new Date();
@@ -924,7 +924,7 @@ const EngageScreen = ({ navigation, route }) => {
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => setCalendarModalVisible(false)}
-                  style={{ flex: 1, paddingVertical: 8, borderRadius: 10, backgroundColor: '#0F2C59', alignItems: 'center', borderWidth: 1, borderColor: '#D4AF37' }}
+                  style={{ flex: 1, paddingVertical: 8, borderRadius: 10, backgroundColor: '#0F2C59', alignItems: 'center', borderWidth: 1, borderColor: '#CAA025' }}
                 >
                   <Text style={{ fontSize: 12, fontWeight: '700', color: '#FFFFFF' }}>Cancel</Text>
                 </TouchableOpacity>
@@ -958,7 +958,7 @@ const EngageScreen = ({ navigation, route }) => {
               backgroundColor: isDarkMode ? '#0F1D38' : '#FFFFFF',
               borderRadius: 24,
               borderWidth: 1.5,
-              borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#E2E8F0',
+              borderColor: isDarkMode ? 'rgba(202, 160, 37, 0.4)' : '#E2E8F0',
               padding: 20,
               shadowColor: '#000',
               shadowOffset: { width: 0, height: 12 },
@@ -971,7 +971,7 @@ const EngageScreen = ({ navigation, route }) => {
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                   <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: isDarkMode ? '#1E293B' : '#FAF5EB', justifyContent: 'center', alignItems: 'center' }}>
-                    <Ionicons name="time" size={20} color="#D4AF37" />
+                    <Ionicons name="time" size={20} color="#CAA025" />
                   </View>
                   <View>
                     <Text style={{ fontSize: 16, fontWeight: '800', color: isDarkMode ? '#FFFFFF' : '#0F2C59' }}>
@@ -995,10 +995,10 @@ const EngageScreen = ({ navigation, route }) => {
                 backgroundColor: isDarkMode ? '#0A1428' : '#FAF5EB',
                 borderRadius: 16,
                 borderWidth: 1,
-                borderColor: '#D4AF37',
+                borderColor: '#CAA025',
                 marginBottom: 16
               }}>
-                <Text style={{ fontSize: 11, fontWeight: '700', letterSpacing: 1, color: '#D4AF37', textTransform: 'uppercase', marginBottom: 4 }}>
+                <Text style={{ fontSize: 11, fontWeight: '700', letterSpacing: 1, color: '#CAA025', textTransform: 'uppercase', marginBottom: 4 }}>
                   Selected Time
                 </Text>
                 <Text style={{ fontSize: 32, fontWeight: '900', color: isDarkMode ? '#FFFFFF' : '#0F2C59', letterSpacing: 0.5 }}>
@@ -1025,7 +1025,7 @@ const EngageScreen = ({ navigation, route }) => {
                         alignItems: 'center',
                         backgroundColor: isSel ? '#0F2C59' : (isDarkMode ? '#1E293B' : '#F1F5F9'),
                         borderWidth: isSel ? 1.5 : 1,
-                        borderColor: isSel ? '#D4AF37' : 'transparent'
+                        borderColor: isSel ? '#CAA025' : 'transparent'
                       }}
                     >
                       <Text style={{ fontSize: 13, fontWeight: isSel ? '800' : '600', color: isSel ? '#FFFFFF' : (isDarkMode ? '#E2E8F0' : '#334155') }}>
@@ -1057,7 +1057,7 @@ const EngageScreen = ({ navigation, route }) => {
                             alignItems: 'center',
                             backgroundColor: isSel ? '#0F2C59' : (isDarkMode ? '#1E293B' : '#F1F5F9'),
                             borderWidth: isSel ? 1.5 : 1,
-                            borderColor: isSel ? '#D4AF37' : 'transparent'
+                            borderColor: isSel ? '#CAA025' : 'transparent'
                           }}
                         >
                           <Text style={{ fontSize: 13, fontWeight: isSel ? '800' : '600', color: isSel ? '#FFFFFF' : (isDarkMode ? '#E2E8F0' : '#334155') }}>
@@ -1087,7 +1087,7 @@ const EngageScreen = ({ navigation, route }) => {
                             borderRadius: 8,
                             justifyContent: 'center',
                             alignItems: 'center',
-                            backgroundColor: isSel ? '#D4AF37' : (isDarkMode ? '#1E293B' : '#F1F5F9'),
+                            backgroundColor: isSel ? '#CAA025' : (isDarkMode ? '#1E293B' : '#F1F5F9'),
                             borderWidth: isSel ? 1.5 : 1,
                             borderColor: isSel ? '#0F2C59' : 'transparent'
                           }}
@@ -1126,7 +1126,7 @@ const EngageScreen = ({ navigation, route }) => {
                       borderRadius: 8,
                       backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC',
                       borderWidth: 1,
-                      borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.25)' : '#E2E8F0'
+                      borderColor: isDarkMode ? 'rgba(202, 160, 37, 0.25)' : '#E2E8F0'
                     }}
                   >
                     <Text style={{ fontSize: 11, fontWeight: '700', color: isDarkMode ? '#FDE68A' : '#0F2C59' }}>{slot}</Text>
@@ -1151,7 +1151,7 @@ const EngageScreen = ({ navigation, route }) => {
                   paddingVertical: 12,
                   alignItems: 'center',
                   borderWidth: 1.5,
-                  borderColor: '#D4AF37'
+                  borderColor: '#CAA025'
                 }}
                 activeOpacity={0.85}
               >
@@ -1208,7 +1208,7 @@ const EngageScreen = ({ navigation, route }) => {
             marginTop: 4,
             marginBottom: 10,
             borderWidth: 1,
-            borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.3)' : '#E2E8F0',
+            borderColor: isDarkMode ? 'rgba(202, 160, 37, 0.3)' : '#E2E8F0',
           }}>
             <TouchableOpacity
               onPress={() => { setCurrentView('joinEvent'); fetchEventsFast(); }}
@@ -1228,7 +1228,7 @@ const EngageScreen = ({ navigation, route }) => {
                 elevation: 2,
               }}
             >
-              <Ionicons name="calendar" size={15} color="#D4AF37" style={{ marginRight: 6 }} />
+              <Ionicons name="calendar" size={15} color="#CAA025" style={{ marginRight: 6 }} />
               <Text style={{
                 fontSize: 13,
                 fontWeight: '800',
@@ -1330,8 +1330,8 @@ const EngageScreen = ({ navigation, route }) => {
                       <Text style={styles.joinEventLocation} numberOfLines={1}>{item.location}</Text>
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 4 }}>
-                      <Ionicons name="people-outline" size={12} color="#D4AF37" />
-                      <Text style={{ fontSize: 11.5, fontWeight: '700', color: '#D4AF37' }}>
+                      <Ionicons name="people-outline" size={12} color="#CAA025" />
+                      <Text style={{ fontSize: 11.5, fontWeight: '700', color: '#CAA025' }}>
                         {item.attendeesCount || 24} Alumni Registered
                       </Text>
                     </View>
@@ -1359,7 +1359,7 @@ const EngageScreen = ({ navigation, route }) => {
             activeOpacity={0.88}
           >
             <View style={styles.fabIconPod}>
-              <Ionicons name="sparkles" size={14} color="#D4AF37" style={{ marginRight: 3 }} />
+              <Ionicons name="sparkles" size={14} color="#CAA025" style={{ marginRight: 3 }} />
               <Ionicons name="add" size={19} color="#FFFFFF" />
             </View>
             <Text style={styles.fabLabel}>Host Event</Text>
@@ -1392,15 +1392,15 @@ const EngageScreen = ({ navigation, route }) => {
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 16, paddingHorizontal: 8 }}>
             <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} onPress={() => navigation.navigate('PostCreation')}>
-              <Ionicons name="image" size={20} color="#D4AF37" />
+              <Ionicons name="image" size={20} color="#CAA025" />
               <Text style={{ color: '#475569', fontSize: 13, fontWeight: '600' }}>Media</Text>
             </TouchableOpacity>
             <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} onPress={() => setCurrentView('joinEvent')}>
-              <Ionicons name="calendar" size={20} color="#D4AF37" />
+              <Ionicons name="calendar" size={20} color="#CAA025" />
               <Text style={{ color: '#475569', fontSize: 13, fontWeight: '600' }}>Event</Text>
             </TouchableOpacity>
             <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} onPress={() => navigation.navigate('PostCreation')}>
-              <Ionicons name="newspaper" size={20} color="#D4AF37" />
+              <Ionicons name="newspaper" size={20} color="#CAA025" />
               <Text style={{ color: '#475569', fontSize: 13, fontWeight: '600' }}>Article</Text>
             </TouchableOpacity>
           </View>
@@ -1409,7 +1409,7 @@ const EngageScreen = ({ navigation, route }) => {
         {/* Posts List */}
         {filteredPosts.length === 0 ? (
           <View style={{ backgroundColor: '#FFFFFF', padding: 36, alignItems: 'center', justifyContent: 'center', borderRadius: 16, marginVertical: 12, borderWidth: 1, borderColor: '#E2E8F0' }}>
-            <Ionicons name="chatbubbles-outline" size={44} color="#D4AF37" style={{ marginBottom: 12 }} />
+            <Ionicons name="chatbubbles-outline" size={44} color="#CAA025" style={{ marginBottom: 12 }} />
             <Text style={{ fontSize: 17, fontWeight: '700', color: '#0F2C59', marginBottom: 6 }}>No Community Posts Yet</Text>
             <Text style={{ fontSize: 14, color: '#64748B', textAlign: 'center', maxWidth: 320, marginBottom: 16, lineHeight: 20 }}>
               Be the first to share an achievement, question, or milestone with your fellow alumni!
@@ -1418,7 +1418,7 @@ const EngageScreen = ({ navigation, route }) => {
               style={{ backgroundColor: '#0F2C59', paddingHorizontal: 22, paddingVertical: 10, borderRadius: 20 }} 
               onPress={() => navigation.navigate('PostCreation')}
             >
-              <Text style={{ color: '#F5D061', fontWeight: '700', fontSize: 14 }}>Create First Post</Text>
+              <Text style={{ color: '#CAA025', fontWeight: '700', fontSize: 14 }}>Create First Post</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -1552,7 +1552,7 @@ const EngageScreen = ({ navigation, route }) => {
                 <Text style={[styles.joinEventDate, { fontSize: 11, color: '#64748B' }]}>{e.date} • {e.location}</Text>
               </View>
               <TouchableOpacity 
-                style={[styles.joinBtn, { paddingHorizontal: 10, paddingVertical: 5 }, isJoined && { backgroundColor: '#FAF5EB', borderWidth: 1, borderColor: '#D4AF37' }]}
+                style={[styles.joinBtn, { paddingHorizontal: 10, paddingVertical: 5 }, isJoined && { backgroundColor: '#FAF5EB', borderWidth: 1, borderColor: '#CAA025' }]}
                 onPress={() => handleJoinEvent(e)}
                 activeOpacity={0.8}
               >
@@ -1590,7 +1590,7 @@ const EngageScreen = ({ navigation, route }) => {
           marginTop: 8,
           marginBottom: 8,
           borderWidth: 1,
-          borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.3)' : '#E2E8F0',
+          borderColor: isDarkMode ? 'rgba(202, 160, 37, 0.3)' : '#E2E8F0',
         }}>
           <TouchableOpacity
             onPress={() => { setCurrentView('joinEvent'); fetchEventsFast(); }}
@@ -1633,7 +1633,7 @@ const EngageScreen = ({ navigation, route }) => {
               elevation: 2,
             }}
           >
-            <Ionicons name="chatbubbles" size={15} color="#D4AF37" style={{ marginRight: 6 }} />
+            <Ionicons name="chatbubbles" size={15} color="#CAA025" style={{ marginRight: 6 }} />
             <Text style={{
               fontSize: 13,
               fontWeight: '800',
@@ -1647,7 +1647,7 @@ const EngageScreen = ({ navigation, route }) => {
         {/* Expandable Search Input when Search Button is Clicked */}
         {showSearch && (
           <View style={styles.expandedSearchBarRow}>
-            <Ionicons name="search" size={17} color="#D4AF37" style={{ marginRight: 8 }} />
+            <Ionicons name="search" size={17} color="#CAA025" style={{ marginRight: 8 }} />
             <TextInput
               style={styles.expandedSearchInput}
               placeholder="Search posts..."
@@ -1662,7 +1662,7 @@ const EngageScreen = ({ navigation, route }) => {
               </TouchableOpacity>
             )}
             <TouchableOpacity onPress={() => setShowSearch(false)} style={{ marginLeft: 8 }}>
-              <Text style={{ fontSize: 13, color: '#D4AF37', fontWeight: '700' }}>Done</Text>
+              <Text style={{ fontSize: 13, color: '#CAA025', fontWeight: '700' }}>Done</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -1690,11 +1690,11 @@ const EngageScreen = ({ navigation, route }) => {
               <Text style={styles.actionSheetTitle}>Create New</Text>
             </View>
             <TouchableOpacity style={styles.actionItem} onPress={() => { setActionSheetVisible(false); navigation.navigate('PostCreation'); }}>
-              <Ionicons name="create-outline" size={22} color="#D4AF37" style={{ marginRight: 4 }} />
+              <Ionicons name="create-outline" size={22} color="#CAA025" style={{ marginRight: 4 }} />
               <Text style={styles.actionItemText}>Post</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionItem} onPress={() => { setActionSheetVisible(false); setCurrentView('joinEvent'); }}>
-              <Ionicons name="calendar-outline" size={22} color="#D4AF37" style={{ marginRight: 4 }} />
+              <Ionicons name="calendar-outline" size={22} color="#CAA025" style={{ marginRight: 4 }} />
               <Text style={styles.actionItemText}>Join Event</Text>
             </TouchableOpacity>
           </View>
@@ -1885,7 +1885,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
     borderWidth: 1,
-    borderColor: '#D4AF37',
+    borderColor: '#CAA025',
     gap: 6,
   },
   hostEventIconPod: {
@@ -1920,7 +1920,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     shadowRadius: 12,
     elevation: 8,
     borderWidth: 1.5,
-    borderColor: '#D4AF37',
+    borderColor: '#CAA025',
     gap: 8,
   },
   fabIconPod: {
@@ -1978,7 +1978,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     backgroundColor: '#FAF5EB',
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 55, 0.35)',
+    borderColor: 'rgba(202, 160, 37, 0.35)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -1992,7 +1992,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   eventDateMonth: {
     fontSize: 9.5,
     fontWeight: '800',
-    color: '#D4AF37',
+    color: '#CAA025',
     letterSpacing: 0.5,
   },
   joinEventInfo: { flex: 1 },
@@ -2012,7 +2012,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   joinedBtnActive: {
     backgroundColor: '#FAF5EB',
     borderWidth: 1,
-    borderColor: '#D4AF37',
+    borderColor: '#CAA025',
   },
   joinedBtnTextActive: {
     color: '#03543F',
@@ -2080,12 +2080,12 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     paddingVertical: 7,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: isDarkMode ? '#0F2C59' : 'rgba(212, 175, 55, 0.4)',
+    borderColor: isDarkMode ? '#0F2C59' : 'rgba(202, 160, 37, 0.4)',
   },
   desktopSectionTitle: {
     fontSize: 15,
     fontWeight: '800',
-    color: isDarkMode ? '#D4AF37' : '#0F2C59',
+    color: isDarkMode ? '#CAA025' : '#0F2C59',
     letterSpacing: -0.2,
   },
   desktopCampusBadge: {
@@ -2143,7 +2143,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     borderRadius: 12,
     backgroundColor: '#0F2C59',
     borderWidth: 1,
-    borderTopColor: '#D4AF37',
+    borderTopColor: '#CAA025',
     borderLeftColor: '#10B981',
     borderRightColor: '#0A192F',
     borderBottomColor: '#0A192F',
@@ -2194,7 +2194,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   },
   headerIconBtnActive: {
     backgroundColor: '#0F2C59',
-    borderTopColor: '#D4AF37',
+    borderTopColor: '#CAA025',
     borderLeftColor: '#10B981',
     borderRightColor: '#0A192F',
     borderBottomColor: '#0A192F',

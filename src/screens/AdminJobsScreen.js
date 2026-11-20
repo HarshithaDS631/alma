@@ -40,7 +40,7 @@ function JobCard({ item, onPress, onDelete, isSmallScreen }) {
           onPress={() => onPress(item)}
         >
           <View style={[s.jobLogo, isSmallScreen && { width: 40, height: 40, marginRight: 8 }]}>
-            <Ionicons name="business-outline" size={isSmallScreen ? 20 : 24} color="#D4AF37" />
+            <Ionicons name="business-outline" size={isSmallScreen ? 20 : 24} color="#CAA025" />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={[s.jobRole, isSmallScreen && { fontSize: 14 }]} numberOfLines={1}>{item.role}</Text>
@@ -73,7 +73,7 @@ function JobCard({ item, onPress, onDelete, isSmallScreen }) {
         </View>
         <View style={s.viewMoreBtn}>
           <Text style={s.viewMoreText}>View More</Text>
-          <Ionicons name="arrow-forward" size={16} color="#D4AF37" />
+          <Ionicons name="arrow-forward" size={16} color="#CAA025" />
         </View>
       </TouchableOpacity>
     </View>
@@ -138,8 +138,8 @@ function ResumeCard({ item, onShowResume, onForward }) {
         )}
         {Boolean(item.resumeFileName || item.resumeUrl) && (
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Ionicons name="document-attach-outline" size={13} color="#D4AF37" />
-            <Text style={{ fontSize: 12, color: '#D4AF37', marginLeft: 6, fontWeight: '600' }} numberOfLines={1}>
+            <Ionicons name="document-attach-outline" size={13} color="#CAA025" />
+            <Text style={{ fontSize: 12, color: '#CAA025', marginLeft: 6, fontWeight: '600' }} numberOfLines={1}>
               {item.resumeFileName || 'Resume Attached (PDF)'}
             </Text>
           </View>
@@ -164,7 +164,7 @@ function ResumeCard({ item, onShowResume, onForward }) {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity 
-          style={[s.resumeActionBtn, { backgroundColor: '#0F2C59', borderColor: '#D4AF37', marginLeft: 8, marginRight: 0 }]} 
+          style={[s.resumeActionBtn, { backgroundColor: '#0F2C59', borderColor: '#CAA025', marginLeft: 8, marginRight: 0 }]} 
           activeOpacity={0.7}
           onPress={() => onForward(item)}
         >
@@ -402,10 +402,10 @@ export default function AdminJobsScreen({ navigation, route }) {
         />
       </View>
       <TouchableOpacity style={{ padding: 6 }} onPress={() => navigation && navigation.navigate('Messages')}>
-        <Ionicons name="chatbubble-ellipses-outline" size={22} color="#D4AF37" />
+        <Ionicons name="chatbubble-ellipses-outline" size={22} color="#CAA025" />
       </TouchableOpacity>
       <TouchableOpacity style={{ padding: 6 }} onPress={() => navigation && navigation.navigate('Notifications')}>
-        <Ionicons name="notifications-outline" size={22} color="#D4AF37" />
+        <Ionicons name="notifications-outline" size={22} color="#CAA025" />
       </TouchableOpacity>
     </View>
   );
@@ -414,7 +414,7 @@ export default function AdminJobsScreen({ navigation, route }) {
   const subHeader = (title, onBack) => (
     <View style={s.subHeader}>
       <TouchableOpacity onPress={onBack} style={s.backBtn} activeOpacity={0.7}>
-        <Ionicons name="arrow-back" size={24} color="#D4AF37" />
+        <Ionicons name="arrow-back" size={24} color="#CAA025" />
       </TouchableOpacity>
       <Text style={s.subTitle}>{title}</Text>
       <View style={{ width: 40 }} />
@@ -430,7 +430,7 @@ export default function AdminJobsScreen({ navigation, route }) {
         {subHeader('Job Details', () => { setDetail(null); setScreen('list'); })}
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 20, paddingBottom: 32 }} showsVerticalScrollIndicator={false}>
           <View style={{ alignItems: 'center', marginBottom: 20 }}>
-            <View style={s.detailLogo}><Ionicons name="business-outline" size={36} color="#D4AF37" /></View>
+            <View style={s.detailLogo}><Ionicons name="business-outline" size={36} color="#CAA025" /></View>
           </View>
           <Text style={s.detailRole}>{detail.role}</Text>
           <Text style={s.detailCompany}>{detail.company}</Text>
@@ -496,14 +496,14 @@ export default function AdminJobsScreen({ navigation, route }) {
             </View>
             <View style={{ backgroundColor: 'rgba(255,255,255,0.15)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, alignItems: 'center' }}>
               <Text style={{ fontSize: 16, fontWeight: '800', color: '#FFFFFF' }}>{resumesCount}</Text>
-              <Text style={{ fontSize: 10, color: 'rgba(212, 175, 55, 0.4)', fontWeight: '700', textTransform: 'uppercase' }}>Candidates</Text>
+              <Text style={{ fontSize: 10, color: 'rgba(202, 160, 37, 0.4)', fontWeight: '700', textTransform: 'uppercase' }}>Candidates</Text>
             </View>
           </View>
         </View>
 
         {loadingResumes ? (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <ActivityIndicator size="large" color="#D4AF37" />
+            <ActivityIndicator size="large" color="#CAA025" />
             <Text style={{ marginTop: 12, fontSize: 14, color: '#64748B', fontWeight: '600' }}>Loading Resume Book...</Text>
           </View>
         ) : (
@@ -814,7 +814,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   // Job Card
   jobCard: { backgroundColor: theme.card, borderRadius: 16, padding: 16, marginBottom: 14, borderWidth: 1, borderColor: theme.border, shadowColor: theme.text, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.03, shadowRadius: 6, elevation: 2 },
   jobCardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
-  jobLogo: { width: 48, height: 48, borderRadius: 14, backgroundColor: isDarkMode ? '#14251B' : '#F0FDF4', alignItems: 'center', justifyContent: 'center', marginRight: 12, borderWidth: 1, borderColor: isDarkMode ? 'rgba(52, 211, 153, 0.3)' : 'rgba(212, 175, 55, 0.4)' },
+  jobLogo: { width: 48, height: 48, borderRadius: 14, backgroundColor: isDarkMode ? '#14251B' : '#F0FDF4', alignItems: 'center', justifyContent: 'center', marginRight: 12, borderWidth: 1, borderColor: isDarkMode ? 'rgba(52, 211, 153, 0.3)' : 'rgba(202, 160, 37, 0.4)' },
   jobRole: { fontSize: 16, fontWeight: '700', color: theme.text },
   jobCompany: { fontSize: 13, fontWeight: '600', color: theme.textSecondary, marginTop: 2 },
   badgeRow: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 10 },
@@ -823,11 +823,11 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   statsRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12, paddingTop: 10, borderTopWidth: 1, borderTopColor: theme.border },
   statItem: { flexDirection: 'row', alignItems: 'center', marginRight: 20 },
   statText: { fontSize: 13, fontWeight: '600', color: theme.textSecondary, marginLeft: 6 },
-  viewMoreBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 10, borderRadius: 10, backgroundColor: isDarkMode ? '#14251B' : '#F0FDF4', borderWidth: 1, borderColor: isDarkMode ? 'rgba(52, 211, 153, 0.3)' : 'rgba(212, 175, 55, 0.4)' },
+  viewMoreBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 10, borderRadius: 10, backgroundColor: isDarkMode ? '#14251B' : '#F0FDF4', borderWidth: 1, borderColor: isDarkMode ? 'rgba(52, 211, 153, 0.3)' : 'rgba(202, 160, 37, 0.4)' },
   viewMoreText: { fontSize: 14, fontWeight: '700', color: theme.primary, marginRight: 6 },
 
   // Detail
-  detailLogo: { width: 80, height: 80, borderRadius: 20, backgroundColor: isDarkMode ? '#14251B' : '#F0FDF4', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: isDarkMode ? 'rgba(52, 211, 153, 0.3)' : 'rgba(212, 175, 55, 0.4)' },
+  detailLogo: { width: 80, height: 80, borderRadius: 20, backgroundColor: isDarkMode ? '#14251B' : '#F0FDF4', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: isDarkMode ? 'rgba(52, 211, 153, 0.3)' : 'rgba(202, 160, 37, 0.4)' },
   detailRole: { fontSize: 22, fontWeight: '800', color: theme.text, textAlign: 'center', marginBottom: 4 },
   detailCompany: { fontSize: 16, fontWeight: '600', color: theme.textSecondary, textAlign: 'center', marginBottom: 16 },
   statCard: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: theme.card, borderRadius: 14, paddingVertical: 16, marginHorizontal: 6, borderWidth: 1, borderColor: theme.border },
@@ -839,7 +839,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   resumeAvatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: theme.primary, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
   resumeAvatarImage: { width: 44, height: 44, borderRadius: 22, marginRight: 12, backgroundColor: isDarkMode ? '#1C251F' : '#F0FDF4', borderWidth: 1, borderColor: theme.border },
   resumeCard: { backgroundColor: theme.card, borderRadius: 16, padding: 16, marginBottom: 14, borderWidth: 1, borderColor: theme.border },
-  skillPill: { backgroundColor: isDarkMode ? '#14251B' : '#F0FDF4', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5, marginRight: 8, marginBottom: 6, borderWidth: 1, borderColor: isDarkMode ? 'rgba(52, 211, 153, 0.3)' : 'rgba(212, 175, 55, 0.4)' },
+  skillPill: { backgroundColor: isDarkMode ? '#14251B' : '#F0FDF4', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5, marginRight: 8, marginBottom: 6, borderWidth: 1, borderColor: isDarkMode ? 'rgba(52, 211, 153, 0.3)' : 'rgba(202, 160, 37, 0.4)' },
   resumeActionBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 10, borderRadius: 10, borderWidth: 1, borderColor: theme.primary, marginRight: 8 },
   banner: { backgroundColor: theme.primary, marginHorizontal: 16, marginTop: 16, borderRadius: 16, padding: 20 },
   bannerBtn: { backgroundColor: theme.card, borderRadius: 10, paddingHorizontal: 20, paddingVertical: 10, marginRight: 12 },

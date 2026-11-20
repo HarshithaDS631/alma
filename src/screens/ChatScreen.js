@@ -528,7 +528,7 @@ const ChatScreen = ({ route, navigation }) => {
                   {sharedPostData.content}
                 </Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 }}>
-                  <Text style={{ fontSize: 10, fontWeight: '700', color: isMe ? '#D4AF37' : '#0F2C59' }}>
+                  <Text style={{ fontSize: 10, fontWeight: '700', color: isMe ? '#CAA025' : '#0F2C59' }}>
                     Tap to open post ➔
                   </Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
@@ -550,7 +550,7 @@ const ChatScreen = ({ route, navigation }) => {
               <Ionicons 
                 name={item.read ? "checkmark-done" : "checkmark-done-outline"} 
                 size={14} 
-                color={item.read ? "#D4AF37" : "rgba(255,255,255,0.7)"} 
+                color={item.read ? "#CAA025" : "rgba(255,255,255,0.7)"} 
                 style={{ marginLeft: 4 }} 
               />
             )}
@@ -698,7 +698,7 @@ const ChatScreen = ({ route, navigation }) => {
                     {item.replyTo && item.replyTo.text ? (
                       <View style={{ 
                         borderLeftWidth: 3, 
-                        borderLeftColor: isMe ? '#D4AF37' : '#0F2C59', 
+                        borderLeftColor: isMe ? '#CAA025' : '#0F2C59', 
                         backgroundColor: isMe ? 'rgba(255,255,255,0.15)' : '#F1F5F9',
                         paddingHorizontal: 8,
                         paddingVertical: 4,
@@ -728,7 +728,7 @@ const ChatScreen = ({ route, navigation }) => {
                         <Ionicons 
                           name={item.read ? "checkmark-done" : "checkmark-done-outline"} 
                           size={14} 
-                          color={item.read ? "#D4AF37" : "rgba(255,255,255,0.7)"} 
+                          color={item.read ? "#CAA025" : "rgba(255,255,255,0.7)"} 
                           style={{ marginLeft: 4 }} 
                         />
                       )}

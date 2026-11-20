@@ -45,10 +45,10 @@ export default function ServerHealthBanner({ theme = {}, showOnlyWhenOffline = t
 
     if (isDegraded) {
         bg = isDark ? '#78350F' : '#FFFBEB';
-        border = isDark ? '#D4AF37' : '#FDE68A';
+        border = isDark ? '#CAA025' : '#FDE68A';
         text = isDark ? '#FDE68A' : '#C5A059';
         iconName = 'warning-outline';
-        iconColor = '#D4AF37';
+        iconColor = '#CAA025';
         title = 'Server Reconnecting';
         subtitle = 'Database warming up. Responses may take a few extra moments.';
     } else if (isOffline) {

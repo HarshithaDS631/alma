@@ -6,11 +6,11 @@ import getInitials from '../lib/getInitials';
 
 // Formal Academic & Institutional Palettes (Royal Navy & Warm Gold)
 const PALETTES = [
-  { bg: '#0A192F', text: '#D4AF37', border: '#D4AF37' }, // Royal Midnight & Imperial Gold
+  { bg: '#0A192F', text: '#CAA025', border: '#CAA025' }, // Royal Midnight & Imperial Gold
   { bg: '#0F2C59', text: '#FDE68A', border: '#C5A059' }, // Deep Royal Navy & Champagne
-  { bg: '#1E3A8A', text: '#FFFFFF', border: '#D4AF37' }, // Classic Royal Azure
-  { bg: '#1E293B', text: '#FDE68A', border: '#D4AF37' }, // Slate Navy & Gold
-  { bg: '#002147', text: '#D4AF37', border: '#D4AF37' }, // Oxford Maritime & Gold
+  { bg: '#1E3A8A', text: '#FFFFFF', border: '#CAA025' }, // Classic Royal Azure
+  { bg: '#1E293B', text: '#FDE68A', border: '#CAA025' }, // Slate Navy & Gold
+  { bg: '#002147', text: '#CAA025', border: '#CAA025' }, // Oxford Maritime & Gold
   { bg: '#172554', text: '#FDE68A', border: '#C5A059' }, // Cobalt Deep Navy
 ];
 
@@ -71,7 +71,7 @@ export default function UserAvatar({
         },
         ring && {
           borderWidth: Math.max(1.5, Math.round(size * 0.045)),
-          borderColor: ringColor || '#D4AF37',
+          borderColor: ringColor || '#CAA025',
         },
         openToWork && styles.openToWorkRing,
         style,
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
   },
   openToWorkRing: {
     borderWidth: 2,
-    borderColor: '#D4AF37',
+    borderColor: '#CAA025',
   },
   badgePosition: {
     position: 'absolute',
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
     borderColor: '#0A192F',
   },
   verifiedBadge: {
-    backgroundColor: '#D4AF37',
+    backgroundColor: '#CAA025',
   },
   onlineBadge: {
     backgroundColor: '#10B981',

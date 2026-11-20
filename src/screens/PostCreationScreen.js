@@ -281,7 +281,7 @@ const PostCreationScreen = ({ navigation, route }) => {
                     }}
                     activeOpacity={0.75}
                   >
-                    <Ionicons name="briefcase" size={13} color="#D4AF37" />
+                    <Ionicons name="briefcase" size={13} color="#CAA025" />
                     <Text style={{ fontSize: 11.5, fontWeight: '700', color: '#92400E' }}>+ Job Interest Template</Text>
                   </TouchableOpacity>
                 </ScrollView>

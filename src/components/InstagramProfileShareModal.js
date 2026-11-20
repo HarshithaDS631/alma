@@ -26,7 +26,7 @@ const CARD_THEMES = [
     name: 'RVCE Royal',
     bg: '#002147',
     gradient: ['#001428', '#002B5B', '#0F4C81'],
-    accent: '#D4AF37',
+    accent: '#CAA025',
     accentLight: '#DCFCE7',
     badgeText: '🏛️ RVCE ALUMNI',
     cardBorder: 'rgba(5, 150, 105, 0.4)'
@@ -46,7 +46,7 @@ const CARD_THEMES = [
     name: 'Emerald Green',
     bg: '#064E3B',
     gradient: ['#064E3B', '#0A192F', '#0F2C59'],
-    accent: '#D4AF37',
+    accent: '#CAA025',
     accentLight: '#DCFCE7',
     badgeText: '🌿 ALUMNI NETWORK',
     cardBorder: 'rgba(52, 211, 153, 0.4)'
@@ -56,7 +56,7 @@ const CARD_THEMES = [
     name: 'Midnight Dark',
     bg: '#090D16',
     gradient: ['#090D16', '#1E293B', '#334155'],
-    accent: '#D4AF37',
+    accent: '#CAA025',
     accentLight: '#CBD5E1',
     badgeText: '🎓 OFFICIAL MEMBER',
     cardBorder: 'rgba(96, 165, 250, 0.3)'
@@ -245,7 +245,7 @@ export default function InstagramProfileShareModal({
             </View>
 
             <TouchableOpacity onPress={cycleTheme} style={styles.iconCircleButton} activeOpacity={0.7}>
-              <Ionicons name="color-palette-outline" size={20} color="#D4AF37" />
+              <Ionicons name="color-palette-outline" size={20} color="#CAA025" />
             </TouchableOpacity>
           </View>
 
@@ -298,7 +298,7 @@ export default function InstagramProfileShareModal({
               <View style={styles.cardIdentity}>
                 <View style={styles.nameRow}>
                   <Text style={styles.cardName} numberOfLines={1}>{name}</Text>
-                  <Ionicons name="checkmark-circle" size={18} color="#D4AF37" style={{ marginLeft: 6 }} />
+                  <Ionicons name="checkmark-circle" size={18} color="#CAA025" style={{ marginLeft: 6 }} />
                 </View>
 
                 <Text style={[styles.cardHandle, { color: currentTheme.accent }]}>
@@ -401,7 +401,7 @@ export default function InstagramProfileShareModal({
                   activeOpacity={0.7}
                 >
                   <View style={[styles.quickActionIconCircle, { backgroundColor: 'rgba(5, 150, 105, 0.2)', borderColor: 'rgba(5, 150, 105, 0.4)' }]}>
-                    <Ionicons name="color-palette-outline" size={20} color="#D4AF37" />
+                    <Ionicons name="color-palette-outline" size={20} color="#CAA025" />
                   </View>
                   <Text style={styles.quickActionLabel}>Change Color</Text>
                 </TouchableOpacity>

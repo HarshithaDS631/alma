@@ -244,7 +244,7 @@ export default function ResumeBookScreen({ navigation, route }) {
                 <AvatarCircle name={talent.name} size={80} />
                 <Text style={[styles.talentName, { color: theme.text }]}>{talent.name}</Text>
                 <TouchableOpacity onPress={() => navigation.navigate('Profile', { userId: talent.id })}>
-                  <Text style={[styles.moreInfoLink, { color: isDarkMode ? '#F5D061' : '#0F2C59' }]}>More Info</Text>
+                  <Text style={[styles.moreInfoLink, { color: isDarkMode ? '#CAA025' : '#0F2C59' }]}>More Info</Text>
                 </TouchableOpacity>
               </View>
 
@@ -265,7 +265,7 @@ export default function ResumeBookScreen({ navigation, route }) {
                   <View style={styles.detailRow}>
                     <Ionicons name="briefcase-outline" size={16} color={isDarkMode ? '#94A3B8' : '#64748B'} />
                     <Text style={[styles.detailText, { color: theme.text }]}>
-                      {talent.company} - <Text style={{ color: isDarkMode ? '#F5D061' : '#0F2C59' }}>{talent.position}</Text>
+                      {talent.company} - <Text style={{ color: isDarkMode ? '#CAA025' : '#0F2C59' }}>{talent.position}</Text>
                     </Text>
                   </View>
                 ) : null}
@@ -274,7 +274,7 @@ export default function ResumeBookScreen({ navigation, route }) {
                 <View style={styles.detailRow}>
                   <MaterialCommunityIcons name="domain" size={16} color={isDarkMode ? '#94A3B8' : '#64748B'} />
                   <Text style={[styles.detailText, { color: theme.text }]}>
-                    {talent.domain} <Text style={{ color: isDarkMode ? '#D4AF37' : '#0F2C59' }}>{talent.experience}</Text>
+                    {talent.domain} <Text style={{ color: isDarkMode ? '#CAA025' : '#0F2C59' }}>{talent.experience}</Text>
                   </Text>
                 </View>
               </View>
@@ -290,10 +290,10 @@ export default function ResumeBookScreen({ navigation, route }) {
                   </Text>
                   {talent.company ? (
                     <Text style={[styles.mobileTalentRole, { color: theme.textSecondary }]} numberOfLines={1}>
-                      {talent.position} • <Text style={{ color: isDarkMode ? '#F5D061' : '#0F2C59', fontWeight: '700' }}>{talent.company}</Text>
+                      {talent.position} • <Text style={{ color: isDarkMode ? '#CAA025' : '#0F2C59', fontWeight: '700' }}>{talent.company}</Text>
                     </Text>
                   ) : (
-                    <Text style={[styles.mobileTalentRole, { color: isDarkMode ? '#F5D061' : '#0F2C59', fontWeight: '700' }]} numberOfLines={1}>
+                    <Text style={[styles.mobileTalentRole, { color: isDarkMode ? '#CAA025' : '#0F2C59', fontWeight: '700' }]} numberOfLines={1}>
                       {talent.position || talent.domain}
                     </Text>
                   )}
@@ -303,8 +303,8 @@ export default function ResumeBookScreen({ navigation, route }) {
                         {talent.domain}
                       </Text>
                     </View>
-                    <View style={[styles.mobileExpBadge, { backgroundColor: isDarkMode ? 'rgba(212, 175, 55, 0.15)' : '#FAF5EB' }]}>
-                      <Text style={{ fontSize: 10.5, fontWeight: '700', color: isDarkMode ? '#F5D061' : '#C5A059' }}>
+                    <View style={[styles.mobileExpBadge, { backgroundColor: isDarkMode ? 'rgba(202, 160, 37, 0.15)' : '#FAF5EB' }]}>
+                      <Text style={{ fontSize: 10.5, fontWeight: '700', color: isDarkMode ? '#CAA025' : '#C5A059' }}>
                         {talent.experience}
                       </Text>
                     </View>
@@ -315,8 +315,8 @@ export default function ResumeBookScreen({ navigation, route }) {
                   style={styles.mobileMoreInfoBtn}
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
-                  <Text style={{ fontSize: 11, fontWeight: '700', color: isDarkMode ? '#F5D061' : '#0F2C59', marginRight: 2 }}>Profile</Text>
-                  <Ionicons name="chevron-forward" size={14} color={isDarkMode ? '#F5D061' : '#0F2C59'} />
+                  <Text style={{ fontSize: 11, fontWeight: '700', color: isDarkMode ? '#CAA025' : '#0F2C59', marginRight: 2 }}>Profile</Text>
+                  <Ionicons name="chevron-forward" size={14} color={isDarkMode ? '#CAA025' : '#0F2C59'} />
                 </TouchableOpacity>
               </View>
 
@@ -345,15 +345,15 @@ export default function ResumeBookScreen({ navigation, route }) {
               style={isDesktop ? styles.actionBtn : styles.mobileActionBtnPrimary} 
               onPress={() => handleShowResume(talent)}
             >
-              <Ionicons name="open-outline" size={16} color={isDesktop ? (isDarkMode ? '#F5D061' : '#0F2C59') : '#FFFFFF'} />
-              <Text style={isDesktop ? [styles.actionText, { color: isDarkMode ? '#F5D061' : '#0F2C59' }] : styles.mobileActionTextPrimary}>Show Resume</Text>
+              <Ionicons name="open-outline" size={16} color={isDesktop ? (isDarkMode ? '#CAA025' : '#0F2C59') : '#FFFFFF'} />
+              <Text style={isDesktop ? [styles.actionText, { color: isDarkMode ? '#CAA025' : '#0F2C59' }] : styles.mobileActionTextPrimary}>Show Resume</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={isDesktop ? styles.actionBtn : styles.mobileActionBtnSecondary} 
               onPress={() => handleForwardResume(talent)}
             >
-              <Ionicons name="arrow-redo" size={16} color={isDarkMode ? '#F5D061' : '#0F2C59'} />
-              <Text style={[styles.actionText, { color: isDarkMode ? '#F5D061' : '#0F2C59' }]}>Forward</Text>
+              <Ionicons name="arrow-redo" size={16} color={isDarkMode ? '#CAA025' : '#0F2C59'} />
+              <Text style={[styles.actionText, { color: isDarkMode ? '#CAA025' : '#0F2C59' }]}>Forward</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -367,11 +367,11 @@ export default function ResumeBookScreen({ navigation, route }) {
       {/* Recruiter Banner */}
       <View style={[styles.recruiterBanner, {
         backgroundColor: isDarkMode ? '#0A192F' : '#FAF5EB',
-        borderColor: isDarkMode ? '#D4AF37' : 'rgba(212, 175, 55, 0.45)'
+        borderColor: isDarkMode ? '#CAA025' : 'rgba(202, 160, 37, 0.45)'
       }]}>
         <View style={styles.recruiterBannerLeft}>
           <View style={[styles.recruiterIcon, { backgroundColor: isDarkMode ? '#1E293B' : '#FFFFFF' }]}>
-            <Ionicons name="briefcase" size={24} color="#D4AF37" />
+            <Ionicons name="briefcase" size={24} color="#CAA025" />
           </View>
           <Text style={[styles.recruiterText, { color: isDarkMode ? '#FFFFFF' : '#0F2C59' }]}>
             Are you a recruiter / referrer?
@@ -399,7 +399,7 @@ export default function ResumeBookScreen({ navigation, route }) {
           <View style={styles.valueProps}>
             {VALUE_PROPS.map((prop, i) => (
               <View key={i} style={styles.valuePropRow}>
-                <Ionicons name={prop.icon} size={20} color={isDarkMode ? '#F5D061' : '#0F2C59'} style={{ marginTop: 2 }} />
+                <Ionicons name={prop.icon} size={20} color={isDarkMode ? '#CAA025' : '#0F2C59'} style={{ marginTop: 2 }} />
                 <Text style={[styles.valuePropText, { color: isDarkMode ? '#CBD5E1' : '#475569' }]}>
                   {prop.text}
                 </Text>
@@ -427,7 +427,7 @@ export default function ResumeBookScreen({ navigation, route }) {
               <AvatarCircle name="Aravind Krishna" size={56} />
               <Text style={[styles.previewName, { color: theme.text }]}>Aravind Krishna</Text>
               <TouchableOpacity>
-                <Text style={{ color: isDarkMode ? '#F5D061' : '#0F2C59', fontSize: 12, fontWeight: '600' }}>Other Info</Text>
+                <Text style={{ color: isDarkMode ? '#CAA025' : '#0F2C59', fontSize: 12, fontWeight: '600' }}>Other Info</Text>
               </TouchableOpacity>
               <View style={{ marginTop: 10, flexDirection: 'row', flexWrap: 'wrap', gap: 4 }}>
                 {['Java', 'MongoDB', 'MySQL', 'Javascript', 'Python'].map((s, i) => (
@@ -437,20 +437,20 @@ export default function ResumeBookScreen({ navigation, route }) {
               <View style={[styles.detailRow, { marginTop: 8 }]}>
                 <Ionicons name="briefcase-outline" size={14} color={isDarkMode ? '#94A3B8' : '#64748B'} />
                 <Text style={[styles.detailText, { color: theme.text, fontSize: 12 }]}>
-                  Amazon - <Text style={{ color: isDarkMode ? '#F5D061' : '#0F2C59' }}>Software Engineer</Text>
+                  Amazon - <Text style={{ color: isDarkMode ? '#CAA025' : '#0F2C59' }}>Software Engineer</Text>
                 </Text>
               </View>
               <View style={styles.detailRow}>
                 <MaterialCommunityIcons name="domain" size={14} color={isDarkMode ? '#94A3B8' : '#64748B'} />
                 <Text style={[styles.detailText, { color: theme.text, fontSize: 12 }]}>
-                  Software Engineering, <Text style={{ color: isDarkMode ? '#D4AF37' : '#0F2C59' }}>2-4 Yrs</Text>
+                  Software Engineering, <Text style={{ color: isDarkMode ? '#CAA025' : '#0F2C59' }}>2-4 Yrs</Text>
                 </Text>
               </View>
               <Text style={[{ fontSize: 11, color: isDarkMode ? '#94A3B8' : '#64748B', marginTop: 8, fontStyle: 'italic' }]} numberOfLines={2}>
                 {"I'm a highly talented professional with good skills..."}
               </Text>
               <TouchableOpacity style={{ marginTop: 10 }}>
-                <Text style={{ color: isDarkMode ? '#F5D061' : '#0F2C59', fontSize: 12, fontWeight: '700' }}>Show resume ✓</Text>
+                <Text style={{ color: isDarkMode ? '#CAA025' : '#0F2C59', fontSize: 12, fontWeight: '700' }}>Show resume ✓</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -470,8 +470,8 @@ export default function ResumeBookScreen({ navigation, route }) {
             { number: '89%', label: 'Response Rate', icon: 'checkmark-done' }
           ].map((stat, i) => (
             <View key={i} style={styles.statItem}>
-              <View style={[styles.statIconCircle, { backgroundColor: isDarkMode ? 'rgba(212, 175, 55, 0.15)' : '#FAF5EB' }]}>
-                <Ionicons name={stat.icon} size={20} color={isDarkMode ? '#F5D061' : '#0F2C59'} />
+              <View style={[styles.statIconCircle, { backgroundColor: isDarkMode ? 'rgba(202, 160, 37, 0.15)' : '#FAF5EB' }]}>
+                <Ionicons name={stat.icon} size={20} color={isDarkMode ? '#CAA025' : '#0F2C59'} />
               </View>
               <Text style={[styles.statNumber, { color: theme.text }]}>{stat.number}</Text>
               <Text style={[styles.statLabel, { color: isDarkMode ? '#94A3B8' : '#64748B' }]}>{stat.label}</Text>
@@ -497,7 +497,7 @@ export default function ResumeBookScreen({ navigation, route }) {
               <View style={[styles.stepNumber, { backgroundColor: '#0F2C59' }]}>
                 <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '800' }}>{item.step}</Text>
               </View>
-              <Ionicons name={item.icon} size={28} color={isDarkMode ? '#F5D061' : '#0F2C59'} style={{ marginTop: 12 }} />
+              <Ionicons name={item.icon} size={28} color={isDarkMode ? '#CAA025' : '#0F2C59'} style={{ marginTop: 12 }} />
               <Text style={[styles.stepTitle, { color: theme.text }]}>{item.title}</Text>
               <Text style={[styles.stepDesc, { color: isDarkMode ? '#94A3B8' : '#64748B' }]}>{item.desc}</Text>
             </View>
@@ -590,14 +590,14 @@ export default function ResumeBookScreen({ navigation, route }) {
             <TouchableOpacity
               style={[styles.filterDropdown, {
                 backgroundColor: isDarkMode ? '#1E293B' : '#FFFFFF',
-                borderColor: selectedDomain !== 'All Domains' ? (isDarkMode ? '#D4AF37' : '#0F2C59') : (isDarkMode ? '#334155' : '#E2E8F0'),
+                borderColor: selectedDomain !== 'All Domains' ? (isDarkMode ? '#CAA025' : '#0F2C59') : (isDarkMode ? '#334155' : '#E2E8F0'),
                 minWidth: isDesktop ? 140 : '100%',
                 width: isDesktop ? 'auto' : '100%',
               }]}
               onPress={() => { setShowDomainDropdown(!showDomainDropdown); setShowExperienceDropdown(false); }}
             >
               <Text style={[styles.filterText, {
-                color: selectedDomain !== 'All Domains' ? (isDarkMode ? '#F5D061' : '#0F2C59') : (isDarkMode ? '#CBD5E1' : '#475569')
+                color: selectedDomain !== 'All Domains' ? (isDarkMode ? '#CAA025' : '#0F2C59') : (isDarkMode ? '#CBD5E1' : '#475569')
               }]} numberOfLines={1}>
                 {selectedDomain}
               </Text>
@@ -614,7 +614,7 @@ export default function ResumeBookScreen({ navigation, route }) {
                       backgroundColor: selectedDomain === d ? (isDarkMode ? 'rgba(15, 44, 89, 0.45)' : '#F0F4FA') : 'transparent'
                     }]} onPress={() => { setSelectedDomain(d); setShowDomainDropdown(false); }}>
                       <Text style={[styles.dropdownItemText, {
-                        color: selectedDomain === d ? (isDarkMode ? '#F5D061' : '#0F2C59') : (isDarkMode ? '#CBD5E1' : '#475569'),
+                        color: selectedDomain === d ? (isDarkMode ? '#CAA025' : '#0F2C59') : (isDarkMode ? '#CBD5E1' : '#475569'),
                         fontWeight: selectedDomain === d ? '700' : '500'
                       }]}>{d}</Text>
                     </TouchableOpacity>
@@ -629,14 +629,14 @@ export default function ResumeBookScreen({ navigation, route }) {
             <TouchableOpacity
               style={[styles.filterDropdown, {
                 backgroundColor: isDarkMode ? '#1E293B' : '#FFFFFF',
-                borderColor: selectedExperience !== 'All Experience' ? (isDarkMode ? '#D4AF37' : '#0F2C59') : (isDarkMode ? '#334155' : '#E2E8F0'),
+                borderColor: selectedExperience !== 'All Experience' ? (isDarkMode ? '#CAA025' : '#0F2C59') : (isDarkMode ? '#334155' : '#E2E8F0'),
                 minWidth: isDesktop ? 140 : '100%',
                 width: isDesktop ? 'auto' : '100%',
               }]}
               onPress={() => { setShowExperienceDropdown(!showExperienceDropdown); setShowDomainDropdown(false); }}
             >
               <Text style={[styles.filterText, {
-                color: selectedExperience !== 'All Experience' ? (isDarkMode ? '#F5D061' : '#0F2C59') : (isDarkMode ? '#CBD5E1' : '#475569')
+                color: selectedExperience !== 'All Experience' ? (isDarkMode ? '#CAA025' : '#0F2C59') : (isDarkMode ? '#CBD5E1' : '#475569')
               }]} numberOfLines={1}>
                 {selectedExperience}
               </Text>
@@ -653,7 +653,7 @@ export default function ResumeBookScreen({ navigation, route }) {
                       backgroundColor: selectedExperience === e ? (isDarkMode ? 'rgba(15, 44, 89, 0.45)' : '#F0F4FA') : 'transparent'
                     }]} onPress={() => { setSelectedExperience(e); setShowExperienceDropdown(false); }}>
                       <Text style={[styles.dropdownItemText, {
-                        color: selectedExperience === e ? (isDarkMode ? '#F5D061' : '#0F2C59') : (isDarkMode ? '#CBD5E1' : '#475569'),
+                        color: selectedExperience === e ? (isDarkMode ? '#CAA025' : '#0F2C59') : (isDarkMode ? '#CBD5E1' : '#475569'),
                         fontWeight: selectedExperience === e ? '700' : '500'
                       }]}>{e}</Text>
                     </TouchableOpacity>
@@ -722,7 +722,7 @@ export default function ResumeBookScreen({ navigation, route }) {
               <AvatarCircle name={selectedTalent?.name || ''} size={72} />
               <View style={{ marginLeft: 16, flex: 1 }}>
                 <Text style={[styles.resumeProfileName, { color: theme.text }]}>{selectedTalent?.name}</Text>
-                <Text style={[styles.resumeProfilePosition, { color: isDarkMode ? '#F5D061' : '#0F2C59' }]}>
+                <Text style={[styles.resumeProfilePosition, { color: isDarkMode ? '#CAA025' : '#0F2C59' }]}>
                   {selectedTalent?.position} {selectedTalent?.company ? `at ${selectedTalent.company}` : ''}
                 </Text>
                 <Text style={[{ fontSize: 13, color: isDarkMode ? '#94A3B8' : '#64748B', marginTop: 2 }]}>
@@ -750,9 +750,9 @@ export default function ResumeBookScreen({ navigation, route }) {
             {/* Experience */}
             <View style={styles.resumeSection}>
               <Text style={[styles.resumeSectionTitle, { color: theme.text }]}>Experience</Text>
-              <View style={[styles.experienceItem, { borderLeftColor: isDarkMode ? '#D4AF37' : '#0F2C59' }]}>
+              <View style={[styles.experienceItem, { borderLeftColor: isDarkMode ? '#CAA025' : '#0F2C59' }]}>
                 <Text style={[styles.experienceTitle, { color: theme.text }]}>{selectedTalent?.position}</Text>
-                <Text style={[styles.experienceCompany, { color: isDarkMode ? '#F5D061' : '#0F2C59' }]}>{selectedTalent?.company || 'Independent'}</Text>
+                <Text style={[styles.experienceCompany, { color: isDarkMode ? '#CAA025' : '#0F2C59' }]}>{selectedTalent?.company || 'Independent'}</Text>
                 <Text style={[{ fontSize: 12, color: isDarkMode ? '#94A3B8' : '#64748B' }]}>
                   {selectedTalent?.experience} • {selectedTalent?.domain}
                 </Text>
@@ -764,7 +764,7 @@ export default function ResumeBookScreen({ navigation, route }) {
               <Text style={[styles.resumeSectionTitle, { color: theme.text }]}>Education</Text>
               <View style={[styles.experienceItem, { borderLeftColor: '#0F2C59' }]}>
                 <Text style={[styles.experienceTitle, { color: theme.text }]}>RV College of Engineering</Text>
-                <Text style={[styles.experienceCompany, { color: isDarkMode ? '#F5D061' : '#0F2C59' }]}>{selectedTalent?.course}</Text>
+                <Text style={[styles.experienceCompany, { color: isDarkMode ? '#CAA025' : '#0F2C59' }]}>{selectedTalent?.course}</Text>
                 <Text style={[{ fontSize: 12, color: isDarkMode ? '#94A3B8' : '#64748B' }]}>
                   Class of {selectedTalent?.batch} • Bangalore
                 </Text>
@@ -784,13 +784,13 @@ export default function ResumeBookScreen({ navigation, route }) {
                 <Text style={styles.resumeActionText}>Forward Resume</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.resumeActionBtnOutline, { borderColor: isDarkMode ? '#D4AF37' : '#0F2C59' }]}
+                style={[styles.resumeActionBtnOutline, { borderColor: isDarkMode ? '#CAA025' : '#0F2C59' }]}
                 onPress={() => {
                   Alert.alert('Download', 'Resume download initiated for ' + selectedTalent?.name);
                 }}
               >
-                <Ionicons name="download-outline" size={18} color={isDarkMode ? '#F5D061' : '#0F2C59'} />
-                <Text style={[styles.resumeActionText, { color: isDarkMode ? '#F5D061' : '#0F2C59' }]}>Download PDF</Text>
+                <Ionicons name="download-outline" size={18} color={isDarkMode ? '#CAA025' : '#0F2C59'} />
+                <Text style={[styles.resumeActionText, { color: isDarkMode ? '#CAA025' : '#0F2C59' }]}>Download PDF</Text>
               </TouchableOpacity>
             </View>
           </ScrollView>

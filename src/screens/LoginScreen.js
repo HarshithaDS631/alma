@@ -568,7 +568,7 @@ const LoginScreen = ({ navigation }) => {
               activeOpacity={0.7}
               accessibilityLabel="Toggle Theme"
             >
-              <Ionicons name={isDarkMode ? 'moon' : 'sunny'} size={18} color={isDarkMode ? '#D4AF37' : '#0F2C59'} />
+              <Ionicons name={isDarkMode ? 'moon' : 'sunny'} size={18} color={isDarkMode ? '#CAA025' : '#0F2C59'} />
             </TouchableOpacity>
           </View>
 

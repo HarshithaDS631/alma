@@ -59,7 +59,7 @@ const checkDatabaseVerification = (name, batchYear, joiningYear, institution) =>
 const FRIENDS_DATA = [];
 const COMMUNITIES_DATA = [];
 
-const AVATAR_COLORS = ['#0F2C59', '#C89565', '#0A192F', '#D4A373', '#D4AF37', '#B88758'];
+const AVATAR_COLORS = ['#0F2C59', '#C89565', '#0A192F', '#D4A373', '#CAA025', '#B88758'];
 
 const BATCH_OPTIONS = ['All', '2015', '2017', '2018', '2019', '2020', '2021', '2022', '2023'];
 const BRANCH_OPTIONS = ['All', 'CSE', 'ECE', 'ISE', 'MBA', 'ME', 'EEE'];
@@ -473,7 +473,7 @@ const AdminUsersScreen = ({ navigation, route }) => {
               const isVerified = matches.some(m => m.confidence === 'HIGH');
               const boxStyle = isVerified
                 ? { backgroundColor: '#DEF7EC', borderColor: '#31C48D' }
-                : { backgroundColor: '#FEF3C7', borderColor: '#D4AF37' };
+                : { backgroundColor: '#FEF3C7', borderColor: '#CAA025' };
               const textColor = isVerified ? '#03543F' : '#C5A059';
               return (
                 <View style={{ padding: 8, borderRadius: 8, marginTop: 4, borderWidth: 1, ...boxStyle }}>

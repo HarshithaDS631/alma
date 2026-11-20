@@ -637,7 +637,7 @@ Any guidance or connections would be greatly appreciated! 🤝
   const renderJobCard = (job, isAppliedTab = false) => {
     const isSaved = (job.savedBy || []).includes('current_user') || savedJobs.some(s => (s._id || s.id) === (job._id || job.id));
     const skillMatch = calculateSkillMatch(job);
-    const companyColor = job.companyColor || (isDarkMode ? '#D4AF37' : '#0F2C59');
+    const companyColor = job.companyColor || (isDarkMode ? '#CAA025' : '#0F2C59');
     const initial = job.companyInitial || (job.company ? job.company[0] : 'J');
 
     return (
@@ -660,14 +660,14 @@ Any guidance or connections would be greatly appreciated! 🤝
             {/* LinkedIn Alumni & Social Proof Pill */}
             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6, gap: 6, flexWrap: 'wrap' }}>
               <View style={styles.alumniBadgePill}>
-                <Ionicons name="people" size={12} color="#D4AF37" style={{ marginRight: 4 }} />
+                <Ionicons name="people" size={12} color="#CAA025" style={{ marginRight: 4 }} />
                 <Text style={styles.alumniBadgeText}>
                   {job.alumniCount || 12} Alumni work here
                 </Text>
               </View>
 
               <View style={styles.easyApplyTagPill}>
-                <Ionicons name="flash" size={11} color="#D4AF37" style={{ marginRight: 3 }} />
+                <Ionicons name="flash" size={11} color="#CAA025" style={{ marginRight: 3 }} />
                 <Text style={styles.easyApplyTagText}>Easy Apply</Text>
               </View>
             </View>
@@ -694,7 +694,7 @@ Any guidance or connections would be greatly appreciated! 🤝
 
             {/* Smart Keyword & Match Detection Highlight */}
             <View style={styles.matchScoreBanner}>
-              <Ionicons name="sparkles" size={13} color={isDarkMode ? '#D4AF37' : '#0F2C59'} style={{ marginRight: 5 }} />
+              <Ionicons name="sparkles" size={13} color={isDarkMode ? '#CAA025' : '#0F2C59'} style={{ marginRight: 5 }} />
               <Text style={styles.matchScoreText}>
                 🎯 {skillMatch.score}% Skill Match • {skillMatch.matched.slice(0, 3).join(', ')}
               </Text>
@@ -702,8 +702,8 @@ Any guidance or connections would be greatly appreciated! 🤝
 
             {isAppliedTab ? (
               <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
-                <Ionicons name="checkmark-circle" size={16} color="#D4AF37" style={{ marginRight: 4 }} />
-                <Text style={{ fontSize: 13, fontWeight: '700', color: '#D4AF37' }}>
+                <Ionicons name="checkmark-circle" size={16} color="#CAA025" style={{ marginRight: 4 }} />
+                <Text style={{ fontSize: 13, fontWeight: '700', color: '#CAA025' }}>
                   Status: {job.status || 'Applied • Under Review'}
                 </Text>
               </View>
@@ -711,7 +711,7 @@ Any guidance or connections would be greatly appreciated! 🤝
           </View>
 
           <TouchableOpacity onPress={() => handleToggleSave(job._id || job.id)} style={{ padding: 6 }}>
-            <Ionicons name={isSaved ? "bookmark" : "bookmark-outline"} size={22} color={isSaved ? (isDarkMode ? '#D4AF37' : '#0F2C59') : theme.textMuted} />
+            <Ionicons name={isSaved ? "bookmark" : "bookmark-outline"} size={22} color={isSaved ? (isDarkMode ? '#CAA025' : '#0F2C59') : theme.textMuted} />
           </TouchableOpacity>
         </View>
 
@@ -730,12 +730,12 @@ Any guidance or connections would be greatly appreciated! 🤝
             </TouchableOpacity>
 
             <TouchableOpacity 
-              style={[styles.detailsBtn, { backgroundColor: isDarkMode ? '#1E293B' : '#FAF5EB', borderColor: '#D4AF37', borderWidth: 1 }]}
+              style={[styles.detailsBtn, { backgroundColor: isDarkMode ? '#1E293B' : '#FAF5EB', borderColor: '#CAA025', borderWidth: 1 }]}
               onPress={() => handleOpenReferral(job)}
               activeOpacity={0.8}
             >
-              <Ionicons name="people" size={13} color="#D4AF37" style={{ marginRight: 4 }} />
-              <Text style={[styles.detailsText, { color: '#D4AF37' }]}>Ask Referral</Text>
+              <Ionicons name="people" size={13} color="#CAA025" style={{ marginRight: 4 }} />
+              <Text style={[styles.detailsText, { color: '#CAA025' }]}>Ask Referral</Text>
             </TouchableOpacity>
 
             <TouchableOpacity 
@@ -798,7 +798,7 @@ Any guidance or connections would be greatly appreciated! 🤝
             style={[styles.tabItem, activeTab === 'search' && styles.tabItemActive]}
             onPress={() => setActiveTab('search')}
           >
-            <Ionicons name="search" size={16} color={activeTab === 'search' ? (isDarkMode ? '#D4AF37' : '#0F2C59') : theme.textMuted} />
+            <Ionicons name="search" size={16} color={activeTab === 'search' ? (isDarkMode ? '#CAA025' : '#0F2C59') : theme.textMuted} />
             <Text style={[styles.tabText, activeTab === 'search' && styles.tabTextActive]}>Search Jobs</Text>
           </TouchableOpacity>
 
@@ -806,7 +806,7 @@ Any guidance or connections would be greatly appreciated! 🤝
             style={[styles.tabItem, activeTab === 'tracker' && styles.tabItemActive]}
             onPress={() => setActiveTab('tracker')}
           >
-            <Ionicons name="bookmark" size={16} color={activeTab === 'tracker' ? (isDarkMode ? '#D4AF37' : '#0F2C59') : theme.textMuted} />
+            <Ionicons name="bookmark" size={16} color={activeTab === 'tracker' ? (isDarkMode ? '#CAA025' : '#0F2C59') : theme.textMuted} />
             <Text style={[styles.tabText, activeTab === 'tracker' && styles.tabTextActive]}>Job Tracker</Text>
           </TouchableOpacity>
 
@@ -814,7 +814,7 @@ Any guidance or connections would be greatly appreciated! 🤝
             style={[styles.tabItem, activeTab === 'preferences' && styles.tabItemActive]}
             onPress={() => setActiveTab('preferences')}
           >
-            <Ionicons name="options" size={16} color={activeTab === 'preferences' ? (isDarkMode ? '#D4AF37' : '#0F2C59') : theme.textMuted} />
+            <Ionicons name="options" size={16} color={activeTab === 'preferences' ? (isDarkMode ? '#CAA025' : '#0F2C59') : theme.textMuted} />
             <Text style={[styles.tabText, activeTab === 'preferences' && styles.tabTextActive]}>Preferences</Text>
           </TouchableOpacity>
 
@@ -822,7 +822,7 @@ Any guidance or connections would be greatly appreciated! 🤝
             style={[styles.tabItem, activeTab === 'recommended' && styles.tabItemActive]}
             onPress={() => setActiveTab('recommended')}
           >
-            <Ionicons name="sparkles" size={16} color={activeTab === 'recommended' ? (isDarkMode ? '#D4AF37' : '#0F2C59') : theme.textMuted} />
+            <Ionicons name="sparkles" size={16} color={activeTab === 'recommended' ? (isDarkMode ? '#CAA025' : '#0F2C59') : theme.textMuted} />
             <Text style={[styles.tabText, activeTab === 'recommended' && styles.tabTextActive]}>Recommended</Text>
           </TouchableOpacity>
 
@@ -830,7 +830,7 @@ Any guidance or connections would be greatly appreciated! 🤝
             style={[styles.tabItem, activeTab === 'post' && styles.tabItemActive]}
             onPress={() => setActiveTab('post')}
           >
-            <Ionicons name="add-circle" size={16} color={activeTab === 'post' ? (isDarkMode ? '#D4AF37' : '#0F2C59') : theme.textMuted} />
+            <Ionicons name="add-circle" size={16} color={activeTab === 'post' ? (isDarkMode ? '#CAA025' : '#0F2C59') : theme.textMuted} />
             <Text style={[styles.tabText, activeTab === 'post' && styles.tabTextActive]}>Post a Job</Text>
           </TouchableOpacity>
         </ScrollView>
@@ -908,7 +908,7 @@ Any guidance or connections would be greatly appreciated! 🤝
               </Text>
               {selectedKeywordFilter !== 'All' && (
                 <TouchableOpacity onPress={() => setSelectedKeywordFilter('All')}>
-                  <Text style={{ fontSize: 12, fontWeight: '700', color: isDarkMode ? '#D4AF37' : '#0F2C59' }}>
+                  <Text style={{ fontSize: 12, fontWeight: '700', color: isDarkMode ? '#CAA025' : '#0F2C59' }}>
                     Reset ✕
                   </Text>
                 </TouchableOpacity>
@@ -992,7 +992,7 @@ Any guidance or connections would be greatly appreciated! 🤝
             </View>
 
             {loadingReferrals && (
-              <ActivityIndicator size="small" color="#D4AF37" style={{ marginVertical: 20 }} />
+              <ActivityIndicator size="small" color="#CAA025" style={{ marginVertical: 20 }} />
             )}
 
             {/* Sub-tab: Incoming Requests for Alumnus Posters */}
@@ -1008,7 +1008,7 @@ Any guidance or connections would be greatly appreciated! 🤝
               ) : (
                 incomingReferrals.map((req, idx) => {
                   const statusColors = {
-                    Pending: '#D4AF37',
+                    Pending: '#CAA025',
                     Endorsed: '#10B981',
                     'Needs Info': '#3B82F6',
                     Declined: '#EF4444'
@@ -1021,7 +1021,7 @@ Any guidance or connections would be greatly appreciated! 🤝
                           <Text style={{ fontSize: 11, fontWeight: '800', color: statusColors[req.status] || '#64748B' }}>{req.status}</Text>
                         </View>
                       </View>
-                      <Text style={{ fontSize: 12, color: '#D4AF37', fontWeight: '700' }}>For: {req.jobTitle} @ {req.jobCompany}</Text>
+                      <Text style={{ fontSize: 12, color: '#CAA025', fontWeight: '700' }}>For: {req.jobTitle} @ {req.jobCompany}</Text>
                       <Text style={{ fontSize: 12, color: theme.textSecondary, marginTop: 4 }}>
                         {req.candidate?.department} • Class of {req.candidate?.graduationYear || req.candidate?.batch || 'RVCE'}
                       </Text>
@@ -1062,7 +1062,7 @@ Any guidance or connections would be greatly appreciated! 🤝
               ) : (
                 mySentReferrals.map((req, idx) => {
                   const statusColors = {
-                    Pending: '#D4AF37',
+                    Pending: '#CAA025',
                     Endorsed: '#10B981',
                     'Needs Info': '#3B82F6',
                     Declined: '#EF4444'
@@ -1075,7 +1075,7 @@ Any guidance or connections would be greatly appreciated! 🤝
                           <Text style={{ fontSize: 11, fontWeight: '800', color: statusColors[req.status] || '#64748B' }}>{req.status}</Text>
                         </View>
                       </View>
-                      <Text style={{ fontSize: 12, color: '#D4AF37', fontWeight: '700', marginTop: 2 }}>{req.jobCompany} • {req.jobLocation}</Text>
+                      <Text style={{ fontSize: 12, color: '#CAA025', fontWeight: '700', marginTop: 2 }}>{req.jobCompany} • {req.jobLocation}</Text>
                       <Text style={{ fontSize: 11, color: theme.textSecondary, marginTop: 2 }}>Referrer: {req.poster?.name || 'Alumni Member'}</Text>
                       <View style={{ backgroundColor: isDarkMode ? '#0F172A' : '#F8FAFC', borderRadius: 8, padding: 8, marginTop: 8 }}>
                         <Text style={{ fontSize: 12, color: theme.text }}>{req.pitch}</Text>
@@ -1146,14 +1146,14 @@ Any guidance or connections would be greatly appreciated! 🤝
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                 <View style={{ flex: 1, marginRight: 12 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 3 }}>
-                    <Text style={{ fontSize: 17, fontWeight: '800', color: '#D4AF37' }}>#OpenToWork</Text>
+                    <Text style={{ fontSize: 17, fontWeight: '800', color: '#CAA025' }}>#OpenToWork</Text>
                     {openToWork && (
                       <View style={{ backgroundColor: '#FDF6E2', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 }}>
-                        <Text style={{ fontSize: 10, fontWeight: '800', color: '#D4AF37' }}>ACTIVE</Text>
+                        <Text style={{ fontSize: 10, fontWeight: '800', color: '#CAA025' }}>ACTIVE</Text>
                       </View>
                     )}
                   </View>
-                  <Text style={{ fontSize: 13, color: isDarkMode ? '#9CA3AF' : '#D4AF37', marginTop: 2, lineHeight: 18 }}>
+                  <Text style={{ fontSize: 13, color: isDarkMode ? '#9CA3AF' : '#CAA025', marginTop: 2, lineHeight: 18 }}>
                     Signal to recruiters, companies, and alumni that you are open to career opportunities. Shows the LinkedIn #OpenToWork photo ribbon on your profile.
                   </Text>
                 </View>
@@ -1181,7 +1181,7 @@ Any guidance or connections would be greatly appreciated! 🤝
                   marginTop: 14,
                   paddingTop: 10,
                   borderTopWidth: 1,
-                  borderTopColor: isDarkMode ? '#1B4D36' : 'rgba(212, 175, 55, 0.4)',
+                  borderTopColor: isDarkMode ? '#1B4D36' : 'rgba(202, 160, 37, 0.4)',
                   flexDirection: 'row',
                   alignItems: 'center',
                   justifyContent: 'space-between'
@@ -1190,12 +1190,12 @@ Any guidance or connections would be greatly appreciated! 🤝
                 activeOpacity={0.7}
               >
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                  <Ionicons name="options-outline" size={15} color={isDarkMode ? '#D4AF37' : '#057642'} />
-                  <Text style={{ fontSize: 13, fontWeight: '700', color: isDarkMode ? '#D4AF37' : '#057642' }}>
+                  <Ionicons name="options-outline" size={15} color={isDarkMode ? '#CAA025' : '#057642'} />
+                  <Text style={{ fontSize: 13, fontWeight: '700', color: isDarkMode ? '#CAA025' : '#057642' }}>
                     Customize LinkedIn #OpenToWork Roles & Preferences
                   </Text>
                 </View>
-                <Ionicons name="arrow-forward" size={15} color={isDarkMode ? '#D4AF37' : '#057642'} />
+                <Ionicons name="arrow-forward" size={15} color={isDarkMode ? '#CAA025' : '#057642'} />
               </TouchableOpacity>
             </View>
 
@@ -1206,11 +1206,11 @@ Any guidance or connections would be greatly appreciated! 🤝
               padding: 16, 
               marginBottom: 20, 
               borderWidth: 1, 
-              borderColor: isDarkMode ? '#1B4D36' : 'rgba(212, 175, 55, 0.4)' 
+              borderColor: isDarkMode ? '#1B4D36' : 'rgba(202, 160, 37, 0.4)' 
             }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
-                <Ionicons name="bulb-outline" size={18} color={isDarkMode ? '#D4AF37' : '#0F2C59'} style={{ marginRight: 8 }} />
-                <Text style={{ fontSize: 14, fontWeight: '700', color: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#D4AF37' }}>
+                <Ionicons name="bulb-outline" size={18} color={isDarkMode ? '#CAA025' : '#0F2C59'} style={{ marginRight: 8 }} />
+                <Text style={{ fontSize: 14, fontWeight: '700', color: isDarkMode ? 'rgba(202, 160, 37, 0.4)' : '#CAA025' }}>
                   Smart Keyword Recommendation Engine
                 </Text>
               </View>
@@ -1242,7 +1242,7 @@ Any guidance or connections would be greatly appreciated! 🤝
                         borderRadius: 16,
                         backgroundColor: isSelected ? (isDarkMode ? '#0F2C59' : '#0F2C59') : (isDarkMode ? '#1E2025' : '#F1F5F9'),
                         borderWidth: 1,
-                        borderColor: isSelected ? (isDarkMode ? '#D4AF37' : '#0F2C59') : theme.border
+                        borderColor: isSelected ? (isDarkMode ? '#CAA025' : '#0F2C59') : theme.border
                       }}
                       onPress={() => handleToggleKeyword(skill)}
                     >
@@ -1300,7 +1300,7 @@ Any guidance or connections would be greatly appreciated! 🤝
             </View>
 
             {loading && recommendedJobs.length === 0 ? (
-              <ActivityIndicator size="large" color={isDarkMode ? '#D4AF37' : '#0F2C59'} style={{ marginTop: 40 }} />
+              <ActivityIndicator size="large" color={isDarkMode ? '#CAA025' : '#0F2C59'} style={{ marginTop: 40 }} />
             ) : (
               <FlatList
                 data={recommendedJobs}
@@ -1417,7 +1417,7 @@ Any guidance or connections would be greatly appreciated! 🤝
                         <Ionicons 
                           name={savedJobs.some(s => (s._id || s.id) === (selectedJob._id || selectedJob.id)) ? "bookmark" : "bookmark-outline"} 
                           size={20} 
-                          color={savedJobs.some(s => (s._id || s.id) === (selectedJob._id || selectedJob.id)) ? (isDarkMode ? '#D4AF37' : '#0F2C59') : theme.text} 
+                          color={savedJobs.some(s => (s._id || s.id) === (selectedJob._id || selectedJob.id)) ? (isDarkMode ? '#CAA025' : '#0F2C59') : theme.text} 
                         />
                       </TouchableOpacity>
                     </View>
@@ -1442,12 +1442,12 @@ Any guidance or connections would be greatly appreciated! 🤝
                     {/* LinkedIn Metric Badges */}
                     <View style={styles.detailsPillGrid}>
                       <View style={styles.detailsMetricPill}>
-                        <Ionicons name="people" size={14} color="#D4AF37" style={{ marginRight: 5 }} />
+                        <Ionicons name="people" size={14} color="#CAA025" style={{ marginRight: 5 }} />
                         <Text style={styles.detailsMetricPillText}>{selectedJob.alumniCount || 14} Alumni work here</Text>
                       </View>
                       <View style={[styles.detailsMetricPill, { backgroundColor: isDarkMode ? '#132A1E' : '#FAF5EB' }]}>
-                        <Ionicons name="flash" size={14} color="#D4AF37" style={{ marginRight: 5 }} />
-                        <Text style={[styles.detailsMetricPillText, { color: '#D4AF37' }]}>Easy Apply</Text>
+                        <Ionicons name="flash" size={14} color="#CAA025" style={{ marginRight: 5 }} />
+                        <Text style={[styles.detailsMetricPillText, { color: '#CAA025' }]}>Easy Apply</Text>
                       </View>
                       <View style={styles.detailsMetricPill}>
                         <Ionicons name="time-outline" size={14} color={theme.textMuted} style={{ marginRight: 5 }} />
@@ -1470,7 +1470,7 @@ Any guidance or connections would be greatly appreciated! 🤝
                       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
                         <Text style={styles.recruiterCardHeading}>Meet the Hiring Team</Text>
                         <View style={styles.alumniReferralTag}>
-                          <Ionicons name="shield-checkmark" size={12} color="#D4AF37" style={{ marginRight: 3 }} />
+                          <Ionicons name="shield-checkmark" size={12} color="#CAA025" style={{ marginRight: 3 }} />
                           <Text style={styles.alumniReferralTagText}>Alumni Recruiter</Text>
                         </View>
                       </View>
@@ -1515,7 +1515,7 @@ Any guidance or connections would be greatly appreciated! 🤝
                           );
                         }}
                       >
-                        <Ionicons name="chatbubble-ellipses-outline" size={16} color="#D4AF37" style={{ marginRight: 6 }} />
+                        <Ionicons name="chatbubble-ellipses-outline" size={16} color="#CAA025" style={{ marginRight: 6 }} />
                         <Text style={styles.recruiterMsgBtnText}>Message Recruiter for Referral</Text>
                       </TouchableOpacity>
                     </View>
@@ -1539,7 +1539,7 @@ Any guidance or connections would be greatly appreciated! 🤝
                           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
                             {matchResult.matched.map((kw, i) => (
                               <View key={`match-${i}`} style={styles.skillMatchedPill}>
-                                <Ionicons name="checkmark" size={12} color="#D4AF37" style={{ marginRight: 4 }} />
+                                <Ionicons name="checkmark" size={12} color="#CAA025" style={{ marginRight: 4 }} />
                                 <Text style={styles.skillMatchedText}>{kw}</Text>
                               </View>
                             ))}
@@ -1582,7 +1582,7 @@ Any guidance or connections would be greatly appreciated! 🤝
                       <Ionicons 
                         name={savedJobs.some(s => (s._id || s.id) === (selectedJob._id || selectedJob.id)) ? "bookmark" : "bookmark-outline"} 
                         size={22} 
-                        color={savedJobs.some(s => (s._id || s.id) === (selectedJob._id || selectedJob.id)) ? (isDarkMode ? '#D4AF37' : '#0F2C59') : theme.textMuted} 
+                        color={savedJobs.some(s => (s._id || s.id) === (selectedJob._id || selectedJob.id)) ? (isDarkMode ? '#CAA025' : '#0F2C59') : theme.textMuted} 
                       />
                     </TouchableOpacity>
 
@@ -1636,7 +1636,7 @@ Any guidance or connections would be greatly appreciated! 🤝
                         <Text style={styles.applyStepIndicatorText}>Step {applyStep} of 4</Text>
 
                         <TouchableOpacity onPress={() => openJobDetails(selectedJob)}>
-                          <Text style={{ fontSize: 13, fontWeight: '700', color: isDarkMode ? '#D4AF37' : '#0F2C59' }}>
+                          <Text style={{ fontSize: 13, fontWeight: '700', color: isDarkMode ? '#CAA025' : '#0F2C59' }}>
                             View Role
                           </Text>
                         </TouchableOpacity>
@@ -1770,7 +1770,7 @@ Any guidance or connections would be greatly appreciated! 🤝
                               {applicantResume.size} • Updated {applicantResume.updated}
                             </Text>
                           </View>
-                          <Ionicons name="checkmark-circle" size={20} color="#D4AF37" />
+                          <Ionicons name="checkmark-circle" size={20} color="#CAA025" />
                         </View>
 
                         {/* Upload Resume Button (DocumentPicker) */}
@@ -1779,7 +1779,7 @@ Any guidance or connections would be greatly appreciated! 🤝
                           onPress={handlePickResume}
                           activeOpacity={0.8}
                         >
-                          <Ionicons name="cloud-upload-outline" size={24} color="#D4AF37" style={{ marginBottom: 4 }} />
+                          <Ionicons name="cloud-upload-outline" size={24} color="#CAA025" style={{ marginBottom: 4 }} />
                           <Text style={styles.uploadResumeTitle}>Upload resume</Text>
                           <Text style={styles.uploadResumeSub}>
                             DOC, DOCX, PDF (up to 5 MB)
@@ -1790,13 +1790,13 @@ Any guidance or connections would be greatly appreciated! 🤝
                         <Text style={[styles.sectionHeading, { marginTop: 20 }]}>Education</Text>
                         <View style={styles.educationCard}>
                           <View style={styles.educationIconPod}>
-                            <Ionicons name="school" size={22} color="#D4AF37" />
+                            <Ionicons name="school" size={22} color="#CAA025" />
                           </View>
                           <View style={{ flex: 1 }}>
                             <Text style={styles.educationSchool}>R.V. College of Engineering (RVCE)</Text>
                             <Text style={styles.educationDegree}>{applicantDegree}</Text>
                             <View style={styles.verifiedAlumniPill}>
-                              <Ionicons name="shield-checkmark" size={11} color="#D4AF37" style={{ marginRight: 3 }} />
+                              <Ionicons name="shield-checkmark" size={11} color="#CAA025" style={{ marginRight: 3 }} />
                               <Text style={styles.verifiedAlumniPillText}>Verified Alumni Profile</Text>
                             </View>
                           </View>
@@ -1842,7 +1842,7 @@ Any guidance or connections would be greatly appreciated! 🤝
                             <View style={styles.keywordFitNotice}>
                               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                  <Ionicons name="sparkles" size={16} color="#D4AF37" style={{ marginRight: 6 }} />
+                                  <Ionicons name="sparkles" size={16} color="#CAA025" style={{ marginRight: 6 }} />
                                   <Text style={styles.keywordFitNoticeTitle}>
                                     🎯 {matchResult.score}% Keyword Fit
                                   </Text>
@@ -2104,7 +2104,7 @@ Any guidance or connections would be greatly appreciated! 🤝
                       {/* Recruiter Notice Card */}
                       <View style={styles.successRecruiterBox}>
                         <View style={styles.successRecruiterAvatar}>
-                          <Ionicons name="school" size={20} color="#D4AF37" />
+                          <Ionicons name="school" size={20} color="#CAA025" />
                         </View>
                         <View style={{ flex: 1 }}>
                           <Text style={styles.successRecruiterName}>
@@ -2124,7 +2124,7 @@ Any guidance or connections would be greatly appreciated! 🤝
                         </View>
                         <View style={styles.successRow}>
                           <Text style={styles.successRowLabel}>Status:</Text>
-                          <Text style={[styles.successRowVal, { color: '#D4AF37' }]}>Applied • Under Review</Text>
+                          <Text style={[styles.successRowVal, { color: '#CAA025' }]}>Applied • Under Review</Text>
                         </View>
                         <View style={styles.successRow}>
                           <Text style={styles.successRowLabel}>Resume Attached:</Text>
@@ -2233,7 +2233,7 @@ Any guidance or connections would be greatly appreciated! 🤝
               <View style={styles.showcaseTopBanner}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
                   <View style={styles.showcaseIconPod}>
-                    <Ionicons name="school" size={20} color="#D4AF37" />
+                    <Ionicons name="school" size={20} color="#CAA025" />
                   </View>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
@@ -2258,7 +2258,7 @@ Any guidance or connections would be greatly appreciated! 🤝
               <View style={styles.showcaseBody}>
                 <View style={styles.showcaseTagRow}>
                   <View style={styles.showcasePill}>
-                    <Ionicons name="sparkles" size={12} color="#D4AF37" style={{ marginRight: 4 }} />
+                    <Ionicons name="sparkles" size={12} color="#CAA025" style={{ marginRight: 4 }} />
                     <Text style={styles.showcasePillText}>RESUME BOOK</Text>
                   </View>
                   <Text style={styles.showcaseStatText}>850+ Verified Profiles</Text>
@@ -2359,7 +2359,7 @@ Any guidance or connections would be greatly appreciated! 🤝
               <View style={styles.mobileSheetHeader}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
                   <View style={styles.mobileIconPod}>
-                    <Ionicons name="document-text" size={22} color="#D4AF37" />
+                    <Ionicons name="document-text" size={22} color="#CAA025" />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.mobileSheetTitle}>Resume Book</Text>
@@ -2483,7 +2483,7 @@ Any guidance or connections would be greatly appreciated! 🤝
               {targetJobForShare && (
                 <View style={[styles.shareJobSnippetCard, { backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderColor: theme.border }]}>
                   <View style={styles.shareJobSnippetIcon}>
-                    <Ionicons name="briefcase" size={18} color="#D4AF37" />
+                    <Ionicons name="briefcase" size={18} color="#CAA025" />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={[styles.shareJobSnippetTitle, { color: theme.text }]} numberOfLines={1}>
@@ -2603,12 +2603,12 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     paddingVertical: 7,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: isDarkMode ? '#0F2C59' : 'rgba(212, 175, 55, 0.4)',
+    borderColor: isDarkMode ? '#0F2C59' : 'rgba(202, 160, 37, 0.4)',
   },
   desktopSectionTitle: {
     fontSize: 15,
     fontWeight: '800',
-    color: isDarkMode ? '#D4AF37' : '#0F2C59',
+    color: isDarkMode ? '#CAA025' : '#0F2C59',
     letterSpacing: -0.2,
   },
   desktopCampusBadge: {
@@ -2639,9 +2639,9 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     borderRadius: 12,
     backgroundColor: '#0F2C59',
     borderWidth: 1,
-    borderTopColor: '#D4AF37',
+    borderTopColor: '#CAA025',
     borderLeftColor: '#10B981',
-    borderRightColor: '#D4AF37',
+    borderRightColor: '#CAA025',
     borderBottomColor: '#064E3B',
     justifyContent: 'center',
     alignItems: 'center',
@@ -2690,9 +2690,9 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   },
   headerIconBtnActive: {
     backgroundColor: '#0F2C59',
-    borderTopColor: '#D4AF37',
+    borderTopColor: '#CAA025',
     borderLeftColor: '#10B981',
-    borderRightColor: '#D4AF37',
+    borderRightColor: '#CAA025',
     borderBottomColor: '#064E3B',
     borderBottomWidth: 3.5,
     shadowColor: '#0A192F',
@@ -2732,7 +2732,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   tabItemActive: { 
     backgroundColor: isDarkMode ? '#132A1E' : '#F0FDF4', 
     borderWidth: 1, 
-    borderColor: isDarkMode ? '#0F2C59' : 'rgba(212, 175, 55, 0.4)',
+    borderColor: isDarkMode ? '#0F2C59' : 'rgba(202, 160, 37, 0.4)',
   },
   tabText: { 
     fontSize: 13, 
@@ -2741,7 +2741,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     marginLeft: 6,
   },
   tabTextActive: { 
-    color: '#D4AF37', 
+    color: '#CAA025', 
     fontWeight: '700',
   },
   filterSection: { 
@@ -2776,7 +2776,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   },
   chipActive: { 
     backgroundColor: '#0F2C59',
-    borderColor: '#D4AF37',
+    borderColor: '#CAA025',
   },
   chipText: { 
     fontSize: 12.5, 
@@ -2808,7 +2808,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     justifyContent: 'center', 
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: isDarkMode ? '#1B4D36' : 'rgba(212, 175, 55, 0.4)',
+    borderColor: isDarkMode ? '#1B4D36' : 'rgba(202, 160, 37, 0.4)',
   },
   titleText: { 
     fontSize: 16.5, 
@@ -2832,12 +2832,12 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     borderRadius: 8, 
     backgroundColor: isDarkMode ? '#132A1E' : '#F0FDF4',
     borderWidth: 1,
-    borderColor: isDarkMode ? '#1B4D36' : 'rgba(212, 175, 55, 0.4)',
+    borderColor: isDarkMode ? '#1B4D36' : 'rgba(202, 160, 37, 0.4)',
   },
   tagText: { 
     fontSize: 11.5, 
     fontWeight: '600', 
-    color: '#D4AF37',
+    color: '#CAA025',
   },
   cardActionRow: { 
     flexDirection: 'row', 
@@ -2897,7 +2897,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     shadowRadius: 4, 
     elevation: 2,
     borderWidth: 1,
-    borderColor: isDarkMode ? '#0F2C59' : 'rgba(212, 175, 55, 0.4)',
+    borderColor: isDarkMode ? '#0F2C59' : 'rgba(202, 160, 37, 0.4)',
   },
   subTabText: { 
     fontSize: 13, 
@@ -2905,7 +2905,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     color: theme.textMuted,
   },
   subTabTextActive: { 
-    color: '#D4AF37', 
+    color: '#CAA025', 
     fontWeight: '700',
   },
   emptyBox: { 
@@ -2923,7 +2923,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   openToWorkCard: { 
     backgroundColor: isDarkMode ? '#132A1E' : '#FDF6E2', 
     borderWidth: 1, 
-    borderColor: isDarkMode ? '#0F2C59' : 'rgba(212, 175, 55, 0.4)', 
+    borderColor: isDarkMode ? '#0F2C59' : 'rgba(202, 160, 37, 0.4)', 
     padding: 16, 
     borderRadius: 16, 
     marginBottom: 20,
@@ -3067,12 +3067,12 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: isDarkMode ? '#1B4D36' : 'rgba(212, 175, 55, 0.4)',
+    borderColor: isDarkMode ? '#1B4D36' : 'rgba(202, 160, 37, 0.4)',
   },
   recruiterCardHeading: {
     fontSize: 13,
     fontWeight: '800',
-    color: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#D4AF37',
+    color: isDarkMode ? 'rgba(202, 160, 37, 0.4)' : '#CAA025',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
@@ -3087,14 +3087,14 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   alumniReferralTagText: {
     fontSize: 10.5,
     fontWeight: '800',
-    color: '#D4AF37',
+    color: '#CAA025',
   },
   recruiterAvatar: {
     width: 44,
     height: 44,
     borderRadius: 22,
     borderWidth: 1.5,
-    borderColor: '#D4AF37',
+    borderColor: '#CAA025',
   },
   recruiterAvatarFallback: {
     width: 44,
@@ -3117,7 +3117,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   recruiterRole: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#D4AF37',
+    color: '#CAA025',
     marginTop: 1,
   },
   recruiterSub: {
@@ -3134,12 +3134,12 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     borderRadius: 10,
     marginTop: 12,
     borderWidth: 1,
-    borderColor: isDarkMode ? '#2D3139' : 'rgba(212, 175, 55, 0.4)',
+    borderColor: isDarkMode ? '#2D3139' : 'rgba(202, 160, 37, 0.4)',
   },
   recruiterMsgBtnText: {
     fontSize: 12.5,
     fontWeight: '700',
-    color: isDarkMode ? '#D4AF37' : '#0F2C59',
+    color: isDarkMode ? '#CAA025' : '#0F2C59',
   },
   howYouMatchCard: {
     backgroundColor: isDarkMode ? '#1E2025' : '#F8FAFC',
@@ -3160,12 +3160,12 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     paddingVertical: 3,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: isDarkMode ? '#0F2C59' : 'rgba(212, 175, 55, 0.4)',
+    borderColor: isDarkMode ? '#0F2C59' : 'rgba(202, 160, 37, 0.4)',
   },
   matchPercentBadgeText: {
     fontSize: 11.5,
     fontWeight: '800',
-    color: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#D4AF37',
+    color: isDarkMode ? 'rgba(202, 160, 37, 0.4)' : '#CAA025',
   },
   matchCardSubtitle: {
     fontSize: 12,
@@ -3185,7 +3185,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   skillMatchedText: {
     fontSize: 12,
     fontWeight: '700',
-    color: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#15803D',
+    color: isDarkMode ? 'rgba(202, 160, 37, 0.4)' : '#15803D',
   },
   skillMissingPill: {
     flexDirection: 'row',
@@ -3361,13 +3361,13 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     padding: 12,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: isDarkMode ? '#1B4D36' : 'rgba(212, 175, 55, 0.4)',
+    borderColor: isDarkMode ? '#1B4D36' : 'rgba(202, 160, 37, 0.4)',
     marginTop: 4,
   },
   privacyBannerText: {
     flex: 1,
     fontSize: 11.5,
-    color: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#D4AF37',
+    color: isDarkMode ? 'rgba(202, 160, 37, 0.4)' : '#CAA025',
     lineHeight: 16,
     fontWeight: '600',
   },
@@ -3424,7 +3424,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     padding: 14,
     borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: '#D4AF37',
+    borderColor: '#CAA025',
     marginBottom: 12,
   },
   radioSelectedDot: {
@@ -3432,7 +3432,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     height: 18,
     borderRadius: 9,
     borderWidth: 2,
-    borderColor: '#D4AF37',
+    borderColor: '#CAA025',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -3467,7 +3467,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1.5,
     borderStyle: 'dashed',
-    borderColor: '#D4AF37',
+    borderColor: '#CAA025',
     borderRadius: 14,
     paddingVertical: 18,
     backgroundColor: isDarkMode ? 'rgba(5, 150, 105, 0.08)' : '#F0FDF4',
@@ -3476,7 +3476,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   uploadResumeTitle: {
     fontSize: 14,
     fontWeight: '800',
-    color: isDarkMode ? '#D4AF37' : '#0F2C59',
+    color: isDarkMode ? '#CAA025' : '#0F2C59',
   },
   uploadResumeSub: {
     fontSize: 11.5,
@@ -3524,7 +3524,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   verifiedAlumniPillText: {
     fontSize: 10.5,
     fontWeight: '800',
-    color: '#D4AF37',
+    color: '#CAA025',
   },
   keywordFitNotice: {
     backgroundColor: isDarkMode ? '#132A1E' : '#F0FDF4',
@@ -3532,17 +3532,17 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     padding: 14,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: isDarkMode ? '#1B4D36' : 'rgba(212, 175, 55, 0.4)',
+    borderColor: isDarkMode ? '#1B4D36' : 'rgba(202, 160, 37, 0.4)',
   },
   keywordFitNoticeTitle: {
     fontSize: 14,
     fontWeight: '800',
-    color: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#D4AF37',
+    color: isDarkMode ? 'rgba(202, 160, 37, 0.4)' : '#CAA025',
   },
   keywordFitNoticeCount: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#D4AF37',
+    color: '#CAA025',
   },
   keywordPillGreen: {
     backgroundColor: isDarkMode ? '#064E3B' : '#FDF6E2',
@@ -3553,7 +3553,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   keywordPillGreenText: {
     fontSize: 11.5,
     fontWeight: '700',
-    color: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#15803D',
+    color: isDarkMode ? 'rgba(202, 160, 37, 0.4)' : '#15803D',
   },
   questionBlock: {
     marginBottom: 18,
@@ -3580,7 +3580,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   },
   questionChipSelected: {
     backgroundColor: '#0F2C59',
-    borderColor: '#D4AF37',
+    borderColor: '#CAA025',
   },
   questionChipText: {
     fontSize: 12.5,
@@ -3617,7 +3617,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   reviewEditLink: {
     fontSize: 13,
     fontWeight: '700',
-    color: isDarkMode ? '#D4AF37' : '#0F2C59',
+    color: isDarkMode ? '#CAA025' : '#0F2C59',
   },
   reviewValueBold: {
     fontSize: 14,
@@ -3713,7 +3713,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     width: '100%',
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: isDarkMode ? '#1B4D36' : 'rgba(212, 175, 55, 0.4)',
+    borderColor: isDarkMode ? '#1B4D36' : 'rgba(202, 160, 37, 0.4)',
   },
   successRecruiterAvatar: {
     width: 38,
@@ -3726,7 +3726,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   successRecruiterName: {
     fontSize: 13.5,
     fontWeight: '800',
-    color: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#D4AF37',
+    color: isDarkMode ? 'rgba(202, 160, 37, 0.4)' : '#CAA025',
   },
   successRecruiterRole: {
     fontSize: 11.5,
@@ -3832,12 +3832,12 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     paddingVertical: 3,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: isDarkMode ? '#1B4D36' : 'rgba(212, 175, 55, 0.4)',
+    borderColor: isDarkMode ? '#1B4D36' : 'rgba(202, 160, 37, 0.4)',
   },
   alumniBadgeText: {
     fontSize: 11,
     fontWeight: '700',
-    color: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#D4AF37',
+    color: isDarkMode ? 'rgba(202, 160, 37, 0.4)' : '#CAA025',
   },
   easyApplyTagPill: {
     flexDirection: 'row',
@@ -3852,7 +3852,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   easyApplyTagText: {
     fontSize: 11,
     fontWeight: '700',
-    color: isDarkMode ? '#D4AF37' : '#0F2C59',
+    color: isDarkMode ? '#CAA025' : '#0F2C59',
   },
   matchScoreBanner: {
     flexDirection: 'row', 
@@ -3864,12 +3864,12 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     marginTop: 8, 
     alignSelf: 'flex-start', 
     borderWidth: 1, 
-    borderColor: isDarkMode ? '#0F2C59' : 'rgba(212, 175, 55, 0.4)',
+    borderColor: isDarkMode ? '#0F2C59' : 'rgba(202, 160, 37, 0.4)',
   },
   matchScoreText: {
     fontSize: 11.5, 
     fontWeight: '700', 
-    color: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#D4AF37',
+    color: isDarkMode ? 'rgba(202, 160, 37, 0.4)' : '#CAA025',
   },
   keywordFilterChip: {
     paddingVertical: 6, 
@@ -3882,10 +3882,10 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   },
   keywordFilterChipActive: {
     backgroundColor: '#0F2C59',
-    borderColor: '#D4AF37',
+    borderColor: '#CAA025',
   },
   keywordFilterChipEasyApply: {
-    borderColor: '#D4AF37',
+    borderColor: '#CAA025',
   },
   keywordFilterChipText: {
     fontSize: 12, 
@@ -3916,7 +3916,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
     borderWidth: 1.5,
-    borderColor: isDarkMode ? '#D4AF37' : 'rgba(212, 175, 55, 0.4)',
+    borderColor: isDarkMode ? '#CAA025' : 'rgba(202, 160, 37, 0.4)',
   },
   fabPillButtonText: {
     fontSize: 13.5,
@@ -3934,7 +3934,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     backgroundColor: theme.card,
     borderRadius: 20,
     borderWidth: 1.5,
-    borderColor: isDarkMode ? '#0F2C59' : 'rgba(212, 175, 55, 0.4)',
+    borderColor: isDarkMode ? '#0F2C59' : 'rgba(202, 160, 37, 0.4)',
     shadowColor: '#0A192F',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.25,
@@ -3948,7 +3948,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: isDarkMode ? '#064E3B' : '#D4AF37',
+    backgroundColor: isDarkMode ? '#064E3B' : '#CAA025',
   },
   showcaseIconPod: {
     width: 36,
@@ -3967,7 +3967,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   showcaseOfficialBadge: {
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 55, 0.35)',
+    borderColor: 'rgba(202, 160, 37, 0.35)',
     paddingHorizontal: 5,
     paddingVertical: 1,
     borderRadius: 5,
@@ -4007,12 +4007,12 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     paddingVertical: 3,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: isDarkMode ? '#1B4D36' : 'rgba(212, 175, 55, 0.4)',
+    borderColor: isDarkMode ? '#1B4D36' : 'rgba(202, 160, 37, 0.4)',
   },
   showcasePillText: {
     fontSize: 10,
     fontWeight: '800',
-    color: '#D4AF37',
+    color: '#CAA025',
   },
   showcaseStatText: {
     fontSize: 11,
@@ -4049,7 +4049,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   showcaseMetricValue: {
     fontSize: 14,
     fontWeight: '900',
-    color: '#D4AF37',
+    color: '#CAA025',
   },
   showcaseMetricLabel: {
     fontSize: 10,
@@ -4065,7 +4065,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   spotlightCard: {
     backgroundColor: isDarkMode ? '#132A1E' : '#F0FDF4',
     borderWidth: 1,
-    borderColor: isDarkMode ? '#1B4D36' : 'rgba(212, 175, 55, 0.4)',
+    borderColor: isDarkMode ? '#1B4D36' : 'rgba(202, 160, 37, 0.4)',
     borderRadius: 12,
     padding: 10,
     marginBottom: 14,
@@ -4106,7 +4106,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   spotlightBadgeText: {
     fontSize: 9,
     fontWeight: '800',
-    color: '#D4AF37',
+    color: '#CAA025',
   },
   spotlightRole: {
     fontSize: 11,
@@ -4161,7 +4161,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   },
   showcaseSecondaryLinkBold: {
     fontWeight: '800',
-    color: isDarkMode ? '#D4AF37' : '#0F2C59',
+    color: isDarkMode ? '#CAA025' : '#0F2C59',
   },
   // Mobile Specific Responsive Styles
   fabPillButtonMobile: {
@@ -4213,7 +4213,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: isDarkMode ? '#1B4D36' : 'rgba(212, 175, 55, 0.4)',
+    borderColor: isDarkMode ? '#1B4D36' : 'rgba(202, 160, 37, 0.4)',
   },
   mobileSheetTitle: {
     fontSize: 17,
@@ -4286,7 +4286,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   },
   mobileSecondaryBold: {
     fontWeight: '800',
-    color: isDarkMode ? '#D4AF37' : '#0F2C59',
+    color: isDarkMode ? '#CAA025' : '#0F2C59',
   },
 
   // LinkedIn Job Interest Post Modal Styles

@@ -89,7 +89,7 @@ const AppHeader = ({
       styles.header, 
       { 
         backgroundColor: isDarkMode ? '#070D1E' : '#FFFFFF',
-        borderBottomColor: isDarkMode ? 'rgba(212, 175, 55, 0.3)' : '#E2E8F0',
+        borderBottomColor: isDarkMode ? 'rgba(202, 160, 37, 0.3)' : '#E2E8F0',
       },
       style
     ]}>
@@ -106,7 +106,7 @@ const AppHeader = ({
             <Text style={styles.brandCrestText}>RV</Text>
           </View>
           <Text style={{ fontSize: 18, fontWeight: '900', color: isDarkMode ? '#FFFFFF' : '#0A192F', letterSpacing: 0.5 }}>
-            ALUMNI <Text style={{ color: '#D4AF37' }}>•</Text>
+            ALUMNI <Text style={{ color: '#CAA025' }}>•</Text>
           </Text>
         </TouchableOpacity>
 
@@ -115,11 +115,11 @@ const AppHeader = ({
           <View style={[
             styles.desktopBadge,
             { 
-              backgroundColor: isDarkMode ? 'rgba(212, 175, 55, 0.15)' : '#FAF5EB',
-              borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#E6CA85',
+              backgroundColor: isDarkMode ? 'rgba(202, 160, 37, 0.15)' : '#FAF5EB',
+              borderColor: isDarkMode ? 'rgba(202, 160, 37, 0.4)' : '#E6CA85',
             }
           ]}>
-            <Text style={[styles.desktopBadgeText, { color: isDarkMode ? '#FDE68A' : '#D4AF37' }]}>
+            <Text style={[styles.desktopBadgeText, { color: isDarkMode ? '#FDE68A' : '#CAA025' }]}>
               {desktopTitle}
             </Text>
             {desktopSubtitle && (
@@ -141,11 +141,11 @@ const AppHeader = ({
             styles.headerIconBtn,
             {
               backgroundColor: isMessagesActive 
-                ? (isDarkMode ? 'rgba(212, 175, 55, 0.2)' : '#FAF5EB') 
+                ? (isDarkMode ? 'rgba(202, 160, 37, 0.2)' : '#FAF5EB') 
                 : (isDarkMode ? '#0A1224' : '#F8FAFC'),
               borderColor: isMessagesActive 
-                ? (isDarkMode ? '#D4AF37' : '#C5A059') 
-                : (isDarkMode ? 'rgba(212, 175, 55, 0.25)' : '#E2E8F0'),
+                ? (isDarkMode ? '#CAA025' : '#C5A059') 
+                : (isDarkMode ? 'rgba(202, 160, 37, 0.25)' : '#E2E8F0'),
             }
           ]}
           onPress={() => {
@@ -158,7 +158,7 @@ const AppHeader = ({
           <Ionicons
             name={isMessagesActive ? 'chatbubbles' : 'chatbubbles-outline'}
             size={20}
-            color={isMessagesActive ? '#D4AF37' : (isDarkMode ? '#E2E8F0' : '#0A192F')}
+            color={isMessagesActive ? '#CAA025' : (isDarkMode ? '#E2E8F0' : '#0A192F')}
           />
           {unreadMessages > 0 && (
             <View style={styles.badgeDot} />
@@ -171,10 +171,10 @@ const AppHeader = ({
             styles.headerIconBtn,
             {
               backgroundColor: isNotificationsActive 
-                ? (isDarkMode ? 'rgba(212, 175, 55, 0.2)' : '#FEF9C3') 
+                ? (isDarkMode ? 'rgba(202, 160, 37, 0.2)' : '#FEF9C3') 
                 : (isDarkMode ? '#1E293B' : '#F8FAFC'),
               borderColor: isNotificationsActive 
-                ? (isDarkMode ? '#D4AF37' : '#FDE68A') 
+                ? (isDarkMode ? '#CAA025' : '#FDE68A') 
                 : (isDarkMode ? '#334155' : '#E2E8F0'),
             }
           ]}
@@ -188,7 +188,7 @@ const AppHeader = ({
           <Ionicons
             name={isNotificationsActive ? 'notifications' : 'notifications-outline'}
             size={20}
-            color={isNotificationsActive ? '#D4AF37' : (isDarkMode ? '#CBD5E1' : '#475569')}
+            color={isNotificationsActive ? '#CAA025' : (isDarkMode ? '#CBD5E1' : '#475569')}
           />
           {unreadNotifications > 0 && (
             <View style={styles.badgeDot} />
@@ -251,10 +251,10 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 8,
-    backgroundColor: '#D4AF37',
+    backgroundColor: '#CAA025',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#D4AF37',
+    shadowColor: '#CAA025',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.35,
     shadowRadius: 4,

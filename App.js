@@ -140,10 +140,10 @@ function Render3DTabIcon({ name, focused, isDarkMode, theme, isPost, label, isMa
           name={profileInitials || 'Harshitha D S'}
           size={26}
           ring={focused}
-          ringColor="#D4AF37"
+          ringColor="#CAA025"
         />
         <Text style={{
-          color: focused ? '#D4AF37' : '#94A3B8',
+          color: focused ? '#CAA025' : '#94A3B8',
           fontSize: 10.5,
           fontWeight: focused ? '800' : '600',
           marginTop: 3,
@@ -164,7 +164,7 @@ function Render3DTabIcon({ name, focused, isDarkMode, theme, isPost, label, isMa
           width: 32,
           height: 3,
           borderRadius: 1.5,
-          backgroundColor: '#D4AF37',
+          backgroundColor: '#CAA025',
         }} />
       )}
       <View style={{
@@ -173,13 +173,13 @@ function Render3DTabIcon({ name, focused, isDarkMode, theme, isPost, label, isMa
         justifyContent: 'center'
       }}>
         {isMaterial ? (
-          <MaterialCommunityIcons name={name} size={22} color={focused ? '#D4AF37' : '#94A3B8'} />
+          <MaterialCommunityIcons name={name} size={22} color={focused ? '#CAA025' : '#94A3B8'} />
         ) : (
-          <Ionicons name={name} size={22} color={focused ? '#D4AF37' : '#94A3B8'} />
+          <Ionicons name={name} size={22} color={focused ? '#CAA025' : '#94A3B8'} />
         )}
       </View>
       <Text style={{
-        color: focused ? '#D4AF37' : '#94A3B8',
+        color: focused ? '#CAA025' : '#94A3B8',
         fontSize: 10.5,
         fontWeight: focused ? '800' : '600',
         marginTop: 3,
@@ -224,7 +224,7 @@ function CustomDrawerContent(props) {
         paddingTop: 22,
         paddingBottom: 18,
         borderBottomWidth: 1,
-        borderBottomColor: isDarkMode ? 'rgba(212, 175, 55, 0.3)' : '#E2E8F0',
+        borderBottomColor: isDarkMode ? 'rgba(202, 160, 37, 0.3)' : '#E2E8F0',
         backgroundColor: isDarkMode ? '#0A192F' : '#F8FAFC',
       }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
@@ -232,10 +232,10 @@ function CustomDrawerContent(props) {
             width: 44,
             height: 44,
             borderRadius: 12,
-            backgroundColor: '#D4AF37',
+            backgroundColor: '#CAA025',
             justifyContent: 'center',
             alignItems: 'center',
-            shadowColor: '#D4AF37',
+            shadowColor: '#CAA025',
             shadowOffset: { width: 0, height: 2 },
             shadowOpacity: 0.35,
             shadowRadius: 5,
@@ -245,9 +245,9 @@ function CustomDrawerContent(props) {
           </View>
           <View style={{ flex: 1 }}>
             <Text style={{ fontSize: 14.5, fontWeight: '900', color: isDarkMode ? '#FFFFFF' : '#0A192F', letterSpacing: 0.5 }}>
-              RV ALUMNI <Text style={{ color: '#D4AF37' }}>•</Text>
+              RV ALUMNI <Text style={{ color: '#CAA025' }}>•</Text>
             </Text>
-            <Text style={{ fontSize: 9.5, fontWeight: '800', color: '#D4AF37', letterSpacing: 1.4, marginTop: 2 }}>
+            <Text style={{ fontSize: 9.5, fontWeight: '800', color: '#CAA025', letterSpacing: 1.4, marginTop: 2 }}>
               OFFICIAL PORTAL
             </Text>
           </View>
@@ -260,7 +260,7 @@ function CustomDrawerContent(props) {
       </DrawerContentScrollView>
 
       {/* Bottom Profile Widget */}
-      <View style={{ padding: 12, borderTopWidth: 1, borderTopColor: isDarkMode ? 'rgba(212, 175, 55, 0.3)' : '#E2E8F0' }}>
+      <View style={{ padding: 12, borderTopWidth: 1, borderTopColor: isDarkMode ? 'rgba(202, 160, 37, 0.3)' : '#E2E8F0' }}>
         <TouchableOpacity
           onPress={() => props.navigation.navigate('Profile')}
           activeOpacity={0.8}
@@ -271,7 +271,7 @@ function CustomDrawerContent(props) {
             borderRadius: 12,
             padding: 12,
             borderWidth: 1,
-            borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.35)' : 'rgba(212, 175, 55, 0.45)',
+            borderColor: isDarkMode ? 'rgba(202, 160, 37, 0.35)' : 'rgba(202, 160, 37, 0.45)',
             shadowColor: '#0A192F',
             shadowOffset: { width: 0, height: 2 },
             shadowOpacity: isDarkMode ? 0.2 : 0.05,
@@ -284,18 +284,18 @@ function CustomDrawerContent(props) {
             name={currentUser?.name || 'Harshitha D S'}
             size={40}
             ring
-            ringColor="#D4AF37"
+            ringColor="#CAA025"
             style={{ marginRight: 12 }}
           />
           <View style={{ flex: 1 }}>
             <Text style={{ fontSize: 13.5, fontWeight: '700', color: isDarkMode ? '#FFFFFF' : '#0A192F' }} numberOfLines={1}>
               {currentUser?.name || 'Harshitha D S'}
             </Text>
-            <Text style={{ fontSize: 11, color: isDarkMode ? '#D4AF37' : '#B48608', fontWeight: '700', marginTop: 2 }} numberOfLines={1}>
+            <Text style={{ fontSize: 11, color: isDarkMode ? '#CAA025' : '#B48608', fontWeight: '700', marginTop: 2 }} numberOfLines={1}>
               {`${currentUser?.role || 'Alumni'} • RVCE '24`}
             </Text>
           </View>
-          <Ionicons name="chevron-forward" size={16} color="#D4AF37" />
+          <Ionicons name="chevron-forward" size={16} color="#CAA025" />
         </TouchableOpacity>
       </View>
     </View>
@@ -344,7 +344,7 @@ function MainTabs() {
           drawerStyle: {
             width: 255,
             borderRightWidth: 1.5,
-            borderRightColor: isDarkMode ? 'rgba(212, 175, 55, 0.3)' : '#E2E8F0',
+            borderRightColor: isDarkMode ? 'rgba(202, 160, 37, 0.3)' : '#E2E8F0',
             backgroundColor: isDarkMode ? '#070D1E' : '#FFFFFF',
           },
           drawerItemStyle: {
@@ -352,12 +352,12 @@ function MainTabs() {
             paddingHorizontal: 10,
             marginVertical: 3,
           },
-          drawerActiveBackgroundColor: isDarkMode ? 'rgba(212, 175, 55, 0.2)' : 'rgba(15, 44, 89, 0.08)',
-          drawerActiveTintColor: isDarkMode ? '#D4AF37' : '#0F2C59',
+          drawerActiveBackgroundColor: isDarkMode ? 'rgba(202, 160, 37, 0.2)' : 'rgba(15, 44, 89, 0.08)',
+          drawerActiveTintColor: isDarkMode ? '#CAA025' : '#0F2C59',
           drawerInactiveTintColor: isDarkMode ? '#CBD5E1' : '#475569',
           drawerLabelStyle: { fontSize: 14, fontWeight: '700', marginLeft: -4 },
           drawerIcon: ({ focused, color }) => {
-            const activeColor = isDarkMode ? '#D4AF37' : '#0F2C59';
+            const activeColor = isDarkMode ? '#CAA025' : '#0F2C59';
             let iconComp = null;
             if (route.name === 'Home') iconComp = <Ionicons name={focused ? 'home' : 'home-outline'} size={20} color={focused ? activeColor : color} />;
             if (route.name === 'Engage') iconComp = <Ionicons name={focused ? 'people' : 'people-outline'} size={20} color={focused ? activeColor : color} />;
@@ -370,7 +370,7 @@ function MainTabs() {
                   name={currentUser?.name || 'Harshitha D S'}
                   size={26}
                   ring={focused}
-                  ringColor="#D4AF37"
+                  ringColor="#CAA025"
                 />
               );
             }
@@ -380,7 +380,7 @@ function MainTabs() {
                 width: 32,
                 height: 32,
                 borderRadius: 9,
-                backgroundColor: focused ? 'rgba(212, 175, 55, 0.22)' : 'transparent',
+                backgroundColor: focused ? 'rgba(202, 160, 37, 0.22)' : 'transparent',
                 justifyContent: 'center',
                 alignItems: 'center'
               }}>
@@ -474,7 +474,7 @@ function MainTabs() {
         },
         tabBarStyle: {
           borderTopWidth: 1,
-          borderTopColor: isDarkMode ? 'rgba(212, 175, 55, 0.35)' : '#E2E8F0',
+          borderTopColor: isDarkMode ? 'rgba(202, 160, 37, 0.35)' : '#E2E8F0',
           paddingBottom: bottomPadding,
           paddingTop: 8,
           height: 60 + bottomPadding,
@@ -526,7 +526,7 @@ function AdminTabs() {
           drawerStyle: {
             width: 240,
             borderRightWidth: 1,
-            borderRightColor: isDarkMode ? 'rgba(212, 175, 55, 0.35)' : '#E2E8F0',
+            borderRightColor: isDarkMode ? 'rgba(202, 160, 37, 0.35)' : '#E2E8F0',
             backgroundColor: isDarkMode ? '#0A1224' : '#FFFFFF',
             paddingTop: 20,
             paddingHorizontal: 12,
@@ -536,8 +536,8 @@ function AdminTabs() {
             paddingHorizontal: 12,
             marginVertical: 4,
           },
-          drawerActiveBackgroundColor: isDarkMode ? 'rgba(212, 175, 55, 0.2)' : 'rgba(15, 44, 89, 0.08)',
-          drawerActiveTintColor: isDarkMode ? '#D4AF37' : '#0F2C59',
+          drawerActiveBackgroundColor: isDarkMode ? 'rgba(202, 160, 37, 0.2)' : 'rgba(15, 44, 89, 0.08)',
+          drawerActiveTintColor: isDarkMode ? '#CAA025' : '#0F2C59',
           drawerInactiveTintColor: isDarkMode ? '#CBD5E1' : '#475569',
           drawerLabelStyle: { fontSize: 16, fontWeight: '700', marginLeft: -8 },
           drawerIcon: ({ focused, color, size }) => {
@@ -619,7 +619,7 @@ function SuperAdminTabs() {
           drawerStyle: {
             width: 240,
             borderRightWidth: 1,
-            borderRightColor: isDarkMode ? 'rgba(212, 175, 55, 0.35)' : '#E2E8F0',
+            borderRightColor: isDarkMode ? 'rgba(202, 160, 37, 0.35)' : '#E2E8F0',
             backgroundColor: isDarkMode ? '#0A1224' : '#FFFFFF',
             paddingTop: 20,
             paddingHorizontal: 12,
@@ -629,8 +629,8 @@ function SuperAdminTabs() {
             paddingHorizontal: 12,
             marginVertical: 4,
           },
-          drawerActiveBackgroundColor: isDarkMode ? 'rgba(212, 175, 55, 0.2)' : 'rgba(15, 44, 89, 0.08)',
-          drawerActiveTintColor: isDarkMode ? '#D4AF37' : '#0F2C59',
+          drawerActiveBackgroundColor: isDarkMode ? 'rgba(202, 160, 37, 0.2)' : 'rgba(15, 44, 89, 0.08)',
+          drawerActiveTintColor: isDarkMode ? '#CAA025' : '#0F2C59',
           drawerInactiveTintColor: isDarkMode ? '#CBD5E1' : '#475569',
           drawerLabelStyle: { fontSize: 16, fontWeight: '700', marginLeft: -8 },
           drawerIcon: ({ focused, color, size }) => {

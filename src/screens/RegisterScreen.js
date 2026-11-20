@@ -721,13 +721,13 @@ const RegisterScreen = ({ navigation, route }) => {
                   By continuing, you agree to our{' '}
                 </Text>
                 <TouchableOpacity onPress={() => navigation.navigate('TermsOfService')}>
-                  <Text style={{ color: isDarkMode ? '#D4AF37' : '#0F2C59', fontSize: 12, fontWeight: '700', textDecorationLine: 'underline' }}>
+                  <Text style={{ color: isDarkMode ? '#CAA025' : '#0F2C59', fontSize: 12, fontWeight: '700', textDecorationLine: 'underline' }}>
                     Terms of Service
                   </Text>
                 </TouchableOpacity>
                 <Text style={{ color: theme.textSecondary || '#64748B', fontSize: 12 }}> and </Text>
                 <TouchableOpacity onPress={() => navigation.navigate('PrivacyPolicy')}>
-                  <Text style={{ color: isDarkMode ? '#D4AF37' : '#0F2C59', fontSize: 12, fontWeight: '700', textDecorationLine: 'underline' }}>
+                  <Text style={{ color: isDarkMode ? '#CAA025' : '#0F2C59', fontSize: 12, fontWeight: '700', textDecorationLine: 'underline' }}>
                     Privacy Policy
                   </Text>
                 </TouchableOpacity>

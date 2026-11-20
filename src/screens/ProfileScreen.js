@@ -1361,7 +1361,7 @@ const DEFAULT_TAGGED_POSTS = [];
           <View style={styles.identityBlock}>
             <View style={styles.nameRow}>
               <Text style={styles.profileDisplayName}>{profileData.name || profileData.email || 'Alumni Member'}</Text>
-              <Ionicons name="checkmark-circle" size={20} color={isDarkMode ? "#FDE68A" : "#D4AF37"} />
+              <Ionicons name="checkmark-circle" size={20} color={isDarkMode ? "#FDE68A" : "#CAA025"} />
             </View>
 
             {/* Headline / Domain */}
@@ -1373,7 +1373,7 @@ const DEFAULT_TAGGED_POSTS = [];
             {/* Institution badge - single clean line */}
             {profileData.institution ? (
               <View style={styles.institutionLine}>
-                <Ionicons name="school" size={14} color={isDarkMode ? "#FDE68A" : "#D4AF37"} />
+                <Ionicons name="school" size={14} color={isDarkMode ? "#FDE68A" : "#CAA025"} />
                 <Text style={styles.institutionLineText}>{profileData.institution}</Text>
               </View>
             ) : null}
@@ -1400,7 +1400,7 @@ const DEFAULT_TAGGED_POSTS = [];
               onPress={() => setProfileShareModalVisible(true)} 
               activeOpacity={0.75}
             >
-              <Ionicons name="share-social-outline" size={15} color={isDarkMode ? "#FDE68A" : "#D4AF37"} style={{ marginRight: 5 }} />
+              <Ionicons name="share-social-outline" size={15} color={isDarkMode ? "#FDE68A" : "#CAA025"} style={{ marginRight: 5 }} />
               <Text style={styles.topShareProfilePillText}>Share</Text>
             </TouchableOpacity>
 
@@ -1426,7 +1426,7 @@ const DEFAULT_TAGGED_POSTS = [];
                 }}
                 activeOpacity={0.75}
               >
-                <Ionicons name="document-text" size={18} color={isDarkMode ? "#FDE68A" : "#D4AF37"} />
+                <Ionicons name="document-text" size={18} color={isDarkMode ? "#FDE68A" : "#CAA025"} />
               </TouchableOpacity>
             ) : (
               <TouchableOpacity 
@@ -1448,7 +1448,7 @@ const DEFAULT_TAGGED_POSTS = [];
             >
               <Text style={styles.statsRibbonNumber}>{connections.length || profileData.followers}</Text>
               <View style={styles.statsRibbonLabelRow}>
-                <Ionicons name="people-outline" size={13} color={isDarkMode ? "#FDE68A" : "#D4AF37"} />
+                <Ionicons name="people-outline" size={13} color={isDarkMode ? "#FDE68A" : "#CAA025"} />
                 <Text style={styles.statsRibbonLabel}>Connections</Text>
               </View>
             </TouchableOpacity>
@@ -1479,7 +1479,7 @@ const DEFAULT_TAGGED_POSTS = [];
             >
               <Text style={styles.statsRibbonNumber}>{profileData.posts}</Text>
               <View style={styles.statsRibbonLabelRow}>
-                <Ionicons name="chatbubbles-outline" size={13} color={isDarkMode ? "#FDE68A" : "#D4AF37"} />
+                <Ionicons name="chatbubbles-outline" size={13} color={isDarkMode ? "#FDE68A" : "#CAA025"} />
                 <Text style={styles.statsRibbonLabel}>Posts</Text>
               </View>
             </TouchableOpacity>
@@ -1646,7 +1646,7 @@ const DEFAULT_TAGGED_POSTS = [];
           const EmptyState = ({ icon, message, actionText, onAction }) => (
             <View style={{ alignItems: 'center', paddingVertical: 48, paddingHorizontal: 32, backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', margin: 16, borderRadius: 16, borderWidth: 1, borderColor: theme.border }}>
               <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: '#F0FDF4', justifyContent: 'center', alignItems: 'center', marginBottom: 12 }}>
-                <Ionicons name={icon} size={28} color={isDarkMode ? "#FDE68A" : "#D4AF37"} />
+                <Ionicons name={icon} size={28} color={isDarkMode ? "#FDE68A" : "#CAA025"} />
               </View>
               <Text style={{ color: theme.text, fontSize: 15, fontWeight: '700', textAlign: 'center', marginBottom: 4 }}>Nothing here yet</Text>
               <Text style={{ color: theme.textSecondary, fontSize: 13, textAlign: 'center', lineHeight: 20, maxWidth: 360, marginBottom: actionText ? 16 : 0 }}>{message}</Text>
@@ -1680,7 +1680,7 @@ const DEFAULT_TAGGED_POSTS = [];
                         <View style={{ flex: 1 }}>
                           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                             <Text style={{ fontSize: 15, fontWeight: '800', color: theme.text }}>{profileData.name || 'Alumni Member'}</Text>
-                            <Ionicons name="checkmark-circle" size={14} color={isDarkMode ? "#FDE68A" : "#D4AF37"} />
+                            <Ionicons name="checkmark-circle" size={14} color={isDarkMode ? "#FDE68A" : "#CAA025"} />
                           </View>
                           <Text style={{ fontSize: 12, color: theme.textSecondary }}>{profileData.institution || 'RV College of Engineering'}</Text>
                         </View>
@@ -1705,7 +1705,7 @@ const DEFAULT_TAGGED_POSTS = [];
                           <Text style={{ fontSize: 12.5, color: theme.textSecondary, fontWeight: '600' }}>View Details & Comments</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => setProfileShareModalVisible(true)} style={{ padding: 6 }}>
-                          <Ionicons name="share-social-outline" size={18} color={isDarkMode ? "#FDE68A" : "#D4AF37"} />
+                          <Ionicons name="share-social-outline" size={18} color={isDarkMode ? "#FDE68A" : "#CAA025"} />
                         </TouchableOpacity>
                       </View>
                     </View>
@@ -1836,7 +1836,7 @@ const DEFAULT_TAGGED_POSTS = [];
             <View style={styles.modalHeader}>
               {settingsSubView !== 'menu' ? (
                 <TouchableOpacity onPress={() => setSettingsSubView('menu')}>
-                  <Ionicons name="arrow-back" size={24} color={isDarkMode ? "#FDE68A" : "#D4AF37"} />
+                  <Ionicons name="arrow-back" size={24} color={isDarkMode ? "#FDE68A" : "#CAA025"} />
                 </TouchableOpacity>
               ) : (
                 <View style={{ width: 24 }} />
@@ -1859,7 +1859,7 @@ const DEFAULT_TAGGED_POSTS = [];
                   style={styles.modalItem}
                   onPress={handleOpenEdit}
                 >
-                  <Ionicons name="person-outline" size={22} color={isDarkMode ? "#FDE68A" : "#D4AF37"} style={{ marginRight: 12 }} />
+                  <Ionicons name="person-outline" size={22} color={isDarkMode ? "#FDE68A" : "#CAA025"} style={{ marginRight: 12 }} />
                   <Text style={styles.modalItemText}>Profile Edit</Text>
                 </TouchableOpacity>
 
@@ -1867,7 +1867,7 @@ const DEFAULT_TAGGED_POSTS = [];
                   style={styles.modalItem}
                   onPress={() => setSettingsSubView('profile_settings')}
                 >
-                  <Ionicons name="settings-outline" size={22} color={isDarkMode ? "#FDE68A" : "#D4AF37"} style={{ marginRight: 12 }} />
+                  <Ionicons name="settings-outline" size={22} color={isDarkMode ? "#FDE68A" : "#CAA025"} style={{ marginRight: 12 }} />
                   <Text style={styles.modalItemText}>Profile Settings</Text>
                 </TouchableOpacity>
 
@@ -1875,7 +1875,7 @@ const DEFAULT_TAGGED_POSTS = [];
                   style={styles.modalItem}
                   onPress={() => setSettingsSubView('security')}
                 >
-                  <Ionicons name="shield-checkmark-outline" size={22} color={isDarkMode ? "#FDE68A" : "#D4AF37"} style={{ marginRight: 12 }} />
+                  <Ionicons name="shield-checkmark-outline" size={22} color={isDarkMode ? "#FDE68A" : "#CAA025"} style={{ marginRight: 12 }} />
                   <Text style={styles.modalItemText}>Login & Security</Text>
                 </TouchableOpacity>
 
@@ -1940,13 +1940,13 @@ const DEFAULT_TAGGED_POSTS = [];
                 />
 
                 <Text style={styles.editLabel}>Institution / College 🎓</Text>
-                <View style={[styles.securityInput, { flexDirection: 'row', alignItems: 'center', backgroundColor: isDarkMode ? '#1E293B' : '#F0FDF4', borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#CBD5E1' }]}>
-                  <Ionicons name="school" size={18} color={isDarkMode ? "#FDE68A" : "#D4AF37"} style={{ marginRight: 8 }} />
+                <View style={[styles.securityInput, { flexDirection: 'row', alignItems: 'center', backgroundColor: isDarkMode ? '#1E293B' : '#F0FDF4', borderColor: isDarkMode ? 'rgba(202, 160, 37, 0.4)' : '#CBD5E1' }]}>
+                  <Ionicons name="school" size={18} color={isDarkMode ? "#FDE68A" : "#CAA025"} style={{ marginRight: 8 }} />
                   <Text style={{ fontSize: 14, color: theme.text, fontWeight: '700', flex: 1 }} numberOfLines={1}>
                     {profileData.institution || 'RV College of Engineering'}
                   </Text>
                   <View style={{ backgroundColor: '#DCFCE7', paddingHorizontal: 7, paddingVertical: 2, borderRadius: 5 }}>
-                    <Text style={{ fontSize: 10, fontWeight: '700', color: isDarkMode ? '#FDE68A' : '#D4AF37' }}>Verified</Text>
+                    <Text style={{ fontSize: 10, fontWeight: '700', color: isDarkMode ? '#FDE68A' : '#CAA025' }}>Verified</Text>
                   </View>
                 </View>
 
@@ -2028,7 +2028,7 @@ const DEFAULT_TAGGED_POSTS = [];
                 <Text style={styles.editLabel}>Date of Birth 🎂</Text>
                 {Platform.OS === 'web' ? (
                   <View style={[styles.securityInput, { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, position: 'relative' }]}>
-                    <Ionicons name="calendar-sharp" size={18} color={isDarkMode ? "#FDE68A" : "#D4AF37"} style={{ marginRight: 8 }} />
+                    <Ionicons name="calendar-sharp" size={18} color={isDarkMode ? "#FDE68A" : "#CAA025"} style={{ marginRight: 8 }} />
                     <input
                       type="date"
                       value={editDob}
@@ -2054,7 +2054,7 @@ const DEFAULT_TAGGED_POSTS = [];
                     activeOpacity={0.7}
                   >
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                      <Ionicons name="calendar-sharp" size={18} color={isDarkMode ? "#FDE68A" : "#D4AF37"} style={{ marginRight: 8 }} />
+                      <Ionicons name="calendar-sharp" size={18} color={isDarkMode ? "#FDE68A" : "#CAA025"} style={{ marginRight: 8 }} />
                       <Text style={{ color: editDob ? theme.text : '#94A3B8', fontSize: 14 }}>
                         {editDob ? editDob : 'Select Date of Birth'}
                       </Text>
@@ -2067,7 +2067,7 @@ const DEFAULT_TAGGED_POSTS = [];
                 <View style={{ marginTop: 24, marginBottom: 8, padding: 16, backgroundColor: '#F8FAFC', borderRadius: 16, borderWidth: 1, borderColor: '#E2E8F0' }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
                     <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#F0FDF4', justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
-                      <Ionicons name="document-text" size={20} color={isDarkMode ? "#FDE68A" : "#D4AF37"} />
+                      <Ionicons name="document-text" size={20} color={isDarkMode ? "#FDE68A" : "#CAA025"} />
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={{ fontSize: 15, fontWeight: '700', color: '#002144' }}>Resume & Career Profile</Text>
@@ -2078,12 +2078,12 @@ const DEFAULT_TAGGED_POSTS = [];
                   {/* Current Resume Badge */}
                   {editResumeUrl ? (
                     <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', padding: 12, borderRadius: 12, borderWidth: 1, borderColor: '#CBD5E1', marginBottom: 14 }}>
-                      <Ionicons name="document-attach" size={22} color={isDarkMode ? "#FDE68A" : "#D4AF37"} style={{ marginRight: 10 }} />
+                      <Ionicons name="document-attach" size={22} color={isDarkMode ? "#FDE68A" : "#CAA025"} style={{ marginRight: 10 }} />
                       <View style={{ flex: 1 }}>
                         <Text style={{ fontSize: 13, fontWeight: '700', color: '#002144' }} numberOfLines={1}>
                           {editResumeFileName || 'My_Resume.pdf'}
                         </Text>
-                        <Text style={{ fontSize: 11, color: isDarkMode ? '#FDE68A' : '#D4AF37', fontWeight: '600', marginTop: 2 }}>✓ Resume attached</Text>
+                        <Text style={{ fontSize: 11, color: isDarkMode ? '#FDE68A' : '#CAA025', fontWeight: '600', marginTop: 2 }}>✓ Resume attached</Text>
                       </View>
                       <TouchableOpacity 
                         style={{ paddingHorizontal: 10, paddingVertical: 6, backgroundColor: '#F0FDF4', borderRadius: 8, marginRight: 6 }}
@@ -2095,7 +2095,7 @@ const DEFAULT_TAGGED_POSTS = [];
                           }
                         }}
                       >
-                        <Text style={{ fontSize: 12, fontWeight: '700', color: isDarkMode ? '#FDE68A' : '#D4AF37' }}>View</Text>
+                        <Text style={{ fontSize: 12, fontWeight: '700', color: isDarkMode ? '#FDE68A' : '#CAA025' }}>View</Text>
                       </TouchableOpacity>
                       <TouchableOpacity 
                         style={{ padding: 6 }}
@@ -2267,7 +2267,7 @@ const DEFAULT_TAGGED_POSTS = [];
                     <Text style={styles.settingsRowDesc}>Only approved connections can see your posts.</Text>
                   </View>
                   <TouchableOpacity onPress={() => setPrivateAccount(!privateAccount)}>
-                    <Ionicons name={privateAccount ? "toggle" : "toggle-outline"} size={40} color={privateAccount ? "#D4AF37" : "#CBD5E1"} />
+                    <Ionicons name={privateAccount ? "toggle" : "toggle-outline"} size={40} color={privateAccount ? "#CAA025" : "#CBD5E1"} />
                   </TouchableOpacity>
                 </View>
 
@@ -2278,7 +2278,7 @@ const DEFAULT_TAGGED_POSTS = [];
                     <Text style={styles.settingsRowDesc}>Receive notifications for connections & messages.</Text>
                   </View>
                   <TouchableOpacity onPress={() => setPushNotifications(!pushNotifications)}>
-                    <Ionicons name={pushNotifications ? "toggle" : "toggle-outline"} size={40} color={pushNotifications ? "#D4AF37" : "#CBD5E1"} />
+                    <Ionicons name={pushNotifications ? "toggle" : "toggle-outline"} size={40} color={pushNotifications ? "#CAA025" : "#CBD5E1"} />
                   </TouchableOpacity>
                 </View>
 
@@ -2288,7 +2288,7 @@ const DEFAULT_TAGGED_POSTS = [];
                     <Text style={styles.settingsRowDesc}>Weekly digest of top alumni posts and jobs.</Text>
                   </View>
                   <TouchableOpacity onPress={() => setEmailDigest(!emailDigest)}>
-                    <Ionicons name={emailDigest ? "toggle" : "toggle-outline"} size={40} color={emailDigest ? "#D4AF37" : "#CBD5E1"} />
+                    <Ionicons name={emailDigest ? "toggle" : "toggle-outline"} size={40} color={emailDigest ? "#CAA025" : "#CBD5E1"} />
                   </TouchableOpacity>
                 </View>
 
@@ -2298,7 +2298,7 @@ const DEFAULT_TAGGED_POSTS = [];
                     <Text style={styles.settingsRowDesc}>Get notified immediately when new jobs are posted.</Text>
                   </View>
                   <TouchableOpacity onPress={() => setJobAlerts(!jobAlerts)}>
-                    <Ionicons name={jobAlerts ? "toggle" : "toggle-outline"} size={40} color={jobAlerts ? "#D4AF37" : "#CBD5E1"} />
+                    <Ionicons name={jobAlerts ? "toggle" : "toggle-outline"} size={40} color={jobAlerts ? "#CAA025" : "#CBD5E1"} />
                   </TouchableOpacity>
                 </View>
 
@@ -2356,8 +2356,8 @@ const DEFAULT_TAGGED_POSTS = [];
                           const isMet = status.checks && status.checks[crit.id];
                           return (
                             <View key={crit.id} style={{ flexDirection: 'row', alignItems: 'center', marginRight: 10, marginBottom: 4 }}>
-                              <Ionicons name={isMet ? "checkmark-circle" : "ellipse-outline"} size={13} color={isMet ? "#D4AF37" : "#94A3B8"} />
-                              <Text style={{ fontSize: 11, color: isMet ? '#D4AF37' : '#94A3B8', marginLeft: 4 }}>
+                              <Ionicons name={isMet ? "checkmark-circle" : "ellipse-outline"} size={13} color={isMet ? "#CAA025" : "#94A3B8"} />
+                              <Text style={{ fontSize: 11, color: isMet ? '#CAA025' : '#94A3B8', marginLeft: 4 }}>
                                 {crit.label}
                               </Text>
                             </View>
@@ -2423,7 +2423,7 @@ const DEFAULT_TAGGED_POSTS = [];
                     <Text style={styles.settingsRowDesc}>Require verification code sent to your phone/email.</Text>
                   </View>
                   <TouchableOpacity onPress={() => setTwoFactor(!twoFactor)}>
-                    <Ionicons name={twoFactor ? "toggle" : "toggle-outline"} size={40} color={twoFactor ? "#D4AF37" : "#CBD5E1"} />
+                    <Ionicons name={twoFactor ? "toggle" : "toggle-outline"} size={40} color={twoFactor ? "#CAA025" : "#CBD5E1"} />
                   </TouchableOpacity>
                 </View>
 
@@ -2564,7 +2564,7 @@ const DEFAULT_TAGGED_POSTS = [];
                           });
                         }}
                       >
-                        <Ionicons name="chatbubble-ellipses-outline" size={16} color={isDarkMode ? "#FDE68A" : "#D4AF37"} />
+                        <Ionicons name="chatbubble-ellipses-outline" size={16} color={isDarkMode ? "#FDE68A" : "#CAA025"} />
                       </TouchableOpacity>
 
                       <TouchableOpacity 
@@ -3406,7 +3406,7 @@ const DEFAULT_TAGGED_POSTS = [];
 
               {Platform.OS === 'web' ? (
                 <View style={[styles.securityInput, { width: '100%', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, height: 48, marginBottom: 14 }]}>
-                  <Ionicons name="calendar-sharp" size={20} color={isDarkMode ? "#FDE68A" : "#D4AF37"} style={{ marginRight: 10 }} />
+                  <Ionicons name="calendar-sharp" size={20} color={isDarkMode ? "#FDE68A" : "#CAA025"} style={{ marginRight: 10 }} />
                   <input
                     type="date"
                     value={editDob}
@@ -4296,7 +4296,7 @@ const DEFAULT_TAGGED_POSTS = [];
                 marginTop: 14, 
                 backgroundColor: isDarkMode ? '#1E293B' : '#F0FDF4', 
                 borderWidth: 1, 
-                borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#CBD5E1', 
+                borderColor: isDarkMode ? 'rgba(202, 160, 37, 0.4)' : '#CBD5E1', 
                 borderRadius: 10, 
                 paddingHorizontal: 14, 
                 paddingVertical: 12, 
@@ -4306,16 +4306,16 @@ const DEFAULT_TAGGED_POSTS = [];
               }}
             >
               <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 8 }}>
-                <Ionicons name="school" size={20} color={isDarkMode ? "#FDE68A" : "#D4AF37"} style={{ marginRight: 10 }} />
+                <Ionicons name="school" size={20} color={isDarkMode ? "#FDE68A" : "#CAA025"} style={{ marginRight: 10 }} />
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 11, color: isDarkMode ? '#FDE68A' : '#D4AF37', fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 }}>Institution / College</Text>
+                  <Text style={{ fontSize: 11, color: isDarkMode ? '#FDE68A' : '#CAA025', fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 }}>Institution / College</Text>
                   <Text style={{ fontSize: 14, color: theme.text, fontWeight: '700', marginTop: 2 }} numberOfLines={2}>
                     {profileData.institution || 'RV College of Engineering'}
                   </Text>
                 </View>
               </View>
               <View style={{ backgroundColor: '#DCFCE7', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 }}>
-                <Text style={{ fontSize: 10.5, fontWeight: '700', color: isDarkMode ? '#FDE68A' : '#D4AF37' }}>Verified</Text>
+                <Text style={{ fontSize: 10.5, fontWeight: '700', color: isDarkMode ? '#FDE68A' : '#CAA025' }}>Verified</Text>
               </View>
             </View>
 
@@ -4394,7 +4394,7 @@ const DEFAULT_TAGGED_POSTS = [];
             <View style={{ marginHorizontal: 16, marginTop: 16, padding: 16, backgroundColor: isDarkMode ? '#1E1E1E' : '#F8FAFC', borderRadius: 14, borderWidth: 1, borderColor: theme.border }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
                 <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: '#F0FDF4', justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
-                  <Ionicons name="document-text" size={20} color={isDarkMode ? "#FDE68A" : "#D4AF37"} />
+                  <Ionicons name="document-text" size={20} color={isDarkMode ? "#FDE68A" : "#CAA025"} />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text }}>Resume & Career Profile</Text>
@@ -4419,12 +4419,12 @@ const DEFAULT_TAGGED_POSTS = [];
                   onPress={() => handleOpenResume(editResumeUrl)}
                   activeOpacity={0.7}
                 >
-                  <Ionicons name="document-text" size={24} color={isDarkMode ? "#FDE68A" : "#D4AF37"} style={{ marginRight: 10 }} />
+                  <Ionicons name="document-text" size={24} color={isDarkMode ? "#FDE68A" : "#CAA025"} style={{ marginRight: 10 }} />
                   <View style={{ flex: 1 }}>
                     <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }} numberOfLines={1}>
                       {editResumeFileName || 'My_Resume.pdf'}
                     </Text>
-                    <Text style={{ fontSize: 11, color: isDarkMode ? '#FDE68A' : '#D4AF37', fontWeight: '600', marginTop: 2 }}>✓ Tap to open/view PDF</Text>
+                    <Text style={{ fontSize: 11, color: isDarkMode ? '#FDE68A' : '#CAA025', fontWeight: '600', marginTop: 2 }}>✓ Tap to open/view PDF</Text>
                   </View>
                   <TouchableOpacity 
                     style={{ paddingHorizontal: 12, paddingVertical: 6, backgroundColor: '#0F2C59', borderRadius: 8, marginRight: 8 }}
@@ -4761,7 +4761,7 @@ const DEFAULT_TAGGED_POSTS = [];
                     {profileData.email || 'No email specified'}
                   </Text>
                   {profileData.phone ? (
-                    <Text style={{ fontSize: 12.5, color: isDarkMode ? '#FDE68A' : '#D4AF37', fontWeight: '700', marginTop: 4 }}>
+                    <Text style={{ fontSize: 12.5, color: isDarkMode ? '#FDE68A' : '#CAA025', fontWeight: '700', marginTop: 4 }}>
                       📱 {profileData.countryCode || '+91'} {profileData.phone}
                     </Text>
                   ) : (
@@ -4804,7 +4804,7 @@ const DEFAULT_TAGGED_POSTS = [];
                       onPress={() => setDobCalendarVisible(true)}
                       style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#F0FDF4', justifyContent: 'center', alignItems: 'center' }}
                     >
-                      <Ionicons name="calendar" size={18} color={isDarkMode ? "#FDE68A" : "#D4AF37"} />
+                      <Ionicons name="calendar" size={18} color={isDarkMode ? "#FDE68A" : "#CAA025"} />
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -4819,7 +4819,7 @@ const DEFAULT_TAGGED_POSTS = [];
                     <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 2 }}>{editDob || 'Not specified'}</Text>
                   </View>
                   <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#F0FDF4', justifyContent: 'center', alignItems: 'center' }}>
-                    <Ionicons name="calendar-outline" size={18} color={isDarkMode ? "#FDE68A" : "#D4AF37"} />
+                    <Ionicons name="calendar-outline" size={18} color={isDarkMode ? "#FDE68A" : "#CAA025"} />
                   </View>
                 </TouchableOpacity>
               )}
@@ -4838,7 +4838,7 @@ const DEFAULT_TAGGED_POSTS = [];
                 <View style={{ flex: 1, marginRight: 10 }}>
                   <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>Resume & Career Profile</Text>
                   {profileData.resumeUrl ? (
-                    <Text style={{ fontSize: 12.5, color: isDarkMode ? '#FDE68A' : '#D4AF37', fontWeight: '700', marginTop: 4 }}>
+                    <Text style={{ fontSize: 12.5, color: isDarkMode ? '#FDE68A' : '#CAA025', fontWeight: '700', marginTop: 4 }}>
                       ✓ {profileData.resumeFileName || 'Resume attached (Tap to manage)'}
                     </Text>
                   ) : (
@@ -4906,12 +4906,12 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     paddingVertical: 7,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: isDarkMode ? '#D4AF37' : '#CBD5E1',
+    borderColor: isDarkMode ? '#CAA025' : '#CBD5E1',
   },
   desktopSectionTitle: {
     fontSize: 15,
     fontWeight: '800',
-    color: '#D4AF37',
+    color: '#CAA025',
     letterSpacing: -0.2,
   },
   desktopCampusBadge: {
@@ -4942,9 +4942,9 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     borderRadius: 12,
     backgroundColor: '#0F2C59',
     borderWidth: 1,
-    borderTopColor: '#D4AF37',
+    borderTopColor: '#CAA025',
     borderLeftColor: '#10B981',
-    borderRightColor: isDarkMode ? '#FDE68A' : '#D4AF37',
+    borderRightColor: isDarkMode ? '#FDE68A' : '#CAA025',
     borderBottomColor: '#064E3B',
     justifyContent: 'center',
     alignItems: 'center',
@@ -4993,9 +4993,9 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   },
   headerIconBtnActive: {
     backgroundColor: '#0F2C59',
-    borderTopColor: '#D4AF37',
+    borderTopColor: '#CAA025',
     borderLeftColor: '#10B981',
-    borderRightColor: isDarkMode ? '#FDE68A' : '#D4AF37',
+    borderRightColor: isDarkMode ? '#FDE68A' : '#CAA025',
     borderBottomColor: '#064E3B',
     borderBottomWidth: 3.5,
     shadowColor: '#0A192F',
@@ -5038,8 +5038,8 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     borderRadius: 62,
     backgroundColor: theme.card,
     borderWidth: 2.5,
-    borderColor: '#D4AF37',
-    shadowColor: '#D4AF37',
+    borderColor: '#CAA025',
+    shadowColor: '#CAA025',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
     shadowRadius: 10,
@@ -5055,7 +5055,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     borderRadius: 52,
     backgroundColor: '#0F2C59',
     borderWidth: 2,
-    borderColor: '#D4AF37',
+    borderColor: '#CAA025',
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
@@ -5068,7 +5068,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   avatarText: {
     fontSize: 32,
     fontWeight: '800',
-    color: '#D4AF37',
+    color: '#CAA025',
     letterSpacing: 1,
   },
   openToWorkRibbon: {
@@ -5102,7 +5102,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     right: -2,
     backgroundColor: '#0F2C59',
     borderWidth: 2,
-    borderColor: '#D4AF37',
+    borderColor: '#CAA025',
     width: 30,
     height: 30,
     borderRadius: 15,
@@ -5159,7 +5159,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     borderColor: '#E2E8F0',
   },
   topShareProfilePillText: {
-    color: isDarkMode ? '#FDE68A' : '#D4AF37',
+    color: isDarkMode ? '#FDE68A' : '#CAA025',
     fontSize: 13.5,
     fontWeight: '700',
     letterSpacing: 0.2,
@@ -5182,7 +5182,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#CBD5E1',
+    borderColor: isDarkMode ? 'rgba(202, 160, 37, 0.4)' : '#CBD5E1',
   },
   resumeBtn: {
     width: 38,
@@ -5234,7 +5234,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     backgroundColor: '#F0FDF4',
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#CBD5E1',
+    borderColor: isDarkMode ? 'rgba(202, 160, 37, 0.4)' : '#CBD5E1',
   },
   institutionLineText: {
     fontSize: 12.5,
@@ -5316,13 +5316,13 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#CBD5E1',
+    borderColor: isDarkMode ? 'rgba(202, 160, 37, 0.4)' : '#CBD5E1',
     gap: 5,
   },
   linkChipText: {
     fontSize: 12.5,
     fontWeight: '700',
-    color: isDarkMode ? '#FDE68A' : '#D4AF37',
+    color: isDarkMode ? '#FDE68A' : '#CAA025',
   },
 
   // ── Official LinkedIn #OpenToWork Showcase Box ──
@@ -5537,7 +5537,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   statPodConnections: {
     backgroundColor: '#F0FDF4',
     borderWidth: 1,
-    borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#CBD5E1',
+    borderColor: isDarkMode ? 'rgba(202, 160, 37, 0.4)' : '#CBD5E1',
   },
   statPodFollowing: {
     backgroundColor: '#FAF4ED',

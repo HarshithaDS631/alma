@@ -144,7 +144,7 @@ export default function MentorshipBookingModal({ visible, onClose, mentor, onSes
           <View style={styles.header}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
               <View style={styles.iconCircle}>
-                <Ionicons name="calendar" size={18} color="#D4AF37" />
+                <Ionicons name="calendar" size={18} color="#CAA025" />
               </View>
               <View>
                 <Text style={[styles.headerTitle, { color: isDarkMode ? '#F8FAFC' : '#0F172A' }]}>
@@ -166,7 +166,7 @@ export default function MentorshipBookingModal({ visible, onClose, mentor, onSes
             {confirmedSession ? (
               <View style={{ alignItems: 'center', paddingVertical: 10 }}>
                 <View style={styles.successIconPod}>
-                  <Ionicons name="checkmark-done-circle" size={56} color="#D4AF37" />
+                  <Ionicons name="checkmark-done-circle" size={56} color="#CAA025" />
                 </View>
                 <Text style={[styles.confirmedTitle, { color: isDarkMode ? '#F8FAFC' : '#0F172A' }]}>
                   {"You're Booked with "}{confirmedSession.mentorName}!
@@ -178,7 +178,7 @@ export default function MentorshipBookingModal({ visible, onClose, mentor, onSes
                 {/* Meeting Link Card */}
                 <View style={[styles.meetingCard, { backgroundColor: isDarkMode ? '#0F172A' : '#F8FAFC' }]}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                    <Ionicons name="videocam" size={18} color="#D4AF37" />
+                    <Ionicons name="videocam" size={18} color="#CAA025" />
                     <Text style={{ fontSize: 13, fontWeight: '700', color: isDarkMode ? '#F8FAFC' : '#0F172A' }}>
                       Video Room Access
                     </Text>
@@ -213,7 +213,7 @@ export default function MentorshipBookingModal({ visible, onClose, mentor, onSes
                     onPress={handleDownloadIcs}
                     activeOpacity={0.8}
                   >
-                    <Ionicons name="download-outline" size={17} color="#D4AF37" />
+                    <Ionicons name="download-outline" size={17} color="#CAA025" />
                     <Text style={[styles.calendarSyncText, { color: isDarkMode ? '#F8FAFC' : '#0F172A' }]}>
                       Download .ics Calendar File
                     </Text>
@@ -241,7 +241,7 @@ export default function MentorshipBookingModal({ visible, onClose, mentor, onSes
                     <Text style={styles.mentorRoleText} numberOfLines={1}>{mentorRole}</Text>
                   </View>
                   <View style={styles.durationBadge}>
-                    <Ionicons name="time-outline" size={12} color="#D4AF37" />
+                    <Ionicons name="time-outline" size={12} color="#CAA025" />
                     <Text style={styles.durationText}>30 MIN</Text>
                   </View>
                 </View>
@@ -251,7 +251,7 @@ export default function MentorshipBookingModal({ visible, onClose, mentor, onSes
                   Select Date & Time Slot:
                 </Text>
                 {loading ? (
-                  <ActivityIndicator size="small" color="#D4AF37" style={{ marginVertical: 16 }} />
+                  <ActivityIndicator size="small" color="#CAA025" style={{ marginVertical: 16 }} />
                 ) : (
                   <View style={styles.slotGrid}>
                     {slots.map((slot, idx) => {
@@ -266,7 +266,7 @@ export default function MentorshipBookingModal({ visible, onClose, mentor, onSes
                             styles.slotChip,
                             {
                               backgroundColor: isSel ? '#0F2C59' : (isDarkMode ? '#0F172A' : '#F1F5F9'),
-                              borderColor: isSel ? '#D4AF37' : (isDarkMode ? '#334155' : '#E2E8F0')
+                              borderColor: isSel ? '#CAA025' : (isDarkMode ? '#334155' : '#E2E8F0')
                             }
                           ]}
                           onPress={() => setSelectedSlot(slot)}
@@ -297,14 +297,14 @@ export default function MentorshipBookingModal({ visible, onClose, mentor, onSes
                         style={[
                           styles.topicChip,
                           {
-                            backgroundColor: isSel ? 'rgba(212, 175, 55, 0.15)' : (isDarkMode ? '#0F172A' : '#F1F5F9'),
-                            borderColor: isSel ? '#D4AF37' : (isDarkMode ? '#334155' : '#E2E8F0')
+                            backgroundColor: isSel ? 'rgba(202, 160, 37, 0.15)' : (isDarkMode ? '#0F172A' : '#F1F5F9'),
+                            borderColor: isSel ? '#CAA025' : (isDarkMode ? '#334155' : '#E2E8F0')
                           }
                         ]}
                         onPress={() => setSelectedTopic(t)}
                         activeOpacity={0.75}
                       >
-                        <Text style={[styles.topicText, { color: isSel ? '#D4AF37' : (isDarkMode ? '#CBD5E1' : '#475569'), fontWeight: isSel ? '700' : '500' }]}>
+                        <Text style={[styles.topicText, { color: isSel ? '#CAA025' : (isDarkMode ? '#CBD5E1' : '#475569'), fontWeight: isSel ? '700' : '500' }]}>
                           {t}
                         </Text>
                       </TouchableOpacity>
@@ -423,12 +423,12 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     backgroundColor: '#0F2C59',
     borderWidth: 1,
-    borderColor: '#D4AF37',
+    borderColor: '#CAA025',
     alignItems: 'center',
     justifyContent: 'center'
   },
   mentorAvatarText: {
-    color: '#D4AF37',
+    color: '#CAA025',
     fontWeight: '800',
     fontSize: 16
   },
@@ -445,9 +445,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(212, 175, 55, 0.15)',
+    backgroundColor: 'rgba(202, 160, 37, 0.15)',
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 55, 0.4)',
+    borderColor: 'rgba(202, 160, 37, 0.4)',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8
@@ -455,7 +455,7 @@ const styles = StyleSheet.create({
   durationText: {
     fontSize: 10,
     fontWeight: '800',
-    color: '#D4AF37'
+    color: '#CAA025'
   },
   sectionTitle: {
     fontSize: 12,
@@ -531,7 +531,7 @@ const styles = StyleSheet.create({
   },
   confirmedSubtitle: {
     fontSize: 12.5,
-    color: '#D4AF37',
+    color: '#CAA025',
     fontWeight: '700',
     marginTop: 4,
     textAlign: 'center'
@@ -542,7 +542,7 @@ const styles = StyleSheet.create({
     padding: 14,
     marginTop: 16,
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 55, 0.3)'
+    borderColor: 'rgba(202, 160, 37, 0.3)'
   },
   meetingUrlText: {
     fontSize: 11.5,

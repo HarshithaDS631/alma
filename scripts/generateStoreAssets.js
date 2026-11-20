@@ -63,8 +63,8 @@ function buildFeatureGraphicHtml() {
     position: absolute;
     inset: 0;
     background-image: 
-      linear-gradient(rgba(212, 175, 55, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(212, 175, 55, 0.05) 1px, transparent 1px);
+      linear-gradient(rgba(202, 160, 37, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(202, 160, 37, 0.05) 1px, transparent 1px);
     background-size: 40px 40px;
     pointer-events: none;
   }
@@ -72,7 +72,7 @@ function buildFeatureGraphicHtml() {
     position: absolute;
     width: 500px;
     height: 500px;
-    background: radial-gradient(circle, rgba(212, 175, 55, 0.18) 0%, rgba(15, 44, 89, 0) 70%);
+    background: radial-gradient(circle, rgba(202, 160, 37, 0.18) 0%, rgba(15, 44, 89, 0) 70%);
     top: -100px;
     left: 200px;
     pointer-events: none;
@@ -92,12 +92,12 @@ function buildFeatureGraphicHtml() {
     width: 44px;
     height: 44px;
     object-fit: contain;
-    filter: drop-shadow(0 2px 8px rgba(212, 175, 55, 0.4));
+    filter: drop-shadow(0 2px 8px rgba(202, 160, 37, 0.4));
   }
   .estd-pill {
-    background: rgba(212, 175, 55, 0.12);
-    border: 1px solid rgba(212, 175, 55, 0.4);
-    color: #F5D061;
+    background: rgba(202, 160, 37, 0.12);
+    border: 1px solid rgba(202, 160, 37, 0.4);
+    color: #CAA025;
     padding: 6px 14px;
     border-radius: 20px;
     font-size: 11px;
@@ -114,7 +114,7 @@ function buildFeatureGraphicHtml() {
     margin-bottom: 12px;
   }
   .title-main span {
-    background: linear-gradient(135deg, #FDE68A 0%, #D4AF37 60%, #B8860B 100%);
+    background: linear-gradient(135deg, #FDE68A 0%, #CAA025 60%, #B8860B 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -157,8 +157,8 @@ function buildFeatureGraphicHtml() {
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #D4AF37;
-    box-shadow: 0 0 8px #D4AF37;
+    background: #CAA025;
+    box-shadow: 0 0 8px #CAA025;
   }
 
   /* Right Showcase Phone Mockup */
@@ -186,7 +186,7 @@ function buildFeatureGraphicHtml() {
     border: 7px solid #1E293B;
     box-shadow: 
       0 25px 60px rgba(0,0,0,0.7),
-      inset 0 0 0 2px rgba(212, 175, 55, 0.4);
+      inset 0 0 0 2px rgba(202, 160, 37, 0.4);
     position: relative;
     overflow: hidden;
     margin-right: 60px;
@@ -214,11 +214,11 @@ function buildFeatureGraphicHtml() {
     background: #0F2C59;
     padding: 8px;
     border-radius: 10px;
-    border: 1px solid rgba(212, 175, 55, 0.3);
+    border: 1px solid rgba(202, 160, 37, 0.3);
     margin-bottom: 8px;
   }
   .mini-header-title {
-    color: #F5D061;
+    color: #CAA025;
     font-weight: 800;
     font-size: 10px;
   }
@@ -230,7 +230,7 @@ function buildFeatureGraphicHtml() {
     border: 1px solid #1E293B;
   }
   .mini-card-tag {
-    color: #D4AF37;
+    color: #CAA025;
     font-weight: 700;
     font-size: 8px;
     margin-bottom: 2px;
@@ -275,7 +275,7 @@ function buildFeatureGraphicHtml() {
             <div class="mini-header-title">🎓 RV ALUMNI FEED</div>
             <div style="color:#CBD5E1;font-size:8px;">Welcome, Rahul Sharma ('18)</div>
           </div>
-          <div class="mini-card" style="border-left: 3px solid #D4AF37;">
+          <div class="mini-card" style="border-left: 3px solid #CAA025;">
             <div class="mini-card-tag">💼 JOB REFERRAL • GOOGLE</div>
             <div class="mini-card-text">Staff Software Engineer • Bengaluru</div>
             <div style="color:#94A3B8;font-size:8px;margin-top:2px;">Shared by Aditi Rao ('16) • 12 referrals sent</div>
@@ -312,7 +312,7 @@ function buildAppIconHtml() {
     height: 512px;
     position: relative;
     background: radial-gradient(circle at 50% 30%, #0F2C59 0%, #0A192F 70%, #060E1D 100%);
-    border: 14px solid #D4AF37;
+    border: 14px solid #CAA025;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -324,7 +324,7 @@ function buildAppIconHtml() {
     width: 250px;
     height: 250px;
     object-fit: contain;
-    filter: drop-shadow(0 12px 25px rgba(212, 175, 55, 0.45));
+    filter: drop-shadow(0 12px 25px rgba(202, 160, 37, 0.45));
     margin-bottom: 20px;
   }
   .brand-title {
@@ -338,7 +338,7 @@ function buildAppIconHtml() {
     font-size: 16px;
     font-weight: 700;
     letter-spacing: 4px;
-    color: #F5D061;
+    color: #CAA025;
     margin-top: 4px;
     text-transform: uppercase;
   }
@@ -392,7 +392,7 @@ function buildMockupScreenshotHtml(config) {
     top: 5%;
     width: 80%;
     height: 500px;
-    background: radial-gradient(circle, rgba(212, 175, 55, 0.14) 0%, rgba(15, 44, 89, 0) 70%);
+    background: radial-gradient(circle, rgba(202, 160, 37, 0.14) 0%, rgba(15, 44, 89, 0) 70%);
     pointer-events: none;
   }
   .header-block {
@@ -403,9 +403,9 @@ function buildMockupScreenshotHtml(config) {
   }
   .header-badge {
     display: inline-block;
-    background: rgba(212, 175, 55, 0.15);
-    border: 1px solid #D4AF37;
-    color: #F5D061;
+    background: rgba(202, 160, 37, 0.15);
+    border: 1px solid #CAA025;
+    color: #CAA025;
     font-size: ${Math.round(18 * scale)}px;
     font-weight: 800;
     padding: 8px 24px;
@@ -422,7 +422,7 @@ function buildMockupScreenshotHtml(config) {
     letter-spacing: -0.5px;
   }
   .header-title span {
-    background: linear-gradient(135deg, #FDE68A 0%, #D4AF37 60%, #B8860B 100%);
+    background: linear-gradient(135deg, #FDE68A 0%, #CAA025 60%, #B8860B 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -451,7 +451,7 @@ function buildMockupScreenshotHtml(config) {
     border-bottom: none;
     box-shadow: 
       0 -20px 80px rgba(0,0,0,0.8),
-      inset 0 0 0 3px rgba(212, 175, 55, 0.45);
+      inset 0 0 0 3px rgba(202, 160, 37, 0.45);
     padding: 24px 20px 0;
     display: flex;
     flex-direction: column;
@@ -481,12 +481,12 @@ function buildMockupScreenshotHtml(config) {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 2px solid #D4AF37;
+    border-bottom: 2px solid #CAA025;
   }
   .app-bar-brand {
     font-size: ${Math.round(22 * scale)}px;
     font-weight: 800;
-    color: #F5D061;
+    color: #CAA025;
     letter-spacing: 0.5px;
   }
   .app-body {
@@ -511,7 +511,7 @@ function buildMockupScreenshotHtml(config) {
         <div class="screen-content">
           <div class="app-bar">
             <div class="app-bar-brand">🎓 ${config.screenTitle || 'RV ALUMNI NETWORK'}</div>
-            <div style="font-size:16px;color:#D4AF37;font-weight:700;">RSST ESTD 1940</div>
+            <div style="font-size:16px;color:#CAA025;font-weight:700;">RSST ESTD 1940</div>
           </div>
           <div class="app-body">
             ${config.bodyHtml}
@@ -535,15 +535,15 @@ const SCREEN_CONFIGS = [
     bodyHtml: `
       <div style="background:#0F2C59;border-radius:24px;padding:36px;color:#FFF;text-align:center;box-shadow:0 12px 30px rgba(15,44,89,0.15);">
         ${crestBase64 ? `<img src="${crestBase64}" style="width:120px;height:120px;object-fit:contain;margin-bottom:16px;" />` : ''}
-        <h2 style="font-size:32px;font-weight:900;color:#F5D061;margin-bottom:8px;">RV ALUMNI NETWORK</h2>
+        <h2 style="font-size:32px;font-weight:900;color:#CAA025;margin-bottom:8px;">RV ALUMNI NETWORK</h2>
         <p style="font-size:18px;color:#CBD5E1;margin-bottom:24px;">Connect with batchmates, mentors, and career referral opportunities.</p>
         <div style="display:flex;gap:12px;justify-content:center;margin-bottom:30px;">
-          <span style="background:rgba(212,175,55,0.2);color:#F5D061;border:1px solid #D4AF37;padding:8px 16px;border-radius:12px;font-weight:700;font-size:16px;">RVCE</span>
-          <span style="background:rgba(212,175,55,0.2);color:#F5D061;border:1px solid #D4AF37;padding:8px 16px;border-radius:12px;font-weight:700;font-size:16px;">RVU</span>
-          <span style="background:rgba(212,175,55,0.2);color:#F5D061;border:1px solid #D4AF37;padding:8px 16px;border-radius:12px;font-weight:700;font-size:16px;">RVIM</span>
-          <span style="background:rgba(212,175,55,0.2);color:#F5D061;border:1px solid #D4AF37;padding:8px 16px;border-radius:12px;font-weight:700;font-size:16px;">RVCA</span>
+          <span style="background:rgba(202, 160, 37,0.2);color:#CAA025;border:1px solid #CAA025;padding:8px 16px;border-radius:12px;font-weight:700;font-size:16px;">RVCE</span>
+          <span style="background:rgba(202, 160, 37,0.2);color:#CAA025;border:1px solid #CAA025;padding:8px 16px;border-radius:12px;font-weight:700;font-size:16px;">RVU</span>
+          <span style="background:rgba(202, 160, 37,0.2);color:#CAA025;border:1px solid #CAA025;padding:8px 16px;border-radius:12px;font-weight:700;font-size:16px;">RVIM</span>
+          <span style="background:rgba(202, 160, 37,0.2);color:#CAA025;border:1px solid #CAA025;padding:8px 16px;border-radius:12px;font-weight:700;font-size:16px;">RVCA</span>
         </div>
-        <div style="background:#D4AF37;color:#0A192F;padding:18px;border-radius:16px;font-size:20px;font-weight:900;margin-bottom:14px;">Sign in with Institutional Email</div>
+        <div style="background:#CAA025;color:#0A192F;padding:18px;border-radius:16px;font-size:20px;font-weight:900;margin-bottom:14px;">Sign in with Institutional Email</div>
         <div style="background:#000;color:#FFF;padding:18px;border-radius:16px;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;"> Sign in with Apple</div>
       </div>
     `
@@ -558,13 +558,13 @@ const SCREEN_CONFIGS = [
       <div style="background:#FFF;border-radius:20px;padding:24px;border:1px solid #E2E8F0;margin-bottom:20px;box-shadow:0 8px 24px rgba(0,0,0,0.04);">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
           <div style="display:flex;align-items:center;gap:14px;">
-            <div style="width:52px;height:52px;border-radius:50%;background:#0F2C59;color:#D4AF37;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;">AR</div>
+            <div style="width:52px;height:52px;border-radius:50%;background:#0F2C59;color:#CAA025;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;">AR</div>
             <div>
-              <div style="font-size:20px;font-weight:800;color:#0F172A;">Aditi Rao <span style="color:#D4AF37;">✓</span></div>
+              <div style="font-size:20px;font-weight:800;color:#0F172A;">Aditi Rao <span style="color:#CAA025;">✓</span></div>
               <div style="font-size:14px;color:#64748B;">Senior ML Engineer @ Microsoft • RVCE '17</div>
             </div>
           </div>
-          <span style="background:#FAF5EB;border:1px solid #D4AF37;color:#D4AF37;font-weight:700;font-size:12px;padding:4px 10px;border-radius:8px;">CAREER</span>
+          <span style="background:#FAF5EB;border:1px solid #CAA025;color:#CAA025;font-weight:700;font-size:12px;padding:4px 10px;border-radius:8px;">CAREER</span>
         </div>
         <p style="font-size:18px;color:#334155;line-height:1.6;margin-bottom:16px;">Thrilled to announce that our generative AI robotics research paper was accepted at IEEE ICRA 2026! Big thanks to the robotics faculty at RVCE for sparking this journey.</p>
         <div style="display:flex;gap:24px;color:#64748B;font-size:16px;font-weight:600;border-top:1px solid #F1F5F9;padding-top:14px;">
@@ -578,7 +578,7 @@ const SCREEN_CONFIGS = [
           <div style="display:flex;align-items:center;gap:14px;">
             <div style="width:52px;height:52px;border-radius:50%;background:#1E3A8A;color:#93C5FD;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;">KV</div>
             <div>
-              <div style="font-size:20px;font-weight:800;color:#0F172A;">Karthik Venkatesh <span style="color:#D4AF37;">✓</span></div>
+              <div style="font-size:20px;font-weight:800;color:#0F172A;">Karthik Venkatesh <span style="color:#CAA025;">✓</span></div>
               <div style="font-size:14px;color:#64748B;">Founder & CEO @ FinScale • RVCE '12</div>
             </div>
           </div>
@@ -607,9 +607,9 @@ const SCREEN_CONFIGS = [
       </div>
       <div style="background:#FFF;border-radius:20px;padding:22px;border:1px solid #E2E8F0;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">
         <div style="display:flex;gap:16px;align-items:center;">
-          <div style="width:60px;height:60px;border-radius:50%;background:#0A192F;color:#D4AF37;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;">SM</div>
+          <div style="width:60px;height:60px;border-radius:50%;background:#0A192F;color:#CAA025;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;">SM</div>
           <div>
-            <div style="font-size:20px;font-weight:800;color:#0F172A;">Siddharth Menon <span style="color:#D4AF37;">✓</span></div>
+            <div style="font-size:20px;font-weight:800;color:#0F172A;">Siddharth Menon <span style="color:#CAA025;">✓</span></div>
             <div style="font-size:15px;color:#334155;font-weight:600;">Staff Software Engineer @ Google</div>
             <div style="font-size:13px;color:#64748B;">B.E. Computer Science • Batch of 2015</div>
           </div>
@@ -620,7 +620,7 @@ const SCREEN_CONFIGS = [
         <div style="display:flex;gap:16px;align-items:center;">
           <div style="width:60px;height:60px;border-radius:50%;background:#3B82F6;color:#FFF;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;">PK</div>
           <div>
-            <div style="font-size:20px;font-weight:800;color:#0F172A;">Priya Kulkarni <span style="color:#D4AF37;">✓</span></div>
+            <div style="font-size:20px;font-weight:800;color:#0F172A;">Priya Kulkarni <span style="color:#CAA025;">✓</span></div>
             <div style="font-size:15px;color:#334155;font-weight:600;">Director of Product @ Atlassian</div>
             <div style="font-size:13px;color:#64748B;">B.E. Electronics & Communication • Batch of 2011</div>
           </div>
@@ -636,7 +636,7 @@ const SCREEN_CONFIGS = [
     description: 'Access exclusive job openings and direct employee referral links',
     screenTitle: 'CAREER & JOB REFERRALS',
     bodyHtml: `
-      <div style="background:#FFF;border-radius:20px;padding:26px;border:1px solid #E2E8F0;margin-bottom:20px;border-left:5px solid #D4AF37;box-shadow:0 8px 24px rgba(0,0,0,0.04);">
+      <div style="background:#FFF;border-radius:20px;padding:26px;border:1px solid #E2E8F0;margin-bottom:20px;border-left:5px solid #CAA025;box-shadow:0 8px 24px rgba(0,0,0,0.04);">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
           <div>
             <span style="background:#FEF3C7;color:#92400E;font-size:12px;font-weight:800;padding:4px 10px;border-radius:6px;">HOT REFERRAL</span>
@@ -651,7 +651,7 @@ const SCREEN_CONFIGS = [
         <p style="font-size:15px;color:#475569;line-height:1.5;margin-bottom:16px;">Leading design and architecture of high-scale cloud collaboration microservices. Mentored by RVCE alum inside team.</p>
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <div style="font-size:13px;color:#64748B;">Posted by <strong>Vikram Rao ('16)</strong></div>
-          <div style="background:#D4AF37;color:#0A192F;padding:12px 24px;border-radius:12px;font-weight:900;font-size:15px;">Request Referral</div>
+          <div style="background:#CAA025;color:#0A192F;padding:12px 24px;border-radius:12px;font-weight:900;font-size:15px;">Request Referral</div>
         </div>
       </div>
       <div style="background:#FFF;border-radius:20px;padding:26px;border:1px solid #E2E8F0;border-left:5px solid #0F2C59;box-shadow:0 8px 24px rgba(0,0,0,0.04);">
@@ -682,9 +682,9 @@ const SCREEN_CONFIGS = [
     bodyHtml: `
       <div style="background:#FFF;border-radius:20px;padding:24px;border:1px solid #E2E8F0;margin-bottom:20px;box-shadow:0 8px 24px rgba(0,0,0,0.04);">
         <div style="display:flex;gap:18px;align-items:center;margin-bottom:16px;">
-          <div style="width:68px;height:68px;border-radius:50%;background:#0A192F;border:2px solid #D4AF37;color:#D4AF37;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:24px;">RN</div>
+          <div style="width:68px;height:68px;border-radius:50%;background:#0A192F;border:2px solid #CAA025;color:#CAA025;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:24px;">RN</div>
           <div>
-            <div style="font-size:22px;font-weight:900;color:#0F172A;">Rohan Nambiar <span style="color:#D4AF37;">✓</span></div>
+            <div style="font-size:22px;font-weight:900;color:#0F172A;">Rohan Nambiar <span style="color:#CAA025;">✓</span></div>
             <div style="font-size:15px;color:#0F2C59;font-weight:700;">VP of Engineering @ Stripe • RVCE '08</div>
             <div style="font-size:13px;color:#64748B;">Specialization: Distributed Systems & Engineering Leadership</div>
           </div>
@@ -697,9 +697,9 @@ const SCREEN_CONFIGS = [
       </div>
       <div style="background:#FFF;border-radius:20px;padding:24px;border:1px solid #E2E8F0;box-shadow:0 8px 24px rgba(0,0,0,0.04);">
         <div style="display:flex;gap:18px;align-items:center;margin-bottom:16px;">
-          <div style="width:68px;height:68px;border-radius:50%;background:#D4AF37;color:#0A192F;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:24px;">MG</div>
+          <div style="width:68px;height:68px;border-radius:50%;background:#CAA025;color:#0A192F;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:24px;">MG</div>
           <div>
-            <div style="font-size:22px;font-weight:900;color:#0F172A;">Dr. Meera Gokhale <span style="color:#D4AF37;">✓</span></div>
+            <div style="font-size:22px;font-weight:900;color:#0F172A;">Dr. Meera Gokhale <span style="color:#CAA025;">✓</span></div>
             <div style="font-size:15px;color:#0F2C59;font-weight:700;">Postdoctoral Fellow @ Stanford University</div>
             <div style="font-size:13px;color:#64748B;">Specialization: Higher Studies Abroad & MS/PhD Admissions</div>
           </div>
@@ -717,7 +717,7 @@ const SCREEN_CONFIGS = [
     bodyHtml: `
       <div style="background:#0F2C59;border-radius:22px;padding:26px;color:#FFF;margin-bottom:20px;box-shadow:0 12px 30px rgba(15,44,89,0.2);">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-          <span style="background:rgba(212,175,55,0.2);color:#F5D061;border:1px solid #D4AF37;padding:4px 12px;border-radius:8px;font-weight:800;font-size:12px;">OFFICIAL CONCLAVE</span>
+          <span style="background:rgba(202, 160, 37,0.2);color:#CAA025;border:1px solid #CAA025;padding:4px 12px;border-radius:8px;font-weight:800;font-size:12px;">OFFICIAL CONCLAVE</span>
           <span style="color:#93C5FD;font-weight:700;font-size:14px;">RSST Auditorium</span>
         </div>
         <h3 style="font-size:24px;font-weight:900;color:#FFF;margin-bottom:8px;">RV Global Alumni Conclave 2026</h3>
@@ -726,9 +726,9 @@ const SCREEN_CONFIGS = [
           <div>
             <div style="font-size:12px;color:#64748B;font-weight:700;">ATTENDEE PASS VERIFIED</div>
             <div style="font-size:18px;font-weight:900;color:#0F2C59;">VIP All-Access Pass</div>
-            <div style="font-size:12px;color:#D4AF37;font-weight:800;">ID: RVAC-2026-8942</div>
+            <div style="font-size:12px;color:#CAA025;font-weight:800;">ID: RVAC-2026-8942</div>
           </div>
-          <div style="width:70px;height:70px;background:#0A192F;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#D4AF37;font-size:28px;">🔲</div>
+          <div style="width:70px;height:70px;background:#0A192F;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#CAA025;font-size:28px;">🔲</div>
         </div>
       </div>
     `
@@ -742,7 +742,7 @@ const SCREEN_CONFIGS = [
     bodyHtml: `
       <div style="background:#FFF;border-radius:20px;padding:22px;border:1px solid #E2E8F0;margin-bottom:16px;">
         <div style="display:flex;gap:14px;align-items:center;margin-bottom:18px;border-bottom:1px solid #F1F5F9;padding-bottom:14px;">
-          <div style="width:52px;height:52px;border-radius:50%;background:#0F2C59;color:#D4AF37;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;">VK</div>
+          <div style="width:52px;height:52px;border-radius:50%;background:#0F2C59;color:#CAA025;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;">VK</div>
           <div>
             <div style="font-size:18px;font-weight:800;color:#0F172A;">Vivek Kumar (Batch '18)</div>
             <div style="font-size:13px;color:#16A34A;font-weight:600;">● Online • RVCE CSE</div>
@@ -771,10 +771,10 @@ const SCREEN_CONFIGS = [
     bodyHtml: `
       <div style="background:#FFF;border-radius:24px;overflow:hidden;border:1px solid #E2E8F0;box-shadow:0 8px 24px rgba(0,0,0,0.04);">
         <div style="height:120px;background:linear-gradient(135deg, #0A192F 0%, #0F2C59 100%);position:relative;padding:16px;">
-          <span style="background:rgba(212,175,55,0.2);color:#F5D061;border:1px solid #D4AF37;padding:4px 10px;border-radius:8px;font-weight:800;font-size:12px;">VERIFIED ALUMNUS</span>
+          <span style="background:rgba(202, 160, 37,0.2);color:#CAA025;border:1px solid #CAA025;padding:4px 10px;border-radius:8px;font-weight:800;font-size:12px;">VERIFIED ALUMNUS</span>
         </div>
         <div style="padding:0 24px 24px;position:relative;top:-45px;">
-          <div style="width:90px;height:90px;border-radius:50%;background:#0A192F;border:4px solid #FFF;color:#D4AF37;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:32px;margin-bottom:14px;box-shadow:0 6px 16px rgba(0,0,0,0.15);">RS</div>
+          <div style="width:90px;height:90px;border-radius:50%;background:#0A192F;border:4px solid #FFF;color:#CAA025;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:32px;margin-bottom:14px;box-shadow:0 6px 16px rgba(0,0,0,0.15);">RS</div>
           <h2 style="font-size:26px;font-weight:900;color:#0F172A;">Rahul Sharma</h2>
           <div style="font-size:16px;color:#0F2C59;font-weight:700;">Principal Architect @ CloudScale Solutions</div>
           <div style="font-size:14px;color:#64748B;margin-top:2px;">B.E. Computer Science & Engineering • Batch of 2018 (RVCE)</div>

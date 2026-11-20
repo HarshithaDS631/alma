@@ -120,17 +120,17 @@ const WelcomeScreen = ({ navigation }) => {
             {/* Bento Feature Highlights */}
             <View style={styles.bentoFeatureRow}>
               <View style={styles.bentoFeatureItem}>
-                <Ionicons name="people" size={13} color="#D4AF37" />
+                <Ionicons name="people" size={13} color="#CAA025" />
                 <Text style={styles.bentoFeatureText}>9.9K+ Alumni</Text>
               </View>
               <View style={styles.bentoFeatureDivider} />
               <View style={styles.bentoFeatureItem}>
-                <Ionicons name="briefcase" size={13} color="#D4AF37" />
+                <Ionicons name="briefcase" size={13} color="#CAA025" />
                 <Text style={styles.bentoFeatureText}>Job Referrals</Text>
               </View>
               <View style={styles.bentoFeatureDivider} />
               <View style={styles.bentoFeatureItem}>
-                <Ionicons name="globe" size={13} color="#D4AF37" />
+                <Ionicons name="globe" size={13} color="#CAA025" />
                 <Text style={styles.bentoFeatureText}>12 Chapters</Text>
               </View>
             </View>
@@ -146,7 +146,7 @@ const WelcomeScreen = ({ navigation }) => {
               style={{ borderRadius: 14, overflow: 'hidden', marginBottom: 12 }}
             >
               <GradientView
-                colors={['#D4AF37', '#FFD700', '#C5A059']}
+                colors={['#CAA025', '#FFD700', '#C5A059']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.primaryButton}
@@ -257,7 +257,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: isDarkMode ? '#0D1B3A' : '#FFFFFF',
     borderWidth: 1,
-    borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.35)' : '#E2E8F0',
+    borderColor: isDarkMode ? 'rgba(202, 160, 37, 0.35)' : '#E2E8F0',
     borderRadius: 20,
     paddingHorizontal: 14,
     paddingVertical: 8,
@@ -277,12 +277,12 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   bentoFeatureDivider: {
     width: 1,
     height: 12,
-    backgroundColor: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#E2E8F0',
+    backgroundColor: isDarkMode ? 'rgba(202, 160, 37, 0.4)' : '#E2E8F0',
   },
   bentoFeatureText: {
     fontSize: 11,
     fontWeight: '700',
-    color: isDarkMode ? '#D4AF37' : '#B48608',
+    color: isDarkMode ? '#CAA025' : '#B48608',
   },
   actionSection: {
     width: '100%',
@@ -292,10 +292,10 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     flexDirection: 'row',
     height: 52,
     borderRadius: 14,
-    backgroundColor: '#D4AF37',
+    backgroundColor: '#CAA025',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#D4AF37',
+    shadowColor: '#CAA025',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.35,
     shadowRadius: 6,
@@ -312,7 +312,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     borderRadius: 14,
     backgroundColor: isDarkMode ? '#0D1B3A' : '#FFFFFF',
     borderWidth: 1.5,
-    borderColor: isDarkMode ? '#D4AF37' : '#0F2C59',
+    borderColor: isDarkMode ? '#CAA025' : '#0F2C59',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
@@ -335,7 +335,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: isDarkMode ? 'rgba(212, 175, 55, 0.25)' : '#E2E8F0',
+    backgroundColor: isDarkMode ? 'rgba(202, 160, 37, 0.25)' : '#E2E8F0',
   },
   dividerText: {
     marginHorizontal: 12,
@@ -356,7 +356,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1.2,
-    borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.35)' : '#CBD5E1',
+    borderColor: isDarkMode ? 'rgba(202, 160, 37, 0.35)' : '#CBD5E1',
     shadowColor: '#0A192F',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: isDarkMode ? 0.2 : 0.05,
@@ -370,7 +370,7 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   },
   appleButton: {
     backgroundColor: isDarkMode ? '#0A1224' : '#0F172A',
-    borderColor: isDarkMode ? 'rgba(212, 175, 55, 0.4)' : '#0F172A',
+    borderColor: isDarkMode ? 'rgba(202, 160, 37, 0.4)' : '#0F172A',
   },
   appleButtonText: {
     color: '#FFFFFF',
