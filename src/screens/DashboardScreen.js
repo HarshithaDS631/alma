@@ -371,20 +371,26 @@ const DashboardScreen = ({ navigation }) => {
 
   const getPostCategory = useCallback((post) => {
     const isReshared = Boolean(post?.isReshare || post?.originalPost || post?.originalAuthorName || (post?.content && /reshared\s+from/i.test(post.content)));
-    if (isReshared) return { label: 'AMPLIFIED', color: isDarkMode ? '#60A5FA' : '#0F2C59', bg: isDarkMode ? '#0E1F3D' : '#EFF6FF', icon: 'repeat' };
+    if (isReshared) return { id: 'reshare', label: 'AMPLIFIED', color: isDarkMode ? '#60A5FA' : '#0F2C59', bg: isDarkMode ? '#0E1F3D' : '#EFF6FF', icon: 'repeat' };
     
     const content = (post?.content || '').toLowerCase();
     const role = (post?.role || '').toLowerCase();
+    if (/#opentowork|open to work|open to new career opportunities|open to opportunities/i.test(content)) {
+      return { id: 'opentowork', label: '🟢 #OPENTOWORK', color: isDarkMode ? '#86EFAC' : '#057642', bg: isDarkMode ? 'rgba(5, 118, 66, 0.2)' : '#F0FDF4', icon: 'sparkles' };
+    }
+    if (/interested in the|interested in this|#jobsearch|#referral/i.test(content)) {
+      return { id: 'job_interest', label: '💼 JOB INTEREST', color: isDarkMode ? '#FDE68A' : '#D4AF37', bg: isDarkMode ? 'rgba(212, 175, 55, 0.16)' : '#FAF5EB', icon: 'briefcase' };
+    }
     if (/hiring|referral|job|opening|career|internship|role|recruit|opportunity/i.test(content + ' ' + role)) {
-      return { label: 'JOB REFERRAL', color: isDarkMode ? '#FDE68A' : '#D4AF37', bg: isDarkMode ? 'rgba(212, 175, 55, 0.16)' : '#FAF5EB', icon: 'briefcase' };
+      return { id: 'job', label: 'JOB REFERRAL', color: isDarkMode ? '#FDE68A' : '#D4AF37', bg: isDarkMode ? 'rgba(212, 175, 55, 0.16)' : '#FAF5EB', icon: 'briefcase' };
     }
     if (/reunion|alumni meet|meetup|gathering|jubilee|celebrat/i.test(content)) {
-      return { label: 'REUNION', color: isDarkMode ? '#FDE68A' : '#D4AF37', bg: isDarkMode ? 'rgba(212, 175, 55, 0.16)' : '#FAF5EB', icon: 'people' };
+      return { id: 'reunion', label: 'REUNION', color: isDarkMode ? '#FDE68A' : '#D4AF37', bg: isDarkMode ? 'rgba(212, 175, 55, 0.16)' : '#FAF5EB', icon: 'people' };
     }
     if (/rvce|campus|convocation|exam|faculty|department|research|rsst|placement/i.test(content)) {
-      return { label: 'CAMPUS NOTICE', color: isDarkMode ? '#60A5FA' : '#0F2C59', bg: isDarkMode ? '#0E1F3D' : '#EFF6FF', icon: 'school' };
+      return { id: 'campus', label: 'CAMPUS NOTICE', color: isDarkMode ? '#60A5FA' : '#0F2C59', bg: isDarkMode ? '#0E1F3D' : '#EFF6FF', icon: 'school' };
     }
-    return { label: 'ALUMNI UPDATE', color: isDarkMode ? '#CBD5E1' : '#475569', bg: isDarkMode ? '#131D38' : '#F1F5F9', icon: 'newspaper-outline' };
+    return { id: 'update', label: 'ALUMNI UPDATE', color: isDarkMode ? '#CBD5E1' : '#475569', bg: isDarkMode ? '#131D38' : '#F1F5F9', icon: 'newspaper-outline' };
   }, [isDarkMode]);
 
   const filteredPosts = React.useMemo(() => {
@@ -399,7 +405,7 @@ const DashboardScreen = ({ navigation }) => {
       });
     }
     if (feedFilter === 'jobs') {
-      result = result.filter(p => /hiring|referral|job|opening|career|internship|role|recruit|opportunity/i.test((p.content || '') + ' ' + (p.role || '')));
+      result = result.filter(p => /hiring|referral|job|opening|career|internship|role|recruit|opportunity|opentowork/i.test((p.content || '') + ' ' + (p.role || '')));
     } else if (feedFilter === 'campus') {
       result = result.filter(p => /rvce|campus|convocation|exam|faculty|department|research|rsst|reunion|alumni meet/i.test((p.content || '') + ' ' + (p.role || '')));
     } else if (feedFilter === 'network') {
@@ -1162,6 +1168,70 @@ const DashboardScreen = ({ navigation }) => {
             </Text>
           </View>
         ) : null}
+
+        {/* LinkedIn Opportunity Callout Banner for #OpenToWork & Job Interest posts */}
+        {(category.id === 'opentowork' || category.id === 'job_interest') && (
+          <View style={[
+            styles.opportunityCalloutBox,
+            { backgroundColor: category.id === 'opentowork' ? (isDarkMode ? '#062817' : '#F0FDF4') : (isDarkMode ? '#1E293B' : '#FAF5EB') }
+          ]}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+              <Ionicons 
+                name={category.id === 'opentowork' ? "sparkles" : "briefcase"} 
+                size={15} 
+                color={category.id === 'opentowork' ? '#057642' : '#D4AF37'} 
+              />
+              <Text style={[
+                styles.opportunityCalloutTitle, 
+                { color: category.id === 'opentowork' ? (isDarkMode ? '#86EFAC' : '#166534') : (isDarkMode ? '#FDE68A' : '#92400E') }
+              ]}>
+                {category.id === 'opentowork' ? 'Alumni Open to Work • Help them connect' : 'Alumni Job Inquiry • Advice & Referral requested'}
+              </Text>
+            </View>
+
+            <View style={styles.opportunityBtnRow}>
+              <TouchableOpacity
+                style={[
+                  styles.opportunityCtaBtn,
+                  { backgroundColor: category.id === 'opentowork' ? '#057642' : '#0F2C59' }
+                ]}
+                onPress={() => {
+                  navigation.navigate('Messages', {
+                    recipientId: post.authorId,
+                    recipientName: post.user,
+                    recipientAvatar: post.avatar,
+                    initialMessage: category.id === 'opentowork' 
+                      ? `Hi ${post.user}, I saw your #OpenToWork post on the Alumni feed. Let's connect!`
+                      : `Hi ${post.user}, I saw your post regarding the opportunity. Happy to help or connect!`
+                  });
+                }}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="chatbubble-ellipses" size={13} color="#FFFFFF" style={{ marginRight: 4 }} />
+                <Text style={styles.opportunityCtaText}>Message Alumni</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.opportunitySecBtn,
+                  { borderColor: category.id === 'opentowork' ? '#057642' : '#D4AF37' }
+                ]}
+                onPress={() => {
+                  navigation.navigate('Jobs', { screen: 'JobsMain' });
+                }}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="briefcase-outline" size={13} color={category.id === 'opentowork' ? '#057642' : '#D4AF37'} style={{ marginRight: 4 }} />
+                <Text style={[
+                  styles.opportunitySecText,
+                  { color: category.id === 'opentowork' ? '#057642' : '#D4AF37' }
+                ]}>
+                  View Job Hub
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
 
         {/* Embedded Original Post Card for Reshares */}
         {isReshared && (
@@ -3707,6 +3777,51 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     fontSize: 13.5,
     color: theme.text,
     lineHeight: 20,
+  },
+  opportunityCalloutBox: {
+    marginHorizontal: 12,
+    marginBottom: 12,
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: isDarkMode ? '#1E293B' : '#E2E8F0',
+  },
+  opportunityCalloutTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  opportunityBtnRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  opportunityCtaBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 7,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+  },
+  opportunityCtaText: {
+    color: '#FFFFFF',
+    fontSize: 11.5,
+    fontWeight: '700',
+  },
+  opportunitySecBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 7,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    backgroundColor: 'transparent',
+  },
+  opportunitySecText: {
+    fontSize: 11.5,
+    fontWeight: '700',
   },
   embeddedReshareCard: {
     marginHorizontal: 12,

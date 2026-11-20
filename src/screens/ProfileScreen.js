@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Image, ScrollView, useWindowDimensions, Alert, StatusBar, Modal, TextInput, Platform, Share, Switch, Linking } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Image, ScrollView, useWindowDimensions, Alert, StatusBar, Modal, TextInput, Platform, Share, Switch, Linking, KeyboardAvoidingView } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../theme/ThemeContext';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -8,7 +8,7 @@ import { getProfile, updateProfile, changePassword, deleteAccount, getPosts, get
 import { getChatHistory, sendMessage } from '../services/messageService';
 import { uploadFile, getImageUrl } from '../services/uploadService';
 import UserAvatar from '../components/UserAvatar';
-import { addComment, deletePost, toggleSavePost, updatePostSettings, editPost, getSavedPosts, getUserPosts } from '../services/postService';
+import { createPost, addComment, deletePost, toggleSavePost, updatePostSettings, editPost, getSavedPosts, getUserPosts } from '../services/postService';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import { institutionDepartments, defaultDepartments } from '../constants/institutionDepartments';
@@ -678,6 +678,13 @@ const DEFAULT_TAGGED_POSTS = [];
   const [editOTWLocations, setEditOTWLocations] = useState('Bengaluru, India (Hybrid / Remote)');
   const [editOTWTypes, setEditOTWTypes] = useState('Full-time, Internship');
   const [editOTWWorkplace, setEditOTWWorkplace] = useState('Remote, Hybrid');
+  const [editOTWVisibility, setEditOTWVisibility] = useState('all'); // 'all' (All Alumni & Members) | 'recruiters' (Recruiters Only)
+  const [editOTWStartDate, setEditOTWStartDate] = useState('Immediately, actively applying');
+  const [editOTWSharePost, setEditOTWSharePost] = useState(true);
+  const [editOTWPostText, setEditOTWPostText] = useState('');
+  const [quickShareModalVisible, setQuickShareModalVisible] = useState(false);
+  const [quickShareText, setQuickShareText] = useState('');
+  const [quickShareLoading, setQuickShareLoading] = useState(false);
   const [contactModalVisible, setContactModalVisible] = useState(false);
   const [countryPickerModalVisible, setCountryPickerModalVisible] = useState(false);
   const [countrySearch, setCountrySearch] = useState('');
@@ -956,18 +963,36 @@ const DEFAULT_TAGGED_POSTS = [];
     setSettingsVisible(true);
   };
 
+  const generateOTWPostText = (roles, locations, workplace, types) => {
+    const rolesStr = (roles && typeof roles === 'string' ? roles.trim() : '') || 'Software Engineer, Full Stack Developer';
+    const locsStr = (locations && typeof locations === 'string' ? locations.trim() : '') || 'Bengaluru, India';
+    const wpStr = (workplace && typeof workplace === 'string' ? workplace.trim() : '') || 'Remote, Hybrid';
+    const typesStr = (types && typeof types === 'string' ? types.trim() : '') || 'Full-time';
+    return `🎓 I’m excited to share that I’m open to new career opportunities!\n\n🎯 Target Roles: ${rolesStr}\n📍 Desired Locations: ${locsStr} (${wpStr})\n💼 Employment Type: ${typesStr}\n\nIf you know of any open positions, have referral opportunities, or would like to connect, please feel free to reach out directly.\n\n#OpenToWork #CareerOpportunities #RVAlumni #JobSearch`;
+  };
+
   const handleOpenOpenToWork = useCallback(() => {
-    setEditOTWActive(profileData.isOpenToWork ?? true);
-    setEditOTWRoles(
-      Array.isArray(profileData.openToWorkRoles) 
-        ? profileData.openToWorkRoles.join(', ') 
-        : (profileData.openToWorkRoles || 'Software Engineer, Full Stack Developer')
-    );
-    setEditOTWLocations(profileData.openToWorkLocations || 'Bengaluru, India (Hybrid / Remote)');
-    setEditOTWTypes(profileData.openToWorkTypes || 'Full-time, Internship');
-    setEditOTWWorkplace(profileData.openToWorkWorkplace || 'Remote, Hybrid');
+    const isActive = profileData.isOpenToWork ?? true;
+    const roles = Array.isArray(profileData.openToWorkRoles) 
+      ? profileData.openToWorkRoles.join(', ') 
+      : (profileData.openToWorkRoles || 'Software Engineer, Full Stack Developer');
+    const locs = profileData.openToWorkLocations || 'Bengaluru, India (Hybrid / Remote)';
+    const types = profileData.openToWorkTypes || 'Full-time, Internship';
+    const wp = profileData.openToWorkWorkplace || 'Remote, Hybrid';
+    const vis = profileData.openToWorkVisibility || 'all';
+    const start = profileData.openToWorkStartDate || 'Immediately, actively applying';
+
+    setEditOTWActive(isActive);
+    setEditOTWRoles(roles);
+    setEditOTWLocations(locs);
+    setEditOTWTypes(types);
+    setEditOTWWorkplace(wp);
+    setEditOTWVisibility(vis);
+    setEditOTWStartDate(start);
+    setEditOTWSharePost(vis === 'all');
+    setEditOTWPostText(generateOTWPostText(roles, locs, wp, types));
     setOpenToWorkModalVisible(true);
-  }, [profileData.isOpenToWork, profileData.openToWorkRoles, profileData.openToWorkLocations, profileData.openToWorkTypes, profileData.openToWorkWorkplace]);
+  }, [profileData.isOpenToWork, profileData.openToWorkRoles, profileData.openToWorkLocations, profileData.openToWorkTypes, profileData.openToWorkWorkplace, profileData.openToWorkVisibility, profileData.openToWorkStartDate]);
 
   // Auto-open LinkedIn #OpenToWork preferences modal when routed from Jobs / Directory
   useFocusEffect(
@@ -996,13 +1021,28 @@ const DEFAULT_TAGGED_POSTS = [];
         openToWorkRoles: cleanRoles,
         openToWorkLocations: cleanLocations,
         openToWorkTypes: cleanTypes,
-        openToWorkWorkplace: cleanWorkplace
+        openToWorkWorkplace: cleanWorkplace,
+        openToWorkVisibility: editOTWVisibility,
+        openToWorkStartDate: editOTWStartDate
       };
 
       try {
         await updateProfile(updatePayload);
       } catch (e) {
         console.warn('Backend updateProfile notice:', e);
+      }
+
+      // If user enabled Open to Work, chose "All Alumni", and checked "Share post with network":
+      let postCreated = false;
+      if (editOTWActive && editOTWVisibility === 'all' && editOTWSharePost && editOTWPostText.trim()) {
+        try {
+          await createPost({
+            content: editOTWPostText.trim()
+          });
+          postCreated = true;
+        } catch (postErr) {
+          console.warn('Could not auto-publish #OpenToWork post to feed:', postErr);
+        }
       }
 
       // Update cached userInfo
@@ -1031,20 +1071,48 @@ const DEFAULT_TAGGED_POSTS = [];
         openToWorkRoles: cleanRoles,
         openToWorkLocations: cleanLocations,
         openToWorkTypes: cleanTypes,
-        openToWorkWorkplace: cleanWorkplace
+        openToWorkWorkplace: cleanWorkplace,
+        openToWorkVisibility: editOTWVisibility,
+        openToWorkStartDate: editOTWStartDate
       }));
 
       setOpenToWorkModalVisible(false);
+      const successMsg = editOTWActive
+        ? (postCreated
+            ? '🎉 #OpenToWork badge is now live on your profile and your announcement has been shared to the Alumni Feed!'
+            : (editOTWVisibility === 'recruiters'
+                ? '🔒 Private recruiter signaling enabled. Only campus & alumni recruiters see you are open.'
+                : '🎉 #OpenToWork preferences saved! Your profile now displays the green #OpenToWork badge.'))
+        : 'Career status updated successfully!';
+
       if (Platform.OS === 'web') {
-        alert(editOTWActive ? '🎉 #OpenToWork badge is now live on your profile!' : 'Career status updated successfully!');
+        alert(successMsg);
       } else {
-        Alert.alert('Success', editOTWActive ? '🎉 #OpenToWork badge is now live on your profile!' : 'Career status updated successfully!');
+        Alert.alert('Success', successMsg);
       }
     } catch (err) {
       console.error('Error saving openToWork:', err);
       alert('Could not update #OpenToWork status: ' + (err.message || 'Error'));
     } finally {
       setOpenToWorkSaving(false);
+    }
+  };
+
+  const handlePublishQuickOTWPost = async () => {
+    if (!quickShareText.trim()) return;
+    setQuickShareLoading(true);
+    try {
+      await createPost({ content: quickShareText.trim() });
+      setQuickShareModalVisible(false);
+      const msg = '🎉 Your #OpenToWork announcement has been posted to the Alumni Feed!';
+      if (Platform.OS === 'web') alert(msg);
+      else Alert.alert('Post Published', msg);
+    } catch (err) {
+      const msg = 'Failed to publish post: ' + (err.message || 'Please try again');
+      if (Platform.OS === 'web') alert(msg);
+      else Alert.alert('Error', msg);
+    } finally {
+      setQuickShareLoading(false);
     }
   };
 
@@ -1417,13 +1485,24 @@ const DEFAULT_TAGGED_POSTS = [];
             </TouchableOpacity>
           </View>
 
-          {/* ── OpenToWork Section ────── */}
+          {/* ── OpenToWork Section (LinkedIn-Style) ────── */}
           {profileData.isOpenToWork ? (
             <View style={styles.openToWorkCard}>
               <View style={styles.openToWorkCardHeader}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, flex: 1 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, flex: 1, flexWrap: 'wrap' }}>
                   <View style={styles.otwPulseDot} />
                   <Text style={styles.openToWorkCardTitle}>Open to work</Text>
+                  <View style={[styles.otwVisibilityBadge, profileData.openToWorkVisibility === 'recruiters' && styles.otwVisibilityBadgeRecruiters]}>
+                    <Ionicons 
+                      name={profileData.openToWorkVisibility === 'recruiters' ? 'lock-closed' : 'earth'} 
+                      size={11} 
+                      color={profileData.openToWorkVisibility === 'recruiters' ? '#475569' : '#057642'} 
+                      style={{ marginRight: 3 }} 
+                    />
+                    <Text style={[styles.otwVisibilityBadgeText, profileData.openToWorkVisibility === 'recruiters' && styles.otwVisibilityBadgeTextRecruiters]}>
+                      {profileData.openToWorkVisibility === 'recruiters' ? 'Recruiters only' : 'All members'}
+                    </Text>
+                  </View>
                 </View>
                 <TouchableOpacity 
                   style={styles.otwEditBtn} 
@@ -1451,6 +1530,50 @@ const DEFAULT_TAGGED_POSTS = [];
                   <Text style={styles.otwDetailChipText}>{profileData.openToWorkTypes || 'Full-time'}</Text>
                 </View>
               </View>
+
+              {/* LinkedIn Action Bar: Share to Feed & Manage */}
+              <View style={styles.otwActionBar}>
+                <TouchableOpacity 
+                  style={styles.otwShareBtn}
+                  onPress={() => {
+                    const postContent = generateOTWPostText(profileData.openToWorkRoles, profileData.openToWorkLocations, profileData.openToWorkWorkplace, profileData.openToWorkTypes);
+                    setQuickShareText(postContent);
+                    setQuickShareModalVisible(true);
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="megaphone-outline" size={14} color="#FFFFFF" style={{ marginRight: 6 }} />
+                  <Text style={styles.otwShareBtnText}>Share with network (Post to Feed)</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.otwTurnOffBtn}
+                  onPress={() => {
+                    Alert.alert('Turn off Open to Work?', 'Your profile will no longer show that you are looking for opportunities.', [
+                      { text: 'Cancel', style: 'cancel' },
+                      { 
+                        text: 'Turn Off', 
+                        style: 'destructive', 
+                        onPress: async () => {
+                          await updateProfile({ openToWork: false, isJobSeeker: false });
+                          setProfileData(prev => ({ ...prev, isOpenToWork: false, isJobSeeker: false }));
+                          const cachedStr = await AsyncStorage.getItem('userInfo');
+                          if (cachedStr) {
+                            const cached = JSON.parse(cachedStr);
+                            cached.openToWork = false;
+                            cached.isOpenToWork = false;
+                            cached.isJobSeeker = false;
+                            await AsyncStorage.setItem('userInfo', JSON.stringify(cached));
+                          }
+                        }
+                      }
+                    ]);
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.otwTurnOffBtnText}>Turn off</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           ) : (
             <TouchableOpacity 
@@ -1463,7 +1586,7 @@ const DEFAULT_TAGGED_POSTS = [];
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.otwPromptTitle}>Open to opportunities?</Text>
-                <Text style={styles.otwPromptSub}>{"Show recruiters you're available"}</Text>
+                <Text style={styles.otwPromptSub}>{"Show recruiters & fellow alumni you're available"}</Text>
               </View>
               <View style={styles.otwPromptActionBtn}>
                 <Text style={styles.otwPromptActionText}>Enable</Text>
@@ -3796,13 +3919,138 @@ const DEFAULT_TAGGED_POSTS = [];
                 </View>
               </View>
 
+              {/* Start Date Preference */}
+              <View style={styles.otwFieldGroup}>
+                <Text style={styles.otwFieldLabel}>Start Date</Text>
+                <View style={styles.otwQuickChipsRow}>
+                  {[
+                    { label: 'Immediately, actively applying', key: 'Immediately, actively applying' },
+                    { label: 'Flexible, casually browsing', key: 'Flexible, casually browsing' }
+                  ].map((sOpt) => {
+                    const isSelected = editOTWStartDate === sOpt.key;
+                    return (
+                      <TouchableOpacity
+                        key={sOpt.key}
+                        style={[styles.otwPillChoice, isSelected && styles.otwPillChoiceActive]}
+                        onPress={() => setEditOTWStartDate(sOpt.key)}
+                      >
+                        <Ionicons 
+                          name={isSelected ? "radio-button-on" : "radio-button-off"} 
+                          size={14} 
+                          color={isSelected ? '#057642' : '#94A3B8'} 
+                        />
+                        <Text style={[styles.otwPillChoiceText, isSelected && styles.otwPillChoiceTextActive]}>
+                          {sOpt.label}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+
+              {/* LinkedIn Visibility Selector (Who sees you're open) */}
+              <View style={styles.otwFieldGroup}>
+                <Text style={styles.otwFieldLabel}>{"Choose who sees you're open"}</Text>
+                <Text style={styles.otwFieldHint}>Control your privacy and who in the network sees your status</Text>
+                
+                {/* Option 1: All Alumni & Members */}
+                <TouchableOpacity
+                  style={[
+                    styles.otwVisChoiceCard,
+                    editOTWVisibility === 'all' && styles.otwVisChoiceCardActive
+                  ]}
+                  onPress={() => {
+                    setEditOTWVisibility('all');
+                    setEditOTWSharePost(true);
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <View style={styles.otwVisChoiceHeader}>
+                    <Ionicons 
+                      name={editOTWVisibility === 'all' ? "radio-button-on" : "radio-button-off"} 
+                      size={18} 
+                      color={editOTWVisibility === 'all' ? '#057642' : '#94A3B8'} 
+                    />
+                    <Text style={styles.otwVisChoiceTitle}>All Alumni & Members (Recommended)</Text>
+                    <View style={styles.otwActivePill}>
+                      <Text style={styles.otwActivePillText}>#OpenToWork Ring</Text>
+                    </View>
+                  </View>
+                  <Text style={styles.otwVisChoiceSub}>
+                    Adds the green #OpenToWork photo frame to your avatar and allows anyone in the Alumni Network to help you find your next role.
+                  </Text>
+                </TouchableOpacity>
+
+                {/* Option 2: Recruiters only */}
+                <TouchableOpacity
+                  style={[
+                    styles.otwVisChoiceCard,
+                    editOTWVisibility === 'recruiters' && styles.otwVisChoiceCardActive
+                  ]}
+                  onPress={() => {
+                    setEditOTWVisibility('recruiters');
+                    setEditOTWSharePost(false);
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <View style={styles.otwVisChoiceHeader}>
+                    <Ionicons 
+                      name={editOTWVisibility === 'recruiters' ? "radio-button-on" : "radio-button-off"} 
+                      size={18} 
+                      color={editOTWVisibility === 'recruiters' ? '#057642' : '#94A3B8'} 
+                    />
+                    <Text style={styles.otwVisChoiceTitle}>Recruiters & Hiring Managers Only</Text>
+                    <Ionicons name="lock-closed" size={14} color="#64748B" />
+                  </View>
+                  <Text style={styles.otwVisChoiceSub}>
+                    Only verified recruiters and alumni talent scouts can see that you are open to opportunities. No green photo ring will be shown.
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* LinkedIn Share to Network (Start a post) */}
+              {editOTWVisibility === 'all' && (
+                <View style={[styles.otwFieldGroup, { backgroundColor: '#F0FDF4', padding: 12, borderRadius: 12, borderWidth: 1, borderColor: '#BBF7D0' }]}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1 }}>
+                      <Ionicons name="megaphone" size={16} color="#057642" />
+                      <Text style={[styles.otwFieldLabel, { marginBottom: 0, color: '#166534' }]}>Share with network (Start a post)</Text>
+                    </View>
+                    <Switch
+                      value={editOTWSharePost}
+                      onValueChange={setEditOTWSharePost}
+                      trackColor={{ false: '#CBD5E1', true: '#86EFAC' }}
+                      thumbColor={editOTWSharePost ? '#057642' : '#F1F5F9'}
+                    />
+                  </View>
+                  <Text style={{ fontSize: 11.5, color: '#15803D', lineHeight: 16, marginBottom: 8 }}>
+                    Create a post on the Alumni Community feed so your fellow batchmates and senior connections can offer referrals and advice.
+                  </Text>
+
+                  {editOTWSharePost && (
+                    <View style={styles.otwPostPreviewBox}>
+                      <Text style={{ fontSize: 11, fontWeight: '700', color: '#64748B', marginBottom: 4 }}>POST PREVIEW (EDITABLE):</Text>
+                      <TextInput
+                        style={styles.otwPostInput}
+                        value={editOTWPostText}
+                        onChangeText={setEditOTWPostText}
+                        multiline
+                        numberOfLines={4}
+                        placeholder="Say something about your job search..."
+                        placeholderTextColor="#94A3B8"
+                      />
+                    </View>
+                  )}
+                </View>
+              )}
+
               {/* Visibility Guarantee Banner */}
               <View style={styles.otwVisibilityNotice}>
                 <Ionicons name="shield-checkmark" size={18} color="#057642" />
                 <View style={{ flex: 1 }}>
                   <Text style={styles.otwVisibilityNoticeTitle}>Alumni & Recruiter Visibility</Text>
                   <Text style={styles.otwVisibilityNoticeText}>
-                    By enabling this feature, your target roles will be prioritized in the Alumni Talent Directory and Job Portal for fellow alumni hiring managers.
+                    By saving these preferences, your profile is indexed in the Alumni Talent Directory and Job Portal for fellow alumni hiring managers.
                   </Text>
                 </View>
               </View>
@@ -3821,15 +4069,96 @@ const DEFAULT_TAGGED_POSTS = [];
                   onPress={handleSaveOpenToWork}
                   disabled={openToWorkSaving}
                 >
-                  <Ionicons name="checkmark-sharp" size={18} color="#FFFFFF" style={{ marginRight: 6 }} />
+                  <Ionicons name={editOTWSharePost ? "paper-plane" : "checkmark-sharp"} size={17} color="#FFFFFF" style={{ marginRight: 6 }} />
                   <Text style={styles.otwSaveButtonText}>
-                    {openToWorkSaving ? 'Saving...' : 'Save Preferences'}
+                    {openToWorkSaving 
+                      ? 'Saving...' 
+                      : (editOTWActive && editOTWVisibility === 'all' && editOTWSharePost ? 'Save & Share to Feed' : 'Save Preferences')}
                   </Text>
                 </TouchableOpacity>
               </View>
             </ScrollView>
           </View>
         </View>
+      </Modal>
+
+      {/* LinkedIn-Style Quick Share #OpenToWork Post Modal */}
+      <Modal
+        visible={quickShareModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setQuickShareModalVisible(false)}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={styles.otwModalOverlay}
+        >
+          <View style={[styles.otwModalContent, { maxHeight: '80%' }]}>
+            <View style={styles.otwModalHeader}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <View style={styles.otwPromptIconWrap}>
+                  <Ionicons name="megaphone" size={18} color="#057642" />
+                </View>
+                <View>
+                  <Text style={styles.otwModalTitle}>Share with your network</Text>
+                  <Text style={styles.otwModalSub}>Draft your #OpenToWork announcement</Text>
+                </View>
+              </View>
+              <TouchableOpacity
+                onPress={() => setQuickShareModalVisible(false)}
+                style={styles.otwModalCloseBtn}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Ionicons name="close" size={22} color={theme.textSecondary} />
+              </TouchableOpacity>
+            </View>
+
+            <View style={{ padding: 18 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                <Image
+                  source={{ uri: profileData.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg' }}
+                  style={{ width: 44, height: 44, borderRadius: 22, borderWidth: 2, borderColor: '#057642' }}
+                />
+                <View>
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>{profileData.name || 'Alumni Member'}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 }}>
+                    <Ionicons name="earth" size={12} color="#057642" />
+                    <Text style={{ fontSize: 11.5, color: '#057642', fontWeight: '600' }}>Posting to Alumni Network Feed</Text>
+                  </View>
+                </View>
+              </View>
+
+              <TextInput
+                style={[styles.otwPostInput, { minHeight: 140, maxHeight: 220, borderWidth: 1, borderColor: theme.border, borderRadius: 10, padding: 12, fontSize: 13.5, backgroundColor: theme.cardSecondary || '#F8FAFC' }]}
+                value={quickShareText}
+                onChangeText={setQuickShareText}
+                multiline
+                placeholder="Share that you are open to opportunities and what roles you are seeking..."
+                placeholderTextColor={theme.textMuted || '#94A3B8'}
+              />
+
+              <View style={{ flexDirection: 'row', gap: 10, marginTop: 18 }}>
+                <TouchableOpacity
+                  style={[styles.otwCancelButton, { flex: 1 }]}
+                  onPress={() => setQuickShareModalVisible(false)}
+                  disabled={quickShareLoading}
+                >
+                  <Text style={styles.otwCancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.otwSaveButton, { flex: 2 }]}
+                  onPress={handlePublishQuickOTWPost}
+                  disabled={quickShareLoading}
+                >
+                  <Ionicons name="paper-plane" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
+                  <Text style={styles.otwSaveButtonText}>
+                    {quickShareLoading ? 'Publishing...' : 'Post to Feed'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* Instagram-Style Edit Profile Modal (Matching Image 3) */}
@@ -5456,6 +5785,107 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     fontSize: 14,
     fontWeight: '800',
     color: '#FFFFFF',
+  },
+  otwVisibilityBadge: {
+    backgroundColor: '#DCFCE7',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
+  },
+  otwVisibilityBadgeText: {
+    fontSize: 10.5,
+    fontWeight: '700',
+    color: '#057642',
+  },
+  otwActionBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 10,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#E2E8F0',
+  },
+  otwShareBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#057642',
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    shadowColor: '#057642',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  otwShareBtnText: {
+    color: '#FFFFFF',
+    fontSize: 11.5,
+    fontWeight: '700',
+  },
+  otwTurnOffBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    backgroundColor: '#F8FAFC',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  otwTurnOffBtnText: {
+    color: '#64748B',
+    fontSize: 11.5,
+    fontWeight: '700',
+  },
+  otwVisChoiceCard: {
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: theme.border,
+    backgroundColor: theme.cardSecondary || '#F8FAFC',
+    marginBottom: 10,
+  },
+  otwVisChoiceCardActive: {
+    borderColor: '#057642',
+    backgroundColor: '#F0FDF4',
+  },
+  otwVisChoiceHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 4,
+  },
+  otwVisChoiceTitle: {
+    flex: 1,
+    fontSize: 13,
+    fontWeight: '700',
+    color: theme.text,
+  },
+  otwVisChoiceSub: {
+    fontSize: 11.5,
+    color: theme.textSecondary,
+    lineHeight: 16,
+    marginLeft: 26,
+  },
+  otwPostPreviewBox: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
+    padding: 10,
+    marginTop: 6,
+  },
+  otwPostInput: {
+    fontSize: 13,
+    color: '#1E293B',
+    minHeight: 70,
+    textAlignVertical: 'top',
   },
 
   // Legacy & Compatibility Styles

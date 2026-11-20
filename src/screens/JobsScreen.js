@@ -16,7 +16,8 @@ import {
   ActivityIndicator,
   Switch,
   Image,
-  Platform
+  Platform,
+  KeyboardAvoidingView
 } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import { useTheme } from '../theme/ThemeContext';
@@ -40,6 +41,7 @@ import {
 } from '../services/jobService';
 import ReferralModal from '../components/ReferralModal';
 import UserAvatar from '../components/UserAvatar';
+import { createPost } from '../services/postService';
 
 const WORKPLACE_TYPES = ['All', 'On-site', 'Hybrid', 'Remote'];
 const JOB_TYPES = ['All', 'Full-time', 'Part-time', 'Contract', 'Internship'];
@@ -129,6 +131,12 @@ const JobsScreen = ({ navigation, route }) => {
   const [targetLocations, setTargetLocations] = useState('');
   const [targetKeywords, setTargetKeywords] = useState('');
   const [savingPrefs, setSavingPrefs] = useState(false);
+
+  // LinkedIn Job Interest Post State
+  const [shareJobInterestModalVisible, setShareJobInterestModalVisible] = useState(false);
+  const [shareJobInterestPost, setShareJobInterestPost] = useState('');
+  const [shareJobInterestLoading, setShareJobInterestLoading] = useState(false);
+  const [targetJobForShare, setTargetJobForShare] = useState(null);
 
   // Suggested keywords for quick preference selection
   const POPULAR_SKILLS = ['Python', 'React', 'Java', 'Machine Learning', 'AWS', 'Node.js', 'SQL', 'Data Science', 'Flutter', 'DevOps', 'Kubernetes', 'Go'];
@@ -488,6 +496,51 @@ const JobsScreen = ({ navigation, route }) => {
     }
   };
 
+  const generateJobInterestText = (job) => {
+    if (!job) return '';
+    const role = job.title || 'this role';
+    const comp = job.company || 'the team';
+    const loc = job.location || 'India';
+    const tagComp = comp.replace(/[^a-zA-Z0-9]/g, '');
+    const tagRole = role.replace(/[^a-zA-Z0-9]/g, '');
+    return `💼 I’m interested in the ${role} position at ${comp} (${loc})!
+
+Are any fellow alumni currently working at ${comp} or in the industry open to connecting? I would love to learn more about the team culture, interview process, or explore referral possibilities.
+
+Any guidance or connections would be greatly appreciated! 🤝
+
+#JobSearch #Referral #${tagComp || 'Company'} #${tagRole || 'Career'} #RVAlumni`;
+  };
+
+  const openShareJobInterest = (job) => {
+    const draft = generateJobInterestText(job);
+    setTargetJobForShare(job);
+    setShareJobInterestPost(draft);
+    setShareJobInterestModalVisible(true);
+  };
+
+  const handlePublishJobInterest = async () => {
+    if (!shareJobInterestPost.trim()) {
+      Alert.alert('Empty Post', 'Please write something in your post before publishing.');
+      return;
+    }
+    setShareJobInterestLoading(true);
+    try {
+      await createPost({ content: shareJobInterestPost.trim() });
+      setShareJobInterestModalVisible(false);
+      const successMsg = '🎉 Your job interest has been shared to the Alumni Community Feed! Fellow alumni can now view your post and offer referrals or insights.';
+      if (Platform.OS === 'web') alert(successMsg);
+      else Alert.alert('Posted to Network Feed', successMsg);
+    } catch (err) {
+      console.warn('Failed to post job interest:', err);
+      const errMsg = 'Failed to publish post: ' + (err.message || 'Please try again');
+      if (Platform.OS === 'web') alert(errMsg);
+      else Alert.alert('Error', errMsg);
+    } finally {
+      setShareJobInterestLoading(false);
+    }
+  };
+
   const handleCreateJob = async () => {
     if (!pTitle.trim() || !pCompany.trim() || !pLocation.trim() || !pDesc.trim()) {
       Alert.alert('Required Fields', 'Please fill in Title, Company, Location, and Description.');
@@ -683,6 +736,15 @@ const JobsScreen = ({ navigation, route }) => {
             >
               <Ionicons name="people" size={13} color="#D4AF37" style={{ marginRight: 4 }} />
               <Text style={[styles.detailsText, { color: '#D4AF37' }]}>Ask Referral</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.detailsBtn, { borderColor: '#057642', borderWidth: 1, backgroundColor: isDarkMode ? '#062817' : '#F0FDF4' }]}
+              onPress={() => openShareJobInterest(job)}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="megaphone-outline" size={13} color="#057642" style={{ marginRight: 4 }} />
+              <Text style={[styles.detailsText, { color: '#057642', fontWeight: '700' }]}>Post Interest</Text>
             </TouchableOpacity>
 
             <TouchableOpacity 
@@ -1525,6 +1587,15 @@ const JobsScreen = ({ navigation, route }) => {
                     </TouchableOpacity>
 
                     <TouchableOpacity 
+                      style={styles.detailsStickyShareInterestBtn}
+                      onPress={() => openShareJobInterest(selectedJob)}
+                      activeOpacity={0.85}
+                    >
+                      <Ionicons name="megaphone-outline" size={16} color="#057642" style={{ marginRight: 5 }} />
+                      <Text style={styles.detailsStickyShareInterestText}>Post Interest</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity 
                       style={styles.detailsStickyApplyBtn}
                       onPress={() => {
                         setModalMode('apply');
@@ -2063,6 +2134,21 @@ const JobsScreen = ({ navigation, route }) => {
 
                       {/* Action Buttons */}
                       <TouchableOpacity 
+                        style={styles.successShareToFeedBtn}
+                        onPress={() => {
+                          const job = selectedJob;
+                          setApplyModalVisible(false);
+                          setTimeout(() => {
+                            openShareJobInterest(job);
+                          }, 350);
+                        }}
+                        activeOpacity={0.85}
+                      >
+                        <Ionicons name="megaphone" size={17} color="#FFFFFF" style={{ marginRight: 6 }} />
+                        <Text style={styles.successShareToFeedBtnText}>Share Application to Feed (Ask for Alumni Advice)</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity 
                         style={styles.successTrackerBtn}
                         onPress={() => {
                           setApplyModalVisible(false);
@@ -2343,6 +2429,133 @@ const JobsScreen = ({ navigation, route }) => {
         currentUser={null}
         onReferralSubmitted={loadReferralData}
       />
+
+      {/* LinkedIn-Style "Share Job Interest to Feed" Modal */}
+      <Modal
+        visible={shareJobInterestModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShareJobInterestModalVisible(false)}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={styles.shareInterestOverlay}
+        >
+          <View style={[styles.shareInterestContent, { backgroundColor: theme.card, borderColor: theme.border }]}>
+            {/* Modal Header */}
+            <View style={[styles.shareInterestHeader, { borderBottomColor: theme.border }]}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <View style={styles.shareInterestIconWrap}>
+                  <Ionicons name="megaphone" size={18} color="#057642" />
+                </View>
+                <View>
+                  <Text style={[styles.shareInterestTitle, { color: theme.text }]}>Post Interest to Feed</Text>
+                  <Text style={[styles.shareInterestSub, { color: theme.textMuted }]}>Ask alumni for referrals & advice</Text>
+                </View>
+              </View>
+              <TouchableOpacity
+                onPress={() => setShareJobInterestModalVisible(false)}
+                style={styles.shareInterestCloseBtn}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Ionicons name="close" size={22} color={theme.textSecondary} />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 18 }}>
+              {/* User Identity / Posting Audience */}
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                <View style={styles.shareInterestUserAvatar}>
+                  <Text style={styles.shareInterestAvatarText}>
+                    {applicantName ? applicantName.slice(0, 2).toUpperCase() : 'RV'}
+                  </Text>
+                </View>
+                <View>
+                  <Text style={[styles.shareInterestUserName, { color: theme.text }]}>{applicantName}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 }}>
+                    <Ionicons name="earth" size={12} color="#057642" />
+                    <Text style={{ fontSize: 11.5, color: '#057642', fontWeight: '700' }}>Anyone on Alumni Network</Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Target Job Snippet Card */}
+              {targetJobForShare && (
+                <View style={[styles.shareJobSnippetCard, { backgroundColor: isDarkMode ? '#1E293B' : '#F8FAFC', borderColor: theme.border }]}>
+                  <View style={styles.shareJobSnippetIcon}>
+                    <Ionicons name="briefcase" size={18} color="#D4AF37" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.shareJobSnippetTitle, { color: theme.text }]} numberOfLines={1}>
+                      {targetJobForShare.title}
+                    </Text>
+                    <Text style={[styles.shareJobSnippetCompany, { color: theme.textSecondary }]} numberOfLines={1}>
+                      {targetJobForShare.company} • {targetJobForShare.location || 'India'}
+                    </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                      <View style={styles.shareJobSnippetBadge}>
+                        <Text style={styles.shareJobSnippetBadgeText}>{targetJobForShare.jobType || 'Full-time'}</Text>
+                      </View>
+                      <View style={styles.shareJobSnippetBadge}>
+                        <Text style={styles.shareJobSnippetBadgeText}>{targetJobForShare.workplaceType || 'Hybrid'}</Text>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+              )}
+
+              {/* Editable Post Text Area */}
+              <Text style={[styles.shareInputLabel, { color: theme.textSecondary }]}>YOUR POST (EDITABLE)</Text>
+              <TextInput
+                style={[
+                  styles.shareInterestInput,
+                  {
+                    color: theme.text,
+                    backgroundColor: isDarkMode ? '#0F172A' : '#FFFFFF',
+                    borderColor: theme.border
+                  }
+                ]}
+                value={shareJobInterestPost}
+                onChangeText={setShareJobInterestPost}
+                multiline
+                numberOfLines={6}
+                placeholder={"Share why you are interested in this role and what advice or referrals you're seeking..."}
+                placeholderTextColor={theme.textMuted || '#94A3B8'}
+              />
+
+              <View style={styles.shareTipsNotice}>
+                <Ionicons name="bulb-outline" size={16} color="#057642" style={{ marginRight: 6, marginTop: 1 }} />
+                <Text style={styles.shareTipsText}>
+                  Posting to the feed notifies alumni at {targetJobForShare?.company || 'this company'} and invites alumni hiring managers to reach out or provide warm referrals.
+                </Text>
+              </View>
+
+              {/* Action Buttons */}
+              <View style={styles.shareModalActionRow}>
+                <TouchableOpacity
+                  style={[styles.shareCancelBtn, { borderColor: theme.border }]}
+                  onPress={() => setShareJobInterestModalVisible(false)}
+                  disabled={shareJobInterestLoading}
+                >
+                  <Text style={[styles.shareCancelBtnText, { color: theme.textSecondary }]}>Cancel</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.shareSubmitBtn}
+                  onPress={handlePublishJobInterest}
+                  disabled={shareJobInterestLoading}
+                  activeOpacity={0.85}
+                >
+                  <Ionicons name="paper-plane" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
+                  <Text style={styles.shareSubmitBtnText}>
+                    {shareJobInterestLoading ? 'Posting...' : 'Post to Feed'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -3036,6 +3249,22 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     color: '#FFFFFF',
     letterSpacing: 0.2,
   },
+  detailsStickyShareInterestBtn: {
+    height: 48,
+    paddingHorizontal: 14,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: '#057642',
+    backgroundColor: isDarkMode ? '#062817' : '#F0FDF4',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  detailsStickyShareInterestText: {
+    fontSize: 13.5,
+    fontWeight: '700',
+    color: '#057642',
+  },
   applyHeader: {
     paddingHorizontal: 20,
     paddingTop: 16,
@@ -3514,6 +3743,27 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
     fontSize: 12.5,
     fontWeight: '700',
     color: theme.text,
+  },
+  successShareToFeedBtn: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#057642',
+    paddingVertical: 14,
+    borderRadius: 14,
+    marginBottom: 10,
+    shadowColor: '#057642',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  successShareToFeedBtnText: {
+    fontSize: 13.5,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    textAlign: 'center',
   },
   successTrackerBtn: {
     width: '100%',
@@ -4024,6 +4274,175 @@ const getStyles = (theme, isDarkMode) => StyleSheet.create({
   mobileSecondaryBold: {
     fontWeight: '800',
     color: isDarkMode ? '#D4AF37' : '#0F2C59',
+  },
+
+  // LinkedIn Job Interest Post Modal Styles
+  shareInterestOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+  },
+  shareInterestContent: {
+    width: '100%',
+    maxWidth: 540,
+    maxHeight: '85%',
+    borderRadius: 20,
+    borderWidth: 1,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  shareInterestHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+  },
+  shareInterestIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#DCFCE7',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  shareInterestTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  shareInterestSub: {
+    fontSize: 12,
+  },
+  shareInterestCloseBtn: {
+    padding: 4,
+  },
+  shareInterestUserAvatar: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: '#057642',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  shareInterestAvatarText: {
+    color: '#FFFFFF',
+    fontWeight: '800',
+    fontSize: 15,
+  },
+  shareInterestUserName: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  shareJobSnippetCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    marginBottom: 14,
+    gap: 10,
+  },
+  shareJobSnippetIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    backgroundColor: '#FEF3C7',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  shareJobSnippetTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  shareJobSnippetCompany: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+  shareJobSnippetBadge: {
+    backgroundColor: '#E2E8F0',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  shareJobSnippetBadgeText: {
+    fontSize: 10.5,
+    fontWeight: '600',
+    color: '#475569',
+  },
+  shareInputLabel: {
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+    marginBottom: 6,
+  },
+  shareInterestInput: {
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 12,
+    fontSize: 13.5,
+    minHeight: 120,
+    maxHeight: 200,
+    textAlignVertical: 'top',
+    lineHeight: 19,
+  },
+  shareTipsNotice: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: '#F0FDF4',
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
+    marginTop: 12,
+  },
+  shareTipsText: {
+    flex: 1,
+    fontSize: 11.5,
+    color: '#15803D',
+    lineHeight: 16,
+  },
+  shareModalActionRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 18,
+  },
+  shareCancelBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  shareCancelBtnText: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  shareSubmitBtn: {
+    flex: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#057642',
+    paddingVertical: 12,
+    borderRadius: 12,
+    shadowColor: '#057642',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  shareSubmitBtnText: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#FFFFFF',
   },
 });
 
