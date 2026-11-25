@@ -24,8 +24,13 @@ const validateEnv = () => {
     }
 
     // Optional / Service Warnings
-    if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
-        warnings.push('SMTP configuration incomplete (SMTP_HOST, SMTP_USER, SMTP_PASS). Outbound emails may fail.');
+    const hasGmailAppPass = Boolean(
+        process.env.GMAIL_APP_PASSWORD ||
+        process.env.EMAIL_PASS ||
+        (process.env.SMTP_PASS && !process.env.SMTP_PASS.startsWith('SG.'))
+    );
+    if (!hasGmailAppPass) {
+        warnings.push('Gmail SMTP configuration incomplete (set GMAIL_USER and GMAIL_APP_PASSWORD for smtp.gmail.com). Outbound OTP emails will fail.');
     }
 
     if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY) {

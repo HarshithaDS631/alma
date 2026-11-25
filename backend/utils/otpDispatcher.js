@@ -83,12 +83,18 @@ const dispatchOtp = async (identifier, channel = 'email') => {
     let channelResult = { success: true, message: `Verification code sent to ${maskedDestination}` };
 
     if (channel === 'email' || cleanIdentifier.includes('@')) {
-        try {
-            const emailRes = await sendOtpEmail(cleanIdentifier, otp);
-            console.log(`[OTP EMAIL DISPATCHED] -> ${cleanIdentifier} (Status: ${emailRes.success ? 'Delivered' : 'Simulated'})`);
-        } catch (emailErr) {
-            console.warn('[OTP EMAIL ERROR]:', emailErr.message);
+        const emailRes = await sendOtpEmail(cleanIdentifier, otp);
+        if (!emailRes.success) {
+            console.error(`[OTP EMAIL ERROR] -> ${cleanIdentifier}:`, emailRes.error);
+            const err = new Error(
+                emailRes.missingConfig
+                    ? 'Email OTP service requires GMAIL_APP_PASSWORD to be configured on the server.'
+                    : 'Unable to deliver verification email right now. Please try again shortly.'
+            );
+            err.statusCode = 503;
+            throw err;
         }
+        console.log(`[OTP EMAIL DISPATCHED] -> ${cleanIdentifier} (Delivered via smtp.gmail.com)`);
     } else if (channel === 'mobile') {
         // Mobile SMS Delivery (Twilio / SMS Gateway integration point)
         console.log(`[OTP SMS DISPATCHED] -> ${cleanIdentifier} | Code: ${otp}`);

@@ -124,15 +124,20 @@ exports.sendOtp = async (req, res) => {
 
         const emailClean = email.trim().toLowerCase();
 
-        // 1. Fast format & domain validation
-        const validation = await validateEmailFull(emailClean);
+        // 1 & 2. Run domain validation & DB connection concurrently for minimal latency
+        const [validation] = await Promise.all([
+            validateEmailFull(emailClean),
+            connectDB().catch((dbErr) => {
+                console.warn('[SEND OTP DB CONNECT WARN]:', dbErr.message);
+            })
+        ]);
+
         if (!validation.valid) {
             return res.status(400).json({ message: validation.message });
         }
 
-        // 2. Check duplicate user in DB if DB available
+        // Check duplicate user in DB if DB available
         try {
-            await connectDB();
             const existingUser = await User.findOne({ email: emailClean }).lean();
             if (existingUser) {
                 return res.status(400).json({ message: 'An account with this email address already exists.' });
@@ -145,7 +150,7 @@ exports.sendOtp = async (req, res) => {
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         setMemoryOtp(emailClean, otp);
 
-        // 4. Send email AND save OTP concurrently
+        // 4. Send email via smtp.gmail.com AND save OTP concurrently
         const [emailResult] = await Promise.all([
             sendOtpEmail(emailClean, otp),
             (async () => {
@@ -159,9 +164,11 @@ exports.sendOtp = async (req, res) => {
         ]);
 
         if (!emailResult.success) {
-            console.warn(`[OTP EMAIL WARN] ${emailClean}:`, emailResult.error);
-            return res.json({ 
-                message: '6-digit verification code generated and sent to your email.'
+            console.error(`[OTP EMAIL ERROR] ${emailClean}:`, emailResult.error);
+            return res.status(503).json({
+                message: emailResult.missingConfig
+                    ? 'Email OTP service requires GMAIL_APP_PASSWORD to be configured on the server.'
+                    : 'Unable to deliver OTP email right now. Please verify SMTP settings or try again shortly.'
             });
         }
 
@@ -250,8 +257,11 @@ exports.registerUser = async (req, res) => {
             return res.status(400).json({ message: 'An account with this email already exists. Please log in.' });
         }
 
-        // 2. Verify OTP if provided
-        if (!isSocialAuth && otpClean) {
+        // 2. Verify OTP for local email registrations
+        if (!isSocialAuth) {
+            if (!otpClean) {
+                return res.status(400).json({ message: 'Please verify your email address with the 6-digit OTP code before registering.' });
+            }
             let validOtp = false;
             try {
                 const dbOtp = await OTP.findOne({ email: emailClean, otp: otpClean });
@@ -259,6 +269,9 @@ exports.registerUser = async (req, res) => {
             } catch (e) {}
             if (!validOtp && getMemoryOtp(emailClean, otpClean)) {
                 validOtp = true;
+            }
+            if (!validOtp) {
+                return res.status(400).json({ message: 'Invalid or expired OTP code. Please request a new OTP.' });
             }
         }
 

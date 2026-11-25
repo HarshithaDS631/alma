@@ -159,6 +159,13 @@ const RegisterScreen = ({ navigation, route }) => {
       return;
     }
 
+    const isSocialAuth = ['google', 'linkedin', 'facebook', 'apple'].includes(authProvider);
+    if (!isSocialAuth && !otpVerified) {
+      setOtpError('Please tap "Send OTP" and verify the 6-digit code sent to your email.');
+      alert('Please verify your email address with the 6-digit OTP code before creating your account.');
+      return;
+    }
+
     const pwdCheck = validatePassword(password);
     if (!pwdCheck.valid) {
       alert(pwdCheck.reason || pwdCheck.message);

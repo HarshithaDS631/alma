@@ -1,7 +1,7 @@
 import api from './api';
 
 export const register = async (userData) => {
-    const { data } = await api.post('/auth/register', userData);
+    const { data } = await api.post('/auth/register', userData, { timeout: 15000 });
     return data;
 };
 
@@ -26,17 +26,17 @@ export const checkEmailExists = async (email) => {
 };
 
 export const sendOtp = async (email) => {
-    const { data } = await api.post('/auth/send-otp', { email });
+    const { data } = await api.post('/auth/send-otp', { email }, { timeout: 15000 });
     return data;
 };
 
 export const verifyOtp = async (email, otp) => {
-    const { data } = await api.post('/auth/verify-otp', { email, otp });
+    const { data } = await api.post('/auth/verify-otp', { email, otp }, { timeout: 12000 });
     return data;
 };
 
 export const sendLoginOtp = async (identifier, channel = 'email') => {
-    const { data } = await api.post('/auth/send-login-otp', { identifier, channel });
+    const { data } = await api.post('/auth/send-login-otp', { identifier, channel }, { timeout: 15000 });
     return data;
 };
 
@@ -61,7 +61,7 @@ export const changePassword = async (passwordData) => {
 };
 
 export const forgotPassword = async (email) => {
-    const { data } = await api.post('/auth/forgot-password', { email });
+    const { data } = await api.post('/auth/forgot-password', { email }, { timeout: 15000 });
     return data;
 };
 

@@ -1,13 +1,154 @@
 const nodemailer = require('nodemailer');
-const https = require('https');
+
+// ─── Shared Gmail SMTP Transport Resolver (smtp.gmail.com) ───────────────────
+let cachedTransporter = null;
+let cachedTransportKey = '';
+
+const resolveSmtpConfig = () => {
+    const rawHost = (process.env.SMTP_HOST || '').trim();
+    const host = rawHost && rawHost !== 'smtp.sendgrid.net' ? rawHost : 'smtp.gmail.com';
+
+    const rawUser = (
+        process.env.GMAIL_USER ||
+        process.env.EMAIL_USER ||
+        (process.env.SMTP_USER && process.env.SMTP_USER !== 'apikey' ? process.env.SMTP_USER : '') ||
+        process.env.SENDGRID_FROM_EMAIL ||
+        'rvmediadevelopers@gmail.com'
+    ).trim();
+
+    const rawPass = (
+        process.env.GMAIL_APP_PASSWORD ||
+        process.env.EMAIL_PASS ||
+        (process.env.SMTP_PASS && !process.env.SMTP_PASS.startsWith('SG.') ? process.env.SMTP_PASS : '') ||
+        ''
+    ).replace(/\s+/g, '');
+
+    const rawPort = parseInt(process.env.SMTP_PORT || '465', 10);
+    // If SMTP_HOST was previously smtp.sendgrid.net with 587, prefer 465 SSL on smtp.gmail.com for 1-RTT speed
+    const port = rawHost === 'smtp.sendgrid.net' ? 465 : (Number.isNaN(rawPort) ? 465 : rawPort);
+
+    return { host, port, user: rawUser, pass: rawPass };
+};
+
+const getGmailTransporter = (overridePort = null) => {
+    const { host, port: defaultPort, user, pass } = resolveSmtpConfig();
+    const port = overridePort || defaultPort;
+    const secure = port === 465;
+    const key = `${host}:${port}:${user}:${pass.slice(0, 4)}_${pass.length}`;
+
+    if (!overridePort && cachedTransporter && cachedTransportKey === key) {
+        return cachedTransporter;
+    }
+
+    const transporter = nodemailer.createTransport({
+        host,
+        port,
+        secure,
+        auth: { user, pass },
+        connectionTimeout: 8000,
+        greetingTimeout: 8000,
+        socketTimeout: 12000,
+    });
+
+    if (!overridePort) {
+        cachedTransporter = transporter;
+        cachedTransportKey = key;
+    }
+    return transporter;
+};
+
+/**
+ * Unified Email Delivery via smtp.gmail.com (Primary) with optional SendGrid fallback
+ */
+const deliverEmail = async ({ to, toName = '', subject, text = '', html, fromName = 'Alumni Network', replyTo }) => {
+    const { host, port, user, pass } = resolveSmtpConfig();
+
+    // 1. Primary: Gmail SMTP (smtp.gmail.com)
+    if (user && pass) {
+        const mailOptions = {
+            from: `"${fromName}" <${user}>`,
+            to: toName ? `"${toName}" <${to}>` : to,
+            subject,
+            text: text || undefined,
+            html,
+            ...(replyTo ? { replyTo } : {}),
+        };
+
+        try {
+            const transporter = getGmailTransporter();
+            await transporter.sendMail(mailOptions);
+            console.log(`[GMAIL SMTP OK] (${host}:${port}) Sent "${subject}" -> ${to}`);
+            return { success: true, provider: 'gmail-smtp' };
+        } catch (primaryErr) {
+            console.warn(`[GMAIL SMTP WARN] (${host}:${port}) failed: ${primaryErr.message}`);
+            // If authentication failed (535 / EAUTH), do not retry another port
+            const isAuthErr = primaryErr.code === 'EAUTH' || primaryErr.responseCode === 535;
+            if (!isAuthErr && host === 'smtp.gmail.com') {
+                const fallbackPort = port === 465 ? 587 : 465;
+                try {
+                    const altTransporter = getGmailTransporter(fallbackPort);
+                    await altTransporter.sendMail(mailOptions);
+                    console.log(`[GMAIL SMTP FALLBACK PORT OK] (${host}:${fallbackPort}) Sent "${subject}" -> ${to}`);
+                    return { success: true, provider: 'gmail-smtp' };
+                } catch (altErr) {
+                    console.error(`[GMAIL SMTP ERROR] (${host}:${fallbackPort}):`, altErr.message);
+                    return { success: false, error: altErr.message };
+                }
+            }
+            return { success: false, error: primaryErr.message };
+        }
+    }
+
+    // 2. Secondary Fallback: SendGrid REST API (only if Gmail App Password is not configured)
+    const sgKey = process.env.SENDGRID_API_KEY;
+    if (sgKey && sgKey.startsWith('SG.')) {
+        try {
+            const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${sgKey}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    personalizations: [{ to: [{ email: to, ...(toName ? { name: toName } : {}) }] }],
+                    from: { email: user, name: fromName },
+                    subject,
+                    content: [
+                        ...(text ? [{ type: 'text/plain', value: text }] : []),
+                        { type: 'text/html', value: html },
+                    ],
+                }),
+            });
+
+            if (response.status >= 200 && response.status < 300) {
+                console.log(`[SENDGRID FALLBACK OK] Sent "${subject}" -> ${to}`);
+                return { success: true, provider: 'sendgrid' };
+            }
+            const errBody = await response.text();
+            console.error(`[SENDGRID FALLBACK ERROR] Status ${response.status}:`, errBody);
+            return {
+                success: false,
+                missingConfig: true,
+                error: `Gmail App Password (GMAIL_APP_PASSWORD) is not configured, and SendGrid returned ${response.status}.`,
+            };
+        } catch (sgErr) {
+            return { success: false, missingConfig: true, error: sgErr.message };
+        }
+    }
+
+    console.error('[EMAIL CONFIG MISSING] Set GMAIL_USER and GMAIL_APP_PASSWORD for smtp.gmail.com delivery.');
+    return {
+        success: false,
+        missingConfig: true,
+        error: 'SMTP credentials missing: set GMAIL_USER and GMAIL_APP_PASSWORD for smtp.gmail.com.',
+    };
+};
 
 // ─── Welcome Email ───────────────────────────────────────────────────────────
 const sendWelcomeEmail = async (userEmail, userName, institution = 'Alumni Network', isApproved = false) => {
     const instName = institution || 'Alumni Network';
-    const apiKey = process.env.SENDGRID_API_KEY;
-    const fromEmail = process.env.SENDGRID_FROM_EMAIL || 'rvmediadevelopers@gmail.com';
 
-    const subject = isApproved 
+    const subject = isApproved
         ? `Welcome to ${instName} — Your Alumni Account is Approved!`
         : `Welcome to ${instName}!`;
 
@@ -50,104 +191,38 @@ const sendWelcomeEmail = async (userEmail, userName, institution = 'Alumni Netwo
         </div>
     `;
 
-    // Try SendGrid REST API first
-    if (apiKey) {
-        try {
-            const payload = JSON.stringify({
-                personalizations: [{ to: [{ email: userEmail, name: userName }] }],
-                from: { email: fromEmail, name: `${instName}` },
-                subject,
-                content: [
-                    { type: 'text/plain', value: `Hi ${userName}, ${isApproved ? 'Your account has been approved!' : 'Welcome to ' + instName}` },
-                    { type: 'text/html', value: htmlTemplate },
-                ],
-            });
-
-            await new Promise((resolve, reject) => {
-                const req = https.request({
-                    hostname: 'api.sendgrid.com',
-                    port: 443,
-                    path: '/v3/mail/send',
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${apiKey}`,
-                        'Content-Type': 'application/json',
-                        'Content-Length': Buffer.byteLength(payload),
-                    },
-                }, (res) => {
-                    let resBody = '';
-                    res.on('data', (d) => { resBody += d; });
-                    res.on('end', () => {
-                        if (res.statusCode >= 200 && res.statusCode < 300) {
-                            resolve();
-                        } else {
-                            reject(new Error(`SendGrid API error (${res.statusCode}): ${resBody}`));
-                        }
-                    });
-                });
-                req.on('error', reject);
-                req.write(payload);
-                req.end();
-            });
-
-            console.log(`[WELCOME EMAIL SENT via SendGrid API] -> ${userEmail}`);
-            return true;
-        } catch (apiErr) {
-            console.warn('[WELCOME EMAIL SendGrid API failed, falling back to SMTP]:', apiErr.message);
-        }
-    }
-
-    // Fallback to nodemailer transporter
-    try {
-        const transporter = nodemailer.createTransport({
-            host: process.env.SMTP_HOST || 'smtp.sendgrid.net',
-            port: parseInt(process.env.SMTP_PORT || '587', 10),
-            secure: false,
-            auth: {
-                user: 'apikey',
-                pass: process.env.SENDGRID_API_KEY,
-            },
-        });
-
-        await transporter.sendMail({
-            from: process.env.SMTP_FROM || `"${instName}" <${fromEmail}>`,
-            to: userEmail,
-            subject,
-            html: htmlTemplate,
-        });
-
-        console.log(`[WELCOME EMAIL SENT via SMTP] -> ${userEmail}`);
-        return true;
-    } catch (smtpErr) {
-        console.error('[WELCOME EMAIL SMTP ERROR]:', smtpErr.message);
-        return false;
-    }
+    const res = await deliverEmail({
+        to: userEmail,
+        toName: userName,
+        subject,
+        text: `Hi ${userName}, ${isApproved ? 'Your account has been approved!' : 'Welcome to ' + instName}`,
+        html: htmlTemplate,
+        fromName: instName,
+    });
+    return res.success;
 };
 
-// ─── OTP Email via SendGrid REST API (fastest path) ──────────────────────────
+// ─── OTP Email via smtp.gmail.com ────────────────────────────────────────────
 const sendOtpEmail = async (userEmail, otp) => {
-    const apiKey = process.env.SENDGRID_API_KEY;
-    const fromEmail = process.env.SENDGRID_FROM_EMAIL || 'rvmediadevelopers@gmail.com';
-
-    const plainText = `Your Alumni Network verification code is: ${otp}\n\nThis code expires in 5 minutes. Do not share it with anyone.`;
+    const plainText = `Your Alumni Network verification code is: ${otp}\n\nThis code expires in 10 minutes. Do not share it with anyone.`;
 
     const html = `
         <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; border: 1px solid #E2E8F0; border-radius: 10px; overflow: hidden;">
-            <div style="background-color: #003366; padding: 22px; text-align: center;">
+            <div style="background-color: #0F2C59; padding: 22px; text-align: center;">
                 <h1 style="color: #FFFFFF; margin: 0; font-size: 20px; font-weight: 700;">Email Verification</h1>
             </div>
             <div style="padding: 32px 28px; background-color: #FFFFFF;">
                 <p style="font-size: 15px; color: #334155; margin-top: 0;">Hello,</p>
                 <p style="font-size: 15px; color: #334155; line-height: 1.6;">
-                    Use the code below to verify your email for Alumni Network registration:
+                    Use the 6-digit verification code below to verify your email for Alumni Network:
                 </p>
                 <div style="text-align: center; margin: 28px 0;">
-                    <div style="background-color: #F1F5F9; color: #003366; padding: 16px 32px; border-radius: 8px; font-weight: bold; font-size: 34px; letter-spacing: 8px; border: 2px solid #CBD5E1; display: inline-block;">
+                    <div style="background-color: #F1F5F9; color: #0F2C59; padding: 16px 32px; border-radius: 8px; font-weight: bold; font-size: 34px; letter-spacing: 8px; border: 2px solid #CBD5E1; display: inline-block;">
                         ${otp}
                     </div>
                 </div>
                 <p style="font-size: 13px; color: #64748B; text-align: center; margin-bottom: 0;">
-                    This code expires in <strong>5 minutes</strong>. If you did not request this, ignore this email.
+                    This code expires in <strong>10 minutes</strong>. If you did not request this, please ignore this email.
                 </p>
             </div>
             <div style="background-color: #F8FAFC; padding: 14px; text-align: center; border-top: 1px solid #E2E8F0;">
@@ -156,78 +231,22 @@ const sendOtpEmail = async (userEmail, otp) => {
         </div>
     `;
 
-    // Primary: SendGrid REST API (fastest, no SMTP handshake)
-    if (apiKey && apiKey.startsWith('SG.')) {
-        try {
-            const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    personalizations: [{ to: [{ email: userEmail }] }],
-                    from: { email: fromEmail, name: 'Alumni Network' },
-                    subject: 'Your Verification Code - Alumni Network',
-                    content: [
-                        { type: 'text/plain', value: plainText },
-                        { type: 'text/html', value: html }
-                    ]
-                })
-            });
-
-            if (response.status >= 200 && response.status < 300) {
-                console.log(`[SENDGRID OK] OTP sent to ${userEmail} — status ${response.status}`);
-                return { success: true };
-            }
-
-            const errBody = await response.text();
-            console.error(`[SENDGRID ERROR] Status ${response.status}:`, errBody);
-            // Fall through to SMTP fallback
-        } catch (fetchErr) {
-            console.error('[SENDGRID FETCH ERROR]:', fetchErr.message);
-            // Fall through to SMTP fallback
-        }
-    }
-
-    // Fallback: SMTP via SendGrid (same credentials, SMTP protocol)
-    try {
-        const transporter = nodemailer.createTransport({
-            host: 'smtp.sendgrid.net',
-            port: 587,
-            secure: false,
-            auth: { user: 'apikey', pass: apiKey },
-            connectionTimeout: 6000,
-            greetingTimeout: 6000,
-            socketTimeout: 10000
-        });
-
-        await transporter.sendMail({
-            from: `"Alumni Network" <${fromEmail}>`,
-            to: userEmail,
-            subject: 'Your Verification Code - Alumni Network',
-            text: plainText,
-            html
-        });
-
-        console.log(`[SMTP FALLBACK OK] OTP sent to ${userEmail}`);
-        return { success: true };
-    } catch (smtpErr) {
-        console.error('[SMTP FALLBACK ERROR]:', smtpErr.message);
-        return { success: false, error: smtpErr.message };
-    }
+    return deliverEmail({
+        to: userEmail,
+        subject: `${otp} is your Alumni Network verification code`,
+        text: plainText,
+        html,
+        fromName: 'Alumni Network',
+    });
 };
 
 // ─── Password Reset Email ───────────────────────────────────────────────────
 const sendPasswordResetEmail = async (userEmail, resetUrl, resetToken) => {
-    const apiKey = process.env.SENDGRID_API_KEY;
-    const fromEmail = process.env.SENDGRID_FROM_EMAIL || 'rvmediadevelopers@gmail.com';
-
     const plainText = `Password Reset Request\n\nYou requested a password reset for your Alumni Network account.\nPlease use the following reset code or link to reset your password:\n\nReset Token Code: ${resetToken}\n\nReset Link: ${resetUrl}\n\nIf you did not request a password reset, please ignore this email.`;
 
     const html = `
         <div style="font-family: Arial, sans-serif; max-width: 580px; margin: 0 auto; border: 1px solid #E2E8F0; border-radius: 10px; overflow: hidden; background-color: #FFFFFF;">
-            <div style="background-color: #003366; padding: 24px; text-align: center;">
+            <div style="background-color: #0F2C59; padding: 24px; text-align: center;">
                 <h1 style="color: #FFFFFF; margin: 0; font-size: 22px; font-weight: 700;">Password Reset Request</h1>
             </div>
             <div style="padding: 32px 24px; background-color: #FFFFFF;">
@@ -235,19 +254,16 @@ const sendPasswordResetEmail = async (userEmail, resetUrl, resetToken) => {
                 <p style="font-size: 15px; color: #334155; line-height: 1.6;">
                     We received a request to reset the password for your Alumni Network account. Use the token code below or click the link to set a new password:
                 </p>
-                
                 <div style="text-align: center; margin: 24px 0;">
-                    <div style="background-color: #F1F5F9; color: #003366; padding: 14px 28px; border-radius: 8px; font-weight: bold; font-size: 24px; letter-spacing: 3px; border: 1px solid #CBD5E1; display: inline-block;">
+                    <div style="background-color: #F1F5F9; color: #0F2C59; padding: 14px 28px; border-radius: 8px; font-weight: bold; font-size: 24px; letter-spacing: 3px; border: 1px solid #CBD5E1; display: inline-block;">
                         ${resetToken}
                     </div>
                 </div>
-
                 <div style="text-align: center; margin: 28px 0;">
-                    <a href="${resetUrl}" style="background-color: #003366; color: #FFFFFF; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">
+                    <a href="${resetUrl}" style="background-color: #0F2C59; color: #FFFFFF; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">
                         Reset Your Password
                     </a>
                 </div>
-
                 <p style="font-size: 13px; color: #64748B; text-align: center; margin-bottom: 0;">
                     This link and code will expire in <strong>10 minutes</strong>. If you did not request a password reset, please ignore this email.
                 </p>
@@ -258,43 +274,17 @@ const sendPasswordResetEmail = async (userEmail, resetUrl, resetToken) => {
         </div>
     `;
 
-    if (apiKey && apiKey.startsWith('SG.')) {
-        try {
-            const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    personalizations: [{ to: [{ email: userEmail }] }],
-                    from: { email: fromEmail, name: 'Alumni Network Security' },
-                    subject: 'Password Reset Request - Alumni Network',
-                    content: [
-                        { type: 'text/plain', value: plainText },
-                        { type: 'text/html', value: html }
-                    ]
-                })
-            });
-
-            if (response.status >= 200 && response.status < 300) {
-                console.log(`[PASSWORD RESET EMAIL OK] Sent to ${userEmail}`);
-                return { success: true };
-            }
-            const errText = await response.text();
-            console.error('[PASSWORD RESET SENDGRID ERROR]:', errText);
-        } catch (e) {
-            console.error('[PASSWORD RESET FETCH ERROR]:', e.message);
-        }
-    }
-
-    return { success: false };
+    return deliverEmail({
+        to: userEmail,
+        subject: 'Password Reset Request - Alumni Network',
+        text: plainText,
+        html,
+        fromName: 'Alumni Network Security',
+    });
 };
 
 // ─── Share Candidate Resume Email ──────────────────────────────────────────
 const sendCandidateResumeEmail = async ({ recipientEmail, candidate, adminName, adminInstitution, customMessage, subject }) => {
-    const apiKey = process.env.SENDGRID_API_KEY;
-    const fromEmail = process.env.SENDGRID_FROM_EMAIL || 'rvmediadevelopers@gmail.com';
     const emailSubject = subject || `Candidate Profile & Resume: ${candidate.name} (${candidate.institution || adminInstitution || 'Alumni'})`;
 
     const skillsHtml = (candidate.skills && candidate.skills.length > 0)
@@ -321,7 +311,6 @@ const sendCandidateResumeEmail = async ({ recipientEmail, candidate, adminName, 
                 </div>
                 ` : ''}
 
-                <!-- Candidate Profile Summary Card -->
                 <div style="background-color: #FFFFFF; border: 1px solid #CBD5E1; border-radius: 12px; padding: 20px; margin: 22px 0;">
                     <h2 style="margin: 0 0 4px 0; font-size: 18px; color: #002144; font-weight: 700;">${candidate.name}</h2>
                     <p style="margin: 0 0 14px 0; font-size: 14px; color: #64748B; font-weight: 500;">
@@ -365,7 +354,6 @@ const sendCandidateResumeEmail = async ({ recipientEmail, candidate, adminName, 
                     </div>
                 </div>
 
-                <!-- Action Button -->
                 ${candidate.resumeUrl ? `
                 <div style="text-align: center; margin: 28px 0;">
                     <a href="${candidate.resumeUrl}" target="_blank" style="background-color: #003366; color: #FFFFFF; padding: 14px 32px; border-radius: 10px; font-weight: 700; text-decoration: none; display: inline-block; font-size: 15px; box-shadow: 0 4px 12px rgba(0,51,102,0.25);">
@@ -391,61 +379,13 @@ const sendCandidateResumeEmail = async ({ recipientEmail, candidate, adminName, 
         </div>
     `;
 
-    if (apiKey && apiKey.startsWith('SG.')) {
-        try {
-            const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    personalizations: [{ to: [{ email: recipientEmail }] }],
-                    from: { email: fromEmail, name: `${adminInstitution || 'Alumni'} Placement Desk` },
-                    subject: emailSubject,
-                    content: [
-                        { type: 'text/plain', value: `Candidate Profile: ${candidate.name}\nInstitution: ${candidate.institution}\nEmail: ${candidate.email}\nResume URL: ${candidate.resumeUrl || 'N/A'}` },
-                        { type: 'text/html', value: html }
-                    ]
-                })
-            });
-
-            if (response.status >= 200 && response.status < 300) {
-                console.log(`[RESUME SHARE EMAIL OK] Sent to ${recipientEmail}`);
-                return { success: true };
-            }
-            const errText = await response.text();
-            console.error('[RESUME SHARE SENDGRID ERROR]:', errText);
-        } catch (e) {
-            console.error('[RESUME SHARE FETCH ERROR]:', e.message);
-        }
-    }
-
-    // Nodemailer fallback
-    try {
-        const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
-        const smtpUser = process.env.SMTP_USER || process.env.EMAIL_USER;
-        const smtpPass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
-        if (smtpUser && smtpPass) {
-            const transporter = nodemailer.createTransport({
-                host: smtpHost,
-                port: Number(process.env.SMTP_PORT) || 587,
-                secure: false,
-                auth: { user: smtpUser, pass: smtpPass }
-            });
-            await transporter.sendMail({
-                from: `"${adminInstitution || 'Alumni'} Placement Desk" <${smtpUser}>`,
-                to: recipientEmail,
-                subject: emailSubject,
-                html
-            });
-            return { success: true };
-        }
-    } catch (e) {
-        console.error('[RESUME SHARE NODEMAILER ERROR]:', e.message);
-    }
-
-    return { success: true, simulated: true };
+    return deliverEmail({
+        to: recipientEmail,
+        subject: emailSubject,
+        text: `Candidate Profile: ${candidate.name}\nInstitution: ${candidate.institution}\nEmail: ${candidate.email}\nResume URL: ${candidate.resumeUrl || 'N/A'}`,
+        html,
+        fromName: `${adminInstitution || 'Alumni'} Placement Desk`,
+    });
 };
 
 // ─── Generic HTML email (Mass Mail broadcasts / custom welcome templates) ────
@@ -466,68 +406,23 @@ const buildPlainTemplateHtml = (institution, bodyText) => `
     </div>`;
 
 const sendGenericEmail = async ({ to, toName = '', subject, text, institution = 'Alumni Network' }) => {
-    const apiKey = process.env.SENDGRID_API_KEY;
-    const fromEmail = process.env.SENDGRID_FROM_EMAIL || 'rvmediadevelopers@gmail.com';
     const html = buildPlainTemplateHtml(institution, text);
-
-    if (apiKey) {
-        try {
-            const payload = JSON.stringify({
-                personalizations: [{ to: [{ email: to, name: toName || to }] }],
-                from: { email: fromEmail, name: institution },
-                subject,
-                content: [
-                    { type: 'text/plain', value: text },
-                    { type: 'text/html', value: html },
-                ],
-            });
-            await new Promise((resolve, reject) => {
-                const req = https.request({
-                    hostname: 'api.sendgrid.com',
-                    port: 443,
-                    path: '/v3/mail/send',
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${apiKey}`,
-                        'Content-Type': 'application/json',
-                        'Content-Length': Buffer.byteLength(payload),
-                    },
-                }, (res) => {
-                    let body = '';
-                    res.on('data', (d) => { body += d; });
-                    res.on('end', () => (res.statusCode >= 200 && res.statusCode < 300)
-                        ? resolve()
-                        : reject(new Error(`SendGrid API error (${res.statusCode}): ${body}`)));
-                });
-                req.on('error', reject);
-                req.write(payload);
-                req.end();
-            });
-            return true;
-        } catch (apiErr) {
-            console.warn('[GENERIC EMAIL SendGrid failed, falling back to SMTP]:', apiErr.message);
-        }
-    }
-
-    try {
-        const transporter = nodemailer.createTransport({
-            host: process.env.SMTP_HOST || 'smtp.sendgrid.net',
-            port: parseInt(process.env.SMTP_PORT || '587', 10),
-            secure: false,
-            auth: { user: 'apikey', pass: process.env.SENDGRID_API_KEY },
-        });
-        await transporter.sendMail({
-            from: process.env.SMTP_FROM || `"${institution}" <${fromEmail}>`,
-            to,
-            subject,
-            text,
-            html,
-        });
-        return true;
-    } catch (smtpErr) {
-        console.error('[GENERIC EMAIL SMTP ERROR]:', smtpErr.message);
-        return false;
-    }
+    const res = await deliverEmail({
+        to,
+        toName,
+        subject,
+        text,
+        html,
+        fromName: institution,
+    });
+    return res.success;
 };
 
-module.exports = { sendWelcomeEmail, sendOtpEmail, sendPasswordResetEmail, sendCandidateResumeEmail, sendGenericEmail };
+module.exports = {
+    sendWelcomeEmail,
+    sendOtpEmail,
+    sendPasswordResetEmail,
+    sendCandidateResumeEmail,
+    sendGenericEmail,
+    resolveSmtpConfig,
+};
